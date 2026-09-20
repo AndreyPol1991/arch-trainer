@@ -1,0 +1,42 @@
+<script>
+/* ---------- вкладки ---------- */
+(function(){
+  const tabs = $$('.tab');
+  function activate(id){
+    tabs.forEach(t => t.setAttribute('aria-selected', t.dataset.tab === id));
+    $$('.panel').forEach(p => p.classList.toggle('active', p.id === id));
+    const t = tabs.find(x => x.dataset.tab === id);
+    if(t) t.scrollIntoView({block:'nearest', inline:'nearest'});
+    window.scrollTo({top:0, behavior:'instant'});
+    try { location.hash = id; } catch(e){}
+  }
+  tabs.forEach(t => t.addEventListener('click', () => activate(t.dataset.tab)));
+  document.addEventListener('keydown', e => {
+    if(e.target.matches('input, textarea, select')) return;
+    if(e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+    const cur = tabs.findIndex(t => t.getAttribute('aria-selected') === 'true');
+    const nxt = clamp(cur + (e.key === 'ArrowRight' ? 1 : -1), 0, tabs.length - 1);
+    if(nxt !== cur) activate(tabs[nxt].dataset.tab);
+  });
+  const h = (location.hash || '').slice(1);
+  if(h && tabs.some(t => t.dataset.tab === h)) activate(h);
+})();
+
+/* ---------- тема ---------- */
+(function(){
+  const KEY = 'arch-theme';
+  const root = document.documentElement;
+  try { const s = localStorage.getItem(KEY); if(s) root.setAttribute('data-theme', s); } catch(e){}
+  $('#theme').addEventListener('click', () => {
+    const cur = root.getAttribute('data-theme');
+    const isDark = cur ? cur === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+    const next = isDark ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    try { localStorage.setItem(KEY, next); } catch(e){}
+  });
+})();
+
+Progress.draw();
+</script>
+</body>
+</html>

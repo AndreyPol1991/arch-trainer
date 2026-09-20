@@ -1,0 +1,21 @@
+const fs=require('fs'),vm=require('vm');
+const html=fs.readFileSync('index.html','utf8');
+const blocks=[...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m=>m[1]);
+console.log('script blocks:',blocks.length);
+let bad=0;
+blocks.forEach((b,i)=>{ try{ new vm.Script(b,{filename:'block'+i+'.js'}); }catch(e){ bad++; console.log('SYNTAX ERROR in block',i,'->',e.message); const ln=(e.stack.match(/block\d+\.js:(\d+)/)||[])[1]; if(ln) console.log('  line:',b.split('\n')[ln-1]); } });
+// ids referenced vs defined
+const ids=new Set([...html.matchAll(/\sid="([^"]+)"/g)].map(m=>m[1]));
+const refs=new Set([...html.matchAll(/(?:getElementById\(|\$\(')#?['"]?([a-zA-Z][\w-]*)/g)].map(m=>m[1]));
+const miss=[...refs].filter(r=>!ids.has(r));
+const tabs=[...html.matchAll(/data-tab="([^"]+)"/g)].map(m=>m[1]);
+const panels=[...html.matchAll(/<section class="panel[^"]*" id="([^"]+)"/g)].map(m=>m[1]);
+const noPanel=tabs.filter(t=>!panels.includes(t));
+const noTab=panels.filter(p=>!tabs.includes(p));
+const gotos=[...html.matchAll(/data-goto="([^"]+)"/g)].map(m=>m[1]).filter(g=>!panels.includes(g));
+console.log('tabs:',tabs.length,'panels:',panels.length);
+if(noPanel.length) console.log('TAB WITHOUT PANEL:',noPanel);
+if(noTab.length) console.log('PANEL WITHOUT TAB:',noTab);
+if(gotos.length) console.log('BROKEN data-goto:',gotos);
+if(miss.length) console.log('possibly missing ids:',miss.slice(0,40));
+console.log(bad?'SYNTAX FAIL':'syntax ok');
