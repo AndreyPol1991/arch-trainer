@@ -10090,15 +10090,132 @@ public void placeOrder(Order o) {
 </script>
 <!-- ==================== 14. CQRS И EVENT SOURCING ==================== -->
 <section class="panel" id="cqrs" data-accent="dt" role="tabpanel">
-  <p class="lead"><b>Писать и читать — разные задачи.</b> При записи важны правила и порядок. При чтении — быстро отдать готовый экран. Одна модель делает и то и другое плохо. CQRS — это просто «сделаем две». Ни второй базы, ни событий для этого не обязательно.</p>
+  <p class="lead"><b>Этот раздел — одна история.</b> Анна пользуется интернет-магазином: оформляет заказы и смотрит список своих заказов. На её примере разберём, что такое CQRS, зачем он нужен и как устроен внутри. Идите по главам по порядку: каждая опирается на предыдущую.</p>
 
-  <div class="card">
-    <h2><span class="tag">зачем это</span> зачем нужен CQRS</h2>
-    <div id="why-cqrs"></div>
+  <div class="card" id="cqc-map">
+    <h2><span class="tag">карта раздела</span> куда мы идём</h2>
+    <div class="cqm-map" id="cqm-map">
+      <button data-jump="cqc-def"><b>1</b>Что такое CQRS за одну минуту</button>
+      <button data-jump="cqc-cq"><b>2</b>Команда или запрос</button>
+      <button data-jump="cqc-why1"><b>3</b>Почему одной модели мало</button>
+      <button data-jump="cqc-bake"><b>4</b>Пекарня: почувствуйте разницу</button>
+      <button data-jump="cqc-path"><b>5</b>Путь запроса изнутри</button>
+      <button data-jump="cqc-break"><b>6</b>Как одна модель ломается</button>
+      <button data-jump="cqc-lvls"><b>7</b>Три уровня CQRS</button>
+      <button data-jump="cqc-lvl"><b>8</b>Соберите схему сами</button>
+      <button data-jump="cqc-pick"><b>9</b>Какой уровень нужен</button>
+      <button data-jump="cqc-lag"><b>10</b>Витрина отстаёт</button>
+      <button data-jump="cqc-pm"><b>11</b>Честный баланс</button>
+      <button data-jump="cqc-es1"><b>12</b>Event sourcing</button>
+      <button data-jump="cqc-task"><b>13</b>Задание</button>
+    </div>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">с самого начала</span> что такое CQRS и какую боль он лечит</h2>
+  <div class="card" id="cqc-def">
+    <h2><span class="tag">глава 1 · определение</span> что такое CQRS за одну минуту</h2>
+    <p>Сначала одно слово, без которого дальше не понять ничего. <b>Модель</b> — это форма, в которой код держит данные: класс с полями и методами. Например, класс <code class="inl">Order</code> с полями «номер», «товары», «сумма», «статус» и методом «оформить».</p>
+    <div class="cqd-def"><b>CQRS</b> (Command Query Responsibility Segregation, «разделение команд и запросов») — это правило: код, который <b>меняет</b> данные, и код, который <b>показывает</b> данные, пишутся отдельно. У каждого своя модель: у записи — класс с правилами, у чтения — плоский класс ровно под экран.</div>
+    <p style="margin-top:14px">Звучит абстрактно, поэтому сразу посмотрим на живом примере. Анна делает в магазине две вещи. Выберите, как написан код, и нажмите на действие Анны. Сравните цифры внизу.</p>
+    <div class="seg" id="cqd-mode">
+      <button data-m="no" class="on">😵 Без CQRS: один класс Order на всё</button>
+      <button data-m="yes">✅ С CQRS: два разных класса</button>
+    </div>
+    <div class="form-row">
+      <button class="act" id="cqd-read">👁 Анна открывает «Мои заказы»</button>
+      <button class="act" id="cqd-write">✍️ Анна оформляет заказ</button>
+    </div>
+    <div id="cqd-out"></div>
+    <div class="note good" id="cqd-sum" style="display:none"></div>
+  </div>
+
+  <style>
+    .cqm-map{display:flex; flex-wrap:wrap; gap:7px}
+    .cqm-map button{appearance:none; border:1px solid var(--line); background:var(--surface-2); color:var(--ink); font:600 12.5px var(--sans); padding:7px 12px; border-radius:18px; cursor:pointer}
+    .cqm-map button:hover{border-color:var(--accent)}
+    .cqm-map button b{color:var(--accent); font-family:var(--mono); margin-right:6px}
+    .cqd-def{font-size:15.5px; line-height:1.55; border:2px solid var(--accent); border-radius:12px; padding:14px 16px; background:color-mix(in srgb, var(--accent) 7%, var(--surface)); color:var(--ink)}
+    .cqd-grid{display:grid; grid-template-columns:minmax(0,1.1fr) minmax(0,1fr); gap:12px; margin-top:12px}
+    @media (max-width:760px){.cqd-grid{grid-template-columns:1fr}}
+    .cqd-st{opacity:0; transform:translateY(5px); transition:opacity .3s, transform .3s}
+    .cqd-st.in{opacity:1; transform:none}
+    .cqd-h{font:700 13.5px var(--sans); margin:0 0 8px}
+    .cqp-wrap{overflow-x:auto; margin-top:12px; padding:6px 2px}
+    .cqp-grid{display:grid; grid-template-columns:repeat(4, minmax(94px,1fr) 26px) minmax(94px,1fr); gap:12px 0; min-width:660px; align-items:stretch}
+    .cqp-n{border:1.5px solid var(--line); border-radius:10px; padding:8px 7px; background:var(--surface-2); font:600 12px/1.3 var(--sans); text-align:center; cursor:pointer; transition:border-color .25s, box-shadow .25s, transform .25s, opacity .25s; display:flex; flex-direction:column; justify-content:center; color:var(--ink)}
+    .cqp-n small{display:block; font:500 10.5px var(--mono); color:var(--faint); margin-top:3px}
+    .cqp-n.past{border-color:var(--ok)}
+    .cqp-n.now{border-color:var(--accent); box-shadow:0 0 0 4px color-mix(in srgb, var(--accent) 22%, transparent); transform:scale(1.04)}
+    .cqp-n.fail{border-color:var(--danger); box-shadow:0 0 0 4px color-mix(in srgb, var(--danger) 20%, transparent)}
+    .cqp-n.off{opacity:.3}
+    .cqp-a{display:flex; align-items:center; justify-content:center; color:var(--faint); font:700 15px var(--mono); transition:color .25s}
+    .cqp-a.past{color:var(--ok)} .cqp-a.off{opacity:.3}
+    .cqp-d{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:12px; margin-top:12px}
+    @media (max-width:760px){.cqp-d{grid-template-columns:1fr}}
+    .cqp-t{margin-top:8px}
+    .cqp-tn{font:600 11.5px var(--mono); color:var(--faint); margin:0 0 3px}
+    .cqp-t .table-wrap{margin-top:0}
+    .cqp-t table.db{font-size:12px}
+    .cqp-t table.db th, .cqp-t table.db td{padding:5px 8px}
+    tr.cqp-new td{background:var(--ok-bg)}
+    tr.cqp-rd td{background:color-mix(in srgb, var(--accent) 13%, transparent)}
+    .cqp-chk{list-style:none; padding:0; margin:8px 0 0}
+    .cqp-chk li{padding:5px 0; border-bottom:1px dashed var(--line); font:500 12.5px var(--mono)}
+    .cqp-phone{border:1px solid var(--line); border-radius:16px; padding:10px 12px; max-width:320px; background:var(--surface); margin-top:8px}
+    .cqp-phone h5{margin:0 0 6px; font-size:13px}
+    .cqp-oi{display:flex; justify-content:space-between; gap:8px; border-bottom:1px dashed var(--line); padding:6px 0; font-size:12.5px}
+    .cqp-oi:last-child{border-bottom:0}
+    .cqp-oi .nw{color:var(--ok); font-weight:700}
+    .cql-lane{display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin:10px 0 4px}
+    .cql-lbl{font:600 11.5px var(--mono); color:var(--faint); width:100%}
+    .cql-n{border:1.5px solid var(--line); border-radius:9px; padding:6px 10px; font:600 12px var(--sans); background:var(--surface-2); color:var(--ink); transition:border-color .25s, box-shadow .25s}
+    .cql-n.new{border-style:dashed; border-color:var(--warn)}
+    .cql-n.hot{border-color:var(--accent); border-style:solid; box-shadow:0 0 0 4px color-mix(in srgb, var(--accent) 22%, transparent)}
+    .cql-n.done{border-color:var(--ok); border-style:solid}
+    .cql-n.miss{border-color:var(--danger); border-style:solid}
+    .cql-ar{color:var(--faint); font:700 13px var(--mono)}
+    .cql-leg{font-size:12px; color:var(--muted); margin-top:6px}
+    .cql-leg span{display:inline-block; width:14px; height:10px; border:1.5px dashed var(--warn); border-radius:3px; vertical-align:middle; margin-right:4px}
+    .cqf-stage{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:12px}
+    @media (max-width:700px){.cqf-stage{grid-template-columns:1fr}}
+    .cqf-stage .box{transition:opacity .2s, border-color .2s}
+    .cqf-cook{font:600 13px/1.45 var(--mono); padding:9px 11px; border-radius:8px; background:var(--surface); border:1px solid var(--line); color:var(--muted)}
+    .cqf-cook.r{border-color:var(--warn); color:var(--warn); background:color-mix(in srgb, var(--warn) 10%, var(--surface))}
+    .cqf-cook.w{border-color:var(--ms); color:var(--ms); background:color-mix(in srgb, var(--ms) 10%, var(--surface))}
+    .cqf-ql{font:600 11.5px var(--mono); color:var(--faint); margin-top:10px}
+    .cqf-row{display:flex; justify-content:space-between; gap:10px; font:500 13px var(--mono); padding:5px 0; border-bottom:1px dashed var(--line)}
+    .cqf-row:last-child{border-bottom:0}
+    .cqf-row b{font-variant-numeric:tabular-nums}
+    .cqf-tag{display:inline-block; margin-top:9px; font:600 11.5px var(--mono); padding:3px 9px; border-radius:12px; border:1px solid var(--line)}
+    .cqf-tag.ok{color:var(--ok); border-color:color-mix(in srgb, var(--ok) 45%, var(--line))}
+    .cqf-tag.lag{color:var(--warn); border-color:color-mix(in srgb, var(--warn) 45%, var(--line))}
+    .cqf-off{opacity:.5}
+    .cqf-off .cqf-rows{filter:grayscale(1)}
+    .cqf-rule{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:12px 0 14px}
+    @media (max-width:700px){.cqf-rule{grid-template-columns:1fr}}
+    .cqf-big{font:700 15px var(--sans); margin:2px 0 6px}
+  </style>
+
+  <div class="card" id="cqc-cq">
+    <h2><span class="tag">глава 2 · две половины</span> команда или запрос</h2>
+    <p>В первой главе мы разделили код Анны на две половины. У них есть имена, и от них CQRS получил свои буквы: <b>Command</b> — команда, <b>Query</b> — запрос.</p>
+    <p>Всё, что пользователь делает в системе, бывает двух видов. Отличить их можно одним вопросом: <b>изменится ли что-нибудь после этого действия?</b></p>
+    <div class="cqf-rule">
+      <div class="box">
+        <div class="cqf-big">✍️ Команда: «сделай»</div>
+        <p class="bs" style="margin:0">Меняет данные, поэтому сначала проверяет правила. Отвечает коротко: «готово» или «нельзя, потому что…». Если повторить команду, результат может получиться другим.</p>
+      </div>
+      <div class="box">
+        <div class="cqf-big">👁 Запрос: «покажи»</div>
+        <p class="bs" style="margin:0">Ничего не меняет и отдаёт готовый вид под экран. Можно повторять сколько угодно раз, мир от этого не изменится.</p>
+      </div>
+    </div>
+    <p>Разложите действия по корзинам. Решено <b id="cqf-score">0</b> из <span id="cqf-total">0</span>.</p>
+    <div id="cqf-sort"></div>
+    <div class="note good"><b>Это и есть CQRS целиком.</b> Команды идут через повара с правилами, запросы идут к витрине с готовыми ответами. В коде это значит: для команд доменные объекты, для запросов отдельные запросы сразу в DTO под экран. Одна база, никаких очередей.</div>
+  </div>
+
+  <div class="card" id="cqc-why1">
+    <h2><span class="tag">глава 3 · почему</span> почему одной модели мало</h2>
 
     <h3 style="margin:2px 0 6px;font-size:14px">Сначала расшифруем страшные буквы</h3>
     <pre class="json">  C Q R S
@@ -10125,8 +10242,72 @@ public void placeOrder(Order o) {
     <div id="cqw-out"></div>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">как это ломается</span> проследите, как одна модель превращается в проблему</h2>
+  <div class="card" id="cqc-bake">
+    <h2><span class="tag">глава 4 · почувствуйте</span> пекарня: одно окно или два</h2>
+    <p>Мы уже знаем определение и видели код. Теперь почувствуем, <b>почему</b> чтение и запись мешают друг другу, когда живут в одном месте. Уйдём от кода в жизнь.</p>
+    <p>В пекарне работает <b>повар</b>: он принимает заказы и следит за правилами (нельзя продать то, чего нет). Покупатели делают две вещи: <b>спрашивают</b> «что у вас есть?» и <b>покупают</b>. Спрашивают примерно в десять раз чаще, чем покупают.</p>
+    <p>Выберите, как устроена пекарня, и запустите утренний наплыв. Потом переключите режим и запустите ещё раз, чтобы сравнить.</p>
+    <div class="seg" id="cqf-mode">
+      <button data-m="one" class="on">🧑‍🍳 Одно окно: на всё отвечает повар</button>
+      <button data-m="cqrs">🪧 Два окна: повар + витрина (CQRS)</button>
+    </div>
+    <div class="cqf-stage" id="cqf-stage">
+      <div class="box" id="cqf-kbox">
+        <h4>👨‍🍳 Кухня: модель записи</h4>
+        <p class="bs">Меняет данные и проверяет правила. Работает медленно, зато правильно.</p>
+        <div class="cqf-cook" id="cqf-cook"></div>
+        <div class="cqf-ql" id="cqf-ql"></div>
+        <div class="cells" id="cqf-q"></div>
+      </div>
+      <div class="box" id="cqf-sbox">
+        <h4>🪧 Витрина: модель чтения</h4>
+        <p class="bs" id="cqf-sdesc"></p>
+        <div class="cqf-rows" id="cqf-board"></div>
+        <span class="cqf-tag" id="cqf-st"></span>
+      </div>
+    </div>
+    <div class="form-row">
+      <button class="ghost" id="cqf-ask">❓ «Что у вас есть?»</button>
+      <button class="ghost" id="cqf-buy">🧾 «Дайте круассан»</button>
+      <button class="act" id="cqf-rush">🔥 Утренний наплыв: 10 вопросов и 1 заказ</button>
+      <button class="ghost" id="cqf-reset">⟲ Сначала</button>
+    </div>
+    <div class="meters" id="cqf-m"></div>
+    <div class="console" id="cqf-msg"></div>
+    <div class="steps" id="cqf-log"></div>
+    <div id="cqf-cmp"></div>
+  </div>
+
+  <div class="card" id="cqc-sum">
+    <h2><span class="tag">промежуточный итог</span> что мы уже поняли</h2>
+    <p>Остановимся и соберём всё, что узнали в главах 1–4, в одну карточку. Дальше пойдём внутрь системы.</p>
+    <div id="why-cqrs"></div>
+  </div>
+
+  <div class="card" id="cqc-path">
+    <h2><span class="tag">глава 5 · изнутри</span> путь команды и путь запроса по системе</h2>
+    <p>Теперь проследим по шагам, через что проходит действие Анны внутри сервиса. Выберите сценарий и нажимайте «Дальше». Подсвеченный блок на схеме — то место, где сейчас находится запрос. Ниже видно, что там происходит, какой там код, что лежит в базе и <b>почему</b> сделано именно так.</p>
+    <p>База одна на оба пути. Это важно: CQRS первого уровня разделяет <b>код</b>, а не хранилища.</p>
+    <div class="seg" id="cqp-sc">
+      <button data-s="cmd" class="on">✍️ Команда: Анна оформляет заказ</button>
+      <button data-s="qry">👁 Запрос: Анна открывает «Мои заказы»</button>
+    </div>
+    <div class="seg" id="cqp-qty" style="margin-top:8px">
+      <button data-q="2" class="on">Заказать 2 круассана</button>
+      <button data-q="5">Заказать 5 (нарушить правило «не больше 3 в руки»)</button>
+    </div>
+    <div class="cqp-wrap"><div class="cqp-grid" id="cqp-grid"></div></div>
+    <div class="skbar">
+      <button class="ghost" id="cqp-prev">← Назад</button>
+      <button class="act" id="cqp-next">Дальше →</button>
+      <button class="ghost" id="cqp-play">▶ Проиграть сам</button>
+      <span class="skstep" id="cqp-lab"></span>
+    </div>
+    <div id="cqp-out"></div>
+  </div>
+
+  <div class="card" id="cqc-break">
+    <h2><span class="tag">глава 6 · как ломается</span> проследите, как одна модель превращается в проблему</h2>
     <p>Никто не проектирует плохо специально. Разберём, как это получается само — шаг за шагом, на живом примере.</p>
     <div class="skbar">
       <button class="ghost" id="cqb-prev">← Назад</button>
@@ -10136,8 +10317,8 @@ public void placeOrder(Order o) {
     <div id="cqb-out"></div>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">различие</span> три уровня CQRS — выбирайте минимальный</h2>
+  <div class="card" id="cqc-lvls">
+    <h2><span class="tag">глава 7 · уровни</span> три уровня CQRS — выбирайте минимальный</h2>
     <div class="grid3">
       <div class="box">
         <h4>1. Разные модели в коде</h4>
@@ -10156,8 +10337,30 @@ public void placeOrder(Order o) {
     <div class="note warn"><b>Частая ошибка:</b> прыгать сразу на третий уровень, потому что «CQRS — это когда две базы». В девяти случаях из десяти хватает первого, и он не стоит ничего: просто перестаньте тянуть сущности ORM в экраны и напишите отдельные запросы под конкретные представления.</div>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">интерактив</span> модель чтения отстаёт — что видит пользователь</h2>
+  <div class="card" id="cqc-lvl">
+    <h2><span class="tag">глава 8 · соберите сами</span> пропустите заказ через уровень 1, 2 и 3</h2>
+    <p>Три уровня легко перечислить, но разницу надо увидеть. Выберите уровень и нажмите кнопку: Анна оформит заказ и <b>сразу же</b> откроет «Мои заказы». Следите, какие блоки загораются, сколько это стоит по времени и увидит ли Анна свой заказ.</p>
+    <div class="seg" id="cql-pick">
+      <button data-l="1" class="on">Уровень 1: разные классы, одна база</button>
+      <button data-l="2">Уровень 2: таблица-витрина в той же базе</button>
+      <button data-l="3">Уровень 3: отдельное хранилище</button>
+    </div>
+    <div id="cql-flow"></div>
+    <div class="cql-leg"><span></span>пунктиром — то, что добавилось на этом уровне и что теперь надо писать, мониторить и чинить</div>
+    <div class="form-row"><button class="act" id="cql-go">▶ Анна оформляет заказ и сразу открывает «Мои заказы»</button></div>
+    <div class="meters" id="cql-m"></div>
+    <div class="steps" id="cql-log"></div>
+    <div id="cql-out"></div>
+  </div>
+
+  <div class="card" id="cqc-pick">
+    <h2><span class="tag">глава 9 · выбор</span> какой уровень нужен в каждой ситуации</h2>
+    <p>Правило простое: берите <b>самый низкий уровень, который решает проблему</b>. Каждый следующий добавляет движущиеся части и отставание. Разложите ситуации по уровням. Решено <b id="cqlv-score">0</b> из <span id="cqlv-total">0</span>.</p>
+    <div id="cqlv-sort"></div>
+  </div>
+
+  <div class="card" id="cqc-lag">
+    <h2><span class="tag">глава 10 · отставание</span> модель чтения отстаёт — что видит пользователь</h2>
     <p>Менеджер меняет цену товара. Запись идёт в основную модель, витрина обновляется событием с задержкой. Покрутите задержку и посмотрите, что увидит покупатель и что увидит сам менеджер.</p>
     <div class="slider-row"><label for="cq-lag">Отставание витрины</label><input type="range" id="cq-lag" min="0" max="5000" step="100" value="1500"><span class="sv" id="cq-lag-v">1500 мс</span></div>
     <div class="grid3">
@@ -10176,13 +10379,13 @@ public void placeOrder(Order o) {
     <div class="steps" id="cq-log"></div>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">баланс</span> CQRS честно</h2>
+  <div class="card" id="cqc-pm">
+    <h2><span class="tag">глава 11 · баланс</span> CQRS честно</h2>
     <div id="cq-pm"></div>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">а это другое</span> event sourcing: зачем хранить историю вместо остатка</h2>
+  <div class="card" id="cqc-es1">
+    <h2><span class="tag">глава 12 · а это другое</span> event sourcing: зачем хранить историю вместо остатка</h2>
     <div class="note warn"><b>Сразу разведём два понятия, их постоянно путают.</b> CQRS — про то, что <b>чтение и запись разделены</b>. Event sourcing — про то, <b>что именно лежит в хранилище</b>. Это разные приёмы, и они прекрасно живут по отдельности: CQRS без event sourcing встречается в сто раз чаще.</div>
 
     <h3 style="margin:16px 0 6px;font-size:14px">Житейски: банковская выписка</h3>
@@ -10199,8 +10402,8 @@ public void placeOrder(Order o) {
     <div id="es-out"></div>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">event sourcing</span> хранить не состояние, а историю</h2>
+  <div class="card" id="cqc-es2">
+    <h2><span class="tag">глава 12 · продолжение</span> хранить не состояние, а историю</h2>
     <p>Обычная система хранит <b>текущее состояние</b>: «баланс 1200». Event sourcing хранит <b>все события</b>: «начислено 1000», «начислено 500», «списано 300» — а состояние вычисляется их проигрыванием. Журнал событий неизменяем: исправление — это новое компенсирующее событие, а не UPDATE.</p>
     <div class="grid2">
       <div>
@@ -10237,8 +10440,8 @@ public void placeOrder(Order o) {
     <div class="note bad"><b>Когда event sourcing точно не нужен:</b> обычный CRUD, справочники, каталоги, административные панели — то есть подавляющее большинство кода. ES оправдан там, где <b>история сама по себе ценна</b>: финансовые операции, аудит по требованию регулятора, сложные доменные процессы с разбором «почему получилось так». Применение ES ко всей системе — надёжный способ утроить сложность ради выгоды в 5 % кода.</div>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">задание</span> CQRS и event sourcing</h2>
+  <div class="card" id="cqc-task">
+    <h2><span class="tag">глава 13 · задание</span> CQRS и event sourcing</h2>
     <p>Решено <b id="cq-score">0</b> из <span id="cq-total">0</span>.</p>
     <div id="cq-tasks"></div>
   </div>
@@ -10460,6 +10663,700 @@ public void placeOrder(Order o) {
      d:'<b>Когда брать.</b> Там, где история сама по себе ценна: деньги, склад, медицина, страхование, всё под аудитом. <b>Когда не брать:</b> обычный справочник, настройки, каталог, административные экраны. Для них event sourcing — чистое усложнение без выгоды.',
      warn:true},
   ]);
+})();
+</script>
+
+<script>
+/* ═══ 16.0a На пальцах: пекарня с одним окном и с двумя ═══ */
+(function(){
+  const $ = id => document.getElementById(id);
+  if(!$('cqf-stage')) return;
+  const TICK = 550, COST = 2, LAG = 2;
+  const ITEMS = [
+    {n:'🥐 Круассан', p:180, q:4},
+    {n:'🥯 Булочка',  p:90,  q:6},
+    {n:'🍫 Эклер',    p:150, q:2},
+  ];
+  const copy = a => a.map(x => ({...x}));
+  const res = {};
+  let S = null, timer = null;
+
+  function init(mode){
+    clearInterval(timer); timer = null;
+    S = {mode, stock:copy(ITEMS), board:copy(ITEMS), stale:0, q:[], cur:null, t:0, seq:0,
+         rd:{n:0, w:0}, wr:{n:0, w:0, rej:0}, rush:false, log:[]};
+  }
+  function add(k, t){ S.log.unshift({k, t}); if(S.log.length > 6) S.log.pop(); }
+  function min(n){ return n + ' мин'; }
+  function avg(o){ return o.n ? Math.round(o.w / o.n * 10) / 10 : 0; }
+
+  function enqueue(k){
+    const job = {k, id:++S.seq, t0:S.t};
+    if(k === 'r' && S.mode === 'cqrs'){
+      S.rd.n++;
+      const c = S.board[0], real = S.stock[0];
+      if(S.stale && c.q !== real.q)
+        add('warn', 'Покупатель №'+job.id+' посмотрел на витрину и получил ответ <b>сразу</b>. Но витрина ещё не обновилась: там «'+c.n+' — '+c.q+' шт.», а на кухне уже '+real.q+'. Это <b>отставание</b>: цена за быстрое чтение. Через пару минут витрина догонит.');
+      else
+        add('ok', 'Покупатель №'+job.id+' посмотрел на витрину и получил ответ <b>за 0 минут</b>. Повар даже не заметил: он занят заказами.');
+    } else {
+      S.q.push(job);
+      if(k === 'r' && S.mode === 'one' && !S.rush)
+        add('warn', 'Покупатель №'+job.id+' спросил «что есть?». Витрины нет, поэтому вопрос встал <b>в очередь к повару</b>, туда же, где ждут заказы.');
+    }
+    start(); paint();
+  }
+
+  function finish(job){
+    const wait = S.t - job.t0;
+    if(job.k === 'r'){
+      S.rd.n++; S.rd.w += wait;
+      add(wait > 4 ? 'fail' : 'warn', 'Повар бросил тесто, пересчитал полки и ответил покупателю №'+job.id+'. Тот ждал <b>'+min(wait)+'</b>, чтобы просто узнать, что есть.');
+      return;
+    }
+    const it = S.stock[0];
+    S.wr.n++; S.wr.w += wait;
+    if(it.q <= 0){
+      S.wr.rej++;
+      add('fail', 'Правило сработало: круассанов нет, заказ №'+job.id+' отклонён. <b>Проверять правила — работа повара</b>, витрина этого не умеет.');
+    } else {
+      it.q--;
+      add('ok', 'Заказ №'+job.id+' оформлен за <b>'+min(wait)+'</b>: повар проверил правило «круассан есть» и списал один. Осталось '+it.q+' шт.');
+    }
+    if(S.mode === 'one') S.board = copy(S.stock);
+    else S.stale = LAG;
+  }
+
+  function step(){
+    S.t++;
+    if(!S.cur && S.q.length){ S.cur = S.q.shift(); S.cur.left = COST; }
+    if(S.cur && --S.cur.left <= 0){ finish(S.cur); S.cur = null; }
+    else if(S.stale > 0 && --S.stale === 0){
+      S.board = copy(S.stock);
+      add('ok', 'Витрина обновилась: повар повесил новую табличку. Покупатели снова видят точные остатки.');
+    }
+    if(S.rush && !S.cur && !S.q.length && !S.stale) endRush();
+    if(!S.cur && !S.q.length && !S.stale){ clearInterval(timer); timer = null; }
+    paint();
+  }
+  function start(){ if(!timer) timer = setInterval(step, TICK); }
+
+  function rush(){
+    init(S.mode);
+    S.rush = true;
+    msg($('cqf-msg'), '', 'Наплыв пошёл: пять вопросов, один заказ на круассан, ещё пять вопросов. Смотрите, где окажется заказ.');
+    for(let i = 0; i < 11; i++) enqueue(i === 5 ? 'w' : 'r');
+  }
+  function endRush(){
+    S.rush = false;
+    res[S.mode] = {r:avg(S.rd), w:avg(S.wr)};
+    if(S.mode === 'one')
+      msg($('cqf-msg'), 'err', 'Заказ ждал <b>'+min(res.one.w)+'</b>, хотя сам занимает '+min(COST)+'. Остальное время он стоял за вопросами «что у вас есть?»: повар занят не своей работой.' + (res.cqrs ? '' : ' Теперь переключитесь на «Два окна» и повторите.'));
+    else
+      msg($('cqf-msg'), 'ok', 'Витрина ответила на вопросы мгновенно, заказ сделан за <b>'+min(res.cqrs.w)+'</b>. Повар занят только своей работой: правилами.' + (res.one ? '' : ' Теперь переключитесь на «Одно окно» и повторите, чтобы сравнить.'));
+    cmp();
+  }
+
+  function cmp(){
+    const o = res.one, c = res.cqrs, box = $('cqf-cmp');
+    if(!o || !c){ box.innerHTML = ''; return; }
+    box.innerHTML =
+      '<div class="table-wrap"><table class="db"><thead><tr><th>Утренний наплыв</th><th>🧑‍🍳 Одно окно</th><th>🪧 Два окна (CQRS)</th></tr></thead><tbody>' +
+      '<tr><td>Покупатель ждёт ответа на «что есть?» (в среднем)</td><td class="c" style="color:var(--danger)"><b>'+min(o.r)+'</b></td><td class="c" style="color:var(--ok)"><b>'+min(c.r)+'</b></td></tr>' +
+      '<tr><td>Заказ ждёт, пока его оформят</td><td class="c" style="color:var(--danger)"><b>'+min(o.w)+'</b></td><td class="c" style="color:var(--ok)"><b>'+min(c.w)+'</b></td></tr>' +
+      '<tr><td>Витрина может ненадолго показывать старое</td><td class="c">нет</td><td class="c" style="color:var(--warn)">да, пару минут</td></tr>' +
+      '</tbody></table></div>' +
+      '<div class="note good"><b>Вот и весь CQRS на пальцах.</b> Повар — это <b>модель записи</b>: доменные объекты с правилами. Витрина — это <b>модель чтения</b>: готовые ответы под экран. ' +
+      'Вопросов в десять раз больше, чем заказов, и теперь они не стоят в очереди перед заказами. Плата одна: витрина может отстать на пару минут. Поэтому в момент покупки остаток и цену проверяет повар, а не витрина.</div>';
+    Progress.report('cqf-sim', 1);
+  }
+
+  function paint(){
+    const one = S.mode === 'one';
+    [...$('cqf-mode').children].forEach(b => b.classList.toggle('on', b.dataset.m === S.mode));
+    const ck = $('cqf-cook');
+    ck.className = 'cqf-cook' + (S.cur ? ' ' + S.cur.k : '');
+    ck.textContent = !S.cur ? '😌 Свободен: печёт круассаны'
+      : S.cur.k === 'w' ? '🧾 Оформляет заказ №'+S.cur.id+': проверяет правила (ещё '+min(S.cur.left)+')'
+      : '❓ Бросил тесто: пересчитывает полки для покупателя №'+S.cur.id+' (ещё '+min(S.cur.left)+')';
+    $('cqf-ql').textContent = 'очередь к повару: ' + S.q.length;
+    $('cqf-q').innerHTML = S.q.length
+      ? S.q.map(j => '<span class="cell '+(j.k === 'w' ? 'ok' : 'warn')+'" title="'+(j.k === 'w' ? 'заказ' : 'вопрос')+'">'+(j.k === 'w' ? '🧾' : '❓')+' №'+j.id+'</span>').join('')
+      : '<span class="empty">никого</span>';
+    $('cqf-sbox').classList.toggle('cqf-off', one);
+    $('cqf-sdesc').textContent = one
+      ? 'В этом режиме витрины нет. На любой вопрос отвечает повар, и ему приходится бросать работу.'
+      : 'Табличка с готовым ответом: что есть и почём. Отвечает мгновенно, правил не проверяет.';
+    $('cqf-board').innerHTML = S.board.map(x => '<div class="cqf-row"><span>'+x.n+'</span><span>'+x.p+' ₽ · <b>'+x.q+' шт.</b></span></div>').join('');
+    const st = $('cqf-st');
+    st.className = 'cqf-tag ' + (one ? '' : S.stale ? 'lag' : 'ok');
+    st.textContent = one ? 'не используется' : S.stale ? '⏳ обновляется, отстаёт от кухни' : '✓ актуальна';
+    $('cqf-m').innerHTML =
+      '<span class="meter">Прошло: <b>'+min(S.t)+'</b></span>' +
+      '<span class="meter '+(avg(S.rd) > 4 ? 'bad' : 'good')+'">Ответов на вопросы: <b>'+S.rd.n+'</b>, ждали в среднем <b>'+min(avg(S.rd))+'</b></span>' +
+      '<span class="meter '+(avg(S.wr) > 4 ? 'bad' : 'good')+'">Заказов: <b>'+S.wr.n+'</b>, ждали в среднем <b>'+min(avg(S.wr))+'</b></span>' +
+      (S.wr.rej ? '<span class="meter wq">Отказано по правилам: <b>'+S.wr.rej+'</b></span>' : '');
+    $('cqf-log').innerHTML = S.log.map(l => '<div class="step '+(l.k === 'ok' ? 'done' : l.k === 'fail' ? 'fail' : 'comp')+'"><div class="si">'+(l.k === 'ok' ? '✓' : l.k === 'fail' ? '✕' : '!')+'</div><div>'+l.t+'</div></div>').join('');
+  }
+
+  $('cqf-mode').addEventListener('click', e => {
+    const b = e.target.closest('button[data-m]'); if(!b) return;
+    init(b.dataset.m);
+    msg($('cqf-msg'), '', b.dataset.m === 'one'
+      ? 'Режим «одно окно»: и вопросы, и заказы идут к повару. Запустите наплыв.'
+      : 'Режим «два окна»: вопросы идут к витрине, заказы к повару. Запустите наплыв.');
+    paint();
+  });
+  $('cqf-ask').addEventListener('click', () => enqueue('r'));
+  $('cqf-buy').addEventListener('click', () => enqueue('w'));
+  $('cqf-rush').addEventListener('click', rush);
+  $('cqf-reset').addEventListener('click', () => { init(S.mode); msg($('cqf-msg'), '', 'Пекарня открылась заново.'); paint(); });
+
+  init('one');
+  msg($('cqf-msg'), '', 'Нажмите «Утренний наплыв» и посмотрите, где окажется заказ.');
+  paint();
+  Progress.register('cqf-sim', 1, 'CQRS: пекарня');
+
+  renderSort('cqf-sort', [
+    {t:'Оформить заказ', bucket:'c',
+     why:'Появляется новый заказ и списывается товар. Перед этим надо проверить правила: товар есть, цена верна. Это работа повара.'},
+    {t:'Показать список моих заказов', bucket:'q',
+     why:'После показа ничего не изменилось. Экрану нужны готовые строки: дата, сумма, статус. Это витрина.'},
+    {t:'Отменить бронь столика', bucket:'c',
+     why:'Бронь была, теперь её нет. Нужны правила: например, нельзя отменить за 10 минут до визита.'},
+    {t:'Найти кроссовки по названию', bucket:'q',
+     why:'Поиск ничего не меняет, он только отбирает и показывает. Как раз под поиск часто заводят отдельную витрину, например Elasticsearch.'},
+    {t:'Посчитать выручку за вчера', bucket:'q',
+     why:'Считать — не значит менять. Отчёт только читает данные, поэтому его можно строить по витрине и не нагружать модель записи.'},
+    {t:'Поменять адрес доставки', bucket:'c',
+     why:'Данные меняются, и есть правила: если курьер уже выехал, менять поздно. Значит, это команда.'},
+    {t:'Показать остаток на карте', bucket:'q',
+     why:'Смотрите на баланс сколько угодно раз: деньги от этого не изменятся. Это запрос.'},
+    {t:'Отметить уведомление прочитанным', bucket:'c',
+     s:'Подвох: звучит как «чтение».',
+     why:'Слово «прочитанным» обманывает. Меняется флаг «прочитано», и счётчик непрочитанных уменьшится. Раз после действия что-то изменилось, это команда.'},
+  ], [{id:'c', n:'✍️ Команда: меняет'}, {id:'q', n:'👁 Запрос: только показывает'}], 'cqf-score', 'cqf-total');
+  Progress.register('cqf-score', 8, 'CQRS: команда или запрос');
+})();
+</script>
+
+<script>
+/* ═══ 16.00 Карта раздела ═══ */
+(function(){
+  const map = document.getElementById('cqm-map');
+  if(!map) return;
+  map.addEventListener('click', e => {
+    const b = e.target.closest('button[data-jump]'); if(!b) return;
+    const t = document.getElementById(b.dataset.jump);
+    if(t) t.scrollIntoView({behavior:'smooth', block:'start'});
+  });
+})();
+
+/* ═══ 16.01 Глава 1: одна модель против двух — на коде ═══ */
+(function(){
+  const $ = id => document.getElementById(id);
+  if(!$('cqd-out')) return;
+  const SQL_N = [
+    'SELECT * FROM orders WHERE customer_id = 7          -- 20 заказов, все 25 колонок',
+  ];
+  for(let i = 1; i <= 20; i++){
+    SQL_N.push('SELECT * FROM customers  WHERE id = 7              -- для заказа №' + i);
+    SQL_N.push('SELECT * FROM deliveries WHERE order_id = ' + (100 + i) + '       -- для заказа №' + i);
+    SQL_N.push('SELECT * FROM order_lines WHERE order_id = ' + (100 + i) + '      -- для заказа №' + i);
+  }
+  const D = {
+    no:{
+      read:{
+        title:'Без CQRS: экран «Мои заказы» строится из класса Order',
+        code:
+"// МОДЕЛЬ ОДНА — тот же класс Order, что и для оформления\n" +
+"class Order {\n" +
+"    Long id; Customer customer; Delivery delivery;\n" +
+"    List<OrderLine> lines; Money total; Status status;\n" +
+"    // … и ещё 20 полей, которые экрану не нужны\n" +
+"}\n\n" +
+"// код экрана\n" +
+"List<Order> orders = orderRepo.findByCustomer(anna);   // 20 штук\n" +
+"return orders.stream().map(o -> new Row(\n" +
+"    o.getId(),\n" +
+"    o.getCustomer().getName(),    // ← ленивая связь: ещё запрос\n" +
+"    o.getDelivery().getEta(),     // ← ещё запрос\n" +
+"    o.getLines().size(),          // ← ещё запрос\n" +
+"    o.getTotal())).toList();",
+        steps:[
+          'Экран просит у сервера список заказов Анны.',
+          'Код берёт класс <b>Order</b> — тот самый, что создан для оформления заказа. Другого у него нет.',
+          'Из базы грузятся 20 заказов <b>целиком</b>: все 25 полей каждого. Экрану из них нужно 5.',
+          'Для каждого заказа код отдельно дотягивает клиента, доставку и товары. Это ещё 3 запроса на заказ, то есть <b>60 запросов</b>.',
+          'Из тяжёлых объектов вручную собирается лёгкий список для экрана. Всё лишнее выбрасывается.',
+        ],
+        sql:SQL_N,
+        m:[['Запросов к базе','61','bad'],['Экран открылся за','≈ 900 мс','bad'],['Загружено полей','20 × 25 = 500','bad'],['Экрану нужно полей','20 × 5 = 100','']],
+        sum:'<b>Вот где болит.</b> Класс Order создавался для правил оформления, а его заставили работать на экран. Он приносит слишком много полей и тянет связи по одной. Экран тормозит, и починить это внутри Order нельзя, не испортив запись.'},
+      write:{
+        title:'Без CQRS: оформление заказа через «класс на всё»',
+        code:
+"class Order {                          // один класс на всё\n" +
+"    // нужно правилам:\n" +
+"    Long id; Long customerId; List<OrderLine> lines;\n" +
+"    Money total; Status status;\n" +
+"    // нужно ТОЛЬКО экранам (добавили, чтобы ускорить списки):\n" +
+"    String customerNameCached; String deliveryEtaCached;\n" +
+"    int returnsCount; String searchText; String badgeColor;\n" +
+"    Instant lastViewedAt; /* … ещё 14 полей … */\n\n" +
+"    void place() {\n" +
+"        checkLimit();                  // правило\n" +
+"        checkStock();                  // правило\n" +
+"        updateSearchText();            // ради поиска\n" +
+"        updateBadgeColor();            // ради значка в списке\n" +
+"        refreshCustomerNameCached();   // ради экрана «Мои заказы»\n" +
+"        recalcReturnsCount();          // ради другого экрана\n" +
+"    }\n" +
+"}",
+        steps:[
+          'Анна нажимает «Оформить». Код создаёт объект Order.',
+          'В классе 25 полей. Правилам нужны 5, остальные 20 добавлены «для экранов», чтобы списки не тормозили.',
+          'Метод place() проверяет два правила и заодно обязан обновить поля для поиска, значка, списка и счётчика возвратов.',
+          'Забыли обновить одно поле — какой-то экран показывает неправду. Поменяли экран — надо лезть в класс с правилами про деньги.',
+          'Заказ сохранён, но класс стал свалкой: правила трудно найти, тесты трудно писать.',
+        ],
+        m:[['Полей в классе','25','bad'],['Из них нужно правилам','5',''],['Методов «ради экранов»','4','bad'],['Риск сломать правило при правке экрана','высокий','bad']],
+        sum:'<b>Вторая сторона той же боли.</b> Когда чтение торопят за счёт общей модели, страдает запись. Правила про деньги тонут среди полей для экранов.'},
+    },
+    yes:{
+      read:{
+        title:'С CQRS: у экрана своя модель чтения',
+        code:
+"// МОДЕЛЬ ЧТЕНИЯ — плоский класс ровно под экран, без правил\n" +
+"record OrderListItem(String number, LocalDate date,\n" +
+"                     int total, String status, String eta) {}\n\n" +
+"// код экрана: один SQL сразу в нужную форму\n" +
+"List<OrderListItem> list = jdbc.query(\"\"\"\n" +
+"    SELECT o.number, o.created_at, o.total, o.status, d.eta\n" +
+"      FROM orders o\n" +
+"      JOIN deliveries d ON d.order_id = o.id\n" +
+"     WHERE o.customer_id = ?\n" +
+"     ORDER BY o.created_at DESC LIMIT 20\"\"\",\n" +
+"    OrderListItem.class, anna);\n\n" +
+"// класс Order здесь вообще не участвует",
+        steps:[
+          'Экран просит у сервера список заказов Анны.',
+          'Код <b>не трогает</b> класс Order. У экрана своя модель — <b>OrderListItem</b> из 5 полей.',
+          'Один SQL-запрос сам соединяет нужные таблицы и отдаёт ровно 5 полей на заказ.',
+          'Результат сразу ложится в OrderListItem и уходит на экран. Собирать и выбрасывать нечего.',
+        ],
+        sql:['SELECT o.number, o.created_at, o.total, o.status, d.eta FROM orders o JOIN deliveries d … LIMIT 20'],
+        m:[['Запросов к базе','1','good'],['Экран открылся за','≈ 40 мс','good'],['Загружено полей','20 × 5 = 100','good'],['Экрану нужно полей','20 × 5 = 100','']],
+        sum:'<b>Вот зачем CQRS на чтении.</b> Экран получил свою модель, и запрос под него написан отдельно. Вместо 61 запроса один, вместо 900 мс — 40. А класс Order при этом никто не трогал.'},
+      write:{
+        title:'С CQRS: у записи своя модель с правилами',
+        code:
+"// МОДЕЛЬ ЗАПИСИ — только то, что нужно правилам\n" +
+"class Order {\n" +
+"    Long id; Long customerId; List<OrderLine> lines;\n" +
+"    Money total; Status status;\n\n" +
+"    void place(Stock stock) {\n" +
+"        if (qty() > 3)             throw new LimitExceeded(); // правило 1\n" +
+"        if (stock.qty() < qty())   throw new OutOfStock();    // правило 2\n" +
+"        total  = sumOfLines();                                // правило 3\n" +
+"        status = PLACED;\n" +
+"    }\n" +
+"}\n" +
+"// про экраны этот класс не знает ничего:\n" +
+"// у них свои модели чтения и свои запросы",
+        steps:[
+          'Анна нажимает «Оформить». Код создаёт объект Order.',
+          'В классе 5 полей — ровно те, без которых правила не проверить.',
+          'Метод place() проверяет правила: не больше трёх в руки, товар есть, сумма посчитана сервером.',
+          'Экраны сюда не лезут. Их можно менять сколько угодно, не рискуя сломать правила про деньги.',
+          'Заказ сохранён в те же таблицы. Модель чтения прочитает его оттуда своим запросом.',
+        ],
+        m:[['Полей в классе','5','good'],['Из них нужно правилам','5','good'],['Методов «ради экранов»','0','good'],['Риск сломать правило при правке экрана','нет','good']],
+        sum:'<b>Итог главы.</b> Две модели — два класса с разной работой. <b>Order</b> меняет данные и охраняет правила. <b>OrderListItem</b> показывает данные быстро и без правил. База одна, очередей нет. Это и есть CQRS.'},
+    },
+  };
+  let mode = 'no', seen = new Set(), timers = [];
+  function clear(){ timers.forEach(clearTimeout); timers = []; }
+  function run(act){
+    clear();
+    const x = D[mode][act];
+    $('cqd-out').innerHTML =
+      '<div class="cqd-grid">' +
+        '<div><div class="cqd-h">' + x.title + '</div><pre class="json" style="font-size:12px">' + esc(x.code) + '</pre></div>' +
+        '<div><div class="cqd-h">Что происходит по шагам</div><div class="steps" id="cqd-steps">' +
+          x.steps.map((t, i) => '<div class="step cqd-st"><div class="si">' + (i + 1) + '</div><div>' + t + '</div></div>').join('') +
+        '</div>' +
+        (x.sql ? '<div class="cqd-h" style="margin-top:12px">Журнал SQL: что реально ушло в базу · <span id="cqd-cnt">0</span></div><pre class="json" id="cqd-sql" style="font-size:11px;max-height:190px;overflow:auto"></pre>' : '') +
+        '</div>' +
+      '</div>' +
+      '<div class="meters" id="cqd-m"></div>';
+    const st = [...document.querySelectorAll('#cqd-steps .cqd-st')];
+    st.forEach((el, i) => timers.push(setTimeout(() => el.classList.add('in'), 250 + i * 450)));
+    const after = 250 + st.length * 450;
+    if(x.sql){
+      const pre = $('cqd-sql'), cnt = $('cqd-cnt'), per = Math.max(25, Math.min(300, 1500 / x.sql.length));
+      x.sql.forEach((q, i) => timers.push(setTimeout(() => {
+        pre.textContent += (i ? '\n' : '') + q; pre.scrollTop = pre.scrollHeight;
+        cnt.textContent = (i + 1) + ' ' + (i === 0 ? 'запрос' : (i + 1) < 5 ? 'запроса' : 'запросов');
+      }, 400 + i * per)));
+    }
+    timers.push(setTimeout(() => {
+      $('cqd-m').innerHTML = x.m.map(m => '<span class="meter ' + m[2] + '">' + m[0] + ': <b>' + m[1] + '</b></span>').join('');
+      const s = $('cqd-sum'); s.style.display = ''; s.innerHTML = x.sum;
+    }, Math.max(after, x.sql ? 400 + 1600 : 0)));
+    seen.add(mode + act);
+    if(seen.size === 4) Progress.report('cqd-play', 1);
+    const miss = ['no','yes'].flatMap(m => ['read','write'].map(a => m + a)).filter(k => !seen.has(k));
+    if(miss.length && seen.size >= 1){
+      const hint = miss.includes((mode === 'no' ? 'yes' : 'no') + act)
+        ? 'Теперь переключите режим сверху и нажмите то же действие — сравните цифры.'
+        : 'Попробуйте второе действие Анны.';
+      timers.push(setTimeout(() => { const s = $('cqd-sum'); s.innerHTML += '<br><br>👉 ' + hint; }, Math.max(after, x.sql ? 2000 : 0) + 50));
+    }
+  }
+  $('cqd-mode').addEventListener('click', e => {
+    const b = e.target.closest('button[data-m]'); if(!b) return;
+    mode = b.dataset.m;
+    [...$('cqd-mode').children].forEach(x => x.classList.toggle('on', x === b));
+    clear(); $('cqd-out').innerHTML = ''; $('cqd-sum').style.display = 'none';
+  });
+  $('cqd-read').addEventListener('click', () => run('read'));
+  $('cqd-write').addEventListener('click', () => run('write'));
+  Progress.register('cqd-play', 1, 'CQRS: две модели на коде');
+})();
+
+/* ═══ 16.05 Глава 5: путь команды и путь запроса ═══ */
+(function(){
+  const $ = id => document.getElementById(id);
+  if(!$('cqp-grid')) return;
+  const PRICE = {cro:180, bun:90, ecl:150};
+  const NAME = {cro:'круассан', bun:'булочка', ecl:'эклер'};
+  const DB = {
+    orders:[{id:'ord-40', c:'c-7', total:270, st:'доставлен', at:'12.09'}, {id:'ord-41', c:'c-9', total:150, st:'в пути', at:'26.09'}],
+    lines:[{o:'ord-40', sku:'bun', q:3}, {o:'ord-41', sku:'ecl', q:1}],
+    deliv:[{o:'ord-40', addr:'Ленина, 5', eta:'доставлен'}, {o:'ord-41', addr:'Мира, 12', eta:'сегодня 18:00'}],
+    stock:[{sku:'cro', q:4}, {sku:'bun', q:6}, {sku:'ecl', q:2}],
+  };
+  let next = 42, sc = 'cmd', qty = 2, i = 0, run = null, play = null;
+  const done = new Set();
+  function newRun(){
+    const st = DB.stock[0];
+    run = {id:'ord-' + next, q:qty, before:st.q, limitOk:qty <= 3, stockOk:st.q >= qty, committed:false};
+    run.ok = run.limitOk && run.stockOk;
+  }
+  newRun();
+
+  const LANES = {
+    cmd:[['ui','📱 Экран','приложение Анны'],['api','🚪 Контроллер','POST /orders'],['h','✍️ Обработчик команды','PlaceOrderHandler'],['m','🧠 Модель записи','класс Order + правила']],
+    qry:[['ui','📱 Экран','приложение Анны'],['api','🚪 Контроллер','GET /my/orders'],['h','👁 Обработчик запроса','MyOrdersQuery'],['m','📋 Модель чтения','SQL → OrderListItem']],
+  };
+
+  function tbl(name, cols, rows, cls){
+    return '<div class="cqp-t"><div class="cqp-tn">таблица ' + name + '</div><div class="table-wrap"><table class="db"><thead><tr>' +
+      cols.map(c => '<th>' + c + '</th>').join('') + '</tr></thead><tbody>' +
+      rows.map(r => '<tr class="' + (cls ? cls(r) : '') + '">' + r.v.map(v => '<td>' + esc(v) + '</td>').join('') + '</tr>').join('') +
+      '</tbody></table></div></div>';
+  }
+  const tOrders = cls => tbl('orders', ['id','customer_id','total','status'], DB.orders.map(o => ({o, v:[o.id, o.c, o.total + ' ₽', o.st]})), cls && (r => cls(r.o)));
+  const tLines  = cls => tbl('order_lines', ['order_id','sku','qty'], DB.lines.map(o => ({o, v:[o.o, o.sku, o.q]})), cls && (r => cls(r.o)));
+  const tDeliv  = cls => tbl('deliveries', ['order_id','address','eta'], DB.deliv.map(o => ({o, v:[o.o, o.addr, o.eta]})), cls && (r => cls(r.o)));
+  const tStock  = cls => tbl('stock', ['sku','qty'], DB.stock.map(o => ({o, v:[o.sku, o.q]})), cls && (r => cls(r.o)));
+
+  function commit(){
+    if(!run.ok || run.committed) return;
+    const total = run.q * PRICE.cro;
+    DB.orders.push({id:run.id, c:'c-7', total, st:'оформлен', at:'27.09'});
+    DB.lines.push({o:run.id, sku:'cro', q:run.q});
+    DB.deliv.push({o:run.id, addr:'Ленина, 5', eta:'завтра 12:00'});
+    DB.stock[0].q -= run.q;
+    run.committed = true; next++;
+  }
+
+  function cmdSteps(){
+    const r = run, total = r.q * PRICE.cro;
+    const chk = [
+      ['Не больше 3 в одни руки', r.q + ' ≤ 3', r.limitOk],
+      ['Товар есть на складе', 'на складе ' + r.before + ', нужно ' + r.q, r.limitOk ? r.stockOk : null],
+      ['Сумму считает сервер', r.q + ' × 180 = ' + total + ' ₽', r.ok ? true : null],
+    ];
+    const S = [
+      {n:'ui', t:'1. Анна нажимает «Оформить заказ»',
+       what:'Приложение отправляет на сервер <b>команду</b>: просьбу что-то изменить. В ней только намерение: кто и что хочет купить.',
+       code:'POST /api/orders\n{\n  "customerId": "c-7",\n  "items": [ { "sku": "cro", "qty": ' + r.q + ' } ]\n}',
+       why:'Обратите внимание, чего в команде <b>нет</b>: цены, суммы, названий. Сумму посчитает сервер. Клиенту в денежных вопросах не доверяют, иначе любой пришлёт «сумма: 1 ₽».'},
+      {n:'api', t:'2. Контроллер превращает HTTP в объект команды',
+       what:'Контроллер — это входная дверь сервиса. Он читает запрос, собирает из него объект <code class="inl">PlaceOrder</code> и передаёт обработчику.',
+       code:'@PostMapping("/api/orders")\nResponseEntity<OrderId> place(@RequestBody PlaceOrderRequest r) {\n    var cmd = new PlaceOrder(r.customerId(), r.items());\n    return created(placeOrder.handle(cmd));\n}',
+       why:'Контроллер <b>тонкий</b>: в нём нет ни правил, ни SQL. Если правила разбросать по контроллерам, их обойдут через первый же новый эндпоинт.'},
+      {n:'h', t:'3. Обработчик команды открывает транзакцию и берёт нужное',
+       what:'Обработчик открывает транзакцию и загружает <b>ровно те объекты</b>, которые нужны для решения. Здесь это остаток круассанов на складе.',
+       code:'@Transactional\nOrderId handle(PlaceOrder cmd) {\n    Stock stock = stockRepo.get("cro");        // ОДИН объект\n    Order order = Order.place(cmd, stock);    // правила — внутри\n    orderRepo.save(order);\n    return order.id();\n}',
+       data:() => tStock(o => o.sku === 'cro' ? 'cqp-rd' : ''),
+       why:'Запись всегда работает с <b>одним-двумя</b> объектами. Ей не нужно тянуть 20 заказов, как экрану. Поэтому модель записи может быть «тяжёлой» и умной: грузится она редко и понемногу.'},
+      {n:'m', t:'4. Модель записи проверяет правила',
+       what:'Это сердце модели записи. Класс Order сам решает, можно ли создать такой заказ. Все проверки живут здесь и больше нигде.',
+       code:'static Order place(PlaceOrder cmd, Stock stock) {\n    if (cmd.qty() > 3)          throw new LimitExceeded();\n    if (stock.qty() < cmd.qty()) throw new OutOfStock();\n    stock.take(cmd.qty());\n    return new Order(cmd.customerId(), cmd.items(),\n                     sum(cmd.items()));   // сумма — только здесь\n}',
+       data:() => '<ul class="cqp-chk">' + chk.map(c => '<li>' + (c[2] === true ? '✅' : c[2] === false ? '❌' : '⏸') + ' ' + c[0] + ': ' + c[1] + (c[2] === null ? ' — не проверялось' : '') + '</li>').join('') + '</ul>',
+       fail:!r.ok,
+       why: r.ok ? 'Все правила в одном месте, поэтому их нельзя обойти: любое изменение заказа проходит через этот класс. Поэтому модель записи держат маленькой и строгой.'
+                 : '<b>Правило сработало.</b> Класс выбросил исключение, и дальше ничего не пойдёт. Именно ради этого модель записи и существует: не пустить в базу то, что нарушает правила.'},
+    ];
+    if(r.ok){
+      S.push({n:'db', t:'5. Запись в базу и фиксация транзакции',
+        what:'Заказ записывается в <b>нормализованные</b> таблицы: каждое значение хранится один раз. Остаток на складе уменьшается. Транзакция фиксируется: всё или ничего.',
+        code:"INSERT INTO orders      VALUES ('" + r.id + "', 'c-7', " + total + ", 'оформлен');\nINSERT INTO order_lines VALUES ('" + r.id + "', 'cro', " + r.q + ");\nINSERT INTO deliveries  VALUES ('" + r.id + "', 'Ленина, 5', 'завтра 12:00');\nUPDATE stock SET qty = qty - " + r.q + " WHERE sku = 'cro';\nCOMMIT;",
+        data:() => tOrders(o => o.id === r.id ? 'cqp-new' : '') + tLines(o => o.o === r.id ? 'cqp-new' : '') + tStock(o => o.sku === 'cro' ? 'cqp-new' : ''),
+        why:'Зелёным подсвечено то, что изменилось. Модель записи хранит данные так, чтобы их было удобно и безопасно <b>менять</b>, а не показывать.', commit:true});
+      S.push({n:'ui', t:'6. Ответ: «готово, вот номер»',
+        what:'Сервер отвечает коротко: заказ создан, его номер такой-то. Больше ничего.',
+        code:'HTTP/1.1 201 Created\n{ "orderId": "' + r.id + '" }',
+        why:'Команда <b>не возвращает</b> данные для показа. Чтобы нарисовать заказ, экран сделает <b>отдельный запрос</b>, и это уже другой путь. Переключитесь на «Запрос: Мои заказы»: там появится заказ ' + r.id + '.', end:true});
+    } else {
+      S.push({n:'db', t:'5. Транзакция откатывается',
+        what:'Раз правило не пройдено, транзакция откатывается. В базу не записано ничего, склад не тронут.',
+        code:'ROLLBACK;   -- ни одной строки не изменилось',
+        data:() => tStock(),
+        fail:true,
+        why:'Это и есть защита. Нельзя получить «полузаказ»: заказ есть, а склад не списан. Или всё, или ничего.'});
+      S.push({n:'ui', t:'6. Ответ: «нельзя, потому что…»',
+        what:'Сервер отвечает понятной ошибкой. Приложение показывает Анне: «Не больше 3 штук в одни руки» или «Столько нет в наличии».',
+        code:'HTTP/1.1 422 Unprocessable Content\n{\n  "type":   "/errors/' + (r.limitOk ? 'out-of-stock' : 'limit-exceeded') + '",\n  "detail": "' + (r.limitOk ? 'На складе только ' + r.before + ' шт.' : 'Не больше 3 штук в одни руки') + '"\n}',
+        fail:true,
+        why:'Отказ — нормальный ответ команды. Команда отвечает либо «готово», либо «нельзя, потому что…». Верните количество на 2 и пройдите путь снова.', end:true});
+    }
+    return S;
+  }
+
+  function qrySteps(){
+    const mine = DB.orders.filter(o => o.c === 'c-7').slice().reverse();
+    const isNew = id => run && run.committed && id === run.id || (+id.split('-')[1] >= 42);
+    return [
+      {n:'ui', t:'1. Анна открывает «Мои заказы»',
+       what:'Приложение отправляет <b>запрос</b>: просьбу показать данные. Ничего менять не надо.',
+       code:'GET /api/my/orders?page=1',
+       why:'Запрос можно повторять сколько угодно раз, мир от этого не изменится. Поэтому ответы на запросы можно кешировать и отдавать с копий базы.'},
+      {n:'api', t:'2. Контроллер передаёт запрос обработчику',
+       what:'Та же входная дверь, но другой эндпоинт и другой обработчик.',
+       code:'@GetMapping("/api/my/orders")\nList<OrderListItem> my(@AuthUser User u, int page) {\n    return myOrders.list(u.customerId(), page);\n}',
+       why:'Контроллер снова тонкий. Команды и запросы не смешиваются даже здесь: у них разные обработчики.'},
+      {n:'h', t:'3. Обработчик запроса: без правил и без класса Order',
+       what:'Обработчик запроса <b>не загружает</b> доменные объекты и не проверяет правила. Он сразу выполняет SQL, написанный под экран.',
+       code:'@Transactional(readOnly = true)\nList<OrderListItem> list(String customerId, int page) {\n    return jdbc.query(SQL_MY_ORDERS, OrderListItem.class,\n                      customerId, page);\n}',
+       why:'Правила нужны, когда что-то <b>меняешь</b>. Здесь ничего не меняется, значит, класс Order с его правилами не нужен. Его и не зовут.'},
+      {n:'m', t:'4. Модель чтения: один SQL ровно под экран',
+       what:'Модель чтения — это пара «SQL-запрос + плоский класс». Запрос сам соединяет таблицы и отдаёт ровно те поля, которые видны на экране.',
+       code:'record OrderListItem(String id, String date, int total,\n                     String status, String eta, String items) {}\n\nSELECT o.id, o.created_at, o.total, o.status, d.eta,\n       string_agg(l.sku || \' ×\' || l.qty, \', \') AS items\n  FROM orders o\n  JOIN deliveries  d ON d.order_id = o.id\n  JOIN order_lines l ON l.order_id = o.id\n WHERE o.customer_id = \'c-7\'\n GROUP BY o.id, d.eta\n ORDER BY o.created_at DESC LIMIT 20;',
+       why:'Один запрос вместо 1 + 3 × N. Экран меняется — меняем этот SQL и этот класс, а модель записи не трогаем.'},
+      {n:'db', t:'5. Чтение из тех же таблиц',
+       what:'Запрос читает <b>те же таблицы</b>, в которые пишет команда. Подсвечены строки, которые попали в ответ.',
+       code:'-- чтение не блокирует запись и ничего не меняет',
+       data:() => tOrders(o => o.c === 'c-7' ? 'cqp-rd' : '') + tDeliv(o => mine.some(m => m.id === o.o) ? 'cqp-rd' : '') + tLines(o => mine.some(m => m.id === o.o) ? 'cqp-rd' : ''),
+       why:'Это CQRS <b>первого уровня</b>: разделены модели в коде, а хранилище одно. Отдельные базы и очереди появятся только на уровнях 2 и 3 (глава 8).'},
+      {n:'ui', t:'6. Ответ: готовый экран',
+       what:'Сервер возвращает плоский список, и приложение рисует его без пересчётов.',
+       code:JSON.stringify(mine.map(o => ({id:o.id, date:o.at, total:o.total, status:o.st, eta:(DB.deliv.find(d => d.o === o.id) || {}).eta})), null, 2),
+       data:() => '<div class="cqp-phone"><h5>📱 Мои заказы</h5>' + mine.map(o => {
+         const l = DB.lines.filter(x => x.o === o.id).map(x => NAME[x.sku] + ' ×' + x.q).join(', ');
+         return '<div class="cqp-oi"><span>' + o.id + (isNew(o.id) ? ' <span class="nw">новый</span>' : '') + '<br><small style="color:var(--muted)">' + l + '</small></span><span>' + o.total + ' ₽<br><small style="color:var(--muted)">' + o.st + '</small></span></div>';
+       }).join('') + '</div>',
+       why: mine.some(o => isNew(o.id))
+         ? 'Новый заказ на месте: команда записала его в базу, запрос прочитал его оттуда своим путём. <b>Два пути, два класса, одна база.</b>'
+         : 'Здесь только старый заказ Анны. Переключитесь на «Команду», оформите заказ и вернитесь: он появится в списке.',
+       end:true},
+    ];
+  }
+
+  const steps = () => sc === 'cmd' ? cmdSteps() : qrySteps();
+
+  function grid(){
+    const L = steps(), cur = L[i], lastUi = cur.end;
+    const order = ['ui','api','h','m'];
+    const reached = k => { const pos = order.indexOf(k); return i >= pos; };
+    let h = '';
+    ['cmd','qry'].forEach((lane, row) => {
+      const act = lane === sc;
+      LANES[lane].forEach((n, k) => {
+        const isNow = act && cur.n === n[0] && !(n[0] === 'ui' && i > 0 && !lastUi) ;
+        const cls = !act ? 'off' : isNow ? (cur.fail ? 'fail' : 'now') : (reached(n[0]) || lastUi) ? 'past' : '';
+        h += '<div class="cqp-n ' + cls + '" data-n="' + n[0] + '" data-lane="' + lane + '" style="grid-row:' + (row + 1) + ';grid-column:' + (k * 2 + 1) + '">' + n[1] + '<small>' + n[2] + '</small></div>';
+        const ap = act && (i > k || lastUi);
+        h += '<div class="cqp-a ' + (!act ? 'off' : ap ? 'past' : '') + '" style="grid-row:' + (row + 1) + ';grid-column:' + (k * 2 + 2) + '">' + (lastUi && act ? '⇄' : '→') + '</div>';
+      });
+    });
+    const dbNow = cur.n === 'db';
+    h += '<div class="cqp-n ' + (dbNow ? (cur.fail ? 'fail' : 'now') : i > 4 ? 'past' : '') + '" data-n="db" style="grid-row:1 / span 2;grid-column:9">🗄 База<small>одна на оба пути</small></div>';
+    $('cqp-grid').innerHTML = h;
+  }
+
+  function paint(){
+    const L = steps();
+    if(i > L.length - 1) i = L.length - 1;
+    const cur = L[i];
+    if(cur.commit) commit();
+    grid();
+    $('cqp-lab').textContent = 'шаг ' + (i + 1) + ' из ' + L.length;
+    $('cqp-qty').style.display = sc === 'cmd' ? '' : 'none';
+    [...$('cqp-sc').children].forEach(b => b.classList.toggle('on', b.dataset.s === sc));
+    [...$('cqp-qty').children].forEach(b => b.classList.toggle('on', +b.dataset.q === qty));
+    $('cqp-out').innerHTML =
+      '<div class="skout" style="margin-top:12px"><h4>' + cur.t + '</h4>' +
+      '<div class="cqp-d"><div><div class="cqd-h">Что происходит</div><p style="margin:0 0 8px;font-size:13.5px">' + cur.what + '</p>' +
+        '<pre class="json" style="font-size:11.5px">' + esc(cur.code) + '</pre></div>' +
+        '<div>' + (cur.data ? '<div class="cqd-h">Данные прямо сейчас</div>' + cur.data() : '') + '</div></div>' +
+      '<div class="note' + (cur.fail ? ' bad' : cur.end ? ' good' : '') + '" style="margin-top:10px"><b>Почему так.</b> ' + cur.why + '</div>' +
+      (cur.end && sc === 'cmd' ? '<div class="form-row"><button class="ghost" data-again="1">↺ Оформить ещё один заказ</button><button class="act" data-to="qry">👁 Посмотреть «Мои заказы»</button></div>' : '') +
+      (cur.end && sc === 'qry' ? '<div class="form-row"><button class="act" data-to="cmd">✍️ Вернуться к команде</button></div>' : '') +
+      '</div>';
+    $('cqp-next').disabled = i >= L.length - 1;
+    $('cqp-prev').disabled = i === 0;
+    if(cur.end){
+      done.add(sc + (sc === 'cmd' ? (run.ok ? 'ok' : 'fail') : ''));
+      if(done.has('cmdok') && done.has('qry')) Progress.report('cqp-play', 1);
+    }
+  }
+  function stop(){ if(play){ clearInterval(play); play = null; } $('cqp-play').textContent = '▶ Проиграть сам'; }
+  function go(s){ stop(); sc = s; i = 0; if(s === 'cmd') newRun(); paint(); }
+
+  $('cqp-next').addEventListener('click', () => { stop(); i++; paint(); });
+  $('cqp-prev').addEventListener('click', () => { stop(); if(i > 0) i--; paint(); });
+  $('cqp-play').addEventListener('click', () => {
+    if(play){ stop(); return; }
+    if(i >= steps().length - 1){ i = 0; if(sc === 'cmd') newRun(); paint(); }
+    $('cqp-play').textContent = '⏸ Пауза';
+    play = setInterval(() => { if(i >= steps().length - 1){ stop(); return; } i++; paint(); }, 2600);
+  });
+  $('cqp-sc').addEventListener('click', e => { const b = e.target.closest('button[data-s]'); if(b) go(b.dataset.s); });
+  $('cqp-qty').addEventListener('click', e => { const b = e.target.closest('button[data-q]'); if(!b) return; stop(); qty = +b.dataset.q; i = 0; newRun(); paint(); });
+  $('cqp-grid').addEventListener('click', e => {
+    const n = e.target.closest('.cqp-n'); if(!n) return;
+    if(n.dataset.lane && n.dataset.lane !== sc) return;
+    const k = steps().findIndex(s => s.n === n.dataset.n);
+    if(k >= 0){ stop(); i = k; paint(); }
+  });
+  $('cqp-out').addEventListener('click', e => {
+    const a = e.target.closest('[data-again]'), t = e.target.closest('[data-to]');
+    if(a){ go('cmd'); }
+    else if(t){ go(t.dataset.to); }
+  });
+  paint();
+  Progress.register('cqp-play', 1, 'CQRS: путь изнутри');
+})();
+
+/* ═══ 16.08 Глава 8: конструктор уровней ═══ */
+(function(){
+  const $ = id => document.getElementById(id);
+  if(!$('cql-flow')) return;
+  const L = {
+    1:{w:['✍️ Команда','🧠 Order + правила','🗄 orders, order_lines'], wNew:[],
+       r:['👁 Запрос','📋 SQL с JOIN по таблицам записи'], rNew:[], readAt:1,
+       m:{write:'40 мс', screen:'≈ 60 мс', lag:'0: читаем те же таблицы', parts:'0'},
+       add:'Ничего нового в инфраструктуре. Просто два вида классов в коде: модель записи и модель чтения.',
+       when:'Почти всегда. С этого уровня начинают все. Он решает главную боль: экраны перестают тянуть доменные объекты.',
+       pay:'Почти ничего: чуть больше классов и SQL-запросов.'},
+    2:{w:['✍️ Команда','🧠 Order + правила','🗄 orders, order_lines','⚙ обновить my_orders_view'], wNew:[3],
+       r:['👁 Запрос','📋 SELECT * FROM my_orders_view'], rNew:[1], readAt:1,
+       m:{write:'55 мс', screen:'≈ 8 мс', lag:'0, если обновлять в той же транзакции; минуты, если по расписанию', parts:'1'},
+       add:'В той же базе появляется <b>таблица-витрина</b> my_orders_view. В ней уже лежат готовые строки для экрана, без JOIN. Её надо обновлять при каждом изменении заказа.',
+       when:'Когда экран тяжёлый даже с хорошим SQL: много соединений, агрегаты, сортировка по вычисляемому полю, а открывают его очень часто.',
+       pay:'Запись стала дольше: обновляем ещё и витрину. Появилась вторая копия данных, которую надо держать в согласии с основной.'},
+    3:{w:['✍️ Команда','🧠 Order + правила','🗄 orders, order_lines','📤 outbox','📨 брокер сообщений','⚙ проектор','🔎 Elasticsearch'], wNew:[3,4,5,6],
+       r:['👁 Запрос','🔎 Elasticsearch'], rNew:[1], readAt:2,
+       m:{write:'45 мс', screen:'≈ 5 мс', lag:'от 0,2 до 3 секунд, при сбое — дольше', parts:'4'},
+       add:'Модель чтения переезжает в <b>отдельное хранилище</b>, например Elasticsearch для поиска. Туда изменения доезжают событиями: outbox → брокер → проектор (обработчик, который строит витрину).',
+       when:'Когда чтению нужно то, чего основная база не умеет или не выдерживает: полнотекстовый поиск с опечатками, миллионы чтений в секунду, аналитика.',
+       pay:'Отставание, четыре новых компонента в эксплуатации, перестроение витрины, алерты на «застрявший» проектор, отладка по цепочке событий.'},
+  };
+  let lv = 1, timers = [], log = [];
+  const tried = new Set();
+  function clear(){ timers.forEach(clearTimeout); timers = []; }
+  function lane(lbl, arr, nw, pre){
+    return '<div class="cql-lane"><div class="cql-lbl">' + lbl + '</div>' +
+      arr.map((n, k) => (k ? '<span class="cql-ar">→</span>' : '') + '<span class="cql-n' + (nw.includes(k) ? ' new' : '') + '" id="' + pre + k + '">' + n + '</span>').join('') + '</div>';
+  }
+  function draw(){
+    const x = L[lv];
+    [...$('cql-pick').children].forEach(b => b.classList.toggle('on', +b.dataset.l === lv));
+    $('cql-flow').innerHTML = lane('путь записи (команда)', x.w, x.wNew, 'cql-w') + lane('путь чтения (запрос)', x.r, x.rNew, 'cql-r');
+    $('cql-m').innerHTML =
+      '<span class="meter">Запись: <b>' + x.m.write + '</b></span>' +
+      '<span class="meter good">Экран «Мои заказы»: <b>' + x.m.screen + '</b></span>' +
+      '<span class="meter ' + (lv === 3 ? 'wq' : 'good') + '">Отставание: <b>' + x.m.lag + '</b></span>' +
+      '<span class="meter ' + (lv === 1 ? 'good' : lv === 2 ? 'wq' : 'bad') + '">Новых частей в эксплуатации: <b>' + x.m.parts + '</b></span>';
+    $('cql-out').innerHTML = '<div class="grid3" style="margin-top:12px">' +
+      '<div class="box"><h4>Что добавилось</h4><p class="bs">' + x.add + '</p></div>' +
+      '<div class="box"><h4>Когда брать</h4><p class="bs">' + x.when + '</p></div>' +
+      '<div class="box"><h4>Чем платим</h4><p class="bs">' + x.pay + '</p></div></div>';
+    log = []; paintLog();
+  }
+  function add(k, t){ log.push({k, t}); paintLog(); }
+  function paintLog(){
+    $('cql-log').innerHTML = log.map(l => '<div class="step ' + (l.k === 'ok' ? 'done' : l.k === 'fail' ? 'fail' : l.k === 'warn' ? 'comp' : '') + '"><div class="si">' + (l.k === 'ok' ? '✓' : l.k === 'fail' ? '✕' : l.k === 'warn' ? '!' : '·') + '</div><div>' + l.t + '</div></div>').join('');
+  }
+  const hot = (id, cls) => { const e = $(id); if(e){ e.classList.remove('hot','done','miss'); e.classList.add(cls); } };
+  function go(){
+    clear(); draw();
+    const x = L[lv], P = 420;
+    let t = 0;
+    const at = (f) => { t += P; timers.push(setTimeout(f, t)); };
+    const wCommit = lv === 3 ? 2 : x.w.length - 1;
+    for(let k = 0; k <= wCommit; k++){
+      at(() => {
+        if(k) hot('cql-w' + (k - 1), 'done');
+        hot('cql-w' + k, 'hot');
+        add('', ['<b>0 мс.</b> Анна нажала «Оформить». Команда ушла на сервер.',
+                 '<b>15 мс.</b> Модель записи проверила правила: лимит, склад, сумма.',
+                 '<b>40 мс.</b> Заказ записан в таблицы orders и order_lines.' + (lv === 3 ? ' В той же транзакции записано событие в outbox (глава про outbox).' : ''),
+                 '<b>55 мс.</b> В той же транзакции обновлена строка витрины my_orders_view. Коммит.'][k]);
+      });
+    }
+    at(() => { hot('cql-w' + wCommit, 'done'); add('ok', 'Анна получила ответ «заказ создан» и <b>сразу</b> открыла «Мои заказы».'); });
+    const readFound = lv !== 3;
+    for(let k = 0; k < x.r.length; k++) at(() => { if(k) hot('cql-r' + (k - 1), 'done'); hot('cql-r' + k, 'hot'); });
+    at(() => {
+      hot('cql-r' + (x.r.length - 1), readFound ? 'done' : 'miss');
+      if(lv === 1) add('ok', '<b>+60 мс.</b> SQL с JOIN прочитал те же таблицы. Новый заказ <b>на экране</b>: читаем то, что только что записали.');
+      else if(lv === 2) add('ok', '<b>+8 мс.</b> Витрина уже обновлена в той же транзакции. Новый заказ <b>на экране</b>, и экран открылся почти мгновенно.');
+      else add('fail', '<b>+5 мс.</b> Elasticsearch ответил мгновенно, но <b>нового заказа там ещё нет</b>. Событие только едет по цепочке. Анна видит список без своего заказа и пугается: «я же только что оформила!»');
+    });
+    if(lv === 3){
+      for(let k = 3; k < x.w.length; k++) at(() => {
+        hot('cql-w' + (k - 1), 'done'); hot('cql-w' + k, 'hot');
+        add('', ['<b>+200 мс.</b> Фоновый процесс забрал событие из outbox и отправил в брокер.',
+                 '<b>+600 мс.</b> Брокер доставил событие OrderPlaced проектору.',
+                 '<b>+900 мс.</b> Проектор построил документ для витрины и записал его.',
+                 '<b>+1,4 с.</b> Elasticsearch проиндексировал документ. Теперь он виден в поиске.'][k - 3]);
+      });
+      at(() => {
+        hot('cql-w' + (x.w.length - 1), 'done');
+        add('warn', 'Анна обновила экран через 2 секунды, и заказ <b>появился</b>. Витрина догнала. Это нормальная работа уровня 3, но интерфейс должен её учитывать: например, показывать автору его заказ из модели записи (гарантия «читай своё», глава 10).');
+      });
+    }
+    at(() => {
+      tried.add(lv);
+      if(tried.size === 3){ Progress.report('cql-play', 1); add('ok', 'Вы прошли все три уровня. Заметьте: чем выше уровень, тем быстрее экран и тем больше частей и отставания. Поэтому начинают с первого.'); }
+      else add('', 'Переключите уровень сверху и запустите ещё раз, чтобы сравнить.');
+    });
+  }
+  $('cql-pick').addEventListener('click', e => { const b = e.target.closest('button[data-l]'); if(!b) return; clear(); lv = +b.dataset.l; draw(); });
+  $('cql-go').addEventListener('click', go);
+  draw();
+  Progress.register('cql-play', 1, 'CQRS: три уровня вживую');
+
+  renderSort('cqlv-sort', [
+    {t:'Экран «Мои заказы» тянет 5 таблиц через ленивые связи ORM и открывается 3 секунды', bucket:'l1',
+     why:'Классический случай для уровня 1: отдельный SQL под экран вместо загрузки сущностей. Один запрос, никакой новой инфраструктуры.'},
+    {t:'Новый небольшой сервис заявок: четыре экрана, сотня пользователей', bucket:'l1',
+     why:'Здесь хватает разделения в коде. Витрины и отдельные хранилища только добавят работы без выгоды.'},
+    {t:'Дашборд руководителя: суммы по регионам за год считаются 40 секунд, данные могут быть на 10 минут старыми', bucket:'l2',
+     why:'Материализованное представление в той же базе, которое обновляется раз в несколько минут. Отставание бизнес уже разрешил, отдельное хранилище не нужно.'},
+    {t:'Список заказов сортируется по «последней активности», которая считается из трёх таблиц; хороший SQL всё равно работает 2 секунды', bucket:'l2',
+     why:'Таблица-витрина с уже посчитанным полем и индексом по нему. Обновляется в той же транзакции, поэтому отставания нет.'},
+    {t:'Каталог на 2 миллиона товаров: поиск по названию с опечатками, фильтры, подсветка совпадений', bucket:'l3',
+     why:'Реляционная база не умеет нормальный полнотекстовый поиск с опечатками. Нужна отдельная поисковая витрина, например Elasticsearch, наполняемая событиями.'},
+    {t:'Счётчик «сейчас смотрят 12 человек» на каждой карточке, тысячи обновлений в секунду', bucket:'l3',
+     why:'Такую частоту изменений держат в хранилище в памяти, например Redis. Основную базу этим нагружать нельзя.'},
+  ], [{id:'l1', n:'Уровень 1: разные классы'}, {id:'l2', n:'Уровень 2: витрина в той же базе'}, {id:'l3', n:'Уровень 3: отдельное хранилище'}], 'cqlv-score', 'cqlv-total');
+  Progress.register('cqlv-score', 6, 'CQRS: выбор уровня');
 })();
 </script>
 <!-- ==================== 15. КАК СЕРВИСЫ ГОВОРЯТ ==================== -->
@@ -16945,7 +17842,7 @@ renderFlow('msf-flow', {
     skip:'Когда потеря события ничем не грозит: счётчики просмотров, необязательная аналитика.'},
 
   cqrs:{
-    task:'Перестать обслуживать <b>запись и чтение одной моделью</b> — у них противоположные требования.',
+    task:'Дать записи и чтению <b>разные классы данных</b>: записи — маленький класс с правилами (<code class="inl">Order</code>), экрану — плоский класс ровно под себя (<code class="inl">OrderListItem</code>) и свой SQL-запрос.',
     life:'На кухне важны рецепт и граммы, на витрине — красиво выложить и быстро отдать. Это одна булочка, но два разных взгляда, и продавец не отпускает товар из тестомеса.',
     no:['Доменный объект пухнет полями «для экранов», и правила записи тонут среди них.',
         'Экраны тормозят: список тянет двести объектов с ленивыми связями, получается восемьсот запросов.',
