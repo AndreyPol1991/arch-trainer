@@ -1,14 +1,98 @@
 <!-- ==================== 23. БАЗЫ ДАННЫХ ==================== -->
 <section class="panel" id="db" data-accent="nt" role="tabpanel">
+  <style>
+    .dbx-map{display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:8px; margin-top:12px}
+    .dbx-map button{appearance:none; text-align:left; display:flex; gap:10px; align-items:flex-start; border:1px solid var(--line); background:var(--surface-2); color:var(--ink); border-radius:9px; padding:9px 11px; cursor:pointer; font:500 13px/1.35 var(--sans)}
+    .dbx-map button:hover{border-color:var(--accent)}
+    .dbx-map .dbx-n{flex:none; width:24px; height:24px; border-radius:50%; background:var(--accent); color:#fff; display:grid; place-items:center; font:700 11.5px var(--mono)}
+    .dbx-map small{display:block; color:var(--muted); font-size:11.5px; margin-top:2px}
+    .dbx-def{border:1px solid color-mix(in srgb, var(--accent) 40%, var(--line)); background:color-mix(in srgb, var(--accent) 6%, var(--surface)); border-radius:10px; padding:11px 14px; margin:12px 0; font-size:14px}
+    .dbx-def b.dbx-w{font:700 11px var(--mono); text-transform:uppercase; letter-spacing:.03em; color:var(--accent); display:block; margin-bottom:3px}
+    .dbx-wrap{overflow-x:auto; -webkit-overflow-scrolling:touch; margin-top:12px; padding-bottom:4px}
+    .dbx-scheme{min-width:620px; display:grid; grid-template-columns:repeat(3,1fr); gap:10px 14px}
+    .dbx-lane{font:600 10.5px var(--mono); color:var(--faint); text-transform:uppercase; letter-spacing:.03em; grid-column:1 / -1; margin:2px 0 -4px}
+    .dbx-node{border:1.5px solid var(--line); border-radius:10px; background:var(--surface); padding:8px 10px; opacity:.45; transition:opacity .2s, border-color .2s, box-shadow .2s; font-size:12.5px}
+    .dbx-node .dbx-nt{font:700 12.5px var(--sans); color:var(--ink)}
+    .dbx-node .dbx-ns{font-size:11.5px; color:var(--muted)}
+    .dbx-node.dbx-lit{opacity:.8}
+    .dbx-node.dbx-on{opacity:1; border-color:var(--accent); box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent)}
+    .dbx-node.dbx-bad{opacity:1; border-color:var(--danger); box-shadow:0 0 0 3px color-mix(in srgb, var(--danger) 18%, transparent)}
+    .dbx-node.dbx-good{opacity:1; border-color:var(--ok); box-shadow:0 0 0 3px color-mix(in srgb, var(--ok) 18%, transparent)}
+    .dbx-sub{display:flex; gap:5px; flex-wrap:wrap; margin-top:6px}
+    .dbx-chip{font:600 11px var(--mono); border:1px solid var(--line); border-radius:6px; padding:2px 6px; color:var(--muted); background:var(--surface-2)}
+    .dbx-chip.dbx-on{color:#fff; background:var(--accent); border-color:var(--accent)}
+    .dbx-chip.dbx-bad{color:#fff; background:var(--danger); border-color:var(--danger)}
+    .dbx-route{display:flex; flex-wrap:wrap; gap:4px; align-items:center; margin:10px 0 0; font:600 12px var(--mono)}
+    .dbx-route span{border:1px solid var(--line); border-radius:12px; padding:3px 9px; background:var(--surface-2); color:var(--ink)}
+    .dbx-route i{font-style:normal; color:var(--faint)}
+    .dbx-data{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:12px}
+    @media (max-width:640px){ .dbx-data{grid-template-columns:1fr} }
+    .dbx-tbl{width:100%; border-collapse:collapse; font:500 12.5px var(--mono); margin-top:6px}
+    .dbx-tbl th{font:600 10.5px var(--mono); color:var(--faint); text-align:left; border-bottom:1px solid var(--line); padding:3px 5px; text-transform:uppercase}
+    .dbx-tbl td{padding:4px 5px; border-bottom:1px dashed var(--line); color:var(--ink)}
+    .dbx-tbl tr.dbx-pend td{color:var(--warn); font-style:italic}
+    .dbx-tbl tr.dbx-new td{color:var(--ok); font-weight:700}
+    .dbx-tbl tr.dbx-miss td{color:var(--faint)}
+    .dbx-term{margin-top:10px; border:1px dashed color-mix(in srgb, var(--accent) 50%, var(--line)); border-radius:9px; padding:9px 12px; font-size:13px; color:var(--muted); background:var(--surface)}
+    .dbx-term b{color:var(--ink)}
+    .dbx-bars{display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:12px}
+    @media (max-width:520px){ .dbx-bars{grid-template-columns:repeat(2,1fr)} }
+    .dbx-bar{border:1px solid var(--line); border-radius:9px; padding:8px; background:var(--surface-2); font-size:12px}
+    .dbx-bar .dbx-track{height:70px; display:flex; align-items:flex-end; background:var(--surface); border-radius:6px; margin:6px 0; overflow:hidden; border:1px solid var(--line)}
+    .dbx-bar .dbx-fill{width:100%; background:var(--accent); transition:height .3s}
+    .dbx-bar.dbx-hot{border-color:var(--danger)}
+    .dbx-bar.dbx-hot .dbx-fill{background:var(--danger)}
+    .dbx-bar b{font:700 12px var(--mono)}
+    .dbx-duo{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:12px}
+    @media (max-width:640px){ .dbx-duo{grid-template-columns:1fr} }
+    .dbx-acc{font:700 22px var(--mono); font-variant-numeric:tabular-nums; margin:4px 0}
+    .dbx-check{display:flex; gap:8px; align-items:center; font-size:13.5px; margin:10px 0; cursor:pointer}
+  </style>
+
   <p class="lead"><b>База данных — самое дорогое решение в системе и самое трудное к отмене.</b> Сервис можно переписать за месяц. Язык можно поменять. А базу, в которой лежат два терабайта живых данных и на которую смотрят сорок запросов, меняют годами — и обычно не меняют вовсе. Поэтому про неё стоит понимать чуть больше, чем «туда сохраняются данные».</p>
 
   <div class="card">
-    <h2><span class="tag">зачем это</span> зачем архитектору разбираться в базах</h2>
+    <h2><span class="tag">карта раздела</span> одна история в одиннадцати главах</h2>
+    <p>Этот раздел — не справочник, а рассказ. Мы начнём с простого вопроса «что такое база», потом проследим одну покупку от кнопки до диска, а дальше будем разбирать каждый механизм, который встретился по дороге. Главы идут по порядку: каждая опирается на предыдущую. Нажмите на главу, чтобы перейти к ней.</p>
+    <div class="dbx-map" id="dbx-map">
+      <button data-dbx-to="dbx-ch1"><span class="dbx-n">1</span><span>Что такое база<small>определение, словарик, зачем</small></span></button>
+      <button data-dbx-to="dbx-ch2"><span class="dbx-n">2</span><span>Одна покупка от и до<small>Анна, Борис и отчёт Олега</small></span></button>
+      <button data-dbx-to="dbx-ch3"><span class="dbx-n">3</span><span>Какие бывают базы<small>семь видов и на что похожи</small></span></button>
+      <button data-dbx-to="dbx-ch4"><span class="dbx-n">4</span><span>Индекс<small>как найти строку из миллионов</small></span></button>
+      <button data-dbx-to="dbx-ch5"><span class="dbx-n">5</span><span>Транзакция<small>«всё или ничего», ACID</small></span></button>
+      <button data-dbx-to="dbx-ch6"><span class="dbx-n">6</span><span>Когда все сразу<small>гонки, изоляция, блокировки</small></span></button>
+      <button data-dbx-to="dbx-ch7"><span class="dbx-n">7</span><span>Пул соединений<small>почему не десять тысяч клиентов</small></span></button>
+      <button data-dbx-to="dbx-ch8"><span class="dbx-n">8</span><span>Реплики<small>копии для чтения и их отставание</small></span></button>
+      <button data-dbx-to="dbx-ch9"><span class="dbx-n">9</span><span>Когда одной базы мало<small>шарды, кворум, 2PC</small></span></button>
+      <button data-dbx-to="dbx-ch10"><span class="dbx-n">10</span><span>База в бою<small>миграции без простоя, типичные аварии</small></span></button>
+      <button data-dbx-to="dbx-ch11"><span class="dbx-n">11</span><span>Проверьте себя<small>задачи из жизни</small></span></button>
+    </div>
+  </div>
+
+  <!-- ═══════════ ГЛАВА 1 ═══════════ -->
+  <div class="card" id="dbx-ch1">
+    <h2><span class="tag">глава 1 · что это</span> что такое база данных, если по-простому</h2>
+    <div class="dbx-def"><b class="dbx-w">определение</b><b>База данных</b> — это данные, разложенные по строгим правилам, плюс программа, которая умеет их быстро найти, безопасно изменить и не потерять. Саму программу называют <b>СУБД</b> — система управления базами данных. PostgreSQL, MySQL, MongoDB, Redis — это всё СУБД.</div>
+    <div class="note good"><b>Житейски.</b> База — это склад с картотекой и кладовщиком. Вещи — это данные. Картотека — это индексы: по ней ищут, не обходя весь склад. Кладовщик — это СУБД: он следит, чтобы двое не схватили одну коробку, чтобы запись в журнале прихода не потерялась и чтобы никто не положил на полку то, чего там быть не может. Пока вещей сто, всё это кажется лишним. Когда их миллион, а кладовщиков двадцать, всё решает порядок.</div>
+    <h3 style="margin:16px 0 6px;font-size:14px">Что база обещает — четыре обещания</h3>
+    <div class="grid2">
+      <div class="box"><h4>💾 Не потерять</h4><p class="bs">Сказала «сохранено» — значит, данные переживут даже выдернутый шнур питания.</p></div>
+      <div class="box"><h4>🔎 Найти быстро</h4><p class="bs">Одну строку среди десяти миллионов — за доли миллисекунды.</p></div>
+      <div class="box"><h4>🛡 Не дать испортить</h4><p class="bs">Правила вроде «остаток не меньше нуля» база соблюдает сама, даже если код написан криво.</p></div>
+      <div class="box"><h4>👥 Пускать многих сразу</h4><p class="bs">Сотни людей меняют данные одновременно — и никто не затирает чужую работу.</p></div>
+    </div>
+    <p style="margin-top:14px">Каждое обещание держится на своём механизме. У механизмов есть имена, и дальше они будут встречаться постоянно. Вот словарик на пальцах — нажимайте на слова.</p>
+    <div class="seg" id="dbx-gl-pick"></div>
+    <div id="dbx-gl-out"></div>
+  </div>
+
+  <div class="card">
+    <h2><span class="tag">глава 1 · зачем</span> зачем архитектору разбираться в базах</h2>
     <div id="why-db"></div>
   </div>
 
   <div class="card">
-    <h2><span class="tag">зачем этот раздел</span> почему архитектору мало знать SQL</h2>
+    <h2><span class="tag">глава 1 · почему</span> почему архитектору мало знать SQL</h2>
     <p>Можно двадцать лет писать <code class="inl">SELECT</code> и ни разу не задуматься, что происходит внутри. Пока система маленькая, это и не нужно. Проблемы появляются на масштабе — и все они выглядят одинаково: <b>«вчера работало, сегодня тормозит, а мы ничего не меняли»</b>.</p>
     <div class="grid3">
       <div class="box">
@@ -24,72 +108,134 @@
         <p class="bs">«Один раз из тысячи списалось дважды», «в отчёте цифра не сходится», «на тесте не повторяется». Почти всегда это база: изоляция, отставание реплики или гонка двух транзакций.</p>
       </div>
     </div>
-    <div class="note good"><b>Житейски.</b> База — это склад с картотекой. Пока вещей сто, всё равно, как они лежат: найдёте руками. Когда их миллион, а кладовщиков двадцать и они лезут на один стеллаж одновременно — начинает иметь значение и как разложено, и кто кого пропускает, и что будет, если двое схватятся за одну коробку.</div>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">одной картиной</span> откуда вообще берутся реплики, шардирование, кворум и 2PC</h2>
-    <p>Все эти слова выглядят как отдельные темы, которые надо выучить. На самом деле это <b>одна цепочка</b>: каждое следующее решение появилось как ответ на беду, созданную предыдущим. Пройдите её — и всё встанет на места.</p>
-    <div id="dbw-flow"></div>
-    <div class="note good" style="margin-top:12px"><b>Главная мысль этой цепочки.</b> Ни один пункт не появился «потому что так правильно». Каждый — вынужденный ответ на конкретную беду, и у каждого есть цена. Поэтому и брать их надо <b>по очереди и только когда прижало</b>, а не сразу все, потому что «это же современная архитектура».</div>
+  <!-- ═══════════ ГЛАВА 2 ═══════════ -->
+  <div class="card" id="dbx-ch2">
+    <h2><span class="tag">глава 2 · сквозной пример</span> одна покупка от кнопки до диска</h2>
+    <p>Теперь посмотрим на всё сразу, на живом примере. Магазин обуви «Ботинок». На складе осталась <b>последняя пара</b> ботинок 42 размера. <b>Анна</b> нажимает «Оформить заказ». Через пять миллисекунд то же самое делает <b>Борис</b>. А менеджер <b>Олег</b> в это время строит отчёт о продажах за день.</p>
+    <p>Жмите «Дальше». На схеме подсвечивается, где сейчас происходит работа. Ниже — что лежит в базе на этом шаге: у главного узла (мастера) и у его копии (реплики). Новые слова объясняются прямо по ходу.</p>
+    <div class="skbar">
+      <button class="ghost" id="dbx-fl-prev">← Назад</button>
+      <button class="act" id="dbx-fl-next">Дальше →</button>
+      <button class="ghost" id="dbx-fl-play">▶ Сам</button>
+      <span class="skstep" id="dbx-fl-lab"></span>
+    </div>
+    <div class="dbx-wrap">
+      <div class="dbx-scheme" id="dbx-fl-scheme">
+        <div class="dbx-lane">люди</div>
+        <div class="dbx-node" data-n="anna"><div class="dbx-nt">👩 Анна</div><div class="dbx-ns">покупает последнюю пару</div></div>
+        <div class="dbx-node" data-n="boris"><div class="dbx-nt">🧔 Борис</div><div class="dbx-ns">хочет ту же пару</div></div>
+        <div class="dbx-node" data-n="oleg"><div class="dbx-nt">👨‍💼 Олег</div><div class="dbx-ns">менеджер, строит отчёт</div></div>
+        <div class="dbx-lane">сервисы</div>
+        <div class="dbx-node" data-n="svc" style="grid-column:span 2"><div class="dbx-nt">⚙️ Сервис заказов</div><div class="dbx-ns">знает правила магазина, ходит в базу</div></div>
+        <div class="dbx-node" data-n="rsvc"><div class="dbx-nt">📈 Сервис отчётов</div><div class="dbx-ns">только читает</div></div>
+        <div class="dbx-lane">вход в базу</div>
+        <div class="dbx-node" data-n="pool" style="grid-column:span 3"><div class="dbx-nt">🎫 Пул соединений</div><div class="dbx-ns">20 готовых «линий» к базе, раздаются по очереди</div></div>
+        <div class="dbx-lane">база данных</div>
+        <div class="dbx-node" data-n="master"><div class="dbx-nt">👑 Мастер</div><div class="dbx-ns">главный узел, принимает запись</div>
+          <div class="dbx-sub"><span class="dbx-chip" data-c="idx">📇 индекс</span><span class="dbx-chip" data-c="lock">🔒 замок</span><span class="dbx-chip" data-c="wal">📜 журнал</span></div></div>
+        <div class="dbx-node" data-n="rep1"><div class="dbx-nt">📑 Реплика 1</div><div class="dbx-ns">копия для обычного чтения</div></div>
+        <div class="dbx-node" data-n="rep2"><div class="dbx-nt">📊 Реплика отчётов</div><div class="dbx-ns">копия для тяжёлых запросов</div></div>
+      </div>
+    </div>
+    <div class="dbx-route" id="dbx-fl-route"></div>
+    <div class="skout" style="margin-top:12px"><h4 id="dbx-fl-t"></h4>
+      <pre class="json" style="font-size:12px;margin:8px 0" id="dbx-fl-sql"></pre>
+      <div class="note" style="margin:0" id="dbx-fl-d"></div>
+      <div id="dbx-fl-term"></div>
+    </div>
+    <div class="meters" id="dbx-fl-m"></div>
+    <div class="dbx-data">
+      <div class="box"><h4>👑 Мастер — что в базе сейчас</h4><div id="dbx-fl-mst"></div></div>
+      <div class="box"><h4>📑 Реплика — что видит копия</h4><div id="dbx-fl-rep"></div></div>
+    </div>
+    <div class="note good"><b>Что мы только что увидели.</b> Одна кнопка «Оформить» задела пул соединений, транзакцию, индекс, блокировку, журнал, реплику и выборы нового мастера. Дальше каждая глава — это увеличительное стекло над одним из этих шагов.</div>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">карта</span> какие вообще бывают базы и зачем их столько</h2>
-    <p>Все базы хранят данные. Отличаются они тем, <b>какой вопрос умеют задавать дёшево</b>. Выбирать базу — значит выбирать, какие вопросы будут быстрыми.</p>
+  <!-- ═══════════ ГЛАВА 3 ═══════════ -->
+  <div class="card" id="dbx-ch3">
+    <h2><span class="tag">глава 3 · виды баз</span> какие бывают базы и зачем их столько</h2>
+    <p>В нашей истории база была реляционной — с таблицами. Но баз много видов. Все они хранят данные. Отличаются они тем, <b>какой вопрос умеют задавать дёшево</b>. Выбирать базу — значит выбирать, какие вопросы будут быстрыми.</p>
+    <div class="note good"><b>Житейски.</b> Бухгалтерская книга, папка с делом, камера хранения, стопки по видам документов, схема метро, кардиограмма и библиотечный каталог. Все семь хранят бумаги. Но найти «все платежи за март» удобно только в одном из них, а «как доехать с двумя пересадками» — в другом.</div>
+    <h3 style="margin:16px 0 6px;font-size:14px">Шпаргалка: семь видов в одной таблице</h3>
+    <p>Нажмите на строку — появится пояснение, когда эту базу брать, а когда нет.</p>
+    <div id="dbx-kcmp"></div>
+    <h3 style="margin:18px 0 6px;font-size:14px">Каждый вид поближе</h3>
+    <p>Выберите вид — увидите, как он хранит данные, в чём силён и где пригодится в «Ботинке».</p>
     <div class="seg" id="dbt-pick"></div>
     <div id="dbt-out"></div>
-    <div class="note warn"><b>Главный совет по выбору.</b> Начинайте с реляционной, даже если модно другое. PostgreSQL сегодня умеет JSON, полнотекстовый поиск, массивы, геоданные и очереди — то есть закрывает первые четыре типа из списка сам. Отдельную базу берут, когда <b>доказали цифрами</b>, что PostgreSQL не справляется с конкретным сценарием, а не потому, что «для событий же нужна колоночная».</div>
-    <div class="note"><b>Полиглотное хранение</b> — это когда в системе живёт несколько типов баз под разные задачи: заказы в PostgreSQL, сессии в Redis, аналитика в ClickHouse, поиск в Elasticsearch. Нормальная взрослая практика. Цена — каждая база это отдельная эксплуатация: бэкапы, обновления, мониторинг, люди, которые умеют её чинить в три часа ночи. Три базы — это три дежурства, а не одно.</div>
+    <div class="note warn"><b>Главный совет по выбору.</b> Начинайте с реляционной, даже если модно другое. PostgreSQL сегодня умеет JSON, полнотекстовый поиск, массивы, геоданные и очереди — то есть во многом закрывает документную, поисковую и ключ-значение сам. Отдельную базу берут, когда <b>доказали цифрами</b>, что PostgreSQL не справляется с конкретным сценарием, а не потому, что «для событий же нужна колоночная».</div>
+    <div class="note"><b>Полиглотное хранение</b> — это когда в системе живёт несколько видов баз под разные задачи: заказы в PostgreSQL, сессии в Redis, аналитика в ClickHouse, поиск в Elasticsearch. Нормальная взрослая практика. Цена — каждая база это отдельная эксплуатация: бэкапы, обновления, мониторинг, люди, которые умеют её чинить в три часа ночи. Три базы — это три дежурства, а не одно.</div>
+    <h3 style="margin:18px 0 6px;font-size:14px">Потренируйтесь: какую базу взять?</h3>
+    <p>Решено <b id="dbx-kind-score">0</b> из <span id="dbx-kind-total">0</span>.</p>
+    <div id="dbx-kind"></div>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">главная схема</span> мастер и реплики: проиграйте шесть сценариев</h2>
-    <p>Схема «один пишущий узел и несколько читающих» — самая распространённая в мире. Её называют по-разному: мастер–слейв, лидер–фолловер, primary–replica. Это одно и то же.</p>
-    <div class="note good"><b>Житейски.</b> Есть один <b>оригинал</b> документа и несколько <b>заверенных копий</b>. Менять можно только оригинал — иначе копии разойдутся и никто не поймёт, какая настоящая. А вот читать можно с любой копии, и в этом весь смысл: копий можно наделать сколько угодно.</div>
-    <h3 style="margin:16px 0 6px;font-size:14px">Сначала — схема целиком</h3>
-    <p>Прожмите: куда идёт запись, куда чтение, что даёт каждая реплика и чем за это платят.</p>
-    <div id="msf-flow"></div>
-
-    <h3 style="margin:18px 0 6px;font-size:14px">А теперь шесть сценариев по шагам</h3>
-    <p>Выберите, что происходит, и пройдите по шагам.</p>
-    <div class="seg" id="ms-pick"></div>
-    <div class="skbar">
-      <button class="ghost" id="ms-prev">← Назад</button>
-      <button class="act" id="ms-next">Дальше →</button>
-      <span class="skstep" id="ms-lab"></span>
-    </div>
-    <div id="ms-out"></div>
+  <!-- ═══════════ ГЛАВА 4 ═══════════ -->
+  <div class="card" id="dbx-ch4">
+    <h2><span class="tag">глава 4 · индекс</span> как база находит строку среди десяти миллионов</h2>
+    <p>Во второй главе база нашла остаток ботинок почти мгновенно. Как? Самый частый ответ на вопрос «почему тормозит» — «нет индекса». Разберём, что это такое, без магии.</p>
+    <div class="dbx-def"><b class="dbx-w">определение</b><b>Индекс</b> — это отдельная отсортированная структура рядом с таблицей. В ней для каждого значения колонки записано, в какой строке таблицы оно лежит. База ищет сначала в индексе, а потом идёт прямо в нужную строку.</div>
+    <div class="note good"><b>Житейски.</b> Индекс — это <b>алфавитный указатель в конце книги</b>. Без него, чтобы найти слово, надо пролистать всю книгу. С ним — открываете указатель, находите слово, там написана страница. Указатель занимает место и его надо дописывать при каждой правке книги — но искать он позволяет мгновенно.</div>
+    <h3 style="margin:16px 0 6px;font-size:14px">Покрутите размер таблицы</h3>
+    <p>Без индекса база читает таблицу целиком. С индексом она спускается по дереву, и на каждом шаге отбрасывает половину оставшегося — как вы ищете слово в бумажном словаре.</p>
+    <div class="slider-row"><label for="dbx-ix-r">Строк в таблице</label><input type="range" id="dbx-ix-r" min="3" max="9" step="0.5" value="7"><span class="sv" id="dbx-ix-v">10 млн</span></div>
+    <div id="dbx-ix-out"></div>
+    <h3 style="margin:18px 0 6px;font-size:14px">Четыре сценария</h3>
+    <p>Нажмите на сценарий и посмотрите, что делает база.</p>
+    <div class="seg" id="ix-pick"></div>
+    <div id="ix-out"></div>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">арифметика</span> кворум: как договориться без начальника</h2>
-    <p>Есть базы вообще без лидера — Cassandra, DynamoDB, Riak. Там никто не главный, и вопрос «какое значение правильное» решается <b>голосованием</b>. Правило, на котором всё держится, состоит из трёх букв.</p>
-    <pre class="json">  N  —  сколько всего копий данных
-  W  —  скольких копий дождаться при ЗАПИСИ
-  R  —  скольких копий спросить при ЧТЕНИИ
-
-  если  W + R &gt; N   →   читающий ГАРАНТИРОВАННО
-                        зацепит хотя бы одну свежую копию</pre>
-    <div class="note good"><b>Почему это работает — на пальцах.</b> Три ящика. Вы кладёте записку в два из трёх. Кто-то открывает два ящика наугад. Может ли он промахнуться мимо обеих ваших? Нет: два плюс два — это четыре «посещения» на три ящика, значит хотя бы один ящик посетили оба. Вот и всё доказательство.</div>
-    <p style="margin-top:12px">Покрутите ручки и посмотрите, что получается.</p>
-    <div class="slider-row"><label for="qm-n-r">N — сколько всего копий данных</label><input type="range" id="qm-n-r" min="3" max="7" step="2" value="3"><span class="sv" id="qm-n-v">3</span></div>
-    <div class="slider-row"><label for="qm-w-r">W — скольких ждём при записи</label><input type="range" id="qm-w-r" min="1" max="7" value="2"><span class="sv" id="qm-w-v">2</span></div>
-    <div class="slider-row"><label for="qm-r-r">R — скольких спрашиваем при чтении</label><input type="range" id="qm-r-r" min="1" max="7" value="2"><span class="sv" id="qm-r-v">2</span></div>
-    <div id="qm-out"></div>
-  </div>
-
-  <div class="card">
-    <h2><span class="tag">основа</span> что такое транзакция и что значат четыре буквы ACID</h2>
-    <p>Слово «транзакция» звучит страшно, а значит простую вещь: <b>несколько действий, которые считаются одним</b>. Либо все прошли, либо ни одного.</p>
+  <!-- ═══════════ ГЛАВА 5 ═══════════ -->
+  <div class="card" id="dbx-ch5">
+    <h2><span class="tag">глава 5 · транзакция</span> «всё или ничего»: что такое транзакция</h2>
+    <p>Когда Анна покупала ботинки, база сделала два дела: уменьшила остаток и создала заказ. А если между ними сервер упадёт? Остаток уменьшен, заказа нет — пара пропала со склада «в никуда». Чтобы так не было, придуманы транзакции.</p>
+    <div class="dbx-def"><b class="dbx-w">определение</b><b>Транзакция</b> — это несколько действий с базой, которые считаются одним. Либо прошли все, либо не прошло ни одно. Начинается словом <code class="inl">BEGIN</code>, заканчивается <code class="inl">COMMIT</code> (подтвердить) или <code class="inl">ROLLBACK</code> (отменить всё).</div>
     <div class="note good"><b>Житейски.</b> Перевод денег — это два действия: списать у одного и начислить другому. Если между ними выключат свет, деньги исчезнут из мира. Транзакция — это обещание банка, что такого не случится: либо оба действия, либо ни одного.</div>
-    <p style="margin-top:12px">Нажмите на букву — посмотрите, что она обещает и что ломается, если её нет.</p>
+    <h3 style="margin:16px 0 6px;font-size:14px">Попробуйте сами: выключите свет посреди перевода</h3>
+    <p>Анна переводит Борису 100 ₽. Выберите режим, решите, гаснет ли свет, и нажмите «Перевести». Следите за строкой «всего денег»: она должна всегда быть 600.</p>
+    <div class="seg" id="dbx-tx-mode">
+      <button class="on" data-m="raw">Без транзакции</button>
+      <button data-m="tx">В транзакции</button>
+    </div>
+    <label class="dbx-check"><input type="checkbox" id="dbx-tx-cut" checked> ⚡ свет погаснет между «списать» и «начислить»</label>
+    <div class="form-row">
+      <button class="act" id="dbx-tx-go">💸 Перевести 100 ₽</button>
+      <button class="ghost" id="dbx-tx-reset">⟲ Сначала</button>
+    </div>
+    <div class="meters" id="dbx-tx-m"></div>
+    <div class="steps" id="dbx-tx-log"></div>
+    <div class="console" id="dbx-tx-msg"></div>
+    <h3 style="margin:18px 0 6px;font-size:14px">Четыре буквы ACID — четыре обещания транзакции</h3>
+    <p><b>ACID</b> — это сокращение из первых букв четырёх английских слов. Каждая буква — отдельное обещание базы. Нажмите на букву — посмотрите, что она обещает и что ломается, если её нет.</p>
     <div class="seg" id="acid-pick"></div>
     <div id="acid-out"></div>
   </div>
 
+  <!-- ═══════════ ГЛАВА 6 ═══════════ -->
+  <div class="card" id="dbx-ch6">
+    <h2><span class="tag">глава 6 · когда все сразу</span> гонка за последней парой</h2>
+    <p>Вернёмся к Анне и Борису. Они нажали «Оформить» почти одновременно. База обслуживает их <b>параллельно</b> — в двух транзакциях сразу. Если ничего не предпринять, обе транзакции увидят «осталась 1 пара», и магазин продаст две пары там, где была одна. Такая ситуация называется <b>гонкой</b>: результат зависит от того, кто на миллисекунду успел раньше.</p>
+    <div class="dbx-def"><b class="dbx-w">определение</b><b>Блокировка</b> — это отметка базы «эта строка сейчас занята транзакцией, остальные подождут». Её снимают, когда транзакция закончилась.</div>
+    <div class="note good"><b>Житейски.</b> Блокировка — это табличка «занято» на двери примерочной. Пока Анна внутри, Борис ждёт у двери. Вышла — заходит он и видит, что ботинки уже унесли.</div>
+    <p style="margin-top:12px">Выберите, как защищён код, и запустите двух покупателей.</p>
+    <div class="seg" id="dbx-race-mode">
+      <button class="on" data-m="none">😬 Без защиты</button>
+      <button data-m="lock">🔒 Блокировка строки</button>
+      <button data-m="check">🛡 Правило в самой базе</button>
+    </div>
+    <div class="form-row"><button class="act" id="dbx-race-go">▶ Анна и Борис жмут одновременно</button></div>
+    <pre class="json" style="font-size:12px" id="dbx-race-art"></pre>
+    <div class="meters" id="dbx-race-m"></div>
+    <div class="console" id="dbx-race-msg"></div>
+  </div>
+
   <div class="card">
-    <h2><span class="tag">самое коварное</span> уровни изоляции: одна и та же программа даёт разный ответ</h2>
+    <h2><span class="tag">глава 6 · изоляция</span> одна и та же программа даёт разный ответ</h2>
+    <p>Гонка — только один из видов проблем. Их общее имя — <b>аномалии изоляции</b>.</p>
+    <div class="dbx-def"><b class="dbx-w">определение</b><b>Изоляция</b> — это насколько транзакции не видят друг друга. Полная изоляция: каждая работает так, будто она в базе одна. Слабая изоляция: транзакции видят часть чужих изменений, зато меньше ждут.</div>
     <p>Буква <b>I</b> в ACID — единственная, которую можно <b>ослабить настройкой</b>. И почти везде она ослаблена по умолчанию, просто об этом не знают.</p>
     <div class="note warn"><b>Вот в чём засада.</b> Изоляция стоит дорого: чем она строже, тем больше транзакции ждут друг друга. Поэтому базы предлагают уровни — от «быстро, но иногда увидите чужое недоделанное» до «медленно, зато как будто вы один». <b>PostgreSQL по умолчанию даёт Read Committed</b>, а не Serializable. То есть ровно тот уровень, на котором возможны три из пяти аномалий ниже.</div>
     <p>Выберите аномалию — она проиграется по шагам на двух транзакциях.</p>
@@ -121,8 +267,10 @@
   </div>
 
   <div class="card">
-    <h2><span class="tag">классика</span> блокировки и взаимная блокировка</h2>
-    <p>Когда две транзакции трогают одни и те же строки, база расставляет <b>блокировки</b>: «эта строка занята, подожди». Обычно всё хорошо. Но бывает так.</p>
+    <h2><span class="tag">глава 6 · дедлок</span> когда двое ждут друг друга вечно</h2>
+    <p>Блокировки спасли Анну и Бориса. Но у них есть обратная сторона.</p>
+    <div class="dbx-def"><b class="dbx-w">определение</b><b>Взаимная блокировка</b> (deadlock, дедлок) — две транзакции держат по строке и ждут строку друг друга. Ни одна не может закончить, пока не закончит другая.</div>
+    <div class="note good"><b>Житейски.</b> Двое встретились в узком коридоре с двумя шкафами. Каждый ждёт, пока пройдёт другой. Сами они не разойдутся никогда — нужен кто-то третий, кто скажет одному «отойди назад».</div>
     <div class="seg" id="dl-pick">
       <button class="on" data-d="bad">💥 Как получается дедлок</button>
       <button data-d="fix">✅ Как его не получить</button>
@@ -135,17 +283,11 @@
     <div id="dl-out"></div>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">почему быстро</span> индекс: как база находит строку среди десяти миллионов</h2>
-    <p>Самый частый ответ на «почему тормозит» — нет индекса. Разберём, что это вообще такое, без магии.</p>
-    <div class="note good"><b>Житейски.</b> Индекс — это <b>алфавитный указатель в конце книги</b>. Без него, чтобы найти слово, надо пролистать всю книгу. С ним — открываете указатель, находите слово, там написана страница. Указатель занимает место и его надо дописывать при каждой правке книги — но искать он позволяет мгновенно.</div>
-    <p style="margin-top:12px">Нажмите на сценарий и посмотрите, что делает база.</p>
-    <div class="seg" id="ix-pick"></div>
-    <div id="ix-out"></div>
-  </div>
-
-  <div class="card">
-    <h2><span class="tag">невидимый предел</span> пул соединений: почему база держит не десять тысяч клиентов, а сто</h2>
+  <!-- ═══════════ ГЛАВА 7 ═══════════ -->
+  <div class="card" id="dbx-ch7">
+    <h2><span class="tag">глава 7 · пул соединений</span> почему база держит не десять тысяч клиентов, а сто</h2>
+    <p>В самом начале истории сервис заказов не подключался к базе заново, а взял готовое соединение из пула. Зачем такие сложности?</p>
+    <div class="dbx-def"><b class="dbx-w">определение</b><b>Соединение</b> — это открытая «линия связи» между программой и базой. Открывать её долго, а держать дорого: в PostgreSQL на каждое соединение база заводит отдельный процесс. <b>Пул соединений</b> — это запас заранее открытых соединений, которые сервис берёт на время запроса и возвращает обратно.</div>
     <p>Кажется, что база — это сервис, к которому можно подключиться сколько угодно раз. Это не так, и об этот факт разбивается много систем.</p>
     <div class="note good"><b>Житейски.</b> В поликлинике сто пациентов и пять врачей. Можно впустить всех сто в коридор одновременно — быстрее от этого никто не примет, зато будет давка, и врачи начнут тратить время на разбор очереди. Разумнее пускать по пять, а остальные пусть ждут в порядке. <b>Пул соединений — это регистратура.</b></div>
     <p style="margin-top:12px">Покрутите — посмотрите, что происходит.</p>
@@ -155,9 +297,80 @@
     <div id="cp-pool-out"></div>
   </div>
 
+  <!-- ═══════════ ГЛАВА 8 ═══════════ -->
+  <div class="card" id="dbx-ch8">
+    <h2><span class="tag">глава 8 · реплики</span> мастер и копии: как база переживает много чтения</h2>
+    <p>В истории Олег строил отчёт не на главной базе, а на её копии. Это самая распространённая схема в мире.</p>
+    <div class="dbx-def"><b class="dbx-w">определение</b><b>Мастер</b> — узел базы, который принимает все изменения. <b>Реплика</b> — его копия: она получает от мастера журнал изменений и повторяет их у себя. С реплики можно читать, но нельзя писать. Схему называют по-разному: мастер–реплика, лидер–последователь, primary–replica. Это одно и то же.</div>
+    <div class="note good"><b>Житейски.</b> Реплика — это <b>копия ведомости в соседнем кабинете</b>. Оригинал правит только бухгалтер. Курьер разносит правки по кабинетам, и копии обновляются с опозданием. Читать можно в любом кабинете — очереди меньше. Но кто прибежал в соседний кабинет сразу после правки, увидит старую цифру.</div>
+    <h3 style="margin:16px 0 6px;font-size:14px">Сначала — схема целиком</h3>
+    <p>Прожмите: куда идёт запись, куда чтение, что даёт каждая реплика и чем за это платят.</p>
+    <div id="msf-flow"></div>
+
+    <h3 style="margin:18px 0 6px;font-size:14px">Отставание своими руками</h3>
+    <p>Анна поменяла адрес доставки и сразу открыла профиль. Что она увидит? Покрутите отставание реплики и паузу Анны, включите и выключите правило «читай своё».</p>
+    <div class="dbx-def" style="font-size:13px"><b class="dbx-w">определение</b><b>Отставание реплики</b> (replication lag) — сколько времени проходит между записью в мастер и появлением этой записи на реплике. <b>«Читай своё»</b> (read-your-writes) — правило: то, что пользователь сам только что записал, читаем с мастера.</div>
+    <div class="slider-row"><label for="dbx-lag-r">Отставание реплики, мс</label><input type="range" id="dbx-lag-r" min="0" max="5000" step="50" value="800"><span class="sv" id="dbx-lag-v">800</span></div>
+    <div class="slider-row"><label for="dbx-lag-w">Анна открыла профиль через, мс</label><input type="range" id="dbx-lag-w" min="0" max="3000" step="50" value="200"><span class="sv" id="dbx-lag-wv">200</span></div>
+    <label class="dbx-check"><input type="checkbox" id="dbx-lag-ryw"> включить правило «читай своё»</label>
+    <div id="dbx-lag-out"></div>
+
+    <h3 style="margin:18px 0 6px;font-size:14px">Шесть сценариев по шагам</h3>
+    <p>Выберите, что происходит, и пройдите по шагам.</p>
+    <div class="seg" id="ms-pick"></div>
+    <div class="skbar">
+      <button class="ghost" id="ms-prev">← Назад</button>
+      <button class="act" id="ms-next">Дальше →</button>
+      <span class="skstep" id="ms-lab"></span>
+    </div>
+    <div id="ms-out"></div>
+  </div>
+
+  <!-- ═══════════ ГЛАВА 9 ═══════════ -->
+  <div class="card" id="dbx-ch9">
+    <h2><span class="tag">глава 9 · когда одной базы мало</span> откуда берутся шарды, кворум и 2PC</h2>
+    <p>«Ботинок» растёт. Реплики помогли с чтением, но однажды перестанет хватать и записи, и места на одном сервере. Дальше появляются слова, которые выглядят как отдельные темы. На самом деле это <b>одна цепочка</b>: каждое следующее решение появилось как ответ на беду, созданную предыдущим. Пройдите её — и всё встанет на места.</p>
+    <div id="dbw-flow"></div>
+    <div class="note good" style="margin-top:12px"><b>Главная мысль этой цепочки.</b> Ни один пункт не появился «потому что так правильно». Каждый — вынужденный ответ на конкретную беду, и у каждого есть цена. Поэтому и брать их надо <b>по очереди и только когда прижало</b>, а не сразу все, потому что «это же современная архитектура».</div>
+  </div>
+
   <div class="card">
-    <h2><span class="tag">обещанное</span> 2PC: транзакция на две базы и почему её почти не применяют</h2>
-    <p>Раз общей транзакции на две системы нет, кто-то должен её изобразить. Механизм называется <b>двухфазный коммит</b>, и устроен он именно так, как звучит.</p>
+    <h2><span class="tag">глава 9 · шардирование</span> разрезать базу на куски: главное — чем резать</h2>
+    <div class="dbx-def"><b class="dbx-w">определение</b><b>Шардирование</b> — это когда данные делят между несколькими независимыми базами (шардами). Каждый шард хранит только свою часть. Какая строка в какой шард попадёт, решает <b>ключ шардирования</b> — например, номер клиента.</div>
+    <div class="note good"><b>Житейски.</b> Картотека не влезла в один шкаф, и её разложили по четырём кабинетам: фамилии А–Ж в первом, З–О во втором и так далее. Найти дело Иванова — быстро: сразу ясно, в какой кабинет идти. А вот «все дела, заведённые в марте» — придётся обойти все четыре.</div>
+    <p style="margin-top:12px">Выберите ключ и посмотрите, как распределится запись за сегодняшний день и сколько шардов придётся обойти на типичные вопросы.</p>
+    <div class="seg" id="dbx-sh-pick">
+      <button class="on" data-k="cust">по номеру клиента</button>
+      <button data-k="date">по дате заказа</button>
+      <button data-k="country">по стране</button>
+    </div>
+    <div class="dbx-bars" id="dbx-sh-bars"></div>
+    <div id="dbx-sh-out"></div>
+  </div>
+
+  <div class="card">
+    <h2><span class="tag">глава 9 · кворум</span> как договориться без начальника</h2>
+    <p>Есть базы вообще без мастера — Cassandra, DynamoDB, Riak. Там никто не главный, и вопрос «какое значение правильное» решается <b>голосованием</b>.</p>
+    <div class="dbx-def"><b class="dbx-w">определение</b><b>Кворум</b> — минимальное число копий, которые должны ответить, чтобы операция считалась успешной. Правило, на котором всё держится, состоит из трёх букв.</div>
+    <pre class="json">  N  —  сколько всего копий данных
+  W  —  скольких копий дождаться при ЗАПИСИ
+  R  —  скольких копий спросить при ЧТЕНИИ
+
+  если  W + R &gt; N   →   читающий ГАРАНТИРОВАННО
+                        зацепит хотя бы одну свежую копию</pre>
+    <div class="note good"><b>Почему это работает — на пальцах.</b> Три ящика. Вы кладёте записку в два из трёх. Кто-то открывает два ящика наугад. Может ли он промахнуться мимо обеих ваших? Нет: два плюс два — это четыре «посещения» на три ящика, значит хотя бы один ящик посетили оба. Вот и всё доказательство.</div>
+    <p style="margin-top:12px">Покрутите ручки и посмотрите, что получается.</p>
+    <div class="slider-row"><label for="qm-n-r">N — сколько всего копий данных</label><input type="range" id="qm-n-r" min="3" max="7" step="2" value="3"><span class="sv" id="qm-n-v">3</span></div>
+    <div class="slider-row"><label for="qm-w-r">W — скольких ждём при записи</label><input type="range" id="qm-w-r" min="1" max="7" value="2"><span class="sv" id="qm-w-v">2</span></div>
+    <div class="slider-row"><label for="qm-r-r">R — скольких спрашиваем при чтении</label><input type="range" id="qm-r-r" min="1" max="7" value="2"><span class="sv" id="qm-r-v">2</span></div>
+    <div id="qm-out"></div>
+  </div>
+
+  <div class="card">
+    <h2><span class="tag">глава 9 · 2PC</span> транзакция на две базы и почему её почти не применяют</h2>
+    <p>Когда данные разъехались по разным базам, транзакция из пятой главы перестаёт работать: она живёт внутри одной базы. Кто-то должен её изобразить.</p>
+    <div class="dbx-def"><b class="dbx-w">определение</b><b>Двухфазный коммит</b> (2PC, two-phase commit) — протокол, в котором координатор сначала спрашивает все базы «готовы?», и только если все ответили «да», командует «фиксируем».</div>
+    <div class="note good"><b>Житейски.</b> Свадьба. Регистратор спрашивает обоих: «Согласны?» — это первая фаза. Только если оба сказали «да», он объявляет: «Вы муж и жена» — это вторая. Если регистратор упал в обморок между «да» и объявлением, пара стоит и не знает, женаты они или нет.</div>
     <div class="skbar">
       <button class="ghost" id="tpc-prev">← Назад</button>
       <button class="act" id="tpc-next">Дальше →</button>
@@ -166,9 +379,11 @@
     <div id="tpc-out"></div>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">без простоя</span> как менять схему таблицы, когда останавливать систему нельзя</h2>
-    <p>Переименовать колонку — операция на секунду. Но пока она идёт, старый код уже не работает, а новый ещё не выкачен. Способ обойти это один, и он называется <b>расширить и сжать</b> (expand–contract).</p>
+  <!-- ═══════════ ГЛАВА 10 ═══════════ -->
+  <div class="card" id="dbx-ch10">
+    <h2><span class="tag">глава 10 · база в бою</span> как менять схему таблицы, когда останавливать систему нельзя</h2>
+    <p>«Ботинок» работает круглосуточно. А разработчикам надо переименовать колонку. Переименование — операция на секунду. Но пока она идёт, старый код уже не работает, а новый ещё не выкачен.</p>
+    <div class="dbx-def"><b class="dbx-w">определение</b><b>Схема</b> — это описание таблиц: какие есть колонки, какого они типа, какие действуют правила. <b>Миграция</b> — изменение схемы на живой базе. Безопасный способ её провести один, и он называется <b>расширить и сжать</b> (expand–contract).</div>
     <div class="note good"><b>Житейски.</b> Нельзя поменять рельсы под идущим поездом. Но можно проложить рядом вторые, перевести поезд на них, а старые разобрать потом. Три отдельных дела вместо одного невозможного.</div>
     <div class="skbar">
       <button class="ghost" id="ec-prev">← Назад</button>
@@ -179,16 +394,24 @@
   </div>
 
   <div class="card">
-    <h2><span class="tag">на практике</span> семь способов уронить базу, которые встречаются чаще всего</h2>
-    <p>Нажмите на строку — разбор: как выглядит, отчего происходит, чем лечится.</p>
+    <h2><span class="tag">глава 10 · аварии</span> семь способов уронить базу, которые встречаются чаще всего</h2>
+    <p>Всё, что мы разобрали, в бою ломается предсказуемо. Вот семь самых частых поломок — почти каждая связана с одной из глав выше. Нажмите на строку — разбор: как выглядит, отчего происходит, чем лечится.</p>
     <div class="seg" id="dbf-pick"></div>
     <div id="dbf-out"></div>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">задание</span> базы данных</h2>
+  <!-- ═══════════ ГЛАВА 11 ═══════════ -->
+  <div class="card" id="dbx-ch11">
+    <h2><span class="tag">глава 11 · проверьте себя</span> базы данных</h2>
+    <p>Все задачи — из жизни. Если ответ не очевиден, вернитесь к главе с подсказкой в скобках: реплики (8), изоляция (6), пул (7), миграции (10).</p>
     <p>Решено <b id="dbq-score">0</b> из <span id="dbq-total">0</span>.</p>
     <div id="dbq-tasks"></div>
+    <div class="note good"><b>Вся история в пяти фразах.</b> База — склад с кладовщиком, который обещает не потерять, найти, не дать испортить и пустить многих сразу. Быстро находить помогает индекс. Не терять половину операции — транзакция. Не мешать друг другу — блокировки и изоляция. А когда одного узла мало, появляются реплики, шарды и кворум — и у каждого решения своя цена.</div>
+  </div>
+
+  <div class="nextbar">
+    <div><b>Дальше →</b> <span class="sub">данные разложены. Теперь о том, как выпускать новые версии системы и ничего не сломать</span></div>
+    <button data-goto="release">К релизам</button>
   </div>
 </section>
 
@@ -824,4 +1047,463 @@ renderFlow('msf-flow', {
      d:'<b>И главное ограничение схемы.</b> Реплики не помогают записи вообще: каждая хранит всё и повторяет всю запись. Упёрлись в поток записи или в объём одного узла — дальше только шардирование, и это совсем другой разговор.'},
   ]
 });
+</script>
+
+<script>
+/* ═══ 23. БАЗЫ ДАННЫХ — повествование (dbx-) ═══ */
+
+/* ─── карта раздела ─── */
+(function(){
+  const map = document.getElementById('dbx-map');
+  if(!map) return;
+  map.addEventListener('click', e => {
+    const b = e.target.closest('button[data-dbx-to]'); if(!b) return;
+    const t = document.getElementById(b.getAttribute('data-dbx-to'));
+    if(t) t.scrollIntoView({behavior:'smooth', block:'start'});
+  });
+})();
+
+/* ─── глава 1: словарик ─── */
+(function(){
+  if(!document.getElementById('dbx-gl-pick')) return;
+  dbSegment('dbx-gl', [
+    {n:'Таблица', d:'Данные одного вида, разложенные по строкам и колонкам. Каждая строка — один объект (заказ, клиент), каждая колонка — одно его свойство (сумма, дата).',
+     life:'Разлинованный журнал: графы одинаковые, строк сколько угодно.', where:'Таблицы <code class="inl">stock</code> (остатки) и <code class="inl">orders</code> (заказы) во второй главе.'},
+    {n:'Запрос', d:'Просьба к базе на её языке — обычно SQL. <code class="inl">SELECT</code> — прочитать, <code class="inl">INSERT</code> — добавить, <code class="inl">UPDATE</code> — изменить, <code class="inl">DELETE</code> — удалить.',
+     life:'Записка кладовщику: «принеси все коробки с ботинками 42 размера».', where:'Каждый шаг истории Анны — это один или несколько запросов.'},
+    {n:'Индекс', d:'Отсортированный указатель рядом с таблицей: по значению сразу видно, в какой строке его искать.',
+     life:'Алфавитный указатель в конце книги.', where:'Глава 4. Благодаря ему остаток ботинок находится за доли миллисекунды.'},
+    {n:'Транзакция', d:'Несколько действий, которые считаются одним: либо все прошли, либо ни одного.',
+     life:'Перевод денег: списать и начислить — вместе или никак.', where:'Глава 5. Анна одновременно уменьшает остаток и создаёт заказ.'},
+    {n:'Блокировка', d:'Отметка «строка занята»: другие транзакции ждут, пока её не отпустят.',
+     life:'Табличка «занято» на двери примерочной.', where:'Глава 6. Борис ждёт, пока Анна закончит покупку.'},
+    {n:'Журнал (WAL)', d:'Файл, куда база сначала записывает каждое изменение, и только потом отвечает «готово». WAL — write-ahead log, «журнал упреждающей записи». По журналу база восстанавливается после сбоя, и его же читают реплики.',
+     life:'Кассовая лента: даже если касса сломалась, по ленте видно все покупки.', where:'Шаг «COMMIT» во второй главе.'},
+    {n:'Реплика', d:'Копия базы, которая получает журнал от главного узла (мастера) и повторяет изменения. С неё читают, в неё не пишут.',
+     life:'Копия ведомости в соседнем кабинете — обновляется с опозданием.', where:'Глава 8. На ней Олег строит отчёт.'},
+    {n:'Шард', d:'Кусок данных, который живёт на отдельном сервере. Все шарды вместе — это вся база.',
+     life:'Один из кабинетов, по которым разложили картотеку: А–Ж здесь, З–О там.', where:'Глава 9, когда одной базы перестаёт хватать.'},
+  ], x =>
+    '<div class="skout" style="margin-top:11px"><h4>' + x.n + '</h4>' +
+    '<div class="lgrid">' +
+      '<b>что это</b><div>' + x.d + '</div>' +
+      '<b>житейски</b><div>' + x.life + '</div>' +
+      '<b>где встретим</b><div>' + x.where + '</div>' +
+    '</div></div>');
+})();
+
+/* ─── глава 2: сквозной путь покупки ─── */
+(function(){
+  const scheme = document.getElementById('dbx-fl-scheme');
+  if(!scheme) return;
+  const $ = id => document.getElementById(id);
+  const BASE = {
+    m:{q:1, qp:null, lock:null, ord:['1040 · Пётр · 2 900 ₽'], pend:null, fresh:null},
+    r:{q:1, ord:['1040 · Пётр · 2 900 ₽'], miss:null},
+    pool:3, lag:'0 мс', wait:'—'
+  };
+  const A = '1041 · Анна · 4 200 ₽';
+  const S = [
+    {t:'Знакомьтесь: магазин «Ботинок»', on:[], route:[],
+     sql:'stock:   ботинки 42 → остаток 1\norders:  1040 · Пётр · 2 900 ₽\n\nмастер и реплика совпадают, всё спокойно',
+     d:'Сейчас в базе две таблицы: <b>stock</b> — остатки на складе и <b>orders</b> — заказы. Главный узел базы (мастер) и его копия (реплика) хранят одно и то же. Сейчас Анна нажмёт кнопку.'},
+    {t:'1. Анна нажимает «Оформить заказ»', on:['anna','svc'], route:['Анна','Сервис заказов'],
+     sql:'POST /orders\n{ "товар": "ботинки 42", "кол-во": 1 }',
+     d:'Браузер отправляет запрос в сервис заказов. Сама база с браузером не разговаривает никогда: между ними всегда стоит сервис, который знает правила магазина и решает, что спросить у базы.'},
+    {t:'2. Сервис берёт соединение из пула', on:['svc','pool'], route:['Сервис заказов','Пул соединений'], pool:4,
+     sql:'pool.getConnection()   → выдано соединение №4 из 20\n                         (открывать новое не нужно)',
+     d:'Подключиться к базе с нуля — это десятки миллисекунд и отдельный процесс на стороне базы. Поэтому сервис держит заранее открытые соединения и просто берёт свободное.',
+     term:'<b>Пул соединений</b> — запас готовых «линий связи» с базой. Житейски: регистратура в поликлинике, которая пускает к врачам по очереди. Подробно — глава 7.'},
+    {t:'3. Начинается транзакция', on:['pool','master'], route:['Пул','Мастер'],
+     sql:'BEGIN;',
+     d:'Сервис говорит базе: «Всё, что дальше, — одно целое». Нам надо сделать два дела — уменьшить остаток и создать заказ — и они должны пройти вместе.',
+     term:'<b>Транзакция</b> — несколько действий как одно: все или ни одного. Житейски: перевод денег. Подробно — глава 5.'},
+    {t:'4. База ищет остаток по индексу', on:['master'], chips:['idx'], route:['Мастер','индекс по товару','строка «ботинки 42»'],
+     sql:"SELECT остаток FROM stock\n WHERE товар = 'ботинки 42'\n   FOR UPDATE;\n\nплан: Index Scan  → 24 шага по дереву\n      вместо чтения 10 млн строк",
+     d:'Товаров в каталоге десять миллионов. Без индекса база прочитала бы их все. С индексом она спускается по отсортированному дереву и находит строку за доли миллисекунды.',
+     term:'<b>Индекс</b> — алфавитный указатель в конце книги. Подробно — глава 4.'},
+    {t:'5. Строка заперта — Борис ждёт', on:['master','boris','svc'], chips:['idx','lock'], route:['Борис','Сервис заказов','Мастер','🔒 ждёт'],
+     m:{lock:'Анна'}, pool:5, wait:'Борис ждёт замок',
+     sql:"-- транзакция Анны:\nSELECT … FOR UPDATE   → остаток 1, строка ЗАПЕРТА\n\n-- через 5 мс транзакция Бориса:\nSELECT … FOR UPDATE   → ⏳ ждёт, строка занята",
+     d:'<code class="inl">FOR UPDATE</code> значит «я собираюсь эту строку менять, остальным — ждать». Борис нажал кнопку чуть позже, и его транзакция встала в очередь у той же строки. Без замка оба увидели бы «остаток 1» и магазин продал бы две пары.',
+     term:'<b>Блокировка</b> — табличка «занято» на двери примерочной. Что будет без неё — глава 6.', k:'warn'},
+    {t:'6. Анна меняет данные — но их пока никто не видит', on:['master'], chips:['lock'], route:['Мастер'],
+     m:{qp:0, pend:A}, wait:'Борис ждёт замок',
+     sql:"UPDATE stock SET остаток = 0 WHERE товар = 'ботинки 42';\nINSERT INTO orders VALUES (1041, 'Анна', 4200);\n\n-- изменения видны ТОЛЬКО внутри транзакции Анны",
+     d:'Остаток уже 0, заказ уже есть — но только «в черновике» транзакции Анны. Олег в эту секунду увидел бы остаток 1 и ни одного заказа Анны. Это правильно: транзакция ещё может отмениться.',
+     term:'<b>Изоляция</b> — транзакции не видят недоделанное друг друга. Житейски: черновик письма, который ещё не отправили. Глава 6.'},
+    {t:'7. COMMIT: сначала журнал, потом «готово»', on:['master','anna'], chips:['wal'], route:['Мастер','📜 журнал на диск','«заказ оформлен»','Анна'],
+     m:{q:0, qp:null, lock:null, ord:['1040 · Пётр · 2 900 ₽', A], pend:null, fresh:A}, pool:4, wait:'Борис: замок свободен',
+     sql:'COMMIT;\n  1) изменения записаны в журнал (WAL) на диск\n  2) только теперь ответ: «ok»\n  3) замок со строки снят\n\nАнне: «Заказ №1041 оформлен»',
+     d:'База сначала надёжно пишет изменения в журнал на диск и только потом отвечает «готово». Если свет погаснет через миллисекунду, при запуске база прочитает журнал и восстановит заказ. Соединение Анны вернулось в пул.',
+     term:'<b>Журнал (WAL)</b> — кассовая лента: даже если касса сломалась, по ленте видно все покупки. Это буква D в ACID, глава 5.', k:'good'},
+    {t:'8. Борис дождался — и получил честный отказ', on:['boris','svc','master'], chips:['lock'], route:['Мастер','остаток 0','Сервис','Борис'],
+     pool:3, wait:'—',
+     sql:"-- транзакция Бориса просыпается:\nSELECT … FOR UPDATE   → остаток 0\nROLLBACK;\n\nБорису: «Этого размера нет в наличии»",
+     d:'Замок снят, Борис читает уже новый остаток — ноль. Сервис отменяет его транзакцию и честно говорит «нет в наличии». Продана ровно одна пара. Никакой магии: только транзакция и замок.', k:'good'},
+    {t:'9. Журнал уезжает на реплики', on:['master','rep1','rep2'], chips:['wal'], route:['Мастер','📜 журнал','Реплика 1','Реплика отчётов'],
+     r:{miss:A}, lag:'40 мс',
+     sql:'мастер → реплики: записи журнала 5 918…5 921\n\nреплика применяет их по порядку…\nотставание сейчас: 40 мс',
+     d:'Мастер отправляет свой журнал копиям, и те повторяют у себя те же изменения. Но не мгновенно: справа видно, что на реплике заказа Анны <b>ещё нет</b>, а остаток всё ещё 1.',
+     term:'<b>Реплика</b> — копия ведомости в соседнем кабинете: обновляется с опозданием. Глава 8.', k:'warn'},
+    {t:'10. Анна тут же открывает «Мои заказы»', on:['anna','svc','master'], route:['Анна','Сервис заказов','Мастер (не реплика!)'],
+     r:{miss:A}, lag:'40 мс',
+     sql:"SELECT * FROM orders WHERE клиент = 'Анна';\n\nесли спросить реплику → заказа нет 😱\nправило «читай своё»  → спрашиваем мастер ✓",
+     d:'Если бы сервис пошёл за списком на реплику, Анна увидела бы пустой список и решила, что заказ пропал. Поэтому действует правило: <b>то, что человек сам только что записал, читаем с мастера</b>. Остальное — с реплик.',
+     term:'<b>«Читай своё»</b> (read-your-writes) — правило маршрутизации чтений. Поиграть с ним можно в главе 8.'},
+    {t:'11. Реплика догнала мастер', on:['rep1','rep2'], route:['Реплика 1','Реплика отчётов'],
+     r:{q:0, ord:['1040 · Пётр · 2 900 ₽', A], miss:null, fresh:A}, lag:'0 мс',
+     sql:'реплика применила записи 5 918…5 921\nотставание: 0 мс\n\nмастер и реплика снова совпадают',
+     d:'Через несколько десятков миллисекунд копии совпали с оригиналом. Обычно отставание — миллисекунды. Под нагрузкой — секунды. При тяжёлом запросе на самой реплике — минуты.', k:'good'},
+    {t:'12. Олег строит отчёт — на реплике', on:['oleg','rsvc','rep2'], route:['Олег','Сервис отчётов','Реплика отчётов'],
+     sql:"SELECT date(создан), sum(сумма), count(*)\n  FROM orders\n WHERE создан >= '2026-09-27'\n GROUP BY 1;\n\n⏱ 40 секунд, перебор миллиона заказов",
+     d:'Отчёт тяжёлый: он читает все заказы за день. Отправь его на мастер — покупатели почувствовали бы это сразу. На отдельной реплике мастер вообще ничего не замечает. А если отчёт отстанет на пару секунд, для отчёта это не беда.', k:'good'},
+    {t:'13. А если сейчас упадёт мастер?', on:['rep1'], bad:['master'], route:['Мастер ✕','выборы','Реплика 1 → новый мастер'],
+     sql:'мастер не отвечает 10 секунд\n→ наблюдатель (например, Patroni) объявляет выборы\n→ Реплика 1 становится мастером\n→ запись возобновляется\n\n⚠ всё, что мастер подтвердил, но не успел\n  отправить репликам, — потеряно',
+     d:'Реплика — ещё и запасной мастер. Упал главный узел — одна из копий займёт его место за секунды. Цена: если репликация асинхронная, последние подтверждённые записи могут пропасть. Для лайков это не страшно, для денег — недопустимо. Отсюда выбор «синхронная или асинхронная репликация».',
+     term:'Выборы мастера, «расщепление сознания» и кворум — главы 8 и 9.', k:'warn'},
+    {t:'Итог: что случилось за одну кнопку', on:['anna','boris','oleg','svc','rsvc','pool','master','rep1','rep2'], chips:['idx','lock','wal'], route:[],
+     sql:'пул         → взяли готовое соединение          (глава 7)\nтранзакция  → остаток и заказ — вместе           (глава 5)\nиндекс      → нашли строку за 24 шага            (глава 4)\nблокировка  → Борис подождал, двойной продажи нет (глава 6)\nжурнал      → «готово» только после записи       (глава 5)\nреплика     → отставание и «читай своё»          (глава 8)\nвыборы      → запасной мастер                    (главы 8–9)',
+     d:'Одна кнопка — семь механизмов. Каждый из них невидим, пока работает, и становится причиной аварии, когда про него забыли. Дальше разбираем их по одному.', k:'good'},
+  ];
+  // накопление состояния
+  const ST = [];
+  let cur = JSON.parse(JSON.stringify(BASE));
+  S.forEach(s => {
+    const n = JSON.parse(JSON.stringify(cur));
+    n.m.fresh = null; n.r.fresh = null;
+    if(s.m) Object.assign(n.m, s.m);
+    if(s.r) Object.assign(n.r, s.r);
+    ['pool','lag','wait'].forEach(k => { if(s[k] !== undefined) n[k] = s[k]; });
+    ST.push(n); cur = n;
+  });
+  const nodes = [...scheme.querySelectorAll('.dbx-node')], chips = [...scheme.querySelectorAll('.dbx-chip')];
+  let i = 0, timer = null;
+  const row = (cells, cls) => '<tr' + (cls ? ' class="' + cls + '"' : '') + '>' + cells.map(c => '<td>' + c + '</td>').join('') + '</tr>';
+  function tables(side, isM){
+    let h = '<table class="dbx-tbl"><thead><tr><th>stock: товар</th><th>остаток</th>' + (isM ? '<th>замок</th>' : '') + '</tr></thead><tbody>';
+    if(isM && side.qp !== null && side.qp !== undefined)
+      h += row(['ботинки 42', side.q + ' → ' + side.qp + ' <small>(черновик)</small>', side.lock ? '🔒 ' + side.lock : '—'], 'dbx-pend');
+    else
+      h += row(['ботинки 42', String(side.q)].concat(isM ? [side.lock ? '🔒 ' + side.lock : '—'] : []), side.lock ? 'dbx-pend' : '');
+    h += '</tbody></table>';
+    h += '<table class="dbx-tbl" style="margin-top:8px"><thead><tr><th>orders</th></tr></thead><tbody>';
+    side.ord.forEach(o => { h += row([esc(o)], o === side.fresh ? 'dbx-new' : ''); });
+    if(side.pend) h += row([esc(side.pend) + ' <small>(черновик)</small>'], 'dbx-pend');
+    if(side.miss) h += row(['… ' + esc(side.miss) + ' ещё не доехал'], 'dbx-miss');
+    return h + '</tbody></table>';
+  }
+  function paint(){
+    const s = S[i], st = ST[i];
+    const lit = new Set();
+    for(let k = 0; k <= i; k++) (S[k].on || []).forEach(x => lit.add(x));
+    const on = new Set(s.on || []), bad = new Set(s.bad || []), ch = new Set(s.chips || []);
+    nodes.forEach(n => {
+      const id = n.dataset.n;
+      n.classList.toggle('dbx-lit', lit.has(id));
+      n.classList.toggle('dbx-on', on.has(id) && s.k !== 'good');
+      n.classList.toggle('dbx-good', on.has(id) && s.k === 'good');
+      n.classList.toggle('dbx-bad', bad.has(id));
+    });
+    chips.forEach(c => {
+      c.classList.toggle('dbx-on', ch.has(c.dataset.c) && !(c.dataset.c === 'lock' && s.k === 'warn'));
+      c.classList.toggle('dbx-bad', ch.has(c.dataset.c) && c.dataset.c === 'lock' && s.k === 'warn');
+    });
+    $('dbx-fl-lab').textContent = 'шаг ' + (i + 1) + ' из ' + S.length;
+    $('dbx-fl-route').innerHTML = (s.route || []).map(x => '<span>' + esc(x) + '</span>').join('<i>→</i>');
+    $('dbx-fl-t').textContent = s.t;
+    $('dbx-fl-sql').textContent = s.sql;
+    const d = $('dbx-fl-d');
+    d.className = 'note' + (s.k === 'good' ? ' good' : s.k === 'warn' ? ' warn' : '');
+    d.innerHTML = s.d;
+    $('dbx-fl-term').innerHTML = s.term ? '<div class="dbx-term">📘 <b>Новое слово.</b> ' + s.term + '</div>' : '';
+    $('dbx-fl-m').innerHTML =
+      '<span class="meter' + (st.pool > 4 ? ' wq' : '') + '">пул занят: <b>' + st.pool + ' / 20</b></span>' +
+      '<span class="meter' + (st.lag === '0 мс' ? ' good' : ' wq') + '">отставание реплики: <b>' + st.lag + '</b></span>' +
+      '<span class="meter' + (st.wait !== '—' ? ' wq' : '') + '">очередь у замка: <b>' + st.wait + '</b></span>';
+    $('dbx-fl-mst').innerHTML = tables(st.m, true);
+    $('dbx-fl-rep').innerHTML = tables(st.r, false);
+  }
+  function stop(){ if(timer){ clearInterval(timer); timer = null; $('dbx-fl-play').textContent = '▶ Сам'; } }
+  $('dbx-fl-next').addEventListener('click', () => { stop(); if(i < S.length - 1) i++; paint(); });
+  $('dbx-fl-prev').addEventListener('click', () => { stop(); if(i > 0) i--; paint(); });
+  $('dbx-fl-play').addEventListener('click', e => {
+    if(timer){ stop(); return; }
+    if(i >= S.length - 1) i = 0;
+    e.currentTarget.textContent = '⏸ Пауза';
+    paint();
+    timer = setInterval(() => {
+      if(i >= S.length - 1 || !document.body.contains(scheme)){ stop(); return; }
+      i++; paint();
+    }, 3200);
+  });
+  paint();
+})();
+
+/* ─── глава 3: шпаргалка и тренажёр выбора ─── */
+(function(){
+  if(document.getElementById('dbx-kcmp')){
+    renderCmp('dbx-kcmp', ['Вид', 'На что похоже в жизни', 'Какой вопрос дешёвый', 'Пример'], [
+      {cells:['🗄 Реляционная', 'бухгалтерская книга с графами', '«покажи заказы клиента с суммой больше 5 000» — любой вопрос', 'PostgreSQL, MySQL'],
+       why:'<b>Брать</b> по умолчанию: заказы, деньги, остатки — всё, где важны связи, транзакции и правила. <b>Не брать</b> как единственное решение для аналитики по миллиардам строк.'},
+      {cells:['📄 Документная', 'папка с делом', '«дай всю карточку целиком»', 'MongoDB'],
+       why:'<b>Брать</b>, когда объект читается целиком и у разных объектов разный набор полей: карточка товара, анкета, настройки. <b>Не брать</b>, если нужны отчёты «по всем сразу» и связи между объектами.'},
+      {cells:['🔑 Ключ-значение', 'камера хранения с номерком', '«что лежит под этим ключом» — за доли миллисекунды', 'Redis'],
+       why:'<b>Брать</b> для кеша, сессий, счётчиков, блокировок. <b>Не брать</b> для любых вопросов, кроме «дай по ключу».'},
+      {cells:['📊 Колоночная', 'стопки документов по видам', '«сумма продаж по регионам за год»', 'ClickHouse'],
+       why:'<b>Брать</b> для отчётов и дашбордов по огромным объёмам. <b>Не брать</b> для «покажи заказ №77» и частых точечных правок.'},
+      {cells:['🔍 Поисковая', 'библиотечный каталог по всем словам', '«зимнии батинки» с опечатками и ранжированием', 'Elasticsearch'],
+       why:'<b>Брать</b> для строки поиска и фильтров. <b>Никогда</b> не делать источником истины: это копия данных из основной базы.'},
+      {cells:['🕸 Графовая', 'схема метро', '«что купили друзья моих друзей»', 'Neo4j'],
+       why:'<b>Брать</b> для вопросов про связи в несколько шагов: рекомендации, поиск мошеннических цепочек. <b>Не брать</b> главной базой системы.'},
+      {cells:['📈 Временных рядов', 'кардиограмма', '«среднее за 5 минут по каждому сервису»', 'TimescaleDB, Prometheus'],
+       why:'<b>Брать</b> для метрик и датчиков: огромный поток «время — значение». <b>Не брать</b> для бизнес-данных.'},
+    ]);
+  }
+  if(!document.getElementById('dbx-kind')) return;
+  const B = [
+    {id:'rel', n:'🗄 Реляционная'}, {id:'doc', n:'📄 Документная'}, {id:'kv', n:'🔑 Ключ-значение'},
+    {id:'col', n:'📊 Колоночная'}, {id:'srch', n:'🔍 Поисковая'}, {id:'graph', n:'🕸 Графовая'},
+  ];
+  renderSort('dbx-kind', [
+    {t:'Заказы, платежи и остатки на складе', bucket:'rel',
+     why:'Здесь важно «не соврать»: транзакции, связи заказа с клиентом, правило «остаток не меньше нуля». Это родная задача реляционной базы.'},
+    {t:'Сессии пользователей: 2 млн активных, живут 30 минут', bucket:'kv',
+     why:'Единственный вопрос — «дай сессию по её номеру», и нужен он за доли миллисекунды. Плюс автоматическое удаление по времени. Камера хранения с номерком.'},
+    {t:'Строка поиска по каталогу, которая прощает опечатки', bucket:'srch',
+     why:'Обратный индекс по словам, исправление опечаток, ранжирование — это поисковая база. Данные в неё копируются из основной.'},
+    {t:'Отчёт «возвраты по регионам и размерам за три года», миллиард строк', bucket:'col',
+     why:'Вопрос читает две-три колонки из миллиарда строк и складывает их. Колоночная база читает только нужные столбцы и делает это за секунды.'},
+    {t:'Карточки товаров: у кроссовок одни свойства, у зонтов совсем другие', bucket:'doc',
+     why:'Разный состав полей и чтение карточки целиком — «папка с делом». Хотя PostgreSQL с колонкой JSON справится тоже.'},
+    {t:'«С этим товаром также покупают» и поиск цепочек мошеннических возвратов', bucket:'graph',
+     why:'Вопросы про связи в несколько шагов — «схема метро». В таблицах это множество соединений таблицы с самой собой.'},
+  ], B, 'dbx-kind-score', 'dbx-kind-total');
+  Progress.register('dbx-kind-score', 6, 'Базы данных: выбор вида');
+})();
+
+/* ─── глава 4: индекс, размер таблицы ─── */
+(function(){
+  const r = document.getElementById('dbx-ix-r');
+  if(!r) return;
+  const out = document.getElementById('dbx-ix-out'), v = document.getElementById('dbx-ix-v');
+  const fmt = n => n >= 1e9 ? (n / 1e9).toFixed(n < 1e10 ? 1 : 0).replace('.0', '') + ' млрд'
+    : n >= 1e6 ? (n / 1e6).toFixed(n < 1e7 ? 1 : 0).replace('.0', '') + ' млн'
+    : n >= 1e3 ? Math.round(n / 1e3) + ' тыс' : String(Math.round(n));
+  const t = ms => (ms >= 1000 ? (ms / 1000).toFixed(ms < 10000 ? 1 : 0) + ' с' : ms >= 1 ? Math.round(ms) + ' мс' : ms.toFixed(2) + ' мс').replace('.', ',');
+  function paint(){
+    const n = Math.pow(10, +r.value);
+    v.textContent = fmt(n);
+    const steps = Math.ceil(Math.log2(n));
+    const seqMs = n / 5000;            // ~5 млн строк в секунду
+    const ixMs = 0.02 + steps * 0.004;
+    const cells = [];
+    for(let k = 0; k < steps; k++) cells.push('<span class="cell' + (k === steps - 1 ? ' ok' : '') + '">' + (k + 1) + '</span>');
+    out.innerHTML =
+      '<div class="dbx-duo">' +
+        '<div class="box" style="border-color:var(--danger)"><h4>🐌 Без индекса</h4>' +
+          '<div class="dbx-acc" style="color:var(--danger)">' + t(seqMs) + '</div>' +
+          '<p class="bs">прочитать все ' + fmt(n) + ' строк подряд. Вдвое больше данных — вдвое дольше.</p></div>' +
+        '<div class="box" style="border-color:var(--ok)"><h4>🚀 С индексом</h4>' +
+          '<div class="dbx-acc" style="color:var(--ok)">' + t(ixMs) + '</div>' +
+          '<p class="bs">всего <b>' + steps + ' шагов</b> по дереву — каждый отбрасывает половину:</p>' +
+          '<div class="cells">' + cells.join('') + '</div></div>' +
+      '</div>' +
+      '<div class="note' + (n < 2e4 ? '' : ' good') + '">' + (n < 2e4
+        ? '<b>Таблица маленькая.</b> Здесь разница почти не видна, и база сама может решить, что прочитать всё подряд проще. Индекс начинает решать после сотен тысяч строк.'
+        : '<b>Смотрите на рост.</b> Каждое деление ползунка — данных больше в три раза. Время без индекса растёт в те же три раза, а число шагов с индексом — всего на один-два. Вот почему индекс — первое, что проверяют, когда «тормозит».') + '</div>';
+  }
+  r.addEventListener('input', paint);
+  paint();
+})();
+
+/* ─── глава 5: перевод денег и свет ─── */
+(function(){
+  const go = document.getElementById('dbx-tx-go');
+  if(!go) return;
+  const $ = id => document.getElementById(id);
+  let mode = 'raw', S = {a:500, b:100};
+  function meters(){
+    const sum = S.a + S.b;
+    $('dbx-tx-m').innerHTML =
+      '<span class="meter">у Анны: <b>' + S.a + ' ₽</b></span>' +
+      '<span class="meter">у Бориса: <b>' + S.b + ' ₽</b></span>' +
+      '<span class="meter ' + (sum === 600 ? 'good' : 'bad') + '">всего денег: <b>' + sum + ' ₽</b></span>';
+  }
+  function reset(){
+    S = {a:500, b:100};
+    $('dbx-tx-log').innerHTML = '';
+    msg($('dbx-tx-msg'), '', 'Выберите режим и нажмите «Перевести». Всего денег в системе должно оставаться 600 ₽.');
+    meters();
+  }
+  const step = (n, cls, t, x) => '<div class="step ' + cls + '"><span class="si">' + n + '</span><div>' + t + (x ? '<span class="sx">' + x + '</span>' : '') + '</div></div>';
+  $('dbx-tx-mode').addEventListener('click', e => {
+    const b = e.target.closest('button[data-m]'); if(!b) return;
+    [...$('dbx-tx-mode').children].forEach(x => x.classList.toggle('on', x === b));
+    mode = b.dataset.m; reset();
+  });
+  $('dbx-tx-reset').addEventListener('click', reset);
+  go.addEventListener('click', () => {
+    const cut = $('dbx-tx-cut').checked, tx = mode === 'tx';
+    if(S.a < 100){ msg($('dbx-tx-msg'), 'warn', 'У Анны не хватает денег. Нажмите «Сначала».'); return; }
+    let h = '', n = 1;
+    if(tx) h += step(n++, 'done', '<code class="inl">BEGIN</code> — начали транзакцию', 'дальше всё — одно целое');
+    S.a -= 100;
+    h += step(n++, 'done', 'Списали 100 ₽ у Анны', 'UPDATE счета SET баланс = баланс − 100 WHERE id = Анна');
+    if(cut){
+      h += step(n++, 'fail', '⚡ Свет погас. Сервер перезапускается', 'второе действие так и не выполнилось');
+      if(tx){
+        S.a += 100;
+        h += step(n++, 'comp', 'База при запуске читает журнал', 'видит транзакцию без COMMIT и откатывает её: 100 ₽ вернулись Анне');
+        $('dbx-tx-log').innerHTML = h; meters();
+        msg($('dbx-tx-msg'), 'ok', 'Перевод не прошёл — но и деньги не пропали. Транзакция откатилась целиком. Анна просто повторит перевод. Это и есть «всё или ничего».');
+        return;
+      }
+      $('dbx-tx-log').innerHTML = h; meters();
+      msg($('dbx-tx-msg'), 'err', 'Без транзакции база не знает, что два действия связаны. Первое сохранилось, второе — нет. 100 ₽ исчезли из мира: у Анны списали, Борису не пришло. Включите «В транзакции» и повторите.');
+      return;
+    }
+    S.b += 100;
+    h += step(n++, 'done', 'Начислили 100 ₽ Борису', 'UPDATE счета SET баланс = баланс + 100 WHERE id = Борис');
+    if(tx) h += step(n++, 'done', '<code class="inl">COMMIT</code> — записали в журнал и подтвердили');
+    $('dbx-tx-log').innerHTML = h; meters();
+    msg($('dbx-tx-msg'), 'ok', 'Перевод прошёл. Когда ничего не ломается, транзакция и её отсутствие выглядят одинаково. Разница видна только при сбое — поставьте галочку «свет погаснет».');
+  });
+  reset();
+})();
+
+/* ─── глава 6: гонка за последней парой ─── */
+(function(){
+  const go = document.getElementById('dbx-race-go');
+  if(!go) return;
+  const $ = id => document.getElementById(id);
+  const R = {
+    none:{art:[
+      '  Анна (T1)                          Борис (T2)',
+      '  ─────────────────────────────      ─────────────────────────────',
+      '  SELECT остаток → 1',
+      '                                     SELECT остаток → 1',
+      '  «1 ≥ 1, можно продавать»',
+      '                                     «1 ≥ 1, можно продавать»',
+      '  UPDATE остаток = 0',
+      '  INSERT заказ Анны   COMMIT ✓',
+      '                                     UPDATE остаток = 0',
+      '                                     INSERT заказ Бориса COMMIT ✓'],
+     sold:2, left:0, kind:'err',
+     m:'<b>Продано две пары, а на складе была одна.</b> Оба прочитали «1», оба решили, что можно, оба записали «0». Остаток выглядит правдоподобно, поэтому ошибку заметят только на складе, когда второй паре не найдётся. Это аномалия <b>«потерянное обновление»</b>: запись Бориса затёрла запись Анны. Проверка в коде не спасает — между «проверил» и «записал» проходит время.'},
+    lock:{art:[
+      '  Анна (T1)                          Борис (T2)',
+      '  ─────────────────────────────      ─────────────────────────────',
+      '  SELECT … FOR UPDATE → 1  🔒',
+      '                                     SELECT … FOR UPDATE',
+      '                                       ⏳ ждёт: строка занята',
+      '  UPDATE остаток = 0',
+      '  INSERT заказ Анны',
+      '  COMMIT ✓  замок снят 🔓',
+      '                                     → остаток 0',
+      '                                     «нет в наличии»  ROLLBACK'],
+     sold:1, left:0, kind:'ok',
+     m:'<b>Продана одна пара.</b> <code class="inl">FOR UPDATE</code> запер строку, и Борис подождал несколько миллисекунд. Когда он дочитал, остаток был уже 0. Цена — ожидание: если транзакция Анны долгая (например, внутри неё звонок в банк), Борис и все за ним будут ждать так же долго.'},
+    check:{art:[
+      '  -- в схеме таблицы:  CHECK (остаток >= 0)',
+      '',
+      '  Анна (T1)                          Борис (T2)',
+      '  ─────────────────────────────      ─────────────────────────────',
+      '  UPDATE stock',
+      '     SET остаток = остаток - 1',
+      '   WHERE товар = …   → 0  ✓',
+      '                                     UPDATE … остаток - 1',
+      '                                       ⏳ ждёт COMMIT Анны',
+      '  COMMIT ✓',
+      '                                     → было бы −1',
+      '                                     ERROR: violates check constraint',
+      '                                     «нет в наличии»'],
+     sold:1, left:0, kind:'ok',
+     m:'<b>Продана одна пара — и защита живёт в самой базе.</b> Вместо «прочитать, проверить, записать» код просит базу «уменьши на один», а правило <code class="inl">CHECK (остаток &gt;= 0)</code> не даёт уйти в минус. Даже если завтра кто-то напишет второй сервис или ручной скрипт, правило сработает. Это самый надёжный из трёх способов.'},
+  };
+  let mode = 'none';
+  function show(run){
+    const x = R[mode];
+    $('dbx-race-art').textContent = run ? x.art.join('\n') : '  нажмите «Анна и Борис жмут одновременно»';
+    $('dbx-race-m').innerHTML = run
+      ? '<span class="meter">было на складе: <b>1</b></span>' +
+        '<span class="meter ' + (x.sold > 1 ? 'bad' : 'good') + '">продано пар: <b>' + x.sold + '</b></span>' +
+        '<span class="meter">остаток в базе: <b>' + x.left + '</b></span>'
+      : '';
+    msg($('dbx-race-msg'), run ? x.kind : '', run ? x.m : 'Остаток: 1 пара. Сейчас две транзакции попробуют купить её одновременно.');
+  }
+  $('dbx-race-mode').addEventListener('click', e => {
+    const b = e.target.closest('button[data-m]'); if(!b) return;
+    [...$('dbx-race-mode').children].forEach(y => y.classList.toggle('on', y === b));
+    mode = b.dataset.m; show(false);
+  });
+  go.addEventListener('click', () => show(true));
+  show(false);
+})();
+
+/* ─── глава 8: отставание реплики ─── */
+(function(){
+  const lr = document.getElementById('dbx-lag-r');
+  if(!lr) return;
+  const $ = id => document.getElementById(id);
+  const wr = $('dbx-lag-w'), ryw = $('dbx-lag-ryw'), out = $('dbx-lag-out');
+  function paint(){
+    const lag = +lr.value, w = +wr.value, on = ryw.checked;
+    $('dbx-lag-v').textContent = lag; $('dbx-lag-wv').textContent = w;
+    const fromMaster = on;
+    const stale = !fromMaster && w < lag;
+    const ev = [[0, 0, 'Анна сохранила адрес → МАСТЕР  ✓'],
+      [w, 2, 'Анна открыла профиль → ' + (fromMaster ? 'МАСТЕР (правило «читай своё»)' : 'РЕПЛИКА')],
+      [lag, 1, 'реплика получила новый адрес']].sort((x, y) => x[0] - y[0] || x[1] - y[1]);
+    const art = ev.map(x => '  ' + (x[0] + ' мс').padEnd(10) + ' ' + x[2]).concat([
+      '',
+      '  Анна видит: ' + (stale ? 'СТАРЫЙ адрес  ✕' : 'новый адрес  ✓'),
+    ]);
+    out.innerHTML = '<pre class="json" style="font-size:12px;margin:10px 0">' + esc(art.join('\n')) + '</pre>' +
+      '<div class="note ' + (stale ? 'warn' : 'good') + '" style="margin:0">' +
+      (stale
+        ? '<b>«Я же только что сохранила!»</b> Анна пришла за данными раньше, чем реплика их получила. На тесте такого не бывает: там реплика не отстаёт. В бою — один раз из двадцати, и выглядит как мистика. Включите правило «читай своё».'
+        : fromMaster
+          ? '<b>Правило «читай своё» спасло.</b> Несколько секунд после своей записи Анна читает с мастера, и реплика может отставать сколько угодно. Цена — часть чтений снова идёт на мастер, и его нагрузка чуть растёт.'
+          : '<b>Повезло.</b> Анна открыла профиль позже, чем реплика догнала мастер. Но стоит отставанию вырасти под нагрузкой — и повезёт уже не всем. Сдвиньте отставание вправо.') +
+      '</div>';
+  }
+  [lr, wr].forEach(x => x.addEventListener('input', paint));
+  ryw.addEventListener('change', paint);
+  paint();
+})();
+
+/* ─── глава 9: ключ шардирования ─── */
+(function(){
+  const pick = document.getElementById('dbx-sh-pick');
+  if(!pick) return;
+  const $ = id => document.getElementById(id);
+  const K = {
+    cust:{load:[26, 24, 25, 25], names:['клиенты 0–24 %', 'клиенты 25–49 %', 'клиенты 50–74 %', 'клиенты 75–100 %'],
+      q:[['«заказы Анны»', '1 шард', true], ['«все заказы за сегодня»', 'все 4 шарда', false], ['запись нового заказа', 'равномерно по всем', true]],
+      m:'<b>Хороший выбор для магазина.</b> Номер клиента пропускают через хеш-функцию (она превращает номер в «случайное», но всегда одинаковое число), и клиенты раскладываются по шардам поровну. Всё про одного клиента лежит в одном месте. Отчёт «за сегодня» придётся собирать со всех шардов — но отчёты и так живут на отдельной базе.', k:'good'},
+    date:{load:[0, 0, 0, 100], names:['январь–март', 'апрель–июнь', 'июль–август', 'сентябрь (сегодня)'],
+      q:[['«заказы Анны»', 'все 4 шарда', false], ['«все заказы за сегодня»', '1 шард', true], ['запись нового заказа', 'ВСЯ в один шард', false]],
+      m:'<b>Горячий шард.</b> Вся сегодняшняя запись летит в один сервер, остальные три отдыхают. Масштабировать запись не получилось вовсе — ради этого шардирование и затевали. Дата как ключ годится для архива и логов, а не для живых заказов.', k:'warn'},
+    country:{load:[71, 14, 9, 6], names:['Россия', 'Казахстан', 'Беларусь', 'остальные'],
+      q:[['«заказы Анны»', '1 шард', true], ['«все заказы за сегодня»', 'все 4 шарда', false], ['запись нового заказа', '71 % в один шард', false]],
+      m:'<b>Перекос.</b> Звучит логично, но страны неравны: один шард несёт 71 % нагрузки. Ключ с малым числом неравных значений почти всегда даёт перекос. А сменить ключ потом — значит переложить все данные.', k:'warn'},
+  };
+  function show(k){
+    const x = K[k];
+    $('dbx-sh-bars').innerHTML = x.load.map((l, i) =>
+      '<div class="dbx-bar' + (l > 50 ? ' dbx-hot' : '') + '"><b>шард ' + (i + 1) + '</b><div style="color:var(--muted);font-size:11px">' + x.names[i] + '</div>' +
+      '<div class="dbx-track"><div class="dbx-fill" style="height:' + Math.max(l, 2) + '%"></div></div>' +
+      '<b>' + l + ' %</b> записи</div>').join('');
+    $('dbx-sh-out').innerHTML =
+      '<div class="lgrid" style="margin-top:12px">' + x.q.map(q => '<b>' + q[0] + '</b><div style="color:' + (q[2] ? 'var(--ok)' : 'var(--danger)') + '">' + (q[2] ? '✓ ' : '✕ ') + q[1] + '</div>').join('') + '</div>' +
+      '<div class="note ' + x.k + '">' + x.m + '</div>';
+  }
+  pick.addEventListener('click', e => {
+    const b = e.target.closest('button[data-k]'); if(!b) return;
+    [...pick.children].forEach(y => y.classList.toggle('on', y === b));
+    show(b.dataset.k);
+  });
+  show('cust');
+})();
 </script>
