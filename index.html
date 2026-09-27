@@ -15967,21 +15967,178 @@ renderFlow('msf-flow', {
 </script>
 <!-- ==================== 22. РЕФАКТОРИНГ ЛЕГАСИ ==================== -->
 <section class="panel" id="legacy" data-accent="mn" role="tabpanel">
-  <p class="lead"><b>Переписать всё с нуля почти всегда проваливается.</b> Причина простая: пока вы переписываете, старая система продолжает меняться. Вы догоняете убегающую цель и два года ничего не выпускаете. Работает другой путь — <b>менять по кускам, каждый раз выкатывая результат</b>.</p>
+  <p class="lead"><b>Переписать всё с нуля почти всегда проваливается.</b> Причина простая: пока вы переписываете, старая система продолжает меняться. Вы догоняете убегающую цель и два года ничего не выпускаете. Работает другой путь — <b>менять по кускам, каждый раз выкатывая результат</b>. Этот раздел — одна история от начала до конца: что такое легаси, как выглядит миграция изнутри на примере одного клика, какие есть подходы и как провести замену «комната за комнатой».</p>
 
+  <style>
+    .lgx-ch{scroll-margin-top:150px}
+    .lgx-map{display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:8px; margin-top:12px}
+    .lgx-map button{appearance:none; text-align:left; display:flex; gap:10px; align-items:flex-start; border:1px solid var(--line); background:var(--surface-2); color:var(--ink); border-radius:10px; padding:10px 12px; cursor:pointer; font:inherit; font-size:13.5px}
+    .lgx-map button:hover{border-color:var(--accent)}
+    .lgx-map .n{flex:none; width:24px; height:24px; border-radius:50%; background:var(--accent); color:#fff; font:700 12px var(--mono); display:grid; place-items:center}
+    .lgx-map .s{display:block; font-size:12px; color:var(--muted); margin-top:2px}
+    .lgx-defs{display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-top:12px}
+    @media (max-width:700px){.lgx-defs{grid-template-columns:1fr}}
+    .lgx-big{font:700 15px var(--sans); margin:0 0 5px}
+    /* сквозной flow */
+    .lgx-scroll{overflow-x:auto; margin-top:12px; border:1px solid var(--line); border-radius:12px; background:var(--surface-2); padding:12px}
+    .lgx-grid{display:grid; grid-template-columns:repeat(3,minmax(150px,1fr)); gap:12px 16px; min-width:540px}
+    .lgx-nd{border:1.5px solid var(--line); border-left-width:5px; border-radius:10px; background:var(--surface); padding:8px 10px; font:600 13px var(--sans); text-align:center; color:var(--faint); transition:all .2s}
+    .lgx-nd .s{display:block; font:500 11px var(--mono); color:var(--faint); margin-top:2px}
+    .lgx-nd[data-k=user]{border-left-color:var(--nt)}
+    .lgx-nd[data-k=fac]{border-left-color:var(--nt)}
+    .lgx-nd[data-k=old]{border-left-color:var(--mn)}
+    .lgx-nd[data-k=new]{border-left-color:var(--ms)}
+    .lgx-nd[data-k=acl]{border-left-color:var(--dt)}
+    .lgx-nd[data-k=aux]{border-left-color:var(--warn)}
+    .lgx-nd.lit{color:var(--ink)}
+    .lgx-nd.on{color:var(--ink); border-color:var(--accent); background:color-mix(in srgb,var(--accent) 12%,var(--surface)); box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 22%,transparent)}
+    .lgx-nd.bad{border-color:var(--danger); background:var(--danger-bg); color:var(--danger)}
+    .lgx-route{font:600 13px var(--mono); color:var(--accent); margin:14px 0 4px}
+    .lgx-two{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:8px; align-items:start}
+    @media (max-width:760px){.lgx-two{grid-template-columns:1fr}}
+    .lgx-sees{margin-top:10px; font-size:13px; border:1px dashed var(--line); border-radius:9px; padding:8px 11px; color:var(--muted)}
+    .lgx-sees b{color:var(--ink)}
+    /* гонка */
+    .lgx-bars{display:flex; flex-direction:column; gap:9px; margin-top:12px}
+    .lgx-bar{display:grid; grid-template-columns:200px 1fr 60px; gap:10px; align-items:center; font-size:13px}
+    @media (max-width:640px){.lgx-bar{grid-template-columns:1fr 50px} .lgx-bar .l{grid-column:1 / -1}}
+    .lgx-bar .tr{height:14px; background:var(--surface-3); border-radius:7px; overflow:hidden}
+    .lgx-bar .f{height:100%; border-radius:7px; transition:width .25s}
+    .lgx-bar .v{font:700 12.5px var(--mono); text-align:right; font-variant-numeric:tabular-nums}
+    /* подходы */
+    .lgx-ap{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:10px}
+    @media (max-width:760px){.lgx-ap{grid-template-columns:1fr}}
+    .lgx-ap .box ul{margin:0; padding-left:18px; font-size:13px; color:var(--muted)}
+    .lgx-ap .box li{margin:4px 0}
+    /* симулятор */
+    .lgx-house{display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:12px; border:2px solid var(--line); border-radius:12px; padding:10px; background:var(--surface-2)}
+    @media (max-width:560px){.lgx-house{grid-template-columns:repeat(2,1fr)}}
+    .lgx-room{border:1.5px solid var(--mn); border-radius:9px; padding:8px 9px; background:color-mix(in srgb,var(--mn) 9%,var(--surface)); font-size:12.5px; min-height:64px}
+    .lgx-room b{display:block; font-size:13px}
+    .lgx-room .s{font:500 11px var(--mono); color:var(--muted)}
+    .lgx-room.mid{border-color:var(--warn); background:var(--warn-bg)}
+    .lgx-room.nw{border-color:var(--ms); background:color-mix(in srgb,var(--ms) 11%,var(--surface))}
+    .lgx-room.done{border-color:var(--ok); background:var(--ok-bg)}
+    .lgx-room.boom{border-color:var(--danger); background:var(--danger-bg)}
+    .lgx-rows{display:flex; flex-direction:column; gap:8px; margin-top:12px}
+    .lgx-row{display:grid; grid-template-columns:170px 1fr 200px auto; gap:10px; align-items:center; border:1px solid var(--line); border-radius:10px; background:var(--surface-2); padding:9px 12px; font-size:13px}
+    @media (max-width:820px){.lgx-row{grid-template-columns:1fr 1fr} .lgx-row .nm{grid-column:1 / -1}}
+    .lgx-row .nm b{display:block; font-size:13.5px}
+    .lgx-row .nm span{font:500 11px var(--mono); color:var(--faint)}
+    .lgx-row .st{font:600 12px var(--mono); color:var(--muted)}
+    .lgx-row .bt{display:flex; gap:5px; flex-wrap:wrap}
+    .lgx-row .bt button{padding:6px 10px; font-size:12.5px}
+    .lgx-tr{height:12px; background:color-mix(in srgb,var(--mn) 30%,var(--surface-3)); border-radius:6px; overflow:hidden}
+    .lgx-tr i{display:block; height:100%; background:var(--ms); transition:width .25s}
+    .lgx-legend{display:flex; gap:12px; flex-wrap:wrap; font:500 11.5px var(--mono); color:var(--muted); margin-top:8px}
+    .lgx-legend span::before{content:""; display:inline-block; width:10px; height:10px; border-radius:3px; margin-right:5px; vertical-align:-1px; background:var(--c)}
+    /* ACL */
+    .lgx-fl{display:flex; flex-direction:column; gap:5px; margin-top:6px}
+    .lgx-f{display:flex; justify-content:space-between; gap:10px; font:500 12.5px var(--mono); padding:5px 8px; border-radius:7px; border:1px solid var(--line); background:var(--surface); color:var(--muted)}
+    .lgx-f.cur{border-color:var(--dt); color:var(--dt); background:color-mix(in srgb,var(--dt) 10%,var(--surface))}
+    .lgx-f.done{opacity:.55; text-decoration:line-through}
+    .lgx-f b{color:inherit; overflow-wrap:anywhere; text-align:right}
+  </style>
+
+  <!-- ─── карта раздела ─── -->
   <div class="card">
-    <h2><span class="tag">зачем это</span> зачем трогать легаси</h2>
+    <h2><span class="tag">карта раздела</span> куда мы идём</h2>
+    <p>Раздел читается сверху вниз, как одна история. Можно прыгнуть к любой главе — нажмите на неё.</p>
+    <div class="lgx-map" id="lgx-map">
+      <button data-ch="lgx-c1"><span class="n">1</span><span>Что такое легаси<span class="s">определение, аналогия с ремонтом</span></span></button>
+      <button data-ch="lgx-c2"><span class="n">2</span><span>Анна и два бэкенда<span class="s">сквозной пример по шагам</span></span></button>
+      <button data-ch="lgx-c3"><span class="n">3</span><span>Почему не переписать с нуля<span class="s">гонка за убегающей мишенью</span></span></button>
+      <button data-ch="lgx-c4"><span class="n">4</span><span>Пять подходов<span class="s">на что похоже в жизни, когда брать</span></span></button>
+      <button data-ch="lgx-c5"><span class="n">5</span><span>Душитель: комната за комнатой<span class="s">шаги и симулятор миграции</span></span></button>
+      <button data-ch="lgx-c6"><span class="n">6</span><span>Переводчик на границе<span class="s">слой предотвращения порчи (ACL)</span></span></button>
+      <button data-ch="lgx-c7"><span class="n">7</span><span>Ветвление по абстракции<span class="s">когда замена внутри кода</span></span></button>
+      <button data-ch="lgx-c8"><span class="n">8</span><span>Параллельный прогон<span class="s">как убедиться, что считает так же</span></span></button>
+      <button data-ch="lgx-c9"><span class="n">9</span><span>Швы и тесты<span class="s">как подступиться к коду без тестов</span></span></button>
+      <button data-ch="lgx-c10"><span class="n">10</span><span>Практика<span class="s">что выносить первым, итоговые вопросы</span></span></button>
+    </div>
+  </div>
+
+  <!-- ─── глава 1 ─── -->
+  <div class="card lgx-ch" id="lgx-c1">
+    <h2><span class="tag">глава 1 · что это</span> легаси: система, которую страшно трогать</h2>
+    <p><b>Легаси</b> (legacy, «наследство») — это работающая система, которую <b>страшно менять</b>. Не обязательно старая: бывает легаси, написанное два года назад. Признаки всегда одни: тестов нет, авторы ушли, документации нет, а правила бизнеса живут только в коде.</p>
+    <p><b>Миграция</b> — перенос функций из старой системы в новую так, чтобы бизнес не останавливался ни на день.</p>
+    <div class="note good"><b>Житейски: ремонт в квартире, где продолжают жить.</b> Съехать на два года нельзя — семья живёт здесь, дети ходят в школу, кот ест по расписанию. Поэтому дом не сносят. Ремонтируют <b>комнату за комнатой</b>: пока в спальне меняют проводку, все спят в гостиной. Спальня готова — переселились, взялись за кухню. В любой момент в квартире можно жить. Это и есть вся идея постепенной миграции.</div>
+    <div class="lgx-defs">
+      <div class="box"><div class="lgx-big">🏚 Почему «страшно»</div><p class="bs" style="margin:0">Любая правка может сломать что-то в неожиданном месте. Проверить нечем: тестов нет. Спросить некого: авторы ушли. Поэтому код не трогают, а обходят — и он становится ещё запутаннее.</p></div>
+      <div class="box"><div class="lgx-big">💰 Почему нельзя просто выключить</div><p class="bs" style="margin:0">Легаси приносит деньги. Через него идут заказы, платежи, отчёты для налоговой. Именно поэтому оно легаси, а не мусор: оно слишком ценное, чтобы выбросить, и слишком хрупкое, чтобы менять.</p></div>
+    </div>
+    <h3>Зачем вообще его трогать</h3>
     <div id="why-legacy"></div>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">почему</span> четыре причины провала «большого переписывания»</h2>
+  <!-- ─── глава 2 ─── -->
+  <div class="card lgx-ch" id="lgx-c2">
+    <h2><span class="tag">глава 2 · сквозной пример</span> Анна открывает личный кабинет</h2>
+    <p>Прежде чем разбирать термины, посмотрим на миграцию изнутри. Турагентство третий месяц переносит функции из старого монолита в новые сервисы. Функцию «Профиль» уже переписали, и её получают <b>10 % пользователей</b>. Остальное — заказы, оплата — пока в монолите.</p>
+    <p>Анна нажимает «Личный кабинет». Идите по шагам и смотрите, какой узел работает и какие данные проходят через него.</p>
+    <div class="lgx-scroll">
+      <div class="lgx-grid" id="lgx-fl-grid">
+        <div class="lgx-nd" data-n="anna" data-k="user" style="grid-column:2;grid-row:1">👩 Анна<span class="s">браузер</span></div>
+        <div class="lgx-nd" data-n="diff" data-k="aux" style="grid-column:1;grid-row:2">📒 Журнал расхождений<span class="s">параллельный прогон</span></div>
+        <div class="lgx-nd" data-n="facade" data-k="fac" style="grid-column:2;grid-row:2">🚪 Фасад<span class="s">входная дверь, прокси</span></div>
+        <div class="lgx-nd" data-n="routes" data-k="aux" style="grid-column:3;grid-row:2">🗺 Таблица маршрутов<span class="s">флаги и проценты</span></div>
+        <div class="lgx-nd" data-n="mono" data-k="old" style="grid-column:1;grid-row:3">🏚 Старый монолит<span class="s">заказы, оплата, профиль</span></div>
+        <div class="lgx-nd" data-n="newsvc" data-k="new" style="grid-column:3;grid-row:3">🏠 Новый сервис «Профиль»<span class="s">переписан с тестами</span></div>
+        <div class="lgx-nd" data-n="olddb" data-k="old" style="grid-column:1;grid-row:4">🗄 Старая база<span class="s">пока главный источник правды</span></div>
+        <div class="lgx-nd" data-n="acl" data-k="acl" style="grid-column:2;grid-row:4">🗣 Переводчик (ACL)<span class="s">старое ↔ новое</span></div>
+        <div class="lgx-nd" data-n="newdb" data-k="new" style="grid-column:3;grid-row:4">🗃 Новая база<span class="s">пока пустая</span></div>
+      </div>
+    </div>
+    <div class="skbar">
+      <button class="ghost" id="lgx-fl-prev">← Назад</button>
+      <button class="act" id="lgx-fl-next">Дальше →</button>
+      <button class="ghost" id="lgx-fl-play">▶ Прогнать</button>
+      <span class="skstep" id="lgx-fl-lab"></span>
+    </div>
+    <div class="lgx-route" id="lgx-fl-route"></div>
+    <div class="lgx-two">
+      <div>
+        <div id="lgx-fl-d" style="font-size:13.5px;color:var(--muted)"></div>
+        <div class="lgx-sees" id="lgx-fl-sees"></div>
+      </div>
+      <pre class="json" id="lgx-fl-data" style="font-size:12px"></pre>
+    </div>
+    <div class="console" id="lgx-fl-msg"></div>
+  </div>
+
+  <!-- ─── глава 3 ─── -->
+  <div class="card lgx-ch" id="lgx-c3">
+    <h2><span class="tag">глава 3 · почему</span> почему не переписать всё с нуля</h2>
+    <p>Первое желание при виде легаси — «снести и написать нормально». Посмотрим, что при этом происходит. Старая система не замирает: бизнес каждый месяц просит новое. Допустим, она прибавляет <b>4 функции в месяц</b>, а сейчас умеет <b>100</b>. Двигайте ползунки.</p>
+    <div class="slider-row"><label for="lgx-race-m">Прошло месяцев</label><input type="range" id="lgx-race-m" min="0" max="36" step="1" value="12"><span class="sv" id="lgx-race-mv">12</span></div>
+    <div class="slider-row"><label for="lgx-race-v">Скорость команды переписывания</label><input type="range" id="lgx-race-v" min="3" max="10" step="1" value="6"><span class="sv" id="lgx-race-vv">6 / мес</span></div>
+    <div class="lgx-bars" id="lgx-race-bars"></div>
+    <div class="meters" id="lgx-race-m2"></div>
+    <div class="console" id="lgx-race-msg"></div>
+    <p style="margin-top:16px">Цифры условные, но форма провала настоящая. Вот четыре причины, из-за которых «большое переписывание» почти всегда заканчивается плохо. Нажмите на каждую.</p>
     <div id="rw-list" class="numlist"></div>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">интерактив</span> душитель (Strangler Fig) по шагам</h2>
-    <p>Фикус-душитель обвивает дерево, постепенно заменяя его собой; когда дерево умирает, фикус стоит сам. Так же заменяют легаси: новое растёт снаружи, трафик переключается по кускам, старое отмирает. Пройдите по шагам.</p>
+  <!-- ─── глава 4 ─── -->
+  <div class="card lgx-ch" id="lgx-c4">
+    <h2><span class="tag">глава 4 · подходы</span> пять способов заменить старое — и на что они похожи в жизни</h2>
+    <p>В примере с Анной работали сразу три приёма: фасад с процентами (душитель), переводчик (ACL) и сравнение ответов (параллельный прогон). Разложим все подходы по полочкам. Выберите подход.</p>
+    <div class="seg" id="lgx-ap-pick"></div>
+    <div id="lgx-ap-out"></div>
+    <h3>Всё рядом: сравнение</h3>
+    <p style="font-size:13.5px;color:var(--muted);margin:4px 0">Нажмите на строку — появится пояснение.</p>
+    <div id="lgx-ap-cmp"></div>
+    <div class="note"><b>Это не «или — или».</b> Настоящая миграция почти всегда комбинирует: душитель задаёт общий план, переводчик защищает новый код от старой модели, параллельный прогон проверяет расчёты, а ветвление по абстракции помогает там, где нет сетевой границы.</div>
+    <h3>Проверьте себя: какой подход взять</h3>
+    <p style="font-size:13.5px;color:var(--muted);margin:4px 0">Решено <b id="lgx-pick-score">0</b> из <span id="lgx-pick-total">0</span>.</p>
+    <div id="lgx-pick"></div>
+  </div>
+
+  <!-- ─── глава 5 ─── -->
+  <div class="card lgx-ch" id="lgx-c5">
+    <h2><span class="tag">глава 5 · душитель</span> душитель (Strangler Fig) по шагам</h2>
+    <p>Фикус-душитель обвивает дерево, постепенно заменяя его собой; когда дерево умирает, фикус стоит сам. Так же заменяют легаси: новое растёт снаружи, трафик переключается по кускам, старое отмирает. Пройдите по шагам — это жизненный цикл <b>одного</b> куска.</p>
     <div class="form-row">
       <button class="act" id="sf-next">▶ Следующий шаг</button>
       <button class="ghost" id="sf-back">← Назад</button>
@@ -15993,45 +16150,83 @@ renderFlow('msf-flow', {
   </div>
 
   <div class="card">
-    <h2><span class="tag">приём</span> ветвление по абстракции (branch by abstraction)</h2>
-    <p>Когда заменяемый кусок находится <b>внутри</b> кода, а не за сетевой границей, душитель не работает — маршрутизировать нечем. Тогда точку переключения создают в самом коде.</p>
-    <pre class="json"><span class="cm">// Шаг 1. Ввести абстракцию над существующей реализацией.
-// Пока ничего не меняется — только появляется шов.</span>
-<span class="kw">interface</span> PricingEngine {
-  Money priceOf(Order order);
+    <h2><span class="tag">глава 5 · симулятор</span> ремонт комната за комнатой</h2>
+    <p>Теперь — весь дом. Монолит турагентства состоит из шести «комнат». У каждой своя доля трафика и своя цена ошибки. Проводите комнаты через шаги душителя кнопкой <b>▶</b>. Кнопка <b>💥</b> устраивает сбой в новой версии комнаты — посмотрите, во что он обойдётся на каждом шаге. Кнопка <b>↩</b> — откат.</p>
+    <div class="lgx-house" id="lgx-sim-house"></div>
+    <div class="lgx-legend">
+      <span style="--c:var(--mn)">в монолите</span>
+      <span style="--c:var(--warn)">переезд идёт</span>
+      <span style="--c:var(--ms)">на новом, старое живо</span>
+      <span style="--c:var(--ok)">переехала целиком</span>
+    </div>
+    <div class="meters" id="lgx-sim-m"></div>
+    <div class="lgx-rows" id="lgx-sim-rows"></div>
+    <div class="form-row"><button class="ghost" id="lgx-sim-reset">⟲ Начать заново</button></div>
+    <div class="console" id="lgx-sim-msg"></div>
+    <div class="steps" id="lgx-sim-log"></div>
+    <div class="note warn"><b>Что стоит заметить.</b> Пока старый код жив (до шага «данные переехали»), любой сбой лечится одной настройкой. После переезда данных откат стоит дней, после удаления старого кода — отката нет вовсе. Поэтому переезд данных и удаление делают, только когда комната прожила на новом достаточно долго.</div>
+  </div>
+
+  <!-- ─── глава 6 ─── -->
+  <div class="card lgx-ch" id="lgx-c6">
+    <h2><span class="tag">глава 6 · переводчик</span> слой предотвращения порчи (anti-corruption layer)</h2>
+    <p><b>Слой предотвращения порчи</b> (ACL, anti-corruption layer) — код на границе между новым и старым, который переводит чужую модель данных в свою. Его задача — не дать странностям старой системы «протечь» в новый код.</p>
+    <div class="note good"><b>Житейски: переводчик на переговорах.</b> Вы не учите японский ради одной встречи — рядом сидит переводчик. Он знает, что «мы подумаем» значит «нет», и переводит смысл, а не слова. Когда переговоры закончатся, переводчика отпускают, и ваш язык остался чистым.</div>
+    <p>Вот запись клиента, как её хранит старая база. Переведите её поле за полем и посмотрите, сколько скрытого знания сидит в переводчике.</p>
+    <div class="seg" id="lgx-acl-mode">
+      <button data-m="acl" class="on">🗣 С переводчиком</button>
+      <button data-m="raw">🧨 Без переводчика</button>
+    </div>
+    <div id="lgx-acl-box">
+      <div class="grid2">
+        <div class="box"><h4>🏚 Старая запись CLNT</h4><p class="bs">Так её отдаёт монолит</p><div class="lgx-fl" id="lgx-acl-src"></div></div>
+        <div class="box"><h4>🏠 Модель нового сервиса</h4><p class="bs">Так её видит новый код</p><pre class="json" id="lgx-acl-dst" style="font-size:12px"></pre></div>
+      </div>
+      <div class="form-row">
+        <button class="act" id="lgx-acl-next">Перевести следующее поле →</button>
+        <button class="ghost" id="lgx-acl-reset">Сначала</button>
+      </div>
+      <div class="console" id="lgx-acl-msg"></div>
+    </div>
+    <div id="lgx-acl-raw" style="display:none">
+      <pre class="json" style="margin-top:12px"><span class="cm">// Новый сервис «Профиль», файл ProfileController — без переводчика</span>
+<span class="kw">if</span>(c.FL_DEL === <span class="st">'N'</span> &amp;&amp; c.TP_ADR === <span class="st">'2'</span>){       <span class="cm">// что такое 2? спросите Петровича</span>
+  addr = c.ADR_1.split(<span class="st">','</span>);                     <span class="cm">// а если в адресе запятая?</span>
 }
+bonus = parseInt(c.BAL, 10) / 100;                <span class="cm">// копейки строкой с нулями</span>
+<span class="cm">// Файл DeliveryService — то же самое, скопировано</span>
+<span class="kw">if</span>(c.FL_DEL === <span class="st">'N'</span> &amp;&amp; c.TP_ADR === <span class="st">'2'</span>){ ... }
+<span class="cm">// Файл Notifications — и ещё раз, но TP_ADR сравнивают с числом 2</span>
+<span class="kw">if</span>(c.FL_DEL === <span class="st">'N'</span> &amp;&amp; c.TP_ADR == 2){ ... }        <span class="cm">// тихая ошибка ждёт своего часа</span></pre>
+      <div class="note bad"><b>Что случилось.</b> Новый код заговорил на языке старого. Через год в нём 14 мест, где знают, что «2» — это адрес доставки. Старую систему выключат, а её странности останутся жить в новой. Вы заплатили за переписывание — и получили то же легаси, только моложе.</div>
+    </div>
+    <div class="grid2" style="margin-top:14px">
+      <div class="box"><h4>Когда нужен</h4><ul style="margin:0;padding-left:18px;font-size:13px;color:var(--muted)"><li>Новое вынуждено читать или писать в старую систему во время миграции.</li><li>Интеграция с чужой системой, на модель которой вы не влияете (партнёр, банк, государство).</li><li>Старая модель явно кривая, и вы не хотите тащить её дальше.</li></ul></div>
+      <div class="box"><h4>Чем платим</h4><ul style="margin:0;padding-left:18px;font-size:13px;color:var(--muted)"><li>Ещё один слой кода, который надо писать, тестировать и сопровождать.</li><li>Кто-то должен знать обе модели: переводчик без знания языка бесполезен.</li><li>Небольшая задержка на каждое обращение.</li></ul></div>
+    </div>
+  </div>
 
-<span class="kw">class</span> LegacyPricingEngine <span class="kw">implements</span> PricingEngine { <span class="cm">/* тот самый код 2013 года */</span> }
-
-<span class="cm">// Шаг 2. Весь вызывающий код переводится на интерфейс. Выкатывается.
-//        Поведение системы не изменилось ни на йоту — это важно:
-//        рискованный шаг сделан отдельно от изменения логики.</span>
-
-<span class="cm">// Шаг 3. Пишется новая реализация. Она не используется.</span>
-<span class="kw">class</span> NewPricingEngine <span class="kw">implements</span> PricingEngine { <span class="cm">/* новая, с тестами */</span> }
-
-<span class="cm">// Шаг 4. Переключатель с процентом и сравнением результатов.</span>
-<span class="kw">class</span> SwitchingPricingEngine <span class="kw">implements</span> PricingEngine {
-  <span class="kw">public</span> Money priceOf(Order o){
-    Money legacy = legacyEngine.priceOf(o);
-    <span class="kw">if</span>(flags.enabled(<span class="st">"new-pricing"</span>, o.customerId())){
-      Money fresh = newEngine.priceOf(o);
-      <span class="kw">if</span>(!fresh.equals(legacy)) metrics.mismatch(o.id(), legacy, fresh); <span class="cm">// расхождения видны</span>
-      <span class="kw">return</span> fresh;
-    }
-    <span class="kw">return</span> legacy;
-  }
-}
-
-<span class="cm">// Шаг 5. Процент растёт, расхождения разбираются.
-// Шаг 6. Старая реализация и переключатель удаляются. Остаётся интерфейс.</span></pre>
+  <!-- ─── глава 7 ─── -->
+  <div class="card lgx-ch" id="lgx-c7">
+    <h2><span class="tag">глава 7 · приём</span> ветвление по абстракции (branch by abstraction)</h2>
+    <p>Когда заменяемый кусок находится <b>внутри</b> кода, а не за сетевой границей, душитель не работает — маршрутизировать нечем. Фасаду нечего перехватывать: вызов идёт из метода в метод. Тогда точку переключения создают в самом коде.</p>
+    <div class="note good"><b>Житейски: переходник в розетке.</b> Надо поменять проводку, а приборы включены прямо в стену. Сначала все приборы переключают в переходник — ничего не изменилось, всё работает. Потом переходник подключают к новой проводке, по одному прибору. Старую проводку вынимают, когда через неё больше ничего не идёт. <b>Абстракция</b> здесь — это переходник: интерфейс, за которым можно подменить реализацию.</div>
+    <p>Пройдите шаги. Обратите внимание, что каждый шаг выкатывается в прод отдельно.</p>
+    <div class="skbar">
+      <button class="ghost" id="lgx-bba-prev">← Назад</button>
+      <button class="act" id="lgx-bba-next">Дальше →</button>
+      <span class="skstep" id="lgx-bba-lab"></span>
+    </div>
+    <div id="lgx-bba-out"></div>
     <div class="note"><b>Ключевое свойство:</b> главная ветка всегда рабочая и всегда выкатываема. Никаких веток на три месяца, никакого «большого слияния», которое разбирают неделю. Каждый шаг — маленький, обратимый и выкатывается отдельно.</div>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">проверка</span> параллельный прогон: как убедиться, что новое считает так же</h2>
-    <p>Новая реализация получает тот же вход, что и старая; результаты сравниваются, наружу отдаётся старый. Расхождения логируются и разбираются <b>до</b> переключения.</p>
-    <div class="grid2">
+  <!-- ─── глава 8 ─── -->
+  <div class="card lgx-ch" id="lgx-c8">
+    <h2><span class="tag">глава 8 · проверка</span> параллельный прогон: как убедиться, что новое считает так же</h2>
+    <p><b>Параллельный прогон</b> (parallel run, «теневой режим») — новая реализация получает тот же вход, что и старая; результаты сравниваются, наружу отдаётся старый. Расхождения логируются и разбираются <b>до</b> переключения. Именно это делал фасад на шаге 8 в истории Анны.</p>
+    <div class="note good"><b>Житейски: стажёр на кассе.</b> Первую неделю новый кассир считает каждый чек рядом с опытным, но деньги выдаёт опытный. Вечером сверяют: где разошлись и почему. Иногда выясняется, что ошибался как раз опытный — десять лет подряд.</div>
+    <div class="grid2" style="margin-top:14px">
       <div class="box">
         <h4>Что это даёт</h4>
         <ul style="margin:0"><li>Проверка на настоящих данных, а не на придуманных тестовых.</li><li>Обнаруживаются случаи, о которых никто не помнил, — а в легаси их всегда десятки.</li><li>Нулевой риск: наружу идёт проверенный результат.</li><li>Появляется объективный критерий готовности: «расхождений меньше 0,01 % за неделю».</li></ul>
@@ -16041,16 +16236,22 @@ renderFlow('msf-flow', {
         <ul style="margin:0"><li><b>Побочные эффекты</b> новой реализации надо отключить: она не должна писать в базу, слать письма и дёргать партнёров.</li><li>Двойная нагрузка — прогон стоит ресурсов.</li><li>Расхождение не всегда означает ошибку в новом: часто обнаруживается <b>баг в старом</b>, который бизнес считает фичей.</li><li>Нужен человек, который будет разбирать расхождения, иначе их просто перестанут смотреть.</li></ul>
       </div>
     </div>
+    <h3>Разберите журнал расхождений</h3>
+    <p style="font-size:13.5px;color:var(--muted);margin:4px 0">Неделя прогона нового расчёта стоимости тура. Для каждого расхождения решите, что с ним делать. Решено <b id="lgx-diff-score">0</b> из <span id="lgx-diff-total">0</span>.</p>
+    <div id="lgx-diff"></div>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">швы</span> где резать легаси, если внутри всё связано</h2>
+  <!-- ─── глава 9 ─── -->
+  <div class="card lgx-ch" id="lgx-c9">
+    <h2><span class="tag">глава 9 · швы</span> где резать легаси, если внутри всё связано</h2>
     <p><b>Шов</b> — место, где поведение можно изменить, не правя код вокруг. Найти швы в коде без тестов и без границ — главная работа при подходе к легаси.</p>
+    <div class="note good"><b>Житейски: шов на одежде.</b> Рукав пиджака меняют, распарывая шов, а не разрезая ткань. Там, где шва нет, придётся резать по живому — дольше, рискованнее, и следы останутся. В коде так же: сначала ищут, где уже есть граница, и только потом берутся за ножницы.</div>
     <div id="seam-list" class="numlist"></div>
   </div>
 
   <div class="card">
-    <h2><span class="tag">тесты</span> как начать, если тестов нет вообще</h2>
+    <h2><span class="tag">глава 9 · тесты</span> как начать, если тестов нет вообще</h2>
+    <p>Любой из подходов выше требует страховки: как понять, что после правки ничего не сломалось? В легаси тестов обычно нет. Вот как их завести, не переписывая код.</p>
     <div class="steps">
       <div class="step done"><div class="si">1</div><div><b>Не писать «правильные» тесты — писать характеризующие.</b><span class="sx">Характеризующий тест фиксирует <b>текущее</b> поведение, включая баги: «на такой вход система отвечает вот так». Цель не «проверить правильность», а «заметить изменение». Правильность здесь вторична: если поведение кривое, но от него зависят пользователи, менять его нельзя, не спросив бизнес.</span></div></div>
       <div class="step done"><div class="si">2</div><div><b>Начинать с самых широких — через API или через UI.</b><span class="sx">Модульные тесты требуют разрезать код, а его пока нельзя трогать. Тесты через внешнюю границу не требуют менять ничего и сразу дают страховку для рефакторинга внутри.</span></div></div>
@@ -16060,17 +16261,19 @@ renderFlow('msf-flow', {
     </div>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">интерактив</span> что выносить первым</h2>
+  <!-- ─── глава 10 ─── -->
+  <div class="card lgx-ch" id="lgx-c10">
+    <h2><span class="tag">глава 10 · практика</span> что выносить первым</h2>
     <p>Монолит турагентства, пять кандидатов на выделение. Оцените каждого. Разбор объясняет, почему порядок именно такой.</p>
     <p style="color:var(--muted);font-size:13.5px">Решено <b id="lg-score">0</b> из <span id="lg-total">0</span>.</p>
     <div id="lg-tasks"></div>
   </div>
 
   <div class="card">
-    <h2><span class="tag">задание</span> работа с легаси</h2>
+    <h2><span class="tag">глава 10 · задание</span> работа с легаси</h2>
     <p>Решено <b id="lgq-score">0</b> из <span id="lgq-total">0</span>.</p>
     <div id="lgq-tasks"></div>
+    <div class="note good"><b>Вся история одним абзацем.</b> Легаси не сносят, а ремонтируют комната за комнатой. Сначала ставят входную дверь с переключателем (фасад). Потом переносят по одному куску: пишут рядом, сравнивают в тени, пускают 1 %, потом всех, переносят данные и удаляют старое. Со старой моделью разговаривают через переводчика, внутри кода меняют через абстракцию. И цель — не «убить монолит», а снять боль.</div>
   </div>
 
   <div class="nextbar">
@@ -16081,6 +16284,139 @@ renderFlow('msf-flow', {
 
 <script>
 (function(){
+  if(!document.getElementById('legacy')) return;
+  const el = id => document.getElementById(id);
+
+  /* ─── карта раздела ─── */
+  const map = el('lgx-map');
+  if(map) map.addEventListener('click', e => {
+    const b = e.target.closest('button[data-ch]'); if(!b) return;
+    const t = el(b.dataset.ch);
+    if(t) t.scrollIntoView({behavior:'smooth', block:'start'});
+  });
+
+  /* ─── глава 2: сквозной flow «Анна» ─── */
+  (function(){
+    const grid = el('lgx-fl-grid'); if(!grid) return;
+    const FL = [
+      {t:'Анна нажимает «Личный кабинет»', on:['anna'], r:'Анна → Фасад',
+       d:'Браузер не знает ни про какую миграцию. Адрес тот же, что и год назад. Это <b>главное правило миграции: снаружи ничего не меняется</b>. Ни адреса, ни формата, ни кнопок.',
+       data:['GET /account/profile','Host: tours.example','Cookie: session=7f3a…','X-User-Id: 48213'],
+       sees:'Крутится загрузка — как всегда.'},
+      {t:'Фасад заглядывает в таблицу маршрутов', on:['facade','routes'], r:'Фасад → Таблица маршрутов',
+       d:'<b>Фасад</b> — единая входная дверь: все запросы проходят через него, и он решает, куда отправить каждый. Технически это обычный обратный прокси или шлюз (nginx, API Gateway). Для каждого адреса у него записано, кто его обслуживает. Для «профиля» включено правило «10 % пользователей — в новый сервис».',
+       data:['routes:','  /account/orders/*    → monolith         (100 %)','  /account/payments/*  → monolith         (100 %)','  /account/profile     → profile-service  (10 % пользователей)','                         иначе → monolith'],
+       sees:'Ничего не видит: прошло 2 мс.'},
+      {t:'Кому достанется Анна: «липкая» корзина', on:['facade'], r:'Фасад: считает корзину пользователя', k:'warn',
+       d:'Вот ответ на страх «запрос идёт то в старую систему, то в новую». Если бы фасад бросал монетку на каждый запрос, Анна видела бы то старую страницу, то новую — и её правки то появлялись бы, то исчезали. Поэтому решает не случай, а <b>номер пользователя</b>: из него считают число от 0 до 99. Один и тот же человек всегда попадает в одну и ту же сторону. Это называется <b>липкая маршрутизация</b>.',
+       data:['bucket = hash("48213") % 100 = 7','7 < 10  → profile-service  ✓','','для сравнения — Борис:','bucket = hash("51990") % 100 = 63','63 ≥ 10 → monolith'],
+       sees:'Ничего. Анна всегда будет попадать в новый сервис, Борис — всегда в старый.'},
+      {t:'Новый сервис принимает запрос', on:['newsvc'], r:'Фасад → Новый сервис «Профиль»',
+       d:'Новый сервис умеет показывать профиль. Но есть загвоздка: <b>данные ещё не переехали</b>. Адрес доставки и бонусный баланс лежат в старой базе. Нужно сходить туда.',
+       data:['GET /profile/48213','X-Routed-By: facade','X-Migration: profile@10%'],
+       sees:'Всё ещё загрузка.'},
+      {t:'Поход в старую базу через переводчика', on:['acl','olddb'], r:'Новый сервис → Переводчик (ACL) → Старая база',
+       d:'Новый сервис не лезет в старую базу сам. Между ними стоит <b>переводчик — слой предотвращения порчи</b> (anti-corruption layer, ACL): код на границе, который переводит чужую модель в свою. Посмотрите, в каком виде старая база отдаёт данные: заглавные буквы, коды вместо слов, деньги строкой.',
+       data:['SELECT * FROM CLNT WHERE KL_ID = \'048213\'','→ {','    "KL_ID":  "048213",','    "KL_FAM": "ИВАНОВА",  "KL_IM": "АННА",','    "ADR_1":  "МОСКВА,УЛ ЛЕНИНА,5,КВ 12",','    "TP_ADR": "2",','    "FL_DEL": "N",','    "BAL":    "0001250050"','  }'],
+       sees:'Загрузка. Прошло 40 мс.'},
+      {t:'Переводчик переводит на язык нового сервиса', on:['acl'], r:'Переводчик → Новый сервис',
+       d:'<code class="inl">TP_ADR = "2"</code> значит «адрес доставки». <code class="inl">FL_DEL = "N"</code> — «не удалён». Баланс хранится в копейках строкой с нулями впереди. <b>Всё это знает только переводчик.</b> Новый сервис получает чистые понятия и ничего не знает о странностях старой базы. Подробно этот приём — в главе 6.',
+       data:['{','  "id": 48213,','  "name": "Анна Иванова",','  "address": {','    "city": "Москва", "street": "ул. Ленина",','    "house": "5", "flat": "12", "kind": "delivery"','  },','  "bonus": { "amount": 12500.50, "currency": "RUB" }','}'],
+       sees:'Загрузка почти закончилась.'},
+      {t:'Ответ уходит Анне', on:['newsvc','facade','anna'], r:'Новый сервис → Фасад → Анна', k:'ok',
+       d:'Фасад пропускает ответ и пишет в лог, кто обслужил запрос. Этот лог нужен команде: по нему видно, как работает новый сервис на настоящих людях.',
+       data:['HTTP/1.1 200 OK','X-Served-By: profile-service     ← видно только в логах','','время ответа: 84 мс','(монолит на этой странице отвечает 610 мс)'],
+       sees:'<b>Анна видит свой профиль.</b> Чуть быстрее, чем обычно. Больше ничего не заметила — так и задумано.'},
+      {t:'В фоне: теневое сравнение с монолитом', on:['facade','mono','diff'], r:'Фасад → Монолит (копия запроса, в фоне)', k:'warn',
+       d:'Пока миграция идёт, фасад отправляет <b>копию</b> запроса Анны в монолит и сравнивает ответы. Ответ монолита Анне не уходит. Нашлось расхождение: монолит округлял бонусы вниз до рубля. Кто прав — решает бизнес, а не программист. Это <b>параллельный прогон</b>, о нём глава 8.',
+       data:['shadow: GET /account/profile (user 48213) → monolith','сравнение ответов:','  name     ✓ совпадает','  address  ✓ совпадает','  bonus    ✗ монолит: 12 500 ₽ · новый: 12 500,50 ₽','→ записано в журнал расхождений, #317'],
+       sees:'Ничего. Сравнение идёт уже после того, как Анна получила ответ.'},
+      {t:'Анна меняет адрес доставки', on:['anna','facade','newsvc','acl','olddb'], r:'Анна → Фасад → Новый сервис → Переводчик → Старая база',
+       d:'Главный источник правды пока — <b>старая база</b>. Поэтому новый сервис пишет туда же, через переводчика. Монолит (заказы, доставка) сразу видит новый адрес. Две базы с разными адресами одной Анны — худшее, что может случиться при миграции. Пока данные не переехали, пишем в одно место.',
+       data:['PUT /account/profile/address','{ "city": "Москва", "street": "ул. Мира", "house": "12" }','','переводчик:','UPDATE CLNT','   SET ADR_1 = \'МОСКВА,УЛ МИРА,12\', TP_ADR = \'2\'',' WHERE KL_ID = \'048213\''],
+       sees:'«Адрес сохранён». Курьер завтра приедет по новому адресу — монолит уже знает о нём.'},
+      {t:'Сбой: новый сервис сломался после выкладки', on:['newsvc','routes','facade'], bad:['newsvc'], r:'Новый сервис падает → дежурный возвращает флаг', k:'err',
+       d:'Новый сервис стал отвечать ошибками. Никто не чинит его в панике: дежурный меняет <b>одну настройку</b> в таблице маршрутов, и через минуту все, включая Анну, снова в монолите. Откат стоит минуту, потому что <b>старый код ещё жив</b> и данные всё ещё в одной базе.',
+       data:['14:02  profile-service: ошибок 5xx = 7 %  (порог 1 %)','14:03  дежурный: /account/profile → profile-service 0 %','14:03  все пользователи → monolith','14:40  причина найдена, исправление выкачено','15:00  снова 10 %'],
+       sees:'На пару минут Анна видела старую страницу профиля. Данные те же — они в одной базе. Она даже не поняла, что что-то было.'},
+      {t:'Итог: что мы увидели на одном клике', on:['anna','facade','routes','mono','newsvc','acl','olddb','diff','newdb'], r:'Итог', k:'ok',
+       d:'Шесть идей, на которых держится вся миграция: <b>1)</b> снаружи ничего не меняется; <b>2)</b> есть входная дверь, которая переключает трафик; <b>3)</b> переключают по людям, а не случайно; <b>4)</b> со старой моделью говорят через переводчика; <b>5)</b> новое сверяют со старым в тени; <b>6)</b> пока старый код жив, откат стоит минуту. Новая база пока пустая: переезд данных — отдельный, самый рискованный шаг (глава 5).',
+       data:['Анна:          ничего не заметила','Фасад:         10 % → новый сервис','Новый сервис:  84 мс против 610 мс','Журнал:        1 расхождение на разбор','Откат:         1 настройка, 1 минута','Новая база:    ещё впереди'],
+       sees:'<b>Идеальная миграция для пользователя — невидимая.</b>'},
+    ];
+    const nodes = [...grid.querySelectorAll('.lgx-nd')];
+    let cur = 0, timer = null;
+    function paint(){
+      const s = FL[cur];
+      const lit = new Set();
+      for(let k = 0; k <= cur; k++) FL[k].on.forEach(x => lit.add(x));
+      const on = new Set(s.on), bad = new Set(s.bad || []);
+      nodes.forEach(n => {
+        n.classList.toggle('on', on.has(n.dataset.n) && !bad.has(n.dataset.n));
+        n.classList.toggle('lit', lit.has(n.dataset.n));
+        n.classList.toggle('bad', bad.has(n.dataset.n));
+      });
+      el('lgx-fl-lab').textContent = 'шаг ' + (cur + 1) + ' из ' + FL.length;
+      el('lgx-fl-route').textContent = '→ ' + s.r;
+      el('lgx-fl-d').innerHTML = '<b style="color:var(--ink);font-size:14px">' + (cur + 1) + '. ' + s.t + '</b><p style="margin:6px 0 0">' + s.d + '</p>';
+      el('lgx-fl-sees').innerHTML = '<b>👩 Что видит Анна:</b> ' + s.sees;
+      el('lgx-fl-data').textContent = s.data.join('\n');
+      msg(el('lgx-fl-msg'), s.k || '', cur === FL.length - 1
+        ? '<b>Вы прошли весь путь одного клика.</b> Дальше разберём каждую идею отдельно — начнём с того, почему нельзя было просто переписать всё с нуля.'
+        : 'Шаг ' + (cur + 1) + ': ' + s.t + '. Узлы, через которые уже прошёл запрос, остаются яркими.');
+      if(cur === FL.length - 1) Progress.report('lgx-flow', 1);
+    }
+    function stop(){ if(timer){ clearInterval(timer); timer = null; } el('lgx-fl-play').textContent = '▶ Прогнать'; }
+    el('lgx-fl-next').addEventListener('click', () => { stop(); cur = Math.min(cur + 1, FL.length - 1); paint(); });
+    el('lgx-fl-prev').addEventListener('click', () => { stop(); cur = Math.max(cur - 1, 0); paint(); });
+    el('lgx-fl-play').addEventListener('click', () => {
+      if(timer){ stop(); return; }
+      if(cur >= FL.length - 1) cur = 0;
+      el('lgx-fl-play').textContent = '⏸ Пауза';
+      paint();
+      timer = setInterval(() => {
+        if(cur >= FL.length - 1 || !document.body.contains(grid)){ stop(); return; }
+        cur++; paint();
+        if(cur >= FL.length - 1) stop();
+      }, 2600);
+    });
+    paint();
+    Progress.register('lgx-flow', 1, 'Легаси: сквозной пример');
+  })();
+
+  /* ─── глава 3: гонка за мишенью ─── */
+  (function(){
+    const mI = el('lgx-race-m'), vI = el('lgx-race-v'); if(!mI || !vI) return;
+    function paint(){
+      const m = +mI.value, v = +vI.value;
+      const R = 100 + 4 * m, C = Math.min(R, v * m), gap = R - C;
+      const pieces = Math.min(Math.floor(m / 3), 12);
+      const MAX = 244;
+      el('lgx-race-mv').textContent = m;
+      el('lgx-race-vv').textContent = v + ' / мес';
+      const bar = (l, val, col, txt) => '<div class="lgx-bar"><div class="l">' + l + '</div><div class="tr"><div class="f" style="width:' + Math.min(100, val / MAX * 100) + '%;background:' + col + '"></div></div><div class="v">' + txt + '</div></div>';
+      el('lgx-race-bars').innerHTML =
+        bar('🏚 Старая система умеет', R, 'var(--mn)', R) +
+        bar('🏗 Переписанная умеет', C, 'var(--dt)', C) +
+        bar('👥 Пользователи получили от переписывания', C >= R ? C : 0, 'var(--danger)', C >= R ? 'всё' : '0') +
+        bar('🌿 Пользователи получили от замены по кускам', pieces * 20, 'var(--ms)', pieces + ' шт.');
+      const catchUp = v > 4 ? Math.ceil(100 / (v - 4)) : null;
+      el('lgx-race-m2').innerHTML =
+        '<span class="meter ' + (gap > 0 ? 'bad' : 'good') + '">Отставание: <b>' + gap + '</b> функций</span>' +
+        '<span class="meter wq">Догонит на месяце: <b>' + (catchUp === null ? 'никогда' : catchUp) + '</b></span>' +
+        '<span class="meter good">Кусков выпущено по частям: <b>' + pieces + '</b></span>';
+      let k = '', t;
+      if(m === 0) t = 'Старт. Старая система умеет 100 функций, новая — ноль. Двигайте месяцы.';
+      else if(C >= R){ k = 'ok'; t = 'Переписанная догнала старую на ' + catchUp + '-м месяце. Всё это время пользователи не получили от неё ничего. И впереди ещё переключение «в один день» — его нельзя отрепетировать.'; }
+      else if(v <= 4){ k = 'err'; t = 'При такой скорости переписанная <b>никогда</b> не догонит: старая растёт так же быстро или быстрее. Это не выдумка — это самый частый финал.'; }
+      else if(m >= 18){ k = 'err'; t = 'Полтора года. Бизнес не получил ничего нового, отставание — ' + gap + ' функций. В этот момент обычно урезают бюджет, и остаются две системы: старая неподдерживаемая и новая недоделанная.'; }
+      else { k = 'warn'; t = 'Переписанная растёт, но и старая не стоит на месте. Пользователи пока получили от переписывания ноль. Замена по кускам за то же время выпустила ' + pieces + ' кусков — каждый уже приносит пользу.'; }
+      msg(el('lgx-race-msg'), k, t);
+    }
+    mI.addEventListener('input', paint); vI.addEventListener('input', paint);
+    paint();
+  })();
+
   renderNum('rw-list', [
     {t:'Мишень движется', d:'Пока вы переписываете, старая система меняется: новые требования, изменения регулятора, срочные исправления. К моменту «готовности» новая система повторяет старую <b>двухлетней давности</b>, и её нельзя запустить. Дальше начинается догоняющая разработка, которая длится дольше исходной.'},
     {t:'Знание утеряно и спрятано в коде', d:'В легаси сотни условий, добавленных по конкретным причинам: особый клиент, требование регулятора, обход бага у партнёра. Причины не записаны нигде. Переписывая «правильно», вы выбрасываете эти условия — и узнаёте о каждом из них от разгневанного пользователя через месяц после запуска.'},
@@ -16088,8 +16424,74 @@ renderFlow('msf-flow', {
     {t:'Переключение «в один день» непроверяемо', d:'Даже если новая система готова, миграция всех данных и всех интеграций в одну ночь — событие, которое нельзя отрепетировать полностью. Откат после переключения почти невозможен: за сутки в новой системе накопятся данные, которых нет в старой.'},
   ]);
 
-  /* ─── душитель ─── */
-  const el = id => document.getElementById(id);
+  /* ─── глава 4: подходы ─── */
+  const AP = [
+    {n:'🧨 Переписать с нуля', one:'Пишем новую систему целиком рядом, в один день переключаемся.',
+     life:'<b>Снести дом и построить новый.</b> А жить два года где-то ещё и платить за обе квартиры. Если стройка затянется — денег не хватит ни на что.',
+     flow:['🏚 Старая: 100 %','→ … 2 года …','🏠 Новая: 0 %','→ день X →','🏠 Новая: 100 %'],
+     when:['Система маленькая: переписывается за недели, а не годы.','Правила простые и хорошо известны, их можно записать.','Старая платформа мертва: её невозможно даже запустить на новых серверах.'],
+     pay:['Годы без пользы для бизнеса.','Потерянное знание: сотни неявных условий.','Переключение в один день, которое нельзя отрепетировать и трудно откатить.']},
+    {n:'🌿 Душитель (strangler fig)', one:'Ставим входную дверь-фасад и переносим функции по одной, переключая трафик.',
+     life:'<b>Фикус-душитель</b> обвивает старое дерево и постепенно заменяет его. Или <b>ремонт комната за комнатой</b>, пока семья живёт в квартире.',
+     flow:['👥 Клиенты','→','🚪 Фасад','→','🏚 Монолит (всё меньше)','+','🏠 Новые сервисы (всё больше)'],
+     when:['У старой системы есть сетевая граница: HTTP-ручки, очереди, файлы.','Функции можно отделить друг от друга.','Нужно выпускать пользу каждые несколько недель.'],
+     pay:['Фасад — ещё один компонент, который надо держать.','Две системы живут одновременно месяцы и годы.','Синхронизация данных между старым и новым.']},
+    {n:'🔌 Ветвление по абстракции', one:'Внутри кода вводим интерфейс, прячем за ним старое, рядом пишем новое и переключаем флагом.',
+     life:'<b>Переходник в розетке.</b> Сначала все приборы включают через переходник, потом переходник подключают к новой проводке — приборы ничего не замечают.',
+     flow:['📞 Вызывающий код','→','🔌 Интерфейс','→','старое | новое (по флагу)'],
+     when:['Заменяемое живёт внутри процесса: класс, модуль, библиотека.','Фасаду перехватывать нечего: вызов из метода в метод.','Хотите работать в главной ветке без долгих веток.'],
+     pay:['Временная абстракция и флаги, которые потом надо удалить.','Дисциплина: легко оставить обе реализации навсегда.','Нужен шов — место, где объект создаётся или передаётся.']},
+    {n:'🗣 Переводчик (ACL)', one:'Код на границе переводит старую или чужую модель в вашу и обратно.',
+     life:'<b>Переводчик на переговорах</b> или <b>переходник для заграничной розетки</b>: вы не меняете чужую сторону, но и сами не подстраиваетесь.',
+     flow:['🏠 Новый код','↔','🗣 Переводчик','↔','🏚 Старая модель'],
+     when:['Новое вынуждено общаться со старым во время миграции.','Интеграция с чужой системой, модель которой вы не контролируете.','Старая модель кривая, и вы не хотите её тащить.'],
+     pay:['Ещё один слой кода и тестов.','Кто-то должен понимать обе модели.','Лишний шаг на каждом обращении.']},
+    {n:'👯 Параллельный прогон', one:'Новое считает на том же входе, что и старое; наружу уходит старый ответ, результаты сравнивают.',
+     life:'<b>Стажёр на кассе:</b> считает рядом с опытным кассиром, деньги выдаёт опытный, вечером сверяют расхождения.',
+     flow:['📥 Запрос','→','🏚 Старое (отвечает)','+','🏠 Новое (в тени)','→','📒 Журнал расхождений'],
+     when:['Расчёты с высокой ценой ошибки: деньги, тарифы, налоги.','Требований нет, правила только в коде.','Нужен объективный критерий «готово к переключению».'],
+     pay:['Двойная нагрузка.','У нового надо отключить побочные эффекты: письма, запись, платежи.','Человек, который каждый день разбирает расхождения.']},
+  ];
+  dbSegment('lgx-ap', AP, x =>
+    '<div class="note" style="margin:0 0 10px"><b>Одной фразой:</b> ' + x.one + '</div>' +
+    '<div class="note good" style="margin:0 0 10px"><b>В жизни:</b> ' + x.life + '</div>' +
+    '<div class="flow" style="margin-top:6px">' + x.flow.map(f => /^[→↔+]/.test(f) ? '<span class="farr">' + esc(f) + '</span>' : '<div class="fnode">' + esc(f) + '</div>').join('') + '</div>' +
+    '<div class="lgx-ap">' +
+      '<div class="box" style="border-color:var(--ok)"><h4 style="color:var(--ok)">✅ Когда брать</h4><ul>' + x.when.map(w => '<li>' + w + '</li>').join('') + '</ul></div>' +
+      '<div class="box" style="border-color:var(--danger)"><h4 style="color:var(--danger)">💸 Чем платишь</h4><ul>' + x.pay.map(w => '<li>' + w + '</li>').join('') + '</ul></div>' +
+    '</div>');
+  renderCmp('lgx-ap-cmp', ['Подход', 'Первая польза', 'Риск для пользователей', 'Откат', 'Главная цена'], [
+    {cells:['<b>Переписать с нуля</b>', 'через годы', '<span class="no">высокий, разом</span>', '<span class="no">почти невозможен</span>', 'время и потерянное знание'],
+     why:'Весь риск собран в одну ночь переключения. До неё польза нулевая, после неё откат упирается в данные, которых нет в старой системе.'},
+    {cells:['<b>Душитель</b>', 'через недели', '<span class="yes">малый, по кускам</span>', '<span class="yes">одна настройка</span>', 'фасад и две системы сразу'],
+     why:'Риск дробится: каждый кусок проходит тень, 1 %, 100 %. Пока старый код жив, откат — это смена маршрута. Платите тем, что долго держите обе системы.'},
+    {cells:['<b>Ветвление по абстракции</b>', 'через дни', '<span class="yes">малый</span>', '<span class="yes">флаг</span>', 'временные интерфейсы и флаги'],
+     why:'Тот же душитель, только внутри кода. Переключатель — не прокси, а флаг в коде. Главное — не забыть удалить старую реализацию и сам флаг.'},
+    {cells:['<b>Переводчик (ACL)</b>', 'сразу — чистый код', '<span class="yes">не влияет</span>', '—', 'лишний слой'],
+     why:'Это не способ миграции, а защита при миграции. Он не переносит функции, а не даёт старой модели испортить новую.'},
+    {cells:['<b>Параллельный прогон</b>', 'знание о расхождениях', '<span class="yes">нулевой</span>', 'не нужен', 'двойная нагрузка и разбор'],
+     why:'Наружу всегда уходит старый ответ, поэтому пользователи ничем не рискуют. Это способ проверки перед переключением, а не само переключение.'},
+  ]);
+  renderSort('lgx-pick', [
+    {t:'Сервис напоминаний: 800 строк, авторы рядом, тесты есть, правила понятны.', bucket:'rw',
+     why:'Здесь переписать — нормально. Работа на пару недель, знание не потеряно, мишень не успеет убежать. Строить фасад ради 800 строк — дороже самой задачи.'},
+    {t:'Монолит отвечает по HTTP. Хотим вынести «Каталог туров» в отдельный сервис.', bucket:'sf',
+     why:'Есть сетевая граница — значит, можно поставить фасад и переключать трафик по адресам. Классический случай душителя.'},
+    {t:'Внутри монолита класс расчёта налогов. Его вызывают из 30 мест.', bucket:'bba',
+     why:'Сетевой границы нет: вызов идёт из метода в метод. Вводим интерфейс, переводим на него все 30 мест, рядом пишем новую реализацию и переключаем флагом.'},
+    {t:'Новый сервис должен читать клиентов из старой CRM с полями KL_FAM, TP_ADR, FL_DEL.', bucket:'acl',
+     why:'Новый код не должен знать, что такое TP_ADR = "2". Переводчик на границе перекладывает старую модель в новую, и странности остаются снаружи.'},
+    {t:'Новый расчёт премий сотрудникам. Ошибка в копейку — это жалобы и суд.', bucket:'par',
+     why:'Цена ошибки высокая, правила спрятаны в старом коде. Считаем параллельно на реальных данных, наружу отдаём старый результат и разбираем каждое расхождение.'},
+    {t:'Интеграция с банком: чужой XML-формат, банк меняет его раз в год.', bucket:'acl',
+     why:'Модель банка вы не контролируете. Переводчик изолирует её в одном месте: когда банк поменяет формат, правится только переводчик.'},
+  ], [
+    {id:'rw', n:'Переписать с нуля'}, {id:'sf', n:'Душитель'}, {id:'bba', n:'Ветвление по абстракции'},
+    {id:'acl', n:'Переводчик (ACL)'}, {id:'par', n:'Параллельный прогон'},
+  ], 'lgx-pick-score', 'lgx-pick-total');
+  Progress.register('lgx-pick-score', 6, 'Легаси: выбор подхода');
+
+  /* ─── глава 5: душитель ─── */
   const SF = [
     {t:'Поставить фасад перед монолитом', old:100, nw:0,
      d:'Весь трафик идёт через новый слой маршрутизации (обратный прокси, шлюз), который пока просто проксирует всё в монолит. <b>Поведение не меняется.</b> Это самый важный шаг: без точки переключения душитель невозможен, и сделать её надо до всякой разработки.',
@@ -16140,6 +16542,237 @@ renderFlow('msf-flow', {
   paint();
   Progress.register('sf-play', 3, 'Душитель');
 
+  /* ─── глава 5: симулятор «комната за комнатой» ─── */
+  (function(){
+    const rowsEl = el('lgx-sim-rows'); if(!rowsEl) return;
+    const ST = [
+      {n:'в монолите', sh:0},
+      {n:'теневой прогон', sh:0},
+      {n:'1 % трафика', sh:.01},
+      {n:'50 % трафика', sh:.5},
+      {n:'100 %, старый код жив', sh:1},
+      {n:'данные переехали', sh:1},
+      {n:'старый код удалён', sh:1},
+    ];
+    const F = [
+      {id:'ntf', n:'Уведомления', ic:'✉️', tr:5, users:3000, dep:[], hint:'своя таблица шаблонов, мало связей'},
+      {id:'air', n:'Интеграция с авиа', ic:'✈️', tr:10, users:8000, dep:[], hint:'граница уже есть — сеть'},
+      {id:'cat', n:'Каталог туров', ic:'🗺', tr:35, users:60000, dep:[], hint:'много чтения, пишет только админка'},
+      {id:'pay', n:'Оплата', ic:'💳', tr:10, users:9000, dep:['ntf'], hint:'шлёт чеки через уведомления'},
+      {id:'prc', n:'Расчёт стоимости', ic:'🧮', tr:15, users:20000, dep:['cat'], hint:'40 условий без комментариев'},
+      {id:'lk', n:'Личный кабинет', ic:'👤', tr:25, users:40000, dep:['cat','pay'], hint:'только читает чужие данные'},
+    ];
+    let S = {}, log = [], boom = null;
+    function reset(){ S = {}; F.forEach(f => S[f.id] = 0); log = []; boom = null; }
+    reset();
+    const byId = id => F.find(f => f.id === id);
+    function add(kind, t){ log.unshift({kind, t}); if(log.length > 6) log.pop(); }
+    function paint(){
+      const inWork = F.filter(f => S[f.id] >= 1 && S[f.id] <= 5).length;
+      const irrev = F.filter(f => S[f.id] >= 5).length;
+      const done = F.filter(f => S[f.id] === 6).length;
+      const share = F.reduce((a, f) => a + f.tr * ST[S[f.id]].sh, 0);
+      const monoLeft = F.reduce((a, f) => a + (S[f.id] === 6 ? 0 : f.tr), 0);
+      const riskPts = F.reduce((a, f) => a + [0,0,1,2,2,3,1][S[f.id]], 0) + Math.max(0, inWork - 2) * 2;
+      const risk = riskPts <= 2 ? ['низкий','good'] : riskPts <= 6 ? ['средний','wq'] : ['высокий','bad'];
+      el('lgx-sim-house').innerHTML = F.map(f => {
+        const s = S[f.id];
+        const cls = boom === f.id ? 'boom' : s === 6 ? 'done' : s >= 4 ? 'nw' : s >= 1 ? 'mid' : '';
+        return '<div class="lgx-room ' + cls + '"><b>' + f.ic + ' ' + f.n + '</b><span class="s">' + ST[s].n + '</span></div>';
+      }).join('');
+      el('lgx-sim-m').innerHTML =
+        '<span class="meter good">Трафик на новом: <b>' + Math.round(share) + ' %</b></span>' +
+        '<span class="meter">Монолит ещё держит: <b>' + monoLeft + ' %</b></span>' +
+        '<span class="meter ' + (inWork > 2 ? 'bad' : 'wq') + '">Строек одновременно: <b>' + inWork + '</b></span>' +
+        '<span class="meter ' + (irrev ? 'wq' : '') + '">Необратимо: <b>' + irrev + '</b></span>' +
+        '<span class="meter ' + risk[1] + '">Риск сейчас: <b>' + risk[0] + '</b></span>' +
+        '<span class="meter good">Готово: <b>' + done + ' из ' + F.length + '</b></span>';
+      rowsEl.innerHTML = F.map(f => {
+        const s = S[f.id];
+        return '<div class="lgx-row"><div class="nm"><b>' + f.ic + ' ' + f.n + '</b><span>' + f.tr + ' % трафика · ' + f.hint + '</span></div>' +
+          '<div class="lgx-tr" title="доля на новом"><i style="width:' + (ST[s].sh * 100) + '%"></i></div>' +
+          '<div class="st">' + (s + 1) + '/7 · ' + ST[s].n + '</div>' +
+          '<div class="bt"><button class="act" data-f="go" data-id="' + f.id + '"' + (s === 6 ? ' disabled' : '') + '>▶</button>' +
+          '<button class="ghost" data-f="back" data-id="' + f.id + '"' + (s === 0 ? ' disabled' : '') + '>↩</button>' +
+          '<button class="ghost" data-f="boom" data-id="' + f.id + '">💥</button></div></div>';
+      }).join('');
+      el('lgx-sim-log').innerHTML = log.map(x => '<div class="step ' + x.kind + '"><div class="si">•</div><div>' + x.t + '</div></div>').join('');
+      Progress.report('lgx-sim', Math.min(done, 3));
+    }
+    function go(f){
+      const s = S[f.id];
+      if(s === 0){
+        const miss = f.dep.filter(d => S[d] < 4);
+        if(miss.length){
+          msg(el('lgx-sim-msg'), 'warn', '<b>' + f.n + '</b> пока рано. Эта комната зависит от: ' + miss.map(d => '«' + byId(d).n + '»').join(', ') + '. ' +
+            (f.id === 'lk' ? 'Личный кабинет только читает чужие данные. Вынесете его первым — получите сервис, который лезет в восемь чужих таблиц, то есть распределённый монолит. Сначала пусть переедут те, кто эти данные пишет.'
+                           : 'Если начать сейчас, новому сервису придётся ходить в старый код соседа, и откатывать их придётся вместе.') +
+            ' Переведите зависимости хотя бы до шага «100 %».');
+          return;
+        }
+        const inWork = F.filter(x => S[x.id] >= 1 && S[x.id] <= 5).length;
+        S[f.id] = 1;
+        if(inWork >= 2){
+          add('comp', '⚠ ' + f.n + ': третья стройка одновременно. Риск растёт — команда не успевает разбирать расхождения по всем.');
+          msg(el('lgx-sim-msg'), 'warn', 'Начали <b>' + f.n + '</b>, но строек уже ' + (inWork + 1) + '. Это как ремонтировать три комнаты сразу: спать негде, пыль везде. Лучше довести начатое.');
+        } else {
+          add('', f.n + ': включён теневой прогон. Пользователи ничего не видят.');
+          msg(el('lgx-sim-msg'), '', '<b>' + f.n + '</b>: новый код получает копии запросов. Ответы сравниваются, наружу идёт старый.');
+        }
+      } else if(s === 4){
+        S[f.id] = 5;
+        add('comp', f.n + ': данные переехали в новую базу. С этого момента откат стоит дней.');
+        msg(el('lgx-sim-msg'), 'warn', '<b>' + f.n + '</b>: данные теперь живут в новой базе. Это самый рискованный шаг: новые записи есть только там. Откат потребует перекачать их обратно.');
+      } else if(s === 5){
+        S[f.id] = 6;
+        add('done', '✓ ' + f.n + ': старый код удалён. Комната переехала целиком.');
+        msg(el('lgx-sim-msg'), 'ok', '<b>' + f.n + '</b> переехала целиком. Монолит стал меньше на ' + f.tr + ' % трафика.' +
+          (F.every(x => S[x.id] === 6) ? ' <b>Весь дом отремонтирован!</b> В жизни до этого доходят редко — и это нормально: цель снять боль, а не убить монолит.' : ''));
+        if(F.every(x => S[x.id] === 6)) confetti(30);
+      } else {
+        S[f.id] = s + 1;
+        const n = Math.round(f.users * ST[s + 1].sh);
+        add('', f.n + ': ' + ST[s + 1].n + ' (' + n.toLocaleString('ru-RU') + ' пользователей в день на новом).');
+        msg(el('lgx-sim-msg'), '', '<b>' + f.n + '</b>: ' + ST[s + 1].n + '. Сейчас на новом коде ' + n.toLocaleString('ru-RU') + ' человек в день. Откат — одна настройка фасада.');
+      }
+      boom = null;
+    }
+    function back(f){
+      const s = S[f.id];
+      if(s === 6){
+        msg(el('lgx-sim-msg'), 'err', '<b>' + f.n + '</b>: откатывать некуда — старый код удалён. Остаётся только чинить вперёд. Поэтому удаление делают, когда новый код прожил в проде достаточно долго.');
+        add('fail', '✕ ' + f.n + ': откат невозможен.');
+      } else if(s === 5){
+        S[f.id] = 4;
+        msg(el('lgx-sim-msg'), 'warn', '<b>' + f.n + '</b>: откат занял три дня. Пришлось перекачивать новые записи обратно в старую базу и сверять. Работает, но дорого.');
+        add('comp', '↩ ' + f.n + ': откат данных — 3 дня обратной перекачки.');
+      } else if(s >= 2){
+        S[f.id] = 1;
+        msg(el('lgx-sim-msg'), 'ok', '<b>' + f.n + '</b>: фасад вернул весь трафик в монолит. Заняло минуту: старый код жив, данные в одной базе. Теневой прогон продолжается.');
+        add('done', '↩ ' + f.n + ': откат за минуту, пользователи снова в монолите.');
+      } else if(s === 1){
+        S[f.id] = 0;
+        msg(el('lgx-sim-msg'), 'ok', '<b>' + f.n + '</b>: теневой прогон выключен. Пользователи и не знали, что он был.');
+        add('', '↩ ' + f.n + ': тень выключена.');
+      }
+      boom = null;
+    }
+    function crash(f){
+      const s = S[f.id], u = f.users;
+      boom = s ? f.id : null;
+      const T = [
+        ['', 'Новой версии <b>' + f.n + '</b> ещё нет — ломаться нечему.'],
+        ['ok', 'Сбой в тени. Журнал расхождений покраснел, <b>пользователи ничего не заметили</b>: наружу шёл старый ответ. Лучшее место для ошибки.'],
+        ['warn', 'Ошибку увидели ' + Math.round(u * .01).toLocaleString('ru-RU') + ' человек — 1 %. Нажмите ↩: фасад вернёт их в монолит за минуту.'],
+        ['warn', 'Ошибку видит половина пользователей комнаты — ' + Math.round(u * .5).toLocaleString('ru-RU') + ' человек. Откат всё ещё одна настройка. Нажмите ↩.'],
+        ['warn', 'Ошибку видят все ' + u.toLocaleString('ru-RU') + ' пользователей комнаты. Но старый код жив — ↩ вернёт всё за минуту.'],
+        ['err', 'Все ' + u.toLocaleString('ru-RU') + ' пользователей видят ошибку, а данные уже в новой базе. Откат (↩) займёт дни: придётся перекачивать записи обратно. Скорее всего, будут чинить вперёд под давлением.'],
+        ['err', 'Все ' + u.toLocaleString('ru-RU') + ' пользователей видят ошибку. Старого кода нет — <b>отката нет</b>. Только срочное исправление, пока люди ждут.'],
+      ][s];
+      msg(el('lgx-sim-msg'), T[0], '💥 ' + T[1]);
+      if(s) add(T[0] === 'ok' ? '' : T[0] === 'warn' ? 'comp' : 'fail', '💥 ' + f.n + ' (' + ST[s].n + '): ' + (s === 1 ? 'пойман в тени' : s <= 4 ? 'откат за минуту' : s === 5 ? 'откат — дни' : 'отката нет'));
+    }
+    rowsEl.addEventListener('click', e => {
+      const b = e.target.closest('button[data-f]'); if(!b || b.disabled) return;
+      const f = byId(b.dataset.id); if(!f) return;
+      if(b.dataset.f === 'go') go(f);
+      else if(b.dataset.f === 'back') back(f);
+      else crash(f);
+      paint();
+    });
+    el('lgx-sim-reset').addEventListener('click', () => { reset(); msg(el('lgx-sim-msg'), '', 'Всё снова в монолите. Подсказка: начните с комнаты, у которой мало связей.'); paint(); });
+    msg(el('lgx-sim-msg'), '', 'Все шесть комнат пока в монолите. Подсказка: начните с комнаты, у которой мало связей, и не открывайте больше двух строек сразу.');
+    paint();
+    Progress.register('lgx-sim', 3, 'Легаси: комната за комнатой');
+  })();
+
+  /* ─── глава 6: переводчик ─── */
+  (function(){
+    const src = el('lgx-acl-src'); if(!src) return;
+    const RULES = [
+      {f:'KL_ID', v:'"048213"', out:['id', 48213], w:'Ведущий ноль — наследство старой выгрузки, где номер хранился строкой фиксированной длины. В новой модели id — просто число.'},
+      {f:'KL_FAM + KL_IM', v:'"ИВАНОВА" + "АННА"', out:['name', 'Анна Иванова'], w:'Старая система хранила всё заглавными буквами — так было удобно печатать на матричном принтере в 1998 году. Переводчик приводит к нормальному виду.'},
+      {f:'ADR_1', v:'"МОСКВА,УЛ ЛЕНИНА,5,КВ 12"', out:['address', {city:'Москва', street:'ул. Ленина', house:'5', flat:'12'}], w:'Адрес одной строкой через запятую. Переводчик разбирает его на части. Если в названии улицы есть запятая — это знает тоже только он, и ошибка будет в одном месте, а не в десяти.'},
+      {f:'TP_ADR', v:'"2"', out:['address.kind', 'delivery'], w:'«1» — адрес регистрации, «2» — адрес доставки. Этого нет ни в одном документе. Узнали у сотрудника, который работает в компании с 2006 года. Теперь это знание записано в коде переводчика и покрыто тестом.'},
+      {f:'FL_DEL', v:'"N"', out:['active', true], w:'Флаг «удалён»: N — нет, Y — да. Новый код не должен помнить, что удалённые записи не удаляются, а помечаются. Переводчик просто не отдаёт удалённых, а остальным ставит active: true.'},
+      {f:'BAL', v:'"0001250050"', out:['bonus', {amount:12500.5, currency:'RUB'}], w:'Баланс в копейках, строкой, с нулями впереди до 10 знаков. Переводчик делит на 100 и добавляет валюту. Типичное место, где без переводчика кто-нибудь однажды забудет поделить.'},
+    ];
+    let k = 0;
+    function build(){
+      const o = {};
+      for(let j = 0; j < k; j++){
+        const [key, val] = RULES[j].out;
+        if(key === 'address.kind'){ o.address = Object.assign({}, o.address, {kind: val}); }
+        else if(key === 'address'){ o.address = Object.assign({}, val, o.address && o.address.kind ? {kind: o.address.kind} : {}); }
+        else o[key] = val;
+      }
+      return o;
+    }
+    function paint(){
+      src.innerHTML = RULES.map((r, j) => '<div class="lgx-f ' + (j < k ? 'done' : j === k ? 'cur' : '') + '"><span>' + esc(r.f) + '</span><b>' + esc(r.v) + '</b></div>').join('');
+      el('lgx-acl-dst').textContent = k ? JSON.stringify(build(), null, 2) : '{ }  ← пока пусто';
+      el('lgx-acl-next').disabled = k >= RULES.length;
+      if(k === 0) msg(el('lgx-acl-msg'), '', 'Нажмите «Перевести следующее поле». Подсвечено поле, которое переводчик возьмёт сейчас.');
+      else if(k < RULES.length) msg(el('lgx-acl-msg'), 'warn', '<b>' + esc(RULES[k-1].f) + ' → ' + esc(RULES[k-1].out[0]) + '.</b> ' + RULES[k-1].w);
+      else {
+        msg(el('lgx-acl-msg'), 'ok', '<b>' + esc(RULES[k-1].f) + ' → ' + esc(RULES[k-1].out[0]) + '.</b> ' + RULES[k-1].w + ' <br><b>Готово.</b> Шесть скрытых правил собраны в одном месте. Новый сервис не знает ни одного из них. Когда старую базу выключат, переводчик просто удалят — и новый код останется чистым.');
+        Progress.report('lgx-acl', 1);
+      }
+    }
+    el('lgx-acl-next').addEventListener('click', () => { if(k < RULES.length){ k++; paint(); } });
+    el('lgx-acl-reset').addEventListener('click', () => { k = 0; paint(); });
+    el('lgx-acl-mode').addEventListener('click', e => {
+      const b = e.target.closest('button[data-m]'); if(!b) return;
+      [...el('lgx-acl-mode').children].forEach(x => x.classList.toggle('on', x === b));
+      el('lgx-acl-box').style.display = b.dataset.m === 'acl' ? '' : 'none';
+      el('lgx-acl-raw').style.display = b.dataset.m === 'raw' ? '' : 'none';
+    });
+    paint();
+    Progress.register('lgx-acl', 1, 'Легаси: переводчик');
+  })();
+
+  /* ─── глава 7: ветвление по абстракции ─── */
+  dbStepper('lgx-bba', () => [
+    {t:'Шаг 1. Ввести абстракцию над существующей реализацией',
+     a:['interface PricingEngine {','  Money priceOf(Order order);','}','','class LegacyPricingEngine implements PricingEngine {','  /* тот самый код 2013 года — не тронут */','}'],
+     d:'Пока ничего не меняется — только появляется <b>шов</b>: место, куда потом можно подставить другую реализацию. В жизни — поставили переходник в розетку.'},
+    {t:'Шаг 2. Перевести весь вызывающий код на интерфейс. Выкатить',
+     a:['// было:  new LegacyPricingEngine().priceOf(order)','// стало: pricing.priceOf(order)   // pricing: PricingEngine'],
+     d:'Поведение системы не изменилось ни на йоту — это важно: <b>рискованный шаг сделан отдельно от изменения логики</b>. Если что-то сломалось, виноват точно этот шаг, а не новая логика.', ok:true},
+    {t:'Шаг 3. Написать новую реализацию. Она не используется',
+     a:['class NewPricingEngine implements PricingEngine {','  /* новая, с тестами */','}'],
+     d:'Новый код живёт в главной ветке, собирается и тестируется, но в проде не вызывается. Никаких долгих веток.'},
+    {t:'Шаг 4. Переключатель с процентом и сравнением результатов',
+     a:['class SwitchingPricingEngine implements PricingEngine {','  public Money priceOf(Order o){','    Money legacy = legacyEngine.priceOf(o);','    if(flags.enabled("new-pricing", o.customerId())){','      Money fresh = newEngine.priceOf(o);','      if(!fresh.equals(legacy))','        metrics.mismatch(o.id(), legacy, fresh); // расхождения видны','      return fresh;','    }','    return legacy;','  }','}'],
+     d:'Флаг включается по клиенту — та же «липкая» идея, что у фасада в истории Анны. Расхождения пишутся в метрики: это встроенный параллельный прогон.', warn:true},
+    {t:'Шаг 5. Процент растёт, расхождения разбираются',
+     a:['new-pricing: 1 % → 10 % → 50 % → 100 %','mismatch rate: 0,8 % → 0,1 % → 0,01 %'],
+     d:'Каждое повышение — изменение настройки, а не выкладка кода. Откат — тоже настройка.'},
+    {t:'Шаг 6. Удалить старую реализацию и переключатель',
+     a:['- class LegacyPricingEngine ...','- class SwitchingPricingEngine ...','- flag "new-pricing"','  interface PricingEngine      // остаётся','  class NewPricingEngine       // остаётся'],
+     d:'Остаётся интерфейс и одна реализация. Переходник свою работу сделал. <b>Шаг, который чаще всего забывают</b> — ставьте задачу на удаление в тот же день, когда включили 100 %.', ok:true},
+  ]);
+
+  /* ─── глава 8: журнал расхождений ─── */
+  renderSort('lgx-diff', [
+    {t:'Бонусы: старое — 12 500 ₽, новое — 12 500,50 ₽.', s:'В старом коде стоит floor(): кто-то когда-то решил округлять вниз.', bucket:'biz',
+     why:'Возможно, это баг. А возможно, так записано в договоре оферты. Программист не решает это сам: несёт два ответа бизнесу и спрашивает, какой правильный.'},
+    {t:'Цена тура для ребёнка до 2 лет: старое — 0 ₽, новое — полная цена.', s:'В старом коде есть условие для младенцев. В требованиях его нет.', bucket:'new',
+     why:'Классика параллельного прогона: правило жило только в коде, требования о нём забыли. Старое право, новое чинится. Именно ради таких находок прогон и делают.'},
+    {t:'Поле generatedAt отличается на несколько миллисекунд.', s:'Время формирования ответа.', bucket:'noise',
+     why:'Это шум: время формирования всегда разное. Такое поле исключают из сравнения, иначе журнал утонет в ложных расхождениях и его перестанут читать.'},
+    {t:'Скидка постоянного клиента: старое даёт 5 % дважды, если в заказе два тура.', s:'Выглядит как ошибка сложения.', bucket:'biz',
+     why:'Похоже на баг старого. Но клиенты могли к нему привыкнуть, а маркетинг — учесть в планах. Молча «починить» — значит внезапно поднять цены. Решение за бизнесом.'},
+    {t:'Порядок допуслуг в списке разный, состав совпадает.', s:'Страховка, трансфер, экскурсия — в другом порядке.', bucket:'noise',
+     why:'Если порядок не важен для экрана, сравнивают как множество, а не как список. Настройка сравнения, а не ошибка.'},
+    {t:'Новый расчёт не добавляет топливный сбор для чартерных рейсов.', s:'Старое добавляет сбор по отдельной таблице.', bucket:'new',
+     why:'Новое просто не знает правила, которое есть в старом. Чинится в новом, добавляется тест. Хорошо, что нашлось в тени, а не в жалобах клиентов.'},
+  ], [
+    {id:'new', n:'Чинить новое'}, {id:'biz', n:'Спросить бизнес'}, {id:'noise', n:'Шум: не сравнивать'},
+  ], 'lgx-diff-score', 'lgx-diff-total');
+  Progress.register('lgx-diff-score', 6, 'Легаси: журнал расхождений');
+
+  /* ─── глава 9: швы ─── */
   renderNum('seam-list', [
     {t:'Швы на границе процесса', d:'HTTP-ручки, обработчики очереди, задачи по расписанию, экспорт файлов. Самые удобные швы: между ними и остальным кодом уже есть граница, которую можно перехватить прокси. Именно поэтому душитель начинают с них.'},
     {t:'Швы на границе данных', d:'Таблица, в которую пишет только один участок кода, — почти готовый кандидат на выделение. Наоборот, таблица с пятью писателями показывает, где шва нет и где придётся работать дольше всего. Поиск по имени таблицы в репозитории — самый дешёвый способ составить карту швов.'},
@@ -16148,10 +16781,11 @@ renderFlow('msf-flow', {
     {t:'Ложный шов: «сделаем интерфейс для будущего»', d:'Интерфейс, у которого одна реализация и который не используется для подмены, шва не создаёт — он создаёт лишний уровень косвенности. Шов проверяется вопросом: <b>могу ли я прямо сейчас подставить сюда другую реализацию и выкатить это?</b> Если нет — это не шов.'},
   ]);
 
+  /* ─── глава 10: практика ─── */
   renderTasks('lg-tasks', [
     {q:'<b>Кандидат 1.</b> «Отправка уведомлений»: одна точка входа, своя таблица шаблонов, никто больше в неё не пишет, меняется редко.',
      opts:[{t:'Отличный первый кандидат', ok:true},{t:'Плохой: слишком маленький'},{t:'Плохой: слишком рискованный'},{t:'Оставить на потом'}],
-     why:'Идеальный первый кусок: понятная граница, единственный владелец данных, мало связей, невысокая критичность. Ценность не столько в самом уведомлениях, сколько в том, что команда <b>проходит весь путь целиком</b> — фасад, теневой прогон, переключение, миграция данных, удаление старого — на безопасном материале. Первый душитель делают не ради результата, а ради отработки процесса.'},
+     why:'Идеальный первый кусок: понятная граница, единственный владелец данных, мало связей, невысокая критичность. Ценность не столько в самих уведомлениях, сколько в том, что команда <b>проходит весь путь целиком</b> — фасад, теневой прогон, переключение, миграция данных, удаление старого — на безопасном материале. Первый душитель делают не ради результата, а ради отработки процесса.'},
     {q:'<b>Кандидат 2.</b> «Расчёт стоимости тура»: ядро бизнеса, 6000 строк, 40 условий без комментариев, правят еженедельно.',
      opts:[{t:'Начать с него: самая большая боль'},{t:'Не первым: сначала параллельный прогон месяцами, чтобы понять текущее поведение', ok:true},{t:'Переписать с нуля по требованиям'},{t:'Не трогать никогда'}],
      why:'Это основной поддомен, и когда-нибудь его придётся привести в порядок, — но не первым. 40 недокументированных условий означают, что требований в природе не существует: они <b>в коде</b>. Единственный способ узнать текущее поведение — параллельный прогон на настоящем трафике, а он занимает месяцы. Начинать с него — значит начать проект, который не покажет результата полгода.'},
