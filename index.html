@@ -16161,15 +16161,202 @@ OE --&gt; [Сервис платежей]</pre>
 </script>
 <!-- ==================== 20. МАСШТАБ И СОСТОЯНИЕ ==================== -->
 <section class="panel" id="scale" data-accent="nt" role="tabpanel">
-  <p class="lead"><b>Масштабирование упирается не в код, а в состояние.</b> Сервис, который ничего не помнит между запросами, размножается копиями — и на этом всё. Трудности начинаются с данными: их не скопируешь просто так. Придётся выбирать между копиями одного и того же и разными кусками в разных местах.</p>
+  <p class="lead"><b>Масштабирование — это умение обслужить в десять и в сто раз больше людей, не переписывая систему с нуля.</b> Здесь мы проследим одну историю: интернет-магазин растёт от 100 до 1 000 000 покупателей. На каждом этапе что-то упирается, и мы разберём, что именно, почему и что с этим делают. Главный вывод сразу: код размножить легко. Трудности начинаются с <b>состоянием</b>, то есть с данными, которые надо где-то помнить.</p>
 
+  <style>
+    .scx-ch{scroll-margin-top:150px}
+    .scx-map{display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:8px; margin-top:12px}
+    .scx-mapb{appearance:none; display:flex; gap:10px; align-items:flex-start; text-align:left; border:1px solid var(--line); background:var(--surface-2); color:var(--ink); border-radius:10px; padding:10px 12px; cursor:pointer; font:inherit}
+    .scx-mapb:hover{border-color:var(--accent)}
+    .scx-mapb:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+    .scx-mn{flex:none; width:24px; height:24px; border-radius:50%; background:var(--accent); color:#fff; font:700 12px var(--mono); display:grid; place-items:center}
+    .scx-mapb b{display:block; font-size:13.5px; font-weight:620}
+    .scx-mapb small{display:block; font-size:12px; color:var(--muted); margin-top:2px; line-height:1.35}
+    .scx-dict{display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:8px; margin-top:12px}
+    .scx-dict .box b{color:var(--ink)}
+    .scx-dict .box p{margin:0; font-size:12.5px; color:var(--muted)}
+    .scx-dict .box h4{font:650 13.5px var(--sans)}
+
+    /* сквозной поток */
+    .scx-fl{border:1px solid var(--line); border-radius:12px; background:var(--surface-2); padding:12px}
+    .scx-row{display:flex; gap:8px; justify-content:center; flex-wrap:wrap}
+    .scx-dn{text-align:center; color:var(--faint); font:700 13px var(--mono); line-height:1; margin:5px 0}
+    .scx-n{flex:0 1 auto; min-width:118px; max-width:210px; border:1.5px solid var(--line); border-radius:10px; background:var(--surface); padding:7px 10px; opacity:.45; transition:opacity .2s, border-color .2s, box-shadow .2s}
+    .scx-n.lit{opacity:.85}
+    .scx-n.on{opacity:1; border-color:var(--accent); box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 20%,transparent)}
+    .scx-n .scx-nh{font:650 12.5px/1.25 var(--sans); color:var(--ink)}
+    .scx-n .scx-ns{font:500 10.5px/1.3 var(--mono); color:var(--faint); margin-top:2px}
+    .scx-chips{display:flex; gap:3px; flex-wrap:wrap; margin-top:5px}
+    .scx-chip{font:600 9.5px var(--mono); color:var(--faint); border:1px solid var(--line); border-radius:4px; padding:1px 4px; background:var(--surface-2)}
+    .scx-chip.on{background:var(--accent); border-color:var(--accent); color:#fff}
+    .scx-dots{display:flex; gap:4px; flex-wrap:wrap; margin-top:10px}
+    .scx-dot{appearance:none; width:26px; height:26px; border-radius:7px; border:1px solid var(--line); background:var(--surface-2); color:var(--muted); font:700 11px var(--mono); cursor:pointer; padding:0}
+    .scx-dot.done{border-color:color-mix(in srgb,var(--accent) 50%,var(--line)); color:var(--ink)}
+    .scx-dot.on{background:var(--accent); border-color:var(--accent); color:#fff}
+    .scx-st{border:1px solid var(--line); border-left:3px solid var(--accent); border-radius:10px; background:var(--surface-2); padding:13px 15px; margin-top:11px}
+    .scx-st.ok{border-left-color:var(--ok)} .scx-st.warn{border-left-color:var(--warn)}
+    .scx-st-h{display:flex; gap:10px; align-items:baseline; flex-wrap:wrap; margin-bottom:6px}
+    .scx-time{font:700 11.5px var(--mono); color:var(--accent); background:color-mix(in srgb,var(--accent) 12%,transparent); border-radius:6px; padding:2px 7px}
+    .scx-st-h b{font-size:14.5px}
+    .scx-st p{font-size:13.5px; color:var(--muted); margin:4px 0 10px}
+    .scx-st p b{color:var(--ink)}
+    .scx-st-g{display:grid; grid-template-columns:minmax(0,1.15fr) minmax(0,1fr); gap:12px; align-items:start}
+    @media (max-width:760px){.scx-st-g{grid-template-columns:minmax(0,1fr)}}
+    .scx-st-g .meters{margin-top:0}
+    .scx-st .note{margin-top:9px}
+    .scx-lat{display:flex; height:22px; border-radius:6px; overflow:hidden; border:1px solid var(--line); background:var(--surface); margin-top:6px}
+    .scx-seg{height:100%; display:grid; place-items:center; font:700 9.5px var(--mono); color:#fff; overflow:hidden; white-space:nowrap; min-width:3px}
+    .scx-latl{display:flex; justify-content:space-between; gap:8px; flex-wrap:wrap; font:600 11.5px var(--mono); color:var(--faint); margin-top:10px}
+    .scx-latl b{color:var(--ink)}
+
+    /* история роста */
+    .scx-gh{font:700 20px var(--mono); color:var(--accent); margin:6px 0 2px}
+    .scx-gsub{font-size:13px; color:var(--muted); margin:0 0 10px}
+    .scx-two{display:grid; grid-template-columns:1fr 1fr; gap:12px}
+    @media (max-width:760px){.scx-two{grid-template-columns:1fr}}
+    .scx-two .box p{font-size:13px; color:var(--muted); margin:0}
+    .scx-two .box p b{color:var(--ink)}
+    .scx-word{margin-top:12px; border:1px dashed color-mix(in srgb,var(--accent) 50%,var(--line)); border-radius:10px; padding:10px 13px; font-size:13px; color:var(--muted)}
+    .scx-word b{color:var(--accent)}
+
+    /* симулятор */
+    .scx-bars{display:flex; flex-direction:column; gap:9px; margin-top:14px}
+    .scx-bar{display:grid; grid-template-columns:170px 1fr 120px; gap:10px; align-items:center; font-size:13px}
+    .scx-bar .scx-bl{font-weight:600}
+    .scx-bar .scx-bv{font:700 12.5px var(--mono); text-align:right; font-variant-numeric:tabular-nums}
+    .scx-track{position:relative; height:16px; border-radius:8px; background:var(--surface-3); overflow:hidden}
+    .scx-fill{height:100%; border-radius:8px; transition:width .25s ease}
+    .scx-cap{position:absolute; top:0; bottom:0; width:2px; background:var(--ink); opacity:.5}
+    .scx-first{font:700 10px var(--mono); color:var(--danger); border:1px solid var(--danger); border-radius:5px; padding:1px 5px; margin-left:6px; white-space:nowrap}
+    @media (max-width:560px){.scx-bar{grid-template-columns:1fr 90px} .scx-bar .scx-track{grid-column:1 / -1; grid-row:2}}
+    .scx-tg{display:flex; gap:6px; flex-wrap:wrap; margin-top:10px}
+
+    /* сессии */
+    .scx-nodes{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; margin-top:12px}
+    @media (max-width:700px){.scx-nodes{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    .scx-nodes .svc{min-width:0}
+    .scx-nodes .svc.pick{border-color:var(--accent)}
+    .scx-nodes .svc.dim{opacity:.4}
+    .scx-cart{font:500 12px/1.5 var(--mono); color:var(--muted); margin-top:5px; min-height:18px; word-break:break-word}
+
+    /* очередь */
+    .scx-qc{display:flex; align-items:flex-end; gap:2px; height:130px; border-bottom:1px solid var(--line); margin-top:14px; padding:0 2px}
+    .scx-qb{flex:1; min-width:2px; border-radius:2px 2px 0 0; background:var(--accent); transition:height .2s}
+    .scx-qb.bad{background:var(--danger)}
+    .scx-qb.pk{background:var(--warn)}
+    .scx-qx{display:flex; justify-content:space-between; font:500 10.5px var(--mono); color:var(--faint); margin-top:3px}
+
+    /* лестница */
+    .scx-lad{display:flex; flex-direction:column; gap:6px; margin-top:12px}
+    .scx-lr{display:grid; grid-template-columns:34px 1fr auto; gap:10px; align-items:center; border:1px solid var(--line); border-radius:9px; background:var(--surface-2); padding:8px 12px; font-size:13.5px}
+    .scx-lr .scx-mn{width:26px; height:26px}
+    .scx-lr small{display:block; color:var(--muted); font-size:12.5px}
+    .scx-lr .scx-cost{font:700 11px var(--mono); white-space:nowrap}
+    @media (max-width:560px){.scx-lr{grid-template-columns:30px 1fr} .scx-lr .scx-cost{grid-column:2}}
+  </style>
+
+  <!-- ═════ КАРТА ═════ -->
   <div class="card">
-    <h2><span class="tag">зачем это</span> зачем нужно масштабирование</h2>
+    <h2><span class="tag">карта раздела</span> одна история в одиннадцати главах</h2>
+    <p>Читать лучше по порядку: каждая глава опирается на предыдущую. Но можно и прыгнуть сразу к нужной.</p>
+    <div class="scx-map" id="scx-map">
+      <button class="scx-mapb" data-scx-go="scx-ch1"><span class="scx-mn">1</span><span><b>Что это и зачем</b><small>определение, словарик, кафе</small></span></button>
+      <button class="scx-mapb" data-scx-go="scx-ch2"><span class="scx-mn">2</span><span><b>Анна жмёт «Купить»</b><small>сквозной пример по шагам</small></span></button>
+      <button class="scx-mapb" data-scx-go="scx-ch3"><span class="scx-mn">3</span><span><b>Как магазин рос</b><small>от 100 до 1 000 000 покупателей</small></span></button>
+      <button class="scx-mapb" data-scx-go="scx-ch4"><span class="scx-mn">4</span><span><b>Симулятор нагрузки</b><small>крутите ползунок: что упрётся первым</small></span></button>
+      <button class="scx-mapb" data-scx-go="scx-ch5"><span class="scx-mn">5</span><span><b>Вверх или вширь</b><small>мощнее сервер или больше серверов</small></span></button>
+      <button class="scx-mapb" data-scx-go="scx-ch6"><span class="scx-mn">6</span><span><b>Состояние</b><small>почему копии теряют корзину</small></span></button>
+      <button class="scx-mapb" data-scx-go="scx-ch7"><span class="scx-mn">7</span><span><b>Реплики</b><small>копии базы для чтения</small></span></button>
+      <button class="scx-mapb" data-scx-go="scx-ch8"><span class="scx-mn">8</span><span><b>Кеш и CDN</b><small>не спрашивать базу лишний раз</small></span></button>
+      <button class="scx-mapb" data-scx-go="scx-ch9"><span class="scx-mn">9</span><span><b>Очереди</b><small>как пережить пик</small></span></button>
+      <button class="scx-mapb" data-scx-go="scx-ch10"><span class="scx-mn">10</span><span><b>Шардирование</b><small>когда упёрлись в запись</small></span></button>
+      <button class="scx-mapb" data-scx-go="scx-ch11"><span class="scx-mn">11</span><span><b>Итог и проверка</b><small>порядок действий и задания</small></span></button>
+    </div>
+  </div>
+
+  <!-- ═════ ГЛАВА 1 ═════ -->
+  <div class="card scx-ch" id="scx-ch1">
+    <h2><span class="tag">глава 1 · что это</span> что такое масштабирование и зачем оно</h2>
+    <p><b>Масштабирование</b> — это способность системы выдерживать больше нагрузки, когда мы добавляем ей ресурсы: процессоры, память, серверы. Хорошо масштабируемая система растёт «докупкой железа». Плохо масштабируемая — только переписыванием.</p>
+    <p><b>Нагрузка</b> — это сколько работы на систему сваливается. Её меряют тремя числами: сколько запросов приходит в секунду, сколько данных надо хранить и сколько людей сидит одновременно.</p>
+    <div class="note good"><b>Житейски: кафе.</b> Весь раздел мы будем сверяться с кафе. Сначала один повар делает всё. Потом ему покупают плиту побольше. Потом нанимают ещё поваров. Потом открывают отдельный бар для напитков, выдают номерки. И наконец открывают филиалы в разных районах. Каждый шаг решает конкретную беду, и у каждого есть точный аналог в программах.</div>
+
+    <h3>Словарик: пять слов, без которых дальше никак</h3>
+    <div class="scx-dict">
+      <div class="box"><h4>RPS</h4><p><b>Requests per second</b>, запросов в секунду. Главная мера нагрузки. Обычный день магазина — 400 RPS, чёрная пятница — 12 000.</p></div>
+      <div class="box"><h4>Узел</h4><p>Один сервер или одна запущенная копия программы. «Три узла» — три одинаковые копии, работающие рядом.</p></div>
+      <div class="box"><h4>Узкое место</h4><p>Часть системы, которая сдаётся первой. Как узкое горлышко бутылки: сколько ни наклоняй, быстрее не польётся.</p></div>
+      <div class="box"><h4>Задержка</h4><p>Сколько человек ждёт ответа, в миллисекундах (мс). 100 мс ощущаются как «мгновенно», 1 000 мс — как «подвисло».</p></div>
+      <div class="box"><h4>Пропускная способность</h4><p>Сколько запросов система успевает обработать за секунду. Если приходит больше, чем она успевает, растёт очередь, а за ней и задержка.</p></div>
+      <div class="box"><h4>Состояние</h4><p>Всё, что программа помнит между запросами: корзина, вход в систему, счётчики. Именно из-за него масштабирование трудное.</p></div>
+    </div>
+
+    <h3>Зачем это вообще нужно</h3>
     <div id="why-scale"></div>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">два пути</span> вверх или вширь</h2>
+  <!-- ═════ ГЛАВА 2 ═════ -->
+  <div class="card scx-ch" id="scx-ch2">
+    <h2><span class="tag">глава 2 · сквозной пример</span> Анна в чёрную пятницу нажимает «Купить»</h2>
+    <p>Сначала посмотрим на готовую большую систему целиком: какой путь проходит одно нажатие кнопки. Сейчас 10:00, стартовала распродажа. Анна из Екатеринбурга хочет кроссовки, и вместе с ней на кнопку жмут ещё 12 000 человек в секунду.</p>
+    <p>Нажимайте «Дальше». На схеме подсвечивается, кто сейчас работает. Под схемой — что именно происходит, какие данные летят и что было бы <b>без</b> этой детали. Термины пока не страшны: каждый объясняется на месте, а подробно — в следующих главах.</p>
+    <div class="scx-fl" id="scx-fl"></div>
+    <div class="skbar">
+      <button class="ghost" id="scx-fl-prev">← Назад</button>
+      <button class="act" id="scx-fl-next">Дальше →</button>
+      <button class="ghost" id="scx-fl-reset">⟲ Сначала</button>
+      <span class="skstep" id="scx-fl-lab"></span>
+    </div>
+    <div class="scx-dots" id="scx-fl-dots"></div>
+    <div id="scx-fl-out"></div>
+  </div>
+
+  <!-- ═════ ГЛАВА 3 ═════ -->
+  <div class="card scx-ch" id="scx-ch3">
+    <h2><span class="tag">глава 3 · история роста</span> как магазин дорос до такой схемы</h2>
+    <p>Такую систему никто не строит в первый день. Она вырастает по шагам, и каждый шаг — ответ на конкретную боль. Пройдите шесть этапов жизни магазина. Слева кафе, справа программа: беда и лекарство у них одинаковые.</p>
+    <div class="seg" id="scx-gr-pick"></div>
+    <div id="scx-gr-out"></div>
+    <div class="form-row">
+      <button class="act" id="scx-gr-next">Следующий этап →</button>
+    </div>
+  </div>
+
+  <!-- ═════ ГЛАВА 4 ═════ -->
+  <div class="card scx-ch" id="scx-ch4">
+    <h2><span class="tag">глава 4 · симулятор</span> крутите нагрузку — смотрите, что упрётся первым</h2>
+    <p>Теперь сами. Увеличивайте число покупателей и смотрите на полоски: каждая показывает, насколько загружена часть системы. Вертикальная черта — 100 %. Что перевалило за неё, то и есть узкое место. Лечите его кнопками ниже и крутите дальше.</p>
+    <p><b>Цель:</b> 1 000 000 покупателей в чёрную пятницу, ни одна полоска не за чертой, корзины не пропадают. И постарайтесь не переплатить.</p>
+    <div class="slider-row"><label for="scx-sim-u">Покупателей в день</label><input type="range" id="scx-sim-u" min="0" max="8" step="1" value="0"><span class="sv" id="scx-sim-uv">100</span></div>
+    <div class="seg" id="scx-sim-peak">
+      <button class="on" data-p="1">Обычный день</button>
+      <button data-p="5">🔥 Чёрная пятница: ×5</button>
+    </div>
+    <h3>Чем лечим</h3>
+    <div class="seg" id="scx-sim-srv">
+      <button class="on" data-s="0">Серверы обычные</button>
+      <button data-s="1">⬆ Серверы мощные: в 2,5 раза сильнее, в 4 раза дороже</button>
+    </div>
+    <div class="slider-row"><label for="scx-sim-app">Копий приложения</label><input type="range" id="scx-sim-app" min="1" max="24" step="1" value="1"><span class="sv" id="scx-sim-appv">1</span></div>
+    <div class="slider-row"><label for="scx-sim-rep">Реплик для чтения</label><input type="range" id="scx-sim-rep" min="0" max="4" step="1" value="0"><span class="sv" id="scx-sim-repv">0</span></div>
+    <div class="slider-row"><label for="scx-sim-sh">Шардов базы</label><input type="range" id="scx-sim-sh" min="1" max="8" step="1" value="1"><span class="sv" id="scx-sim-shv">1</span></div>
+    <div class="scx-tg" id="scx-sim-tg">
+      <button class="ghost" data-k="stateless">🧠 Сессии в Redis</button>
+      <button class="ghost" data-k="cache">⚡ Кеш</button>
+      <button class="ghost" data-k="cdn">🌐 CDN для картинок</button>
+      <button class="ghost" data-k="queue">📬 Очередь для писем</button>
+    </div>
+    <div class="scx-bars" id="scx-sim-bars"></div>
+    <div class="meters" id="scx-sim-m"></div>
+    <div class="console" id="scx-sim-msg"></div>
+    <div class="note"><b>Как считает симулятор.</b> Числа учебные, но пропорции честные. Одна копия приложения на обычном сервере тянет 600 запросов в секунду, на мощном — 1 500. База на чтение: 1 500 и 4 000 на каждый узел. База на запись: 300 и 800, причём запись принимает только лидер каждого шарда. Кеш снимает с базы 85 % чтений. Без CDN картинки грузят приложение. Без очереди каждое «Купить» держит приложение в восемь раз дольше, пока уходит письмо.</div>
+  </div>
+
+  <!-- ═════ ГЛАВА 5 ═════ -->
+  <div class="card scx-ch" id="scx-ch5">
+    <h2><span class="tag">глава 5 · вверх или вширь</span> мощнее сервер или больше серверов</h2>
+    <p>Когда что-то упёрлось, путей два. <b>Вертикальное масштабирование</b> («вверх») — заменить сервер на более мощный: больше ядер, памяти, быстрее диск. <b>Горизонтальное масштабирование</b> («вширь») — поставить рядом ещё несколько таких же серверов и делить работу между ними.</p>
+    <div class="note good"><b>Житейски.</b> Вверх — это купить повару плиту на шесть конфорок вместо двух. Вширь — нанять ещё трёх поваров. Плита ставится за вечер, и повару ничего не надо переучивать. Зато три повара не упираются в размер одной кухни, а если один заболел, кафе работает дальше.</div>
     <div class="grid2">
       <div class="box">
         <h4>Вертикально — больше железа</h4>
@@ -16182,24 +16369,50 @@ OE --&gt; [Сервис платежей]</pre>
         <p class="bs"><b>Против:</b> требует отсутствия состояния в узле, приносит сеть со всеми её бедами, а для данных — репликацию и шардирование с их компромиссами.</p>
       </div>
     </div>
+    <h3>Сравнение по пунктам</h3>
+    <p style="font-size:13px;color:var(--muted);margin:0">Нажмите на строку — раскроется объяснение.</p>
+    <div id="scx-vh"></div>
     <div class="note"><b>Практический порядок:</b> сначала выжать вертикальное масштабирование и оптимизацию (индексы, запросы, кеш) — это дни работы и обратимо. Потом вынести чтение на реплики. Потом горизонтально масштабировать сервисы без состояния. И только потом, когда упёрлись в запись, — шардирование, потому что это решение почти необратимо.</div>
-  </div>
 
-  <div class="card">
-    <h2><span class="tag">проверьте себя</span> вверх или вширь — шесть реальных случаев</h2>
+    <h3>Проверьте себя: шесть реальных случаев</h3>
     <p>Правильного ответа «всегда вширь» не существует: вертикальное масштабирование проще, дешевле в обслуживании и часто его достаточно. Нажмите на случай — что делать и почему.</p>
     <div class="seg" id="sc-case-pick"></div>
     <div id="sc-case-out"></div>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">состояние</span> где оно прячется</h2>
-    <p>«Наш сервис stateless» — обычно неправда. Состояние прячется в неочевидных местах, и обнаруживается это при попытке добавить второй узел.</p>
+  <!-- ═════ ГЛАВА 6 ═════ -->
+  <div class="card scx-ch" id="scx-ch6">
+    <h2><span class="tag">глава 6 · состояние</span> почему вторая копия теряет корзину</h2>
+    <p>Горизонтальное масштабирование работает, только если копии <b>взаимозаменяемы</b>: любой запрос может попасть в любую копию, и результат тот же. Для этого копия не должна ничего помнить между запросами. Такой сервис называют <b>stateless</b> («без состояния»). Если помнит — <b>stateful</b> («с состоянием»).</p>
+    <div class="note good"><b>Житейски.</b> Повар, который держит заказы в голове, незаменим: заболел — и заказы пропали. Повар, который пишет заказ на бланке и вешает на общую доску, заменим кем угодно. Общая доска — это Redis или база. Повар без памяти — stateless-сервис.</div>
+    <h3>Попробуйте сами: три узла и корзина Анны</h3>
+    <p>Балансировщик отправляет каждый запрос Анны на следующий узел по кругу. Добавьте пару товаров, откройте корзину, уроните узел. Потом переключите, где живёт корзина, и повторите. <b>Липкие сессии</b> — это когда балансировщик запоминает, что Анна «живёт» на узле 1, и всегда шлёт её туда.</p>
+    <div class="seg" id="scx-ss-mode">
+      <button class="on" data-m="mem">🧠 Корзина в памяти узла</button>
+      <button data-m="sticky">📌 Липкие сессии</button>
+      <button data-m="redis">⚡ Корзина в Redis</button>
+    </div>
+    <div class="scx-nodes" id="scx-ss-nodes"></div>
+    <div class="form-row">
+      <button class="act" id="scx-ss-add">🛒 Добавить товар</button>
+      <button class="ghost" id="scx-ss-open">👀 Открыть корзину</button>
+      <button class="ghost" id="scx-ss-kill">💥 Уронить узел, где была Анна</button>
+      <button class="ghost" id="scx-ss-reset">⟲ Сначала</button>
+    </div>
+    <div class="console" id="scx-ss-msg"></div>
+    <div class="steps" id="scx-ss-log"></div>
+
+    <h3>Где ещё прячется состояние</h3>
+    <p>«Наш сервис stateless» — обычно неправда. Состояние прячется в неочевидных местах, и обнаруживается это при попытке добавить второй узел. Нажмите на пункт — раскроется, чем он опасен и куда его девать.</p>
     <div id="st-list" class="numlist"></div>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">репликация</span> копии одних и тех же данных</h2>
+  <!-- ═════ ГЛАВА 7 ═════ -->
+  <div class="card scx-ch" id="scx-ch7">
+    <h2><span class="tag">глава 7 · реплики</span> копии одних и тех же данных</h2>
+    <p>Приложение мы размножили. Но все копии ходят в одну базу, и теперь упирается она. В магазине чтений в 10–20 раз больше, чем записей: товар смотрят сто раз, покупают один. Значит, первым делом разгружаем чтение.</p>
+    <p><b>Репликация</b> — это когда у базы есть несколько полных копий. <b>Реплика</b> — одна такая копия. Обычно одна копия главная, её называют <b>лидером</b>: только она принимает запись и рассылает изменения остальным. Читать можно с любой.</p>
+    <div class="note good"><b>Житейски.</b> Меню кафе. Оригинал один, у шефа: только он вписывает новые блюда. Официантам раздают ксерокопии, чтобы гости не толпились у шефа. Когда шеф меняет цену, копии обновляются не мгновенно — какое-то время официант называет старую цену. Это и есть <b>отставание реплики</b>.</div>
     <div class="table-wrap">
       <table class="db">
         <thead><tr><th>Схема</th><th>Как работает</th><th>Плюсы</th><th>Минусы</th></tr></thead>
@@ -16219,18 +16432,16 @@ OE --&gt; [Сервис платежей]</pre>
         </tbody>
       </table>
     </div>
-    <div class="note good"><b>Проще говоря.</b> Репликация — это <b>копии одного и того же</b>: в двух местах лежит одно пальто (что невозможно, но представьте). Шардирование — <b>разные вещи в разных местах</b>: в левом зале пальто с номерами до 100, в правом — после. Первое спасает от потери, второе — от нехватки места.</div>
     <h3>Синхронная или асинхронная</h3>
+    <p>Это вопрос о том, когда лидер говорит клиенту «записано»: до того, как копии получили изменение, или после.</p>
     <ul>
       <li><b>Синхронная:</b> лидер подтверждает запись только после того, как её приняла реплика. Данные не теряются при падении лидера, но каждая запись оплачивается сетевым обменом, а недоступность реплики <b>блокирует запись</b>.</li>
       <li><b>Асинхронная:</b> лидер подтверждает сразу. Быстро, но при его падении последние записи теряются безвозвратно.</li>
       <li><b>Полусинхронная (обычный выбор):</b> ждём подтверждения хотя бы от одной реплики из нескольких. Компромисс, который берут по умолчанию.</li>
     </ul>
-    <div class="note warn"><b>Отставание реплики — источник самых загадочных багов.</b> Записали в лидера, тут же прочитали с реплики и не увидели своей записи. Проявляется нерегулярно и не воспроизводится на тесте, где реплика не отстаёт. Лечится гарантией «читай своё»: запросы пользователя в течение нескольких секунд после записи направляются к лидеру.</div>
-  </div>
+    <div class="note warn"><b>Отставание реплики — источник самых загадочных багов.</b> Записали в лидера, тут же прочитали с реплики и не увидели своей записи. Проявляется нерегулярно и не воспроизводится на тесте, где реплика не отстаёт. Лечится гарантией «читай своё»: запросы пользователя в течение нескольких секунд после записи направляются к лидеру. Именно это вы видели на шаге 11 в истории Анны.</div>
 
-  <div class="card">
-    <h2><span class="tag">три схемы</span> один лидер, несколько лидеров, без лидера — на одном примере</h2>
+    <h3>Три схемы на одном примере</h3>
     <p>Один и тот же случай во всех трёх схемах: <b>два человека одновременно покупают последнюю пару 42-го размера</b>, один в Москве, другой во Владивостоке. Переключайте схему и проходите по шагам.</p>
     <div class="seg" id="rep-pick">
       <button class="on" data-i="0">👑 Один лидер</button>
@@ -16245,14 +16456,53 @@ OE --&gt; [Сервис платежей]</pre>
     <div id="rep-out"></div>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">симулятор</span> шардирование: цена добавления узла</h2>
-    <p>10 000 ключей распределены по шардам. Добавьте шард и посмотрите, <b>сколько ключей придётся физически перевезти</b>. Разница между способами — это разница между «переезд за ночь» и «переезд за квартал».</p>
+  <!-- ═════ ГЛАВА 8 ═════ -->
+  <div class="card scx-ch" id="scx-ch8">
+    <h2><span class="tag">глава 8 · кеш и CDN</span> не спрашивать базу лишний раз</h2>
+    <p>Реплика разгружает базу, но запрос всё равно доходит до какой-то базы. Ещё дешевле — не доходить вовсе. Для этого есть два приёма.</p>
+    <p><b>Кеш</b> — это копия частых ответов в быстрой памяти рядом с приложением (обычно Redis). Цена кроссовок не меняется каждую секунду, так что её можно спросить у базы один раз и потом минуту отдавать из памяти. <b>CDN</b> (Content Delivery Network, сеть доставки контента) — это много серверов в разных городах, на которых лежат копии картинок, скриптов и видео. Файл отдаёт ближайший к человеку сервер, а до вашего дело не доходит.</p>
+    <div class="note good"><b>Житейски.</b> Кеш — это графин готового лимонада на барной стойке: не надо каждый раз резать лимоны. CDN — это газетный киоск у метро: газету не везут из типографии каждому читателю, пачки заранее лежат рядом с домом.</div>
+    <h3>Кеш, реплика, CDN: в чём разница</h3>
+    <p style="font-size:13px;color:var(--muted);margin:0">Все три — «копии», но копируют разное и живут в разных местах. Нажмите на строку, чтобы раскрыть.</p>
+    <div id="scx-kc"></div>
+    <div class="note">Как устроен кеш изнутри: как его наполнять, когда сбрасывать и что делать, если он внезапно опустел, — в отдельном разделе.</div>
+    <div class="form-row"><button class="ghost" data-goto="cache">Раздел «Кеш» →</button><button class="ghost" data-goto="lb">Раздел «Балансировщики» →</button></div>
+  </div>
+
+  <!-- ═════ ГЛАВА 9 ═════ -->
+  <div class="card scx-ch" id="scx-ch9">
+    <h2><span class="tag">глава 9 · очереди</span> как пережить пик, не покупая сервер под него</h2>
+    <p>Чёрная пятница — это пик: 10 секунд по 12 000 заказов, потом снова 800. Держать серверы под пик круглый год дорого. Выход — не делать всё сразу. <b>Очередь</b> — это хранилище записок «надо сделать»: приложение кладёт записку и сразу отвечает пользователю, а отдельные программы-исполнители, <b>воркеры</b>, разбирают записки в своём темпе.</p>
+    <div class="note good"><b>Житейски.</b> Номерок в кафе. Вы заплатили, получили номер и сели за столик. Кухня готовит в своём темпе и зовёт по табло. Без номерков вы стояли бы у стойки, пока не приготовят, и очередь загибалась бы за дверь.</div>
+    <h3>Попробуйте: 60 секунд распродажи</h3>
+    <p>Первые 10 секунд приходит по 12 000 заказов в секунду, дальше — по 800. Крутите, сколько записок в секунду успевают разобрать воркеры, и сравните работу с очередью и без неё.</p>
+    <div class="seg" id="scx-q-mode">
+      <button class="on" data-m="q">📬 С очередью</button>
+      <button data-m="none">🚫 Без очереди: всё сразу</button>
+    </div>
+    <div class="slider-row"><label for="scx-q-w">Воркеры успевают, в секунду</label><input type="range" id="scx-q-w" min="1000" max="12000" step="500" value="3000"><span class="sv" id="scx-q-wv">3 000</span></div>
+    <div class="scx-qc" id="scx-q-chart"></div>
+    <div class="scx-qx"><span>0 с</span><span>10 с — пик кончился</span><span>60 с</span></div>
+    <div class="meters" id="scx-q-m"></div>
+    <div class="console" id="scx-q-msg"></div>
+    <div class="note warn"><b>Чем платим.</b> Пользователь получает не «готово», а «принято». Письмо придёт через минуту, а не через секунду. И надо продумать, что будет, если воркер упадёт посреди записки: её должен подхватить другой, а повторная обработка не должна отправить письмо дважды. Подробнее — в разделах про общение сервисов и outbox.</div>
+  </div>
+
+  <!-- ═════ ГЛАВА 10 ═════ -->
+  <div class="card scx-ch" id="scx-ch10">
+    <h2><span class="tag">глава 10 · шардирование</span> когда упёрлись в запись</h2>
+    <p>Реплики, кеш и очереди разгрузили чтение и сгладили пики. Но запись по-прежнему принимает один лидер. Когда и самый мощный сервер не успевает записывать заказы, остаётся последний шаг. <b>Шардирование</b> — это разрезать данные на части и положить каждую на свой сервер. Одна такая часть называется <b>шард</b>. У каждого шарда свой лидер, и запись делится между ними.</p>
+    <div class="note good"><b>Житейски: филиалы.</b> Кафе открыло три филиала: северный, центральный, южный. Каждый обслуживает свой район, у каждого своя кухня и свой журнал заказов. Никто не бегает через весь город. Но теперь вопрос «сколько всего заказов было вчера» требует обзвонить всех, а перевести постоянного гостя в другой филиал — отдельная морока.</div>
+    <div class="note"><b>Не путайте с репликацией.</b> Репликация — это <b>копии одного и того же</b>: в каждом филиале одинаковое меню. Шардирование — <b>разные вещи в разных местах</b>: в северном филиале журнал северных гостей, в южном — южных. Первое спасает от потери и разгружает чтение, второе — от нехватки места и разгружает запись.</div>
+
+    <h3>Симулятор: цена добавления шарда</h3>
+    <p>Как решить, в какой шард класть запись? Для этого есть правило распределения. Здесь 10 000 ключей распределены по шардам. Добавьте шард и посмотрите, <b>сколько ключей придётся физически перевезти</b>. Разница между способами — это разница между «переезд за ночь» и «переезд за квартал».</p>
     <div class="seg" id="sh-mode">
       <button class="on" data-m="mod">Остаток от деления (hash % N)</button>
       <button data-m="chash">Согласованное хеширование</button>
       <button data-m="dir">Каталог соответствия</button>
     </div>
+    <div class="note" style="margin-top:4px"><b>Что значат способы.</b> <b>hash % N</b>: превращаем ключ в число и берём остаток от деления на число шардов. <b>Согласованное хеширование</b>: шарды и ключи раскладываются по кругу, ключ идёт к ближайшему шарду по часовой стрелке. <b>Каталог</b>: отдельная таблица «ключ → шард», которую ведём вручную.</div>
     <div class="form-row">
       <button class="act" id="sh-add">+ Добавить шард</button>
       <button class="ghost" id="sh-del">− Убрать шард</button>
@@ -16265,11 +16515,9 @@ OE --&gt; [Сервис платежей]</pre>
       <span class="meter wq">Перекос: <b id="sh-skew">—</b></span>
     </div>
     <div class="console" id="sh-msg">Добавьте шард и сравните способы.</div>
-  </div>
 
-  <div class="card">
-    <h2><span class="tag">ключ</span> как выбрать ключ шардирования</h2>
-    <p>Самое необратимое решение во всей теме. Ключ определяет, какие запросы будут быстрыми, а какие станут невозможными.</p>
+    <h3>Как выбрать ключ шардирования</h3>
+    <p><b>Ключ шардирования</b> — это поле записи, по которому решаем, в какой шард её класть. У Анны это был её идентификатор клиента. Самое необратимое решение во всей теме: ключ определяет, какие запросы будут быстрыми, а какие станут невозможными.</p>
     <div class="grid2">
       <div class="box">
         <h4 style="color:var(--ok)">Хороший ключ</h4>
@@ -16291,20 +16539,36 @@ OE --&gt; [Сервис платежей]</pre>
       </div>
     </div>
     <div class="note"><b>Типичные удачные ключи:</b> идентификатор клиента (для SaaS — идентификатор организации), идентификатор заказа, географическая зона. Все они обладают общим свойством: <b>подавляющее большинство запросов относится к одному значению ключа</b>. Запрос «покажи мои заказы» обслуживается одним шардом, а запрос «все заказы за вчера по всем клиентам» — всеми сразу, и его выносят в аналитическое хранилище.</div>
-  </div>
 
-  <div class="card">
-    <h2><span class="tag">различие</span> партиционирование, шардирование, репликация</h2>
+    <h3>Партиционирование, шардирование, репликация</h3>
+    <p>Три слова, которые постоянно путают. <b>Партиционирование</b> — самое скромное из них: таблица режется на части, но остаётся в одной базе.</p>
     <div class="grid3">
-      <div class="box"><h4>Партиционирование</h4><p class="bs">Разрезание таблицы на части <b>внутри одной базы</b>: по дате, по диапазону, по списку. Запросы ходят только в нужные части, старые куски легко удаляются целиком. Не увеличивает мощность, но сильно ускоряет и упрощает обслуживание.</p></div>
-      <div class="box"><h4>Шардирование</h4><p class="bs">Те же части, но <b>на разных серверах</b>. Увеличивает и объём, и пропускную способность записи. Приносит все проблемы распределённости: нет общих транзакций, нет общих JOIN, нет глобальной уникальности.</p></div>
-      <div class="box"><h4>Репликация</h4><p class="bs">Копии <b>одних и тех же</b> данных. Масштабирует чтение и даёт отказоустойчивость, но не помогает с объёмом и записью: каждая реплика хранит всё.</p></div>
+      <div class="box"><h4>Партиционирование</h4><p class="bs">Разрезание таблицы на части <b>внутри одной базы</b>: по дате, по диапазону, по списку. Запросы ходят только в нужные части, старые куски легко удаляются целиком. Не увеличивает мощность, но сильно ускоряет и упрощает обслуживание.</p><p class="bs"><b>В кафе:</b> журнал заказов разбит на тетради по месяцам. Кафе одно.</p></div>
+      <div class="box"><h4>Шардирование</h4><p class="bs">Те же части, но <b>на разных серверах</b>. Увеличивает и объём, и пропускную способность записи. Приносит все проблемы распределённости: нет общих транзакций, нет общих JOIN, нет глобальной уникальности.</p><p class="bs"><b>В кафе:</b> филиалы, у каждого свои гости и свой журнал.</p></div>
+      <div class="box"><h4>Репликация</h4><p class="bs">Копии <b>одних и тех же</b> данных. Масштабирует чтение и даёт отказоустойчивость, но не помогает с объёмом и записью: каждая реплика хранит всё.</p><p class="bs"><b>В кафе:</b> ксерокопии меню у каждого официанта.</p></div>
     </div>
     <div class="note good"><b>Порядок применения:</b> партиционирование (дёшево, обратимо, часто достаточно) → реплики для чтения (дёшево, решает 80 % проблем с нагрузкой) → шардирование (дорого, почти необратимо, только когда упёрлись в запись или в объём одного узла). Шардирование, введённое «на будущее», — самая дорогая преждевременная оптимизация в этой профессии.</div>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">задание</span> масштабирование</h2>
+  <!-- ═════ ГЛАВА 11 ═════ -->
+  <div class="card scx-ch" id="scx-ch11">
+    <h2><span class="tag">глава 11 · итог</span> лестница масштабирования и проверка</h2>
+    <p>Соберём всю историю в одну лестницу. Поднимайтесь по ней снизу вверх и не перепрыгивайте ступени: каждая следующая дороже и труднее отменяется.</p>
+    <div class="scx-lad">
+      <div class="scx-lr"><span class="scx-mn">0</span><div><b>Измерить</b><small>Найти настоящее узкое место. Часто это один запрос без индекса.</small></div><span class="scx-cost" style="color:var(--ok)">почти даром</span></div>
+      <div class="scx-lr"><span class="scx-mn">1</span><div><b>Вверх: сервер мощнее</b><small>Покупает время без единой строчки кода.</small></div><span class="scx-cost" style="color:var(--ok)">часы</span></div>
+      <div class="scx-lr"><span class="scx-mn">2</span><div><b>Вынести состояние</b><small>Сессии и корзины — в Redis, файлы — в объектное хранилище.</small></div><span class="scx-cost" style="color:var(--ok)">дни</span></div>
+      <div class="scx-lr"><span class="scx-mn">3</span><div><b>Вширь: копии + балансировщик</b><small>Растём по нагрузке и переживаем падение узла.</small></div><span class="scx-cost" style="color:var(--ok)">дни</span></div>
+      <div class="scx-lr"><span class="scx-mn">4</span><div><b>Кеш, CDN, реплики</b><small>Снимаем чтение с базы: оно в 10–20 раз чаще записи.</small></div><span class="scx-cost" style="color:var(--warn)">недели</span></div>
+      <div class="scx-lr"><span class="scx-mn">5</span><div><b>Очереди</b><small>Всё долгое — в фон, пики сглаживаются.</small></div><span class="scx-cost" style="color:var(--warn)">недели</span></div>
+      <div class="scx-lr"><span class="scx-mn">6</span><div><b>Шардирование</b><small>Только когда упёрлись в запись или объём одного узла.</small></div><span class="scx-cost" style="color:var(--danger)">месяцы, почти необратимо</span></div>
+    </div>
+
+    <h3>Задание: что упёрлось → что поможет</h3>
+    <p>Для каждой ситуации выберите самое дешёвое лекарство, которое её решает. Решено <b id="scx-sort-score">0</b> из <span id="scx-sort-total">0</span>.</p>
+    <div id="scx-sort"></div>
+
+    <h3>Задание: масштабирование</h3>
     <p>Решено <b id="scq-score">0</b> из <span id="scq-total">0</span>.</p>
     <div id="scq-tasks"></div>
   </div>
@@ -16574,6 +16838,586 @@ OE --&gt; [Сервис платежей]</pre>
     [...bar.children].forEach(x => x.classList.toggle('on', x === b));
     ri = +b.dataset.i; api.reset();
   });
+})();
+</script>
+
+<script>
+/* ═══ 22.1 Карта раздела ═══ */
+(function(){
+  const map = document.getElementById('scx-map');
+  if(!map) return;
+  map.addEventListener('click', e => {
+    const b = e.target.closest('button[data-scx-go]'); if(!b) return;
+    const t = document.getElementById(b.dataset.scxGo); if(!t) return;
+    const h = document.querySelector('header.top');
+    t.style.scrollMarginTop = ((h ? h.offsetHeight : 0) + 12) + 'px';
+    t.scrollIntoView({behavior: (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) ? 'auto' : 'smooth', block:'start'});
+  });
+})();
+
+/* ═══ 22.2 Зачем масштабирование ═══ */
+(function(){
+  if(!document.getElementById('why-scale')) return;
+  renderWhy('why-scale', {
+    task:'обслужить растущую нагрузку, <b>добавляя ресурсы</b>, а не переписывая систему каждый раз, когда пользователей стало больше.',
+    life:'кафе, в которое вдруг пришло в десять раз больше гостей. Если на кухне всё завязано на одного повара и один холодильник, никакие деньги не помогут быстро. Если кухня устроена так, что можно поставить ещё одного повара, — вопрос решается за день.',
+    no:[
+      'В пик (распродажа, реклама по телевизору, новость) сайт падает ровно тогда, когда на нём больше всего денег.',
+      'Один сервер — одна точка отказа: сломался он, стоит весь бизнес.',
+      'Рост превращается в аврал: переписывать архитектуру приходится под давлением и в спешке.',
+      'Платим за железо под пик круглый год, потому что «убавить» тоже нельзя.',
+    ],
+    yes:[
+      'Пик выдерживается добавлением узлов, а после него узлы убираются.',
+      'Падение одного узла незаметно для пользователей.',
+      'Рост становится плановой задачей с понятной ценой, а не пожаром.',
+      'Каждая часть системы растёт отдельно: чтение отдельно, запись отдельно.',
+    ],
+    fix:[
+      ['пропускная способность','сколько запросов в секунду система переваривает без ошибок'],
+      ['задержка','как быстро отвечает под нагрузкой, а не только в тишине'],
+      ['доступность','переживает ли система отказ одного сервера'],
+      ['стоимость','платим за ту мощность, что нужна сейчас, а не «на всякий случай»'],
+    ],
+    cost:'сложность. Каждая ступень масштабирования добавляет новые движущиеся части: балансировщик, кеш, реплики, очереди, шарды. У каждой свои поломки и своя эксплуатация.',
+    skip:'пока один сервер загружен меньше чем наполовину и рост предсказуем. Большинство систем в мире так и живут на одном хорошем сервере с одной репликой — и это правильное решение.',
+  });
+})();
+
+/* ═══ 22.3 Сквозной поток: Анна жмёт «Купить» ═══ */
+(function(){
+  const root = document.getElementById('scx-fl');
+  if(!root) return;
+  const out = document.getElementById('scx-fl-out'), lab = document.getElementById('scx-fl-lab'), dots = document.getElementById('scx-fl-dots');
+  const ROWS = [
+    [{id:'u', ic:'👩', n:'Анна', s:'браузер · Екатеринбург'}, {id:'cdn', ic:'🌐', n:'CDN', s:'копии картинок рядом с Анной'}],
+    [{id:'lb', ic:'⚖', n:'Балансировщик', s:'раздаёт запросы копиям'}],
+    [{id:'app', ic:'🧩', n:'Приложение', s:'12 одинаковых копий', chips:12, cp:'app-'}],
+    [{id:'redis', ic:'⚡', n:'Redis', s:'сессии · корзины · кеш'}, {id:'stock', ic:'📦', n:'Склад', s:'база остатков · лидер'},
+     {id:'shard', ic:'🗄', n:'Заказы', s:'4 шарда, у каждого свой лидер', chips:4, cp:'шард '}, {id:'rep', ic:'📖', n:'Реплики', s:'копии шардов для чтения'}],
+    [{id:'q', ic:'📬', n:'Очередь', s:'записки «заказ оформлен»'}, {id:'wk', ic:'⚙', n:'Воркеры', s:'письма · чеки · баллы'}],
+  ];
+  const COL = {net:'var(--faint)', lb:'var(--nt)', redis:'var(--ms)', db:'var(--dt)', q:'var(--mn)'};
+  const S = [
+    {time:'09:59:58', on:['u','cdn'], t:'Анна открывает страницу кроссовок',
+     d:'Страница, картинки, скрипты — это <b>статика</b>: файлы, одинаковые для всех. Их отдаёт <b>CDN</b> (сеть доставки контента) — много серверов по стране, на каждом копия статики. Анне ответил сервер в Екатеринбурге, а не в Москве. Серверы магазина об этом даже не узнали.',
+     a:['GET /img/sneakers-42.jpg','→ CDN, узел «Екатеринбург»','  файл уже лежит в копии ✓','  отдан за 9 мс','','  из Москвы было бы: 60 мс'],
+     m:[['Запросов за статикой в эту минуту','2,1 млн',''],['Из них дошло до магазина','0','good']],
+     no:'Без CDN эти 2 миллиона запросов за картинками пришли бы на наши же серверы и съели бы их раньше, чем кто-то успел нажать «Купить».',
+     life:'Газетный киоск у метро: газету не везут из типографии каждому, пачки заранее лежат рядом с домом.'},
+    {time:'10:00:00.000', on:['u','lb'], t:'Анна жмёт «Купить» — и вместе с ней ещё 12 000 человек', ms:4, mk:'net', ml:'сеть',
+     d:'Браузер отправляет запрос не на конкретный сервер, а на один общий адрес магазина. За этим адресом стоит <b>балансировщик</b> — программа, которая принимает все запросы и раздаёт их серверам. Запрос несёт главное: что купить и кто покупает. «Кто» — это короткий токен сессии, по нему магазин узнаёт Анну.',
+     a:['POST /api/orders','Cookie: session=9f3a…c21','','{ "sku": "SNK-42", "qty": 1 }'],
+     m:[['Запросов в секунду сейчас','12 000','bad'],['В обычный день','400',''],['Рост','×30','wq']],
+     no:'Будь у магазина один сервер, все 12 000 запросов в секунду упёрлись бы в него одного.',
+     life:'Гости входят в кафе через одну дверь, а не лезут на кухню через окна.'},
+    {time:'10:00:00.004', on:['lb','app'], pick:{app:7}, t:'Балансировщик выбирает копию приложения', ms:1, mk:'lb', ml:'балансир',
+     d:'Приложение запущено в 12 одинаковых копиях. Балансировщик смотрит, у кого сейчас меньше всего запросов в работе, и отдаёт запрос туда. Сегодня повезло <b>app-7</b>. Это и есть <b>горизонтальное масштабирование</b>: не один мощный сервер, а много обычных рядом.',
+     a:['копия   запросов в работе','app-3   188  ██████████','app-5   141  ███████▌','app-7    77  ████      ← сюда','app-11  163  ████████▋','…'],
+     m:[['Копий приложения','12',''],['Одна копия тянет','~1 500/с',''],['Вместе','~18 000/с','good']],
+     no:'Один сервер с пределом 1 500 запросов в секунду обслужил бы каждого восьмого. Остальные семеро увидели бы ошибку 503 «сервис недоступен».',
+     life:'Хостес у входа: смотрит, какой повар свободен, и ведёт гостя к нему.'},
+    {time:'10:00:00.005', on:['app','redis'], pick:{app:7}, t:'app-7 узнаёт Анну и её корзину — из Redis', ms:1, mk:'redis', ml:'сессия',
+     d:'app-7 видит Анну впервые: корзину она собирала вчера, и тогда её обслуживал app-3. Но это не важно. Копии приложения <b>ничего не помнят</b> между запросами — такое приложение называют <b>stateless</b>, «без состояния». Всё, что надо помнить про пользователя, лежит в общем быстром хранилище <b>Redis</b>.',
+     a:['GET session:9f3a…c21','→ { "user": "anna-4417",','    "cart": [ { "sku": "SNK-42", "qty": 1 } ] }','','ответ за 0,4 мс'],
+     m:[['Кто собирал корзину','app-3',''],['Кто оформляет заказ','app-7',''],['Для Анны разница','никакой','good']],
+     no:'Если бы корзина жила в памяти app-3, app-7 увидел бы пустую корзину, и Анна решила бы, что магазин сломался. Об этом глава 6.',
+     life:'Повар берёт бланк заказа с общей доски, а не пытается вспомнить, что гость говорил другому повару.'},
+    {time:'10:00:00.006', on:['app','redis'], pick:{app:7}, t:'Цена и описание — из кеша, база не тревожится', ms:1, mk:'redis', ml:'кеш',
+     d:'Чтобы оформить заказ, нужна цена товара. Её могли бы спросить у базы, но в эту секунду то же самое спрашивают 12 000 человек, и ответ у всех одинаковый. Поэтому цена лежит в <b>кеше</b> — копии частого ответа в быстрой памяти. База отвечает один раз в минуту, остальные получают копию.',
+     a:['GET product:SNK-42','→ попадание в кеш ✓','  { "price": 5990, "title": "Кроссовки, 42" }','','доля попаданий за минуту: 97 %'],
+     m:[['Запросов цены в секунду','12 000',''],['Дошло до базы','~360','good'],['Сэкономили','11 640/с','good']],
+     no:'База получала бы 12 000 одинаковых запросов в секунду и тратила бы силы на ответы, которые знает наизусть.',
+     life:'Графин готового лимонада на стойке: не надо каждый раз резать лимоны.'},
+    {time:'10:00:00.007', on:['app','stock'], pick:{app:7}, t:'Списание со склада — только через лидера', ms:6, mk:'db', ml:'склад', k:'ok',
+     d:'Теперь <b>запись</b>: уменьшить остаток на одну пару. Запись в базу склада делает только одна её копия — <b>лидер</b>. Условие <code class="inl">left &gt; 0</code> стоит в той же команде, поэтому база не продаст пару, которой нет, даже если на последнюю жмут двое одновременно.',
+     a:['UPDATE stock','   SET left = left - 1',' WHERE sku = \'SNK-42\' AND left > 0;','','→ изменена 1 строка ✓  осталось 311 пар'],
+     m:[['Списаний в секунду','12 000',''],['Лидер склада тянет','~15 000/с','good']],
+     no:'Если бы запись принимали две копии одновременно, они могли бы продать одну пару двоим. Как это происходит — в главе 7.',
+     life:'Остатки на складе ведёт один кладовщик. Сколько бы продавцов ни было, вычёркивает он.'},
+    {time:'10:00:00.013', on:['app','shard'], pick:{app:7, shard:3}, t:'Заказ ложится в свой шард', ms:8, mk:'db', ml:'шард 3',
+     d:'Заказов так много, что одна база не успевает их записывать. Поэтому их разложили по четырём базам — <b>шардам</b>. В какой шард класть, решает <b>ключ шардирования</b>, здесь это идентификатор клиента. Все заказы Анны всегда попадают в шард 3, и «Мои заказы» потом читаются из одного места.',
+     a:['шард = hash("anna-4417") % 4 = 3','','INSERT INTO orders (id, user_id, sku, price)','VALUES (\'ORD-88121\', \'anna-4417\', \'SNK-42\', 5990);','','→ шард 3, лидер ✓'],
+     m:[['Заказов в секунду всего','12 000',''],['На один шард','~3 000',''],['Предел лидера','~4 000/с','good']],
+     no:'Один лидер на 4 000 записей в секунду не справился бы с 12 000. Запись — единственное, что нельзя разгрузить копиями. Это глава 10.',
+     life:'Филиалы кафе: каждый ведёт журнал заказов своего района.',
+     link:'Склад и заказы — две разные базы. Если остаток списали, а заказ не записался, это чинит сага: см. раздел «Саги».'},
+    {time:'10:00:00.021', on:['app','q'], pick:{app:7}, t:'Долгие дела — в очередь', ms:2, mk:'q', ml:'очередь',
+     d:'Осталось отправить письмо, пробить чек, начислить баллы. Это долго: от 0,3 до 2 секунд. Анна ждать этого не должна. app-7 кладёт в <b>очередь</b> короткую записку «заказ оформлен» и сразу идёт отвечать. Записку потом заберут отдельные программы-исполнители.',
+     a:['PUBLISH order.placed','{ "orderId": "ORD-88121",','  "user": "anna-4417",','  "total": 5990 }','','→ записка в очереди ✓ (2 мс)'],
+     m:[['Письмо + чек + баллы','~1 800 мс','bad'],['Записка в очередь','2 мс','good']],
+     no:'Без очереди Анна ждала бы почти 2 секунды, а app-7 всё это время держал бы её запрос. Копий понадобилось бы в десятки раз больше.',
+     life:'Номерок в кафе: заплатили, сели за столик, еду принесут, когда будет готова.'},
+    {time:'10:00:00.023', on:['u','lb','app'], pick:{app:7}, t:'Анна видит «Заказ принят»', ms:4, mk:'net', ml:'ответ', k:'ok',
+     d:'Ответ летит обратно той же дорогой. От нажатия до зелёной галочки прошло <b>27 миллисекунд</b>. Для Анны — мгновенно. Посмотрите на полоску внизу: она показывает, куда ушло время.',
+     a:['HTTP/1.1 201 Created','{ "orderId": "ORD-88121",','  "status": "accepted" }'],
+     m:[['Анна ждала','27 мс','good'],['Без кеша, CDN и очереди','~2 000 мс и ошибки','bad']],
+     no:'Заметьте: ни на одном шаге не было «одного сервера, который делает всё». Каждую работу делает тот, кто для неё предназначен.',
+     life:'Гость получил номерок и ушёл за столик. Кухня ещё работает, но гостя это уже не держит.'},
+    {time:'10:00:00 → 10:04', on:['q','wk'], t:'Воркеры разбирают очередь в своём темпе',
+     d:'<b>Воркеры</b> — программы, которые забирают записки из очереди и делают долгую работу. Их меньше, чем нужно под пик: они успевают 3 000 записок в секунду, а приходит 12 000. Очередь растёт, а потом, когда пик спадает, рассасывается. Анна нажала в первую секунду, её записка в начале очереди, и письмо уйдёт через пару секунд. Тем, кто нажал на десятой секунде, письмо придёт примерно через полминуты. Никто этого не заметит.',
+     a:['секунда   пришло   разобрали   в очереди','   1      12 000     3 000        9 000','   5      12 000     3 000       45 000','  10      12 000     3 000       90 000','  11         800     3 000       87 800','  …','  ~50         800     3 000            0 ✓'],
+     m:[['Пик входа','12 000/с','bad'],['Воркеры успевают','3 000/с',''],['Хвост рассосался за','~50 с','good']],
+     no:'Без очереди пришлось бы держать воркеров под пик — вчетверо больше серверов, которые 364 дня в году скучают.',
+     life:'Кухня в обеденный наплыв: заказы копятся на табло, но к двум часам их снова нет.'},
+    {time:'10:00:02', on:['u','lb','app','rep','shard'], pick:{app:2, shard:3}, t:'Анна открывает «Мои заказы» — и видит свой', k:'warn',
+     d:'«Мои заказы» — это чтение. Обычно его делает <b>реплика</b> — копия шарда, которая только читает. Но реплика получает изменения от лидера с опозданием, сейчас на 0,2 секунды. Если бы Анна прочитала заказ с реплики, она могла бы его не увидеть. Поэтому действует правило <b>«читай своё»</b>: первые 5 секунд после записи запросы Анны идут к лидеру.',
+     a:['GET /api/my/orders   (попал на app-2)','','последняя запись Анны: 2 с назад','→ меньше 5 с → читаем с ЛИДЕРА шарда 3','','[ { "id": "ORD-88121", "status": "accepted" } ] ✓'],
+     m:[['Отставание реплики','0,2 с','wq'],['Окно «читай своё»','5 с',''],['Чтений на реплики','~90 %','good']],
+     no:'Без этого правила Анна иногда видела бы пустой список и нажимала «Купить» ещё раз. Два заказа, два списания, одна злая Анна.',
+     life:'Официант только что записал ваш заказ и сверяется со своим блокнотом, а не с общим табло, которое ещё не обновилось.'},
+    {time:'итог', on:['u','cdn','lb','app','redis','stock','shard','rep','q','wk'], t:'Что сделала каждая деталь', k:'ok',
+     d:'Одно нажатие прошло через десять частей системы, и у каждой своя работа. Каждая из них появилась в тот момент, когда без неё что-то <b>упёрлось</b>. В следующей главе посмотрим, в каком порядке они появлялись.',
+     a:['CDN            — 2 млн картинок мимо нас','Балансировщик  — 12 000/с поровну на 12 копий','Redis-сессии   — любая копия узнаёт Анну','Кеш            — 97 % чтений мимо базы','Лидер склада   — ни одной лишней продажи','Шарды          — запись делится на четыре','Очередь        — письма не держат Анну','Реплики        — чтение мимо лидера'],
+     m:[['Анна ждала','27 мс','good'],['Заказов в секунду','12 000','good'],['Ошибок','0','good']],
+     no:'Уберите любую деталь — и при такой нагрузке упрётся что-то своё. Какую убрать первой, решает симулятор в главе 4.',
+     life:'Сеть кафе в час пик: хостес, повара, бар, номерки, филиалы. Каждый на своём месте.'},
+  ];
+  const total = S.reduce((s, x) => s + (x.ms || 0), 0);
+  let cur = 0;
+
+  root.innerHTML = ROWS.map((row, ri) =>
+    '<div class="scx-row">' + row.map(n =>
+      '<div class="scx-n" data-id="' + n.id + '"><div class="scx-nh">' + n.ic + ' ' + esc(n.n) + '</div>' +
+      '<div class="scx-ns">' + esc(n.s) + '</div>' +
+      (n.chips ? '<div class="scx-chips">' + Array.from({length:n.chips}, (_, i) => '<span class="scx-chip" data-c="' + (i+1) + '">' + (n.id === 'app' ? (i+1) : 'ш' + (i+1)) + '</span>').join('') + '</div>' : '') +
+      '</div>').join('') + '</div>' +
+    (ri < ROWS.length - 1 ? '<div class="scx-dn">▼</div>' : '')).join('');
+  const nodes = [...root.querySelectorAll('.scx-n')];
+  dots.innerHTML = S.map((_, i) => '<button class="scx-dot" data-i="' + i + '" aria-label="шаг ' + (i+1) + '">' + (i+1) + '</button>').join('');
+
+  function latBar(){
+    let acc = 0;
+    const segs = S.map((x, i) => {
+      if(!x.ms || i > cur) return '';
+      acc += x.ms;
+      return '<div class="scx-seg" title="' + esc(x.ml + ': ' + x.ms + ' мс') + '" style="width:' + (x.ms / total * 100) + '%;background:' + COL[x.mk] + '">' + (x.ms >= 4 ? esc(x.ml) : '') + '</div>';
+    }).join('');
+    return '<div class="scx-latl"><span>Анна ждёт с момента нажатия</span><span><b>' + acc + ' мс</b> из ' + total + '</span></div>' +
+      '<div class="scx-lat">' + segs + '</div>';
+  }
+  function paint(){
+    const st = S[cur];
+    const on = new Set(st.on), lit = new Set();
+    for(let k = 0; k <= cur; k++) S[k].on.forEach(x => lit.add(x));
+    nodes.forEach(n => {
+      const id = n.dataset.id;
+      n.classList.toggle('on', on.has(id));
+      n.classList.toggle('lit', lit.has(id));
+      const p = st.pick && st.pick[id];
+      n.querySelectorAll('.scx-chip').forEach(c => c.classList.toggle('on', +c.dataset.c === p));
+    });
+    [...dots.children].forEach((b, i) => { b.classList.toggle('on', i === cur); b.classList.toggle('done', i < cur); });
+    lab.textContent = 'шаг ' + (cur + 1) + ' из ' + S.length;
+    out.innerHTML =
+      '<div class="scx-st' + (st.k ? ' ' + st.k : '') + '">' +
+        '<div class="scx-st-h"><span class="scx-time">' + esc(st.time) + '</span><b>' + esc(st.t) + '</b></div>' +
+        '<p>' + st.d + '</p>' +
+        '<div class="scx-st-g">' +
+          '<pre class="json" style="font-size:12px">' + esc(st.a.join('\n')) + '</pre>' +
+          '<div><div class="meters">' + st.m.map(x => '<span class="meter' + (x[2] ? ' ' + x[2] : '') + '">' + x[0] + ': <b>' + x[1] + '</b></span>').join('') + '</div>' +
+            (st.ms ? '<div class="meters"><span class="meter">Этот шаг: <b>+' + st.ms + ' мс</b></span></div>' : '') +
+          '</div>' +
+        '</div>' +
+        '<div class="note warn"><b>А без этого?</b> ' + st.no + '</div>' +
+        '<div class="note good"><b>В кафе:</b> ' + st.life + '</div>' +
+        (st.link ? '<div class="note">' + st.link + ' <button class="ghost" data-goto="saga" style="margin-left:6px;padding:4px 9px;font-size:12px">к сагам →</button></div>' : '') +
+        latBar() +
+      '</div>';
+    if(cur === S.length - 1) Progress.report('scx-flow', 1);
+  }
+  document.getElementById('scx-fl-next').addEventListener('click', () => { if(cur < S.length - 1){ cur++; paint(); } });
+  document.getElementById('scx-fl-prev').addEventListener('click', () => { if(cur > 0){ cur--; paint(); } });
+  document.getElementById('scx-fl-reset').addEventListener('click', () => { cur = 0; paint(); });
+  dots.addEventListener('click', e => { const b = e.target.closest('button[data-i]'); if(b){ cur = +b.dataset.i; paint(); } });
+  Progress.register('scx-flow', 1, 'Масштаб: путь одного заказа');
+  paint();
+})();
+
+/* ═══ 22.4 История роста: от 100 до 1 000 000 ═══ */
+(function(){
+  const bar = document.getElementById('scx-gr-pick'), out = document.getElementById('scx-gr-out');
+  if(!bar || !out) return;
+  const G = [
+    {n:'100', h:'100 покупателей в день', sub:'Магазин только открылся.',
+     cafe:'Один повар делает всё: принимает заказ, готовит, моет посуду. Гостей мало, он успевает.',
+     sys:'Один сервер. На нём и приложение, и база данных. Загрузка процессора 3 %.',
+     pain:'Ничего не болит. И это важно запомнить: <b>на этом этапе масштабировать нечего</b>. Любая «архитектура на вырост» здесь — чистые расходы.',
+     fix:'Ничего не делать. Настроить резервные копии базы и оповещение на загрузку выше 70 %.',
+     art:['  [ Сервер ]','    ├─ приложение','    └─ база','','  загрузка ░░░░░░░░░░  3 %'],
+     word:['Монолит на одном сервере','самая дешёвая и самая надёжная архитектура, пока нагрузка маленькая. Всё в одном месте, всё просто отлаживать.']},
+    {n:'1 000', h:'1 000 покупателей в день', sub:'Пошла реклама.',
+     cafe:'Повар не успевает. Ему покупают плиту на шесть конфорок и отдельный холодильник, чтобы продукты не лежали на рабочем столе.',
+     sys:'Приложение и база дерутся за память и процессор одного сервера. Базу переносят на отдельный сервер, а оба сервера берут помощнее.',
+     pain:'Процессор 85 %. В обед страницы открываются по 2 секунды. База и приложение мешают друг другу.',
+     fix:'<b>Вертикальное масштабирование</b>: сервер мощнее. И база отдельно от приложения. Ни строчки кода не поменяли, заняло вечер.',
+     art:['  [ Приложение ] ───► [ База ]','    16 ядер              16 ядер','','  загрузка ███░░░░░░░  30 %'],
+     word:['Вертикальное масштабирование','«вверх»: заменить сервер на более мощный. Быстро и без переделок, но у мощности есть потолок, а цена растёт быстрее мощности.']},
+    {n:'10 000', h:'10 000 покупателей в день', sub:'Магазин заметили.',
+     cafe:'Одна плита, какой бы большой она ни была, уже не спасает. Нанимают ещё двух поваров и ставят у входа хостес, которая разводит гостей. Заказы теперь пишут на бланках и вешают на общую доску: любой повар может продолжить за другим.',
+     sys:'Приложение запускают в трёх копиях, перед ними ставят балансировщик. Но сначала пришлось вынести сессии и корзины из памяти приложения в Redis — иначе на второй копии покупатель терял корзину.',
+     pain:'Самый мощный сервер, который разумно купить, загружен на 90 %. К тому же он один: в прошлый вторник он перезагружался 10 минут, и магазин всё это время лежал.',
+     fix:'<b>Горизонтальное масштабирование</b> приложения. Условие — приложение без состояния (stateless). Заодно исчезла единая точка отказа.',
+     art:['            [ Балансировщик ]','           ┌───────┼───────┐','        [app-1] [app-2] [app-3]','           └───────┼───────┘','        [ Redis ]     [ База ]','        сессии'],
+     word:['Stateless','приложение ничего не помнит между запросами. Всё, что надо помнить, лежит во внешнем хранилище. Поэтому любая копия может обслужить любой запрос.']},
+    {n:'100 000', h:'100 000 покупателей в день', sub:'Выросли в десять раз.',
+     cafe:'Повара справляются, но все бегают к одному шефу спросить «сколько стоит» и «что сегодня есть». Шефу некогда готовить. Официантам раздают ксерокопии меню, на стойку ставят графин готового лимонада, а стенд с фотографиями блюд выносят на улицу.',
+     sys:'Копий приложения стало десять, и все они ходят в одну базу. Упёрлась база, причём на <b>чтении</b>: товар смотрят в 20 раз чаще, чем покупают.',
+     pain:'База загружена на 95 %, почти всё — одинаковые SELECT: цены, карточки товаров, списки. Картинки тоже грузят серверы.',
+     fix:'Три дешёвых шага: <b>кеш</b> для частых ответов, <b>реплики</b> базы для чтения, <b>CDN</b> для картинок. Нагрузка на базу упала в 8 раз.',
+     art:['  картинки ──► [ CDN ]','','  [ app ×10 ] ──► [ Кеш ]  97 % ответов тут','       │','       ├─ запись ─► [ Лидер ]','       └─ чтение ─► [ Реплика ] [ Реплика ]'],
+     word:['Реплика и кеш','реплика — полная копия базы для чтения; кеш — копия частых ответов в быстрой памяти. Оба разгружают чтение, но не запись.']},
+    {n:'300 000', h:'300 000 и первая чёрная пятница', sub:'Пики в 30 раз выше обычного.',
+     cafe:'В обед толпа стоит у стойки и ждёт, пока приготовят, новые гости не могут зайти. Кафе вводит номерки: заплатил, получил номер, сел за столик. Кухня работает в своём темпе.',
+     sys:'После оплаты приложение само отправляло письмо, чек и начисляло баллы. Каждый заказ держал копию приложения 2 секунды. В пик копии кончились за минуту.',
+     pain:'В 10:00 распродажа, в 10:01 ошибки. Не потому, что мало мощности в среднем, а потому, что пик короткий и огромный.',
+     fix:'<b>Очередь</b>: приложение кладёт записку «заказ оформлен» и сразу отвечает. Воркеры разбирают записки в своём темпе. Плюс <b>автомасштабирование</b>: копий приложения автоматически становится больше, когда растёт загрузка.',
+     art:['  [ app ×10…30 ] ──► [ Очередь ] ──► [ Воркеры ]','   отвечает за 2 мс     копит пик       письма, чеки','','  пик 12 000/с   →   воркеры 3 000/с','  хвост рассосался за минуту'],
+     word:['Очередь','хранилище записок «надо сделать». Отделяет «принять заказ» от «обработать заказ» и сглаживает пики.']},
+    {n:'1 000 000', h:'1 000 000 покупателей в день', sub:'Большой магазин.',
+     cafe:'Одна кухня физически не вмещает столько заказов, даже если поваров сто. Открывают филиалы: каждый обслуживает свой район, у каждого своя кухня и свой журнал.',
+     sys:'Чтение разгружено, очередь держит пики. Но <b>запись</b> по-прежнему принимает один лидер. Самый мощный сервер, какой продаётся, записывает 4 000 заказов в секунду, а надо 12 000.',
+     pain:'Лидер базы загружен на 100 %. Реплики не помогают: каждая повторяет всю запись лидера. Больше железа купить нельзя.',
+     fix:'<b>Шардирование</b>: заказы делят на 4 базы по идентификатору клиента. У каждой свой лидер, запись делится на четыре. Самое дорогое и необратимое решение во всей истории, поэтому оно последнее.',
+     art:['  hash(клиент) % 4','      │','      ├─► [ Шард 1 ] лидер + реплики','      ├─► [ Шард 2 ] лидер + реплики','      ├─► [ Шард 3 ] лидер + реплики  ← Анна','      └─► [ Шард 4 ] лидер + реплики'],
+     word:['Шардирование','разрезать данные на части и положить каждую на свой сервер. Масштабирует запись и объём, но отнимает общие транзакции и общие JOIN.']},
+  ];
+  const seen = new Set();
+  let cur = 0;
+  bar.innerHTML = G.map((x, i) => '<button data-i="' + i + '"' + (i === 0 ? ' class="on"' : '') + '>' + (i + 1) + ' · ' + x.n + '</button>').join('');
+  const nextB = document.getElementById('scx-gr-next');
+  function show(i){
+    cur = i; seen.add(i);
+    const x = G[i];
+    [...bar.children].forEach((b, k) => b.classList.toggle('on', k === i));
+    out.innerHTML =
+      '<div class="scx-gh">' + esc(x.h) + '</div><p class="scx-gsub">Этап ' + (i + 1) + ' из ' + G.length + '. ' + x.sub + '</p>' +
+      '<div class="scx-two">' +
+        '<div class="box"><h4>☕ В кафе</h4><p>' + x.cafe + '</p></div>' +
+        '<div class="box"><h4>💻 В магазине</h4><p>' + x.sys + '</p></div>' +
+      '</div>' +
+      '<div class="note bad"><b>Что упёрлось:</b> ' + x.pain + '</div>' +
+      '<div class="note good"><b>Что сделали:</b> ' + x.fix + '</div>' +
+      '<pre class="json" style="font-size:12px;margin-top:12px">' + esc(x.art.join('\n')) + '</pre>' +
+      '<div class="scx-word"><b>Новое слово: ' + esc(x.word[0]) + '</b> — ' + x.word[1] + '</div>';
+    nextB.textContent = i < G.length - 1 ? 'Следующий этап →' : 'К симулятору: попробуйте сами →';
+    if(seen.size === G.length) Progress.report('scx-story', 1);
+  }
+  bar.addEventListener('click', e => { const b = e.target.closest('button[data-i]'); if(b) show(+b.dataset.i); });
+  nextB.addEventListener('click', () => {
+    if(cur < G.length - 1){ show(cur + 1); return; }
+    const t = document.getElementById('scx-ch4'); if(!t) return;
+    const h = document.querySelector('header.top');
+    t.style.scrollMarginTop = ((h ? h.offsetHeight : 0) + 12) + 'px';
+    t.scrollIntoView({behavior:'smooth', block:'start'});
+  });
+  Progress.register('scx-story', 1, 'Масштаб: история роста');
+  show(0);
+})();
+
+/* ═══ 22.5 Симулятор: что упрётся первым ═══ */
+(function(){
+  const uIn = document.getElementById('scx-sim-u');
+  if(!uIn) return;
+  const el = id => document.getElementById(id);
+  const U = [100, 300, 1000, 3000, 10000, 30000, 100000, 300000, 1000000];
+  const st = {peak:1, big:0, stateless:false, cache:false, cdn:false, queue:false};
+  let won = false;
+  const nf = n => Math.round(n).toLocaleString('ru-RU');
+
+  function calc(){
+    const users = U[+uIn.value], copies = +el('scx-sim-app').value, rep = +el('scx-sim-rep').value, sh = +el('scx-sim-sh').value;
+    const R = users * 0.0025 * st.peak;          // запросов в секунду в час пик
+    const W = R * 0.25, Rd = R * 0.75;
+    const appLoad = R * (st.cdn ? 1 : 1.6) + (st.queue ? 0 : W * 7);
+    const appCap = copies * (st.big ? 1500 : 600);
+    const rdLoad = Rd * (st.cache ? 0.15 : 1);
+    const rdCap = sh * (1 + rep) * (st.big ? 4000 : 1500);
+    const wrCap = sh * (st.big ? 800 : 300);
+    const c = st.big ? 4 : 1;
+    const cost = copies * c + sh * (1 + rep) * c + ((st.stateless || st.cache) ? 1 : 0) + (st.cdn ? 1 : 0) + (st.queue ? 1 : 0);
+    return {users, copies, rep, sh, R, W, cost,
+      comps:[
+        {k:'app', n:'🧩 Приложение', load:appLoad, cap:appCap,
+         hint:'Добавьте копий приложения (но сначала вынесите сессии в Redis), возьмите серверы мощнее или снимите с приложения лишнее: картинки — на CDN, письма — в очередь.'},
+        {k:'rd', n:'📖 База: чтение', load:rdLoad, cap:rdCap,
+         hint:'Включите кеш: он снимает 85 % чтений. Если мало — добавьте реплики для чтения.'},
+        {k:'wr', n:'✍ База: запись', load:W, cap:wrCap,
+         hint:'Реплики и кеш здесь не помогут: запись принимает только лидер. Сначала серверы мощнее, потом шарды.'},
+      ]};
+  }
+  function paint(){
+    const r = calc();
+    el('scx-sim-uv').textContent = nf(r.users);
+    el('scx-sim-appv').textContent = r.copies;
+    el('scx-sim-repv').textContent = r.rep;
+    el('scx-sim-shv').textContent = r.sh;
+    r.comps.forEach(x => x.u = x.cap ? x.load / x.cap : 0);
+    const worst = r.comps.reduce((a, b) => b.u > a.u ? b : a);
+    el('scx-sim-bars').innerHTML = r.comps.map(x => {
+      const pct = Math.round(x.u * 100);
+      const col = x.u >= 1 ? 'var(--danger)' : x.u >= 0.7 ? 'var(--warn)' : 'var(--ok)';
+      const w = Math.min(x.u / 1.5, 1) * 100;
+      return '<div class="scx-bar"><span class="scx-bl">' + x.n + (x === worst && x.u >= 0.7 ? '<span class="scx-first">' + (x.u >= 1 ? 'упёрлось' : 'первое на очереди') + '</span>' : '') + '</span>' +
+        '<div class="scx-track"><div class="scx-fill" style="width:' + w + '%;background:' + col + '"></div><div class="scx-cap" style="left:' + (100 / 1.5) + '%"></div></div>' +
+        '<span class="scx-bv" style="color:' + col + '">' + pct.toLocaleString('ru-RU') + ' %</span></div>';
+    }).join('');
+    const lost = r.copies > 1 && !st.stateless;
+    const over = r.comps.filter(x => x.u >= 1);
+    const fail = Math.max(0, ...r.comps.map(x => x.u >= 1 ? 1 - 1 / x.u : 0));
+    let lat = 25 + (st.queue ? 0 : 1800);
+    r.comps.forEach(x => { if(x.u < 1) lat += Math.min(1500, 6 * x.u / (1 - x.u)); });
+    el('scx-sim-m').innerHTML =
+      '<span class="meter">Запросов в секунду: <b>' + nf(r.R) + '</b></span>' +
+      '<span class="meter ' + (over.length ? 'bad' : lat > 500 ? 'wq' : 'good') + '">«Купить» отвечает за: <b>' + (over.length ? 'таймауты' : nf(lat) + ' мс') + '</b></span>' +
+      '<span class="meter ' + (fail > 0 ? 'bad' : 'good') + '">Ошибок: <b>' + Math.round(fail * 100) + ' %</b></span>' +
+      '<span class="meter wq">Цена: <b>' + r.cost + '</b> усл. серверов</span>';
+    const m = el('scx-sim-msg');
+    if(lost){
+      msg(m, 'err', '<b>Корзины пропадают.</b> Копий ' + r.copies + ', а сессии живут в памяти каждой копии. Балансировщик шлёт покупателя то на одну, то на другую — примерно ' + Math.round((1 - 1 / r.copies) * 100) + ' % запросов попадают туда, где корзины нет. Включите «Сессии в Redis». Подробнее — в главе 6.');
+    } else if(over.length){
+      msg(m, 'err', '<b>Упёрлось: ' + worst.n.replace(/^\S+\s/, '') + '</b> — ' + nf(worst.u * 100) + ' % от возможного, теряем ' + Math.round(fail * 100) + ' % запросов. ' + worst.hint);
+    } else if(r.users === 1000000 && st.peak === 5){
+      msg(m, 'ok', '<b>Миллион в чёрную пятницу выдержан!</b> Узкое место сейчас — «' + worst.n.replace(/^\S+\s/, '') + '» (' + Math.round(worst.u * 100) + ' %). Цена: ' + r.cost + ' условных серверов. Попробуйте убрать лишнее: всё, что загружено меньше 40 %, — переплата.');
+      Progress.report('scx-sim', 1);
+      if(!won){ won = true; if(window.matchMedia) confetti(30); }
+    } else {
+      const tail = r.copies === 1 ? ' Но копия приложения одна: сломается она — встанет весь магазин.' : '';
+      msg(m, worst.u >= 0.7 ? 'warn' : 'ok', 'Держим. ' + (worst.u >= 0.7 ? 'Ближе всех к пределу «' + worst.n.replace(/^\S+\s/, '') + '» (' + Math.round(worst.u * 100) + ' %). ' : 'Запас большой. ') + (st.queue ? '' : 'Письмо уходит прямо во время «Купить», поэтому ответ медленный. ') + 'Прибавьте нагрузку.' + tail);
+    }
+  }
+  function seg(id, attr, fn){
+    const b0 = el(id);
+    b0.addEventListener('click', e => {
+      const b = e.target.closest('button[data-' + attr + ']'); if(!b) return;
+      [...b0.children].forEach(x => x.classList.toggle('on', x === b));
+      fn(+b.dataset[attr]); paint();
+    });
+  }
+  seg('scx-sim-peak', 'p', v => st.peak = v);
+  seg('scx-sim-srv', 's', v => st.big = v);
+  el('scx-sim-tg').addEventListener('click', e => {
+    const b = e.target.closest('button[data-k]'); if(!b) return;
+    st[b.dataset.k] = !st[b.dataset.k];
+    b.classList.toggle('on', st[b.dataset.k]);
+    paint();
+  });
+  ['scx-sim-u', 'scx-sim-app', 'scx-sim-rep', 'scx-sim-sh'].forEach(id => el(id).addEventListener('input', paint));
+  Progress.register('scx-sim', 1, 'Масштаб: симулятор нагрузки');
+  paint();
+})();
+
+/* ═══ 22.6 Вверх или вширь: сравнение ═══ */
+(function(){
+  if(document.getElementById('scx-vh')) renderCmp('scx-vh', ['', '⬆ Вверх (вертикально)', '↔ Вширь (горизонтально)'], [
+    {cells:['<b>Что делаем</b>', 'Меняем сервер на более мощный', 'Ставим рядом ещё такие же'],
+     why:'В кафе: плита на шесть конфорок против трёх новых поваров.'},
+    {cells:['<b>Код менять?</b>', '<span class="yes">Нет</span>', '<span class="may">Да: убрать состояние из узлов</span>'],
+     why:'Для вертикального масштабирования программа вообще не знает, что сервер поменялся. Для горизонтального она должна быть готова к тому, что каждый запрос попадает на любую копию.'},
+    {cells:['<b>Как быстро</b>', 'Часы', 'Дни или недели подготовки'],
+     why:'Поменять тип виртуальной машины в облаке — это перезагрузка. Горизонтальное масштабирование требует балансировщика, проверок здоровья, выноса сессий, файлов, задач по расписанию.'},
+    {cells:['<b>Потолок</b>', '<span class="no">Есть: самый мощный сервер</span>', '<span class="yes">Практически нет</span>'],
+     why:'Серверов с 512 ядрами мало, и следующего размера просто не существует. Обычных серверов можно поставить сколько угодно.'},
+    {cells:['<b>Цена</b>', '<span class="may">Растёт быстрее мощности</span>', 'Растёт примерно ровно с мощностью'],
+     why:'Сервер вдвое мощнее обычно стоит больше чем вдвое. Два обычных сервера стоят ровно вдвое. Зато у горизонтального есть скрытая цена: балансировщик, Redis, эксплуатация.'},
+    {cells:['<b>Сломался один</b>', '<span class="no">Лежит всё</span>', '<span class="yes">Остальные работают</span>'],
+     why:'Мощный сервер всё равно один. Любая перезагрузка, обновление или поломка диска — простой всего магазина. Из трёх копий одна может упасть, и пользователи не заметят.'},
+    {cells:['<b>Транзакции</b>', '<span class="yes">Обычные, как были</span>', '<span class="may">Для данных — только в пределах шарда</span>'],
+     why:'Для приложения без состояния разницы нет. Для базы горизонтальное масштабирование означает реплики с отставанием или шарды без общих транзакций.'},
+    {cells:['<b>Когда брать</b>', 'Первым, пока хватает', 'Когда упёрлись в потолок или нужна отказоустойчивость'],
+     why:'Вертикальное масштабирование покупает время. Горизонтальное — это правильная долгосрочная форма, но готовить его надо спокойно, а не в панике.'},
+  ]);
+  if(document.getElementById('scx-kc')) renderCmp('scx-kc', ['', '⚡ Кеш', '📖 Реплика', '🌐 CDN'], [
+    {cells:['<b>Что копирует</b>', 'Частые ответы', 'Всю базу целиком', 'Файлы: картинки, скрипты, видео'],
+     why:'Кеш хранит не таблицы, а готовые результаты: «цена SNK-42 = 5990». Реплика хранит всё, что есть в базе. CDN вообще не про базу, а про статические файлы.'},
+    {cells:['<b>Где живёт</b>', 'Рядом с приложением (Redis)', 'Рядом с базой', 'В городах рядом с пользователями'],
+     why:'Кеш близко к коду, чтобы отвечать за доли миллисекунды. CDN близко к людям, чтобы не гонять байты через всю страну.'},
+    {cells:['<b>Насколько свежо</b>', 'Пока не истёк срок (секунды–минуты)', 'Отстаёт на доли секунды', 'Пока не обновили файл (часы–дни)'],
+     why:'У кеша есть срок жизни записи (TTL, time to live). Реплика отстаёт от лидера на время доставки изменений. CDN обновляют, когда выпускают новую версию файлов.'},
+    {cells:['<b>Что разгружает</b>', 'Чтение базы', 'Чтение базы', 'Сеть и серверы приложения'],
+     why:'Ни одна из трёх копий не помогает с записью. Запись разгружают только шарды.'},
+    {cells:['<b>В кафе</b>', 'Графин лимонада на стойке', 'Ксерокопия меню у официанта', 'Газетный киоск у метро'],
+     why:'Все три — «чтобы не бегать к первоисточнику». Разница в том, что копируют и как далеко от первоисточника лежит копия.'},
+  ]);
+})();
+
+/* ═══ 22.7 Три узла и корзина Анны ═══ */
+(function(){
+  const box = document.getElementById('scx-ss-nodes');
+  if(!box) return;
+  const el = id => document.getElementById(id);
+  const ITEMS = ['👟 кроссовки', '🧦 носки', '🧢 кепка', '🎒 рюкзак', '🧤 перчатки', '⌚ часы'];
+  let mode = 'mem', nodes, redis, want, rr, last, home, n, tried = new Set();
+  const log = el('scx-ss-log');
+  function reset(){
+    nodes = [0, 1, 2].map(() => ({up:true, cart:[]}));
+    redis = []; want = []; rr = 0; last = -1; home = 0; n = 0;
+    log.innerHTML = '';
+    msg(el('scx-ss-msg'), '', mode === 'mem' ? 'Корзина хранится в памяти того узла, куда попал запрос. Добавьте пару товаров и откройте корзину.'
+      : mode === 'sticky' ? 'Балансировщик запомнил: Анна «живёт» на узле 1. Все её запросы идут туда. Попробуйте, а потом уроните этот узел.'
+      : 'Узлы ничего не помнят, корзина лежит в общем Redis. Попробуйте что угодно, включая падение узла.');
+    draw();
+  }
+  function route(){
+    if(mode === 'sticky'){
+      if(nodes[home].up) return home;
+      const alt = nodes.findIndex(x => x.up);
+      home = alt; return alt;
+    }
+    for(let k = 0; k < 3; k++){ const i = (rr + k) % 3; if(nodes[i].up){ rr = i + 1; return i; } }
+    return -1;
+  }
+  function draw(){
+    const cart = a => a.length ? a.map(esc).join(', ') : '<span style="color:var(--faint)">пусто</span>';
+    box.innerHTML = nodes.map((x, i) =>
+      '<div class="svc' + (!x.up ? ' down' : '') + (i === last ? ' pick' : '') + '"><div class="sn">🧩 Узел ' + (i + 1) + (mode === 'sticky' && i === home && x.up ? ' 📌' : '') + '</div>' +
+      '<div class="sm">' + (!x.up ? 'упал, память стёрта' : i === last ? 'сюда попал последний запрос' : 'работает') + '</div>' +
+      (mode === 'redis' ? '<div class="scx-cart">память: ничего не храним</div>' : '<div class="scx-cart">корзина: ' + cart(x.cart) + '</div>') + '</div>').join('') +
+      '<div class="svc' + (mode === 'redis' ? ' pick' : ' dim') + '"><div class="sn">⚡ Redis</div><div class="sm">' + (mode === 'redis' ? 'общий для всех узлов' : 'не используется') + '</div>' +
+      '<div class="scx-cart">' + (mode === 'redis' ? 'корзина: ' + cart(redis) : '—') + '</div></div>';
+  }
+  function add(cls, html){
+    n++;
+    log.insertAdjacentHTML('afterbegin', '<div class="step ' + cls + '"><span class="si">' + n + '</span><span>' + html + '</span></div>');
+    while(log.children.length > 6) log.lastChild.remove();
+  }
+  el('scx-ss-add').addEventListener('click', () => {
+    const i = route();
+    if(i < 0){ msg(el('scx-ss-msg'), 'err', 'Все узлы лежат. Поднимите их кнопкой «Сначала».'); return; }
+    last = i;
+    const it = ITEMS[want.length % ITEMS.length];
+    want.push(it);
+    (mode === 'redis' ? redis : nodes[i].cart).push(it);
+    add('done', 'Запрос «добавить ' + esc(it) + '» → <b>узел ' + (i + 1) + '</b>. ' + (mode === 'redis' ? 'Записали в Redis.' : 'Записали в память узла ' + (i + 1) + '.'));
+    msg(el('scx-ss-msg'), '', 'Анна думает, что в корзине: ' + want.map(esc).join(', ') + '. Откройте корзину и проверьте.');
+    draw();
+  });
+  el('scx-ss-open').addEventListener('click', () => {
+    const i = route();
+    if(i < 0){ msg(el('scx-ss-msg'), 'err', 'Все узлы лежат. Поднимите их кнопкой «Сначала».'); return; }
+    last = i;
+    if(!want.length){ msg(el('scx-ss-msg'), 'warn', 'Корзина пока пуста — сначала добавьте товар-другой.'); return; }
+    const got = mode === 'redis' ? redis : nodes[i].cart;
+    const ok = got.length === want.length;
+    tried.add(mode);
+    if(tried.size === 3) Progress.report('scx-sess', 1);
+    add(ok ? 'done' : 'fail', 'Запрос «открыть корзину» → <b>узел ' + (i + 1) + '</b>. Видит ' + got.length + ' из ' + want.length + ' товаров.');
+    if(ok) msg(el('scx-ss-msg'), 'ok', mode === 'redis'
+      ? 'Корзина на месте, на какой бы узел ни попала Анна. Узлы взаимозаменяемы — это и есть stateless.'
+      : mode === 'sticky' ? 'Работает — пока жив узел, к которому Анна прилипла. Уроните его и откройте корзину снова.'
+      : 'Повезло: этот узел видел все добавления. Нажмите ещё раз — балансировщик пошлёт на следующий узел.');
+    else msg(el('scx-ss-msg'), 'err', mode === 'sticky'
+      ? 'Узел, где жила корзина, упал, и корзина умерла вместе с ним. Липкие сессии не убирают состояние, а только прячут проблему до первой поломки или выкатки новой версии.'
+      : mode === 'mem' ? 'Корзина «пропала»: товары лежат в памяти других узлов. Анна видит ' + (got.length ? got.map(esc).join(', ') : 'пустую корзину') + '. Вот почему со второй копией сервиса пользователи жалуются на «слетающую корзину».'
+      : 'Что-то пошло не так.');
+    draw();
+  });
+  el('scx-ss-kill').addEventListener('click', () => {
+    const i = mode === 'sticky' ? home : last;
+    if(i < 0 || !nodes[i].up){ msg(el('scx-ss-msg'), 'warn', 'Сначала сделайте хоть один запрос, чтобы было понятно, где была Анна.'); return; }
+    nodes[i].up = false; nodes[i].cart = [];
+    add('fail', '💥 Узел ' + (i + 1) + ' упал. Всё, что было в его памяти, потеряно.');
+    msg(el('scx-ss-msg'), 'warn', 'Узел ' + (i + 1) + ' лежит. Балансировщик шлёт запросы на живые узлы. Откройте корзину.');
+    draw();
+  });
+  el('scx-ss-reset').addEventListener('click', reset);
+  el('scx-ss-mode').addEventListener('click', e => {
+    const b = e.target.closest('button[data-m]'); if(!b) return;
+    mode = b.dataset.m;
+    [...b.parentNode.children].forEach(x => x.classList.toggle('on', x === b));
+    reset();
+  });
+  Progress.register('scx-sess', 1, 'Масштаб: где живёт корзина');
+  reset();
+})();
+
+/* ═══ 22.8 Очередь сглаживает пик ═══ */
+(function(){
+  const chart = document.getElementById('scx-q-chart');
+  if(!chart) return;
+  const el = id => document.getElementById(id);
+  let mode = 'q';
+  const nf = n => Math.round(n).toLocaleString('ru-RU');
+  const IN = Array.from({length:60}, (_, t) => t < 10 ? 12000 : 800);
+  chart.innerHTML = IN.map(() => '<div class="scx-qb"></div>').join('');
+  const bars = [...chart.children];
+  function paint(user){
+    const w = +el('scx-q-w').value;
+    el('scx-q-wv').textContent = nf(w);
+    let q = 0, maxQ = 0, drain = -1, lost = 0;
+    const vals = IN.map((x, t) => {
+      if(mode === 'q'){
+        q = Math.max(0, q + x - w);
+        if(q > maxQ) maxQ = q;
+        if(t >= 10 && q === 0 && drain < 0) drain = t;
+        return q;
+      }
+      const l = Math.max(0, x - w); lost += l; return l;
+    });
+    const top = mode === 'q' ? Math.max(1, 12000 * 10) : 12000;
+    bars.forEach((b, t) => {
+      b.style.height = Math.max(vals[t] ? 2 : 0, vals[t] / top * 100) + '%';
+      b.className = 'scx-qb' + (mode === 'none' ? ' bad' : t < 10 ? ' pk' : '');
+    });
+    const orders = IN.reduce((s, x) => s + x, 0);
+    if(mode === 'q'){
+      const wait = maxQ / w;
+      el('scx-q-m').innerHTML =
+        '<span class="meter">Записок в очереди в пике: <b>' + nf(maxQ) + '</b></span>' +
+        '<span class="meter ' + (drain >= 0 ? 'good' : 'bad') + '">Очередь пуста на: <b>' + (drain >= 0 ? drain + '-й секунде' : 'не успела за минуту') + '</b></span>' +
+        '<span class="meter wq">Самое долгое письмо: <b>' + (wait < 1 ? 'сразу' : '~' + Math.round(wait) + ' с') + '</b></span>' +
+        '<span class="meter good">Потеряно заказов: <b>0</b></span>';
+      msg(el('scx-q-msg'), drain >= 0 ? 'ok' : 'warn', drain >= 0
+        ? 'Все ' + nf(orders) + ' заказов приняты, никто не получил ошибку. Воркеров в ' + (Math.round(12000 / w * 10) / 10).toLocaleString('ru-RU') + ' раза меньше, чем нужно под пик, а очередь всё равно рассосалась. Столбики — сколько записок ждут в очереди каждую секунду.'
+        : 'Все заказы приняты, но к концу минуты в очереди ещё ' + nf(q) + ' записок: после пика воркеры разбирают всего на ' + nf(w - 800) + ' в секунду больше, чем приходит. Хвост рассосётся ещё через ~' + nf(q / (w - 800)) + ' с. Очередь сглаживает пики, но не заменяет мощность: в среднем воркеры должны успевать с запасом.');
+    } else {
+      el('scx-q-m').innerHTML =
+        '<span class="meter bad">Отказано в заказе: <b>' + nf(lost) + '</b></span>' +
+        '<span class="meter">Это <b>' + Math.round(lost / orders * 100) + ' %</b> всех заказов</span>' +
+        '<span class="meter wq">Чтобы не терять, нужно мощности: <b>12 000/с</b></span>';
+      msg(el('scx-q-msg'), lost ? 'err' : 'ok', lost
+        ? 'Без очереди всё, что не успели обработать в ту же секунду, получает ошибку. Красные столбики — отказы. Чтобы никого не терять, нужно держать мощность под пик — 12 000 в секунду — все 365 дней, хотя пик длится 10 секунд.'
+        : 'Мощности хватает на весь пик — отказов нет. Но посмотрите на цену: такой запас простаивает 99,9 % времени.');
+    }
+    if(user) Progress.report('scx-queue', 1);
+  }
+  el('scx-q-w').addEventListener('input', () => paint(true));
+  el('scx-q-mode').addEventListener('click', e => {
+    const b = e.target.closest('button[data-m]'); if(!b) return;
+    mode = b.dataset.m;
+    [...b.parentNode.children].forEach(x => x.classList.toggle('on', x === b));
+    paint(true);
+  });
+  Progress.register('scx-queue', 1, 'Масштаб: очередь и пик');
+  paint(false);
+})();
+
+/* ═══ 22.9 Что упёрлось → что поможет ═══ */
+(function(){
+  if(!document.getElementById('scx-sort')) return;
+  renderSort('scx-sort', [
+    {t:'Процессор приложения 90 %, распродажа через два часа, менять код некогда.', bucket:'up',
+     why:'Вертикальное масштабирование делается за час и не требует ни строчки кода. Оно покупает время, а горизонтальное подготовите спокойно после распродажи.'},
+    {t:'Каждая карточка товара делает одинаковый SELECT цены. База на чтении загружена на 95 %.', bucket:'read',
+     why:'Одинаковые ответы на частые вопросы — идеальный случай для кеша. Цена меняется раз в день, а спрашивают её тысячи раз в секунду.'},
+    {t:'После оплаты покупатель ждёт 3 секунды, пока уйдут письмо и чек.', bucket:'queue',
+     why:'Письмо и чек не обязаны случиться, пока человек смотрит на экран. Записка в очередь — 2 мс, остальное сделают воркеры.'},
+    {t:'Самый мощный сервер базы уже куплен, реплики и кеш есть. Лидер не успевает записывать заказы.', bucket:'shard',
+     why:'Реплики и кеш разгружают только чтение, а запись принимает один лидер. Когда вертикально расти некуда, остаётся делить запись между шардами.'},
+    {t:'Приложение без состояния на одном сервере. Раз в месяц сервер перезагружается, и магазин лежит 10 минут.', bucket:'copies',
+     why:'Беда не в мощности, а в единственной точке отказа. Две-три копии за балансировщиком — и перезагрузка одной незаметна.'},
+    {t:'Аналитики запускают тяжёлые отчёты, и в это время тормозит оформление заказов.', bucket:'read',
+     why:'Отдельная реплика под отчёты: тяжёлые запросы уходят туда и больше не мешают боевой базе. Дёшево и обратимо.'},
+    {t:'Приложение уже на 64 ядрах, загрузка 90 %, сессии давно в Redis.', bucket:'copies',
+     why:'Вверх расти почти некуда и дорого, а состояние уже вынесено — значит, копии можно добавлять без переделок.'},
+  ], [
+    {id:'up', n:'⬆ Сервер мощнее'},
+    {id:'copies', n:'↔ Копии + балансировщик'},
+    {id:'read', n:'⚡ Кеш или реплика'},
+    {id:'queue', n:'📬 Очередь'},
+    {id:'shard', n:'🗄 Шардирование'},
+  ], 'scx-sort-score', 'scx-sort-total');
+  Progress.register('scx-sort-score', 7, 'Масштаб: что поможет');
 })();
 </script>
 <!-- ==================== 23. БАЗЫ ДАННЫХ ==================== -->
