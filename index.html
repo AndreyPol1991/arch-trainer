@@ -21359,6 +21359,66 @@ function rsxFlow(rootId, cfg){
     @media (max-width:640px){ .dbx-duo{grid-template-columns:1fr} }
     .dbx-acc{font:700 22px var(--mono); font-variant-numeric:tabular-nums; margin:4px 0}
     .dbx-check{display:flex; gap:8px; align-items:center; font-size:13.5px; margin:10px 0; cursor:pointer}
+    .dbx-acid-letters{display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin:12px 0}
+    @media (max-width:560px){ .dbx-acid-letters{grid-template-columns:repeat(2,1fr)} }
+    .dbx-acid-letters button{appearance:none; text-align:left; border:1.5px solid var(--line); background:var(--surface-2); color:var(--ink); border-radius:10px; padding:9px 11px; cursor:pointer; font:500 12px/1.35 var(--sans)}
+    .dbx-acid-letters button b{display:block; font:800 20px var(--mono); color:var(--accent)}
+    .dbx-acid-letters button.on{border-color:var(--accent); background:color-mix(in srgb, var(--accent) 10%, var(--surface)); box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 16%, transparent)}
+    .dbx-acid-letters button .dbx-acid-done{color:var(--ok); font:700 11px var(--mono)}
+    .dbx-acid-opts{display:flex; flex-wrap:wrap; gap:6px 14px; align-items:center; margin:4px 0 8px}
+    .dbx-acid-opts .seg{margin:0}
+    .dbx-acid-opts .dbx-acid-ol{font:600 11px var(--mono); color:var(--faint); text-transform:uppercase}
+    .dbx-acid-bar{display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin:8px 0}
+    .dbx-acid-bar input[type=range]{flex:1 1 140px; min-width:120px}
+    .dbx-acid-scene{min-width:660px; display:grid; grid-template-columns:150px 1fr 2.3fr; gap:10px; align-items:stretch; outline:none}
+    .dbx-acid-scene:focus-visible{box-shadow:0 0 0 2px var(--accent); border-radius:10px}
+    .dbx-acid-apps, .dbx-acid-lanes{display:flex; flex-direction:column; gap:10px; justify-content:center}
+    .dbx-acid-app{border:1.5px solid var(--line); border-radius:10px; background:var(--surface); padding:8px 10px; font-size:12px; color:var(--muted); min-height:58px; transition:border-color .2s, box-shadow .2s}
+    .dbx-acid-app b{display:block; color:var(--ink); font-size:12.5px}
+    .dbx-acid-app.on{border-color:var(--accent); box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 16%, transparent)}
+    .dbx-acid-app.bad{border-color:var(--danger); background:var(--danger-bg)}
+    .dbx-acid-app.wait{border-color:var(--warn); background:var(--warn-bg)}
+    .dbx-acid-lane{position:relative; min-height:58px; display:flex; align-items:center}
+    .dbx-acid-lane::before{content:""; position:absolute; left:0; right:0; top:50%; border-top:2px dashed var(--line)}
+    .dbx-acid-lane.on::before{border-top-color:var(--accent); border-top-style:solid}
+    .dbx-acid-lane.cut::before{border-top-color:var(--danger)}
+    .dbx-acid-pkt{position:absolute; top:50%; transform:translate(0,-50%); left:0; max-width:92%; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font:600 11px var(--mono); padding:4px 8px; border-radius:12px; background:var(--accent); color:#fff; transition:left .8s ease, transform .8s ease; z-index:1}
+    .dbx-acid-pkt.l{background:var(--ok)}
+    .dbx-acid-pkt.bad{background:var(--danger)}
+    .dbx-acid-pkt.go{left:100%; transform:translate(-100%,-50%)}
+    .dbx-acid-pkt.l{left:100%; transform:translate(-100%,-50%)}
+    .dbx-acid-pkt.l.go{left:0; transform:translate(0,-50%)}
+    .dbx-acid-pkt.still{transition:none}
+    .dbx-acid-db{border:1.5px solid var(--line); border-radius:12px; background:var(--surface-2); padding:9px; display:grid; grid-template-columns:1fr 1fr; gap:8px; transition:border-color .2s}
+    .dbx-acid-db.on{border-color:var(--accent)}
+    .dbx-acid-db.bad{border-color:var(--danger)}
+    .dbx-acid-dbh{grid-column:1 / -1; font:700 12px var(--sans); color:var(--ink)}
+    .dbx-acid-pan{border:1px solid var(--line); border-radius:8px; background:var(--surface); padding:6px 8px; font:500 11.5px/1.5 var(--mono); min-height:64px; transition:border-color .2s, background .2s}
+    .dbx-acid-pan h5{margin:0 0 4px; font:700 10px var(--mono); color:var(--faint); text-transform:uppercase; letter-spacing:.03em}
+    .dbx-acid-pan.hl{border-color:var(--accent); background:color-mix(in srgb, var(--accent) 7%, var(--surface))}
+    .dbx-acid-pan.gone{opacity:.35; filter:grayscale(1)}
+    .dbx-acid-row{display:flex; justify-content:space-between; gap:8px; color:var(--ink)}
+    .dbx-acid-row b{font-variant-numeric:tabular-nums}
+    .dbx-acid-row.neg b{color:var(--danger)}
+    .dbx-acid-row.chg b{color:var(--ok)}
+    .dbx-acid-ln{color:var(--muted)}
+    .dbx-acid-ln.new{color:var(--ink); font-weight:700}
+    .dbx-acid-ln.err{color:var(--danger); font-weight:700}
+    .dbx-acid-ln.mem{color:var(--warn); font-style:italic}
+    .dbx-acid-emp{color:var(--faint); font-style:italic}
+    .dbx-acid-cmd{font:600 12px var(--mono); background:var(--surface-2); border:1px solid var(--line); border-radius:8px; padding:7px 10px; margin-top:10px; white-space:pre-wrap; color:var(--ink)}
+    .dbx-acid-inv{display:inline-block; font:700 12.5px var(--mono); padding:5px 11px; border-radius:14px; border:1px solid var(--line); margin-top:10px}
+    .dbx-acid-inv.ok{color:var(--ok); background:var(--ok-bg); border-color:var(--ok)}
+    .dbx-acid-inv.bad{color:var(--danger); background:var(--danger-bg); border-color:var(--danger)}
+    .dbx-acid-tl{width:100%; min-width:520px; border-collapse:collapse; font:500 12px var(--mono); margin-top:10px}
+    .dbx-acid-tl th{font:700 10.5px var(--mono); color:var(--faint); text-transform:uppercase; text-align:left; border-bottom:1px solid var(--line); padding:4px 6px}
+    .dbx-acid-tl td{border-bottom:1px dashed var(--line); padding:4px 6px; vertical-align:top; color:var(--ink)}
+    .dbx-acid-tl td:first-child{color:var(--faint); width:44px}
+    .dbx-acid-tl tr.cur td{background:color-mix(in srgb, var(--accent) 9%, transparent)}
+    .dbx-acid-tl td.bad{color:var(--danger); font-weight:700}
+    .dbx-acid-tl td.ok{color:var(--ok); font-weight:700}
+    .dbx-acid-tl td.wait{color:var(--warn)}
+    @media (prefers-reduced-motion:reduce){ .dbx-acid-pkt{transition:none} }
   </style>
 
   <p class="lead"><b>База данных — самое дорогое решение в системе и самое трудное к отмене.</b> Сервис можно переписать за месяц. Язык можно поменять. А базу, в которой лежат два терабайта живых данных и на которую смотрят сорок запросов, меняют годами — и обычно не меняют вовсе. Поэтому про неё стоит понимать чуть больше, чем «туда сохраняются данные».</p>
@@ -21371,7 +21431,7 @@ function rsxFlow(rootId, cfg){
       <button data-dbx-to="dbx-ch2"><span class="dbx-n">2</span><span>Одна покупка от и до<small>Анна, Борис и отчёт Олега</small></span></button>
       <button data-dbx-to="dbx-ch3"><span class="dbx-n">3</span><span>Какие бывают базы<small>семь видов и на что похожи</small></span></button>
       <button data-dbx-to="dbx-ch4"><span class="dbx-n">4</span><span>Индекс<small>как найти строку из миллионов</small></span></button>
-      <button data-dbx-to="dbx-ch5"><span class="dbx-n">5</span><span>Транзакция<small>«всё или ничего», ACID</small></span></button>
+      <button data-dbx-to="dbx-ch5"><span class="dbx-n">5</span><span>Транзакция<small>«всё или ничего», ACID вживую</small></span></button>
       <button data-dbx-to="dbx-ch6"><span class="dbx-n">6</span><span>Когда все сразу<small>гонки, изоляция, блокировки</small></span></button>
       <button data-dbx-to="dbx-ch7"><span class="dbx-n">7</span><span>Пул соединений<small>почему не десять тысяч клиентов</small></span></button>
       <button data-dbx-to="dbx-ch8"><span class="dbx-n">8</span><span>Реплики<small>копии для чтения и их отставание</small></span></button>
@@ -21506,8 +21566,58 @@ function rsxFlow(rootId, cfg){
     <p>Когда Анна покупала ботинки, база сделала два дела: уменьшила остаток и создала заказ. А если между ними сервер упадёт? Остаток уменьшен, заказа нет — пара пропала со склада «в никуда». Чтобы так не было, придуманы транзакции.</p>
     <div class="dbx-def"><b class="dbx-w">определение</b><b>Транзакция</b> — это несколько действий с базой, которые считаются одним. Либо прошли все, либо не прошло ни одно. Начинается словом <code class="inl">BEGIN</code>, заканчивается <code class="inl">COMMIT</code> (подтвердить) или <code class="inl">ROLLBACK</code> (отменить всё).</div>
     <div class="note good"><b>Житейски.</b> Перевод денег — это два действия: списать у одного и начислить другому. Если между ними выключат свет, деньги исчезнут из мира. Транзакция — это обещание банка, что такого не случится: либо оба действия, либо ни одного.</div>
-    <h3 style="margin:16px 0 6px;font-size:14px">Попробуйте сами: выключите свет посреди перевода</h3>
-    <p>Анна переводит Борису 100 ₽. Выберите режим, решите, гаснет ли свет, и нажмите «Перевести». Следите за строкой «всего денег»: она должна всегда быть 600.</p>
+    <h3 style="margin:18px 0 6px;font-size:14px">ACID вживую: один перевод — четыре обещания</h3>
+    <p><b>ACID</b> — это первые буквы четырёх английских слов. Каждая буква — отдельное обещание, которое база даёт про транзакцию: <b>A</b>tomicity — атомарность, <b>C</b>onsistency — согласованность, <b>I</b>solation — изоляция, <b>D</b>urability — долговечность. Звучит сухо, поэтому посмотрим на все четыре на одном переводе.</p>
+    <p>Сценарий: <b>Анна переводит Борису 300 ₽</b>. На счетах: у Анны 1 000 ₽, у Бориса 500 ₽. Главное правило банка: <b>всего денег всегда 1 500 ₽</b> — перевод их только перекладывает. Внутри базы видны четыре места: таблица счетов (то, что видят все), черновик транзакции (изменения, которые видит только она сама), журнал WAL (куда база сначала записывает каждое действие) и диск.</p>
+    <div class="dbx-acid-letters" id="dbx-acid-pick">
+      <button class="on" data-l="A"><b>A</b>атомарность · «всё или ничего» <span class="dbx-acid-done" data-d="A"></span></button>
+      <button data-l="C"><b>C</b>согласованность · «правила не нарушить» <span class="dbx-acid-done" data-d="C"></span></button>
+      <button data-l="I"><b>I</b>изоляция · «как будто вы одни» <span class="dbx-acid-done" data-d="I"></span></button>
+      <button data-l="D"><b>D</b>долговечность · «сказали OK — не пропадёт» <span class="dbx-acid-done" data-d="D"></span></button>
+    </div>
+    <div class="note good" id="dbx-acid-life" style="margin-top:0"></div>
+    <div class="dbx-acid-opts" id="dbx-acid-opts"></div>
+    <div class="dbx-acid-bar">
+      <button class="ghost" id="dbx-acid-prev">←</button>
+      <button class="act" id="dbx-acid-next">Дальше →</button>
+      <button class="ghost" id="dbx-acid-play">▶</button>
+      <button class="ghost" id="dbx-acid-reset">⟲</button>
+      <input type="range" id="dbx-acid-rng" min="0" max="1" value="0" aria-label="Шаг сценария">
+      <span class="skstep" id="dbx-acid-lab"></span>
+    </div>
+    <div class="dbx-wrap" style="margin-top:6px">
+      <div class="dbx-acid-scene" id="dbx-acid-scene" tabindex="0" aria-label="Схема: приложение и база. Стрелки влево и вправо листают шаги"></div>
+    </div>
+    <div class="dbx-acid-cmd" id="dbx-acid-cmd"></div>
+    <div class="dbx-wrap" id="dbx-acid-tlw"></div>
+    <div class="skout" style="margin-top:10px">
+      <h4 id="dbx-acid-t"></h4>
+      <div class="lgrid">
+        <b>что происходит</b><div id="dbx-acid-what"></div>
+        <b>почему так</b><div id="dbx-acid-why"></div>
+      </div>
+      <span class="dbx-acid-inv" id="dbx-acid-inv"></span>
+    </div>
+
+    <h3 style="margin:18px 0 8px;font-size:14px">Сводка: четыре буквы на одной странице</h3>
+    <div class="table-wrap">
+      <table class="db">
+        <thead><tr><th>Буква</th><th>Что обещает</th><th>Что будет без неё — на примере Анны</th><th>Чем обеспечивается</th></tr></thead>
+        <tbody>
+          <tr><td><b>A</b> — атомарность</td><td>Все действия транзакции проходят вместе или не проходит ни одно</td><td>Сервер упал после списания у Анны — 300 ₽ исчезли, Борис их не получил</td><td>Журнал WAL и откат: незавершённая транзакция стирается при сбое или по <code class="inl">ROLLBACK</code></td></tr>
+          <tr><td><b>C</b> — согласованность</td><td>После транзакции все правила схемы соблюдены</td><td>У Анны −200 ₽ или перевод на несуществующий счёт</td><td>Ограничения в схеме: <code class="inl">CHECK</code>, <code class="inl">UNIQUE</code>, внешние ключи — плюс A, которая откатывает всё целиком. Бизнес-правила вроде лимита проверяет приложение</td></tr>
+          <tr><td><b>I</b> — изоляция</td><td>Параллельные транзакции не видят недоделанного и не затирают друг друга</td><td>Вера видит в банке 1 200 ₽ вместо 1 500; два платежа по 800 ₽ списались как один</td><td>Снимки данных (MVCC — каждая транзакция читает свою версию строк), блокировки строк, уровни изоляции</td></tr>
+          <tr><td><b>D</b> — долговечность</td><td>После «OK» данные переживут отключение питания</td><td>Анне сказали «переведено», свет мигнул — перевода нет</td><td>Запись в журнал на диск (<code class="inl">fsync</code>) до ответа «OK» и восстановление по журналу при запуске</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 style="margin:18px 0 6px;font-size:14px">Мини-тест: какая буква нарушена?</h3>
+    <p>Решено <b id="dbx-acid-score">0</b> из <span id="dbx-acid-total">0</span>.</p>
+    <div id="dbx-acid-test"></div>
+
+    <h3 style="margin:22px 0 6px;font-size:14px">Коротко ещё раз: выключите свет посреди перевода</h3>
+    <p>Та же буква A в самом простом виде. Анна переводит Борису 100 ₽. Выберите режим, решите, гаснет ли свет, и нажмите «Перевести». Следите за строкой «всего денег»: она должна всегда быть 600.</p>
     <div class="seg" id="dbx-tx-mode">
       <button class="on" data-m="raw">Без транзакции</button>
       <button data-m="tx">В транзакции</button>
@@ -21520,8 +21630,8 @@ function rsxFlow(rootId, cfg){
     <div class="meters" id="dbx-tx-m"></div>
     <div class="steps" id="dbx-tx-log"></div>
     <div class="console" id="dbx-tx-msg"></div>
-    <h3 style="margin:18px 0 6px;font-size:14px">Четыре буквы ACID — четыре обещания транзакции</h3>
-    <p><b>ACID</b> — это сокращение из первых букв четырёх английских слов. Каждая буква — отдельное обещание базы. Нажмите на букву — посмотрите, что она обещает и что ломается, если её нет.</p>
+    <h3 style="margin:18px 0 6px;font-size:14px">Каждая буква в SQL</h3>
+    <p>Шпаргалка к интерактиву выше: как каждая буква выглядит в коде и что ломается без неё.</p>
     <div class="seg" id="acid-pick"></div>
     <div id="acid-out"></div>
   </div>
@@ -22817,6 +22927,430 @@ renderFlow('msf-flow', {
     show(b.dataset.k);
   });
   show('cust');
+})();
+</script>
+
+<script>
+/* ═══ 23. ACID вживую (dbx-acid-) ═══ */
+(function(){
+  const scene = document.getElementById('dbx-acid-scene');
+  if(!scene) return;
+  const $ = id => document.getElementById(id);
+  const panel = document.getElementById('db');
+  const RM = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const raf = window.requestAnimationFrame ? window.requestAnimationFrame.bind(window) : (f => setTimeout(f, 16));
+  const caf = window.cancelAnimationFrame ? window.cancelAnimationFrame.bind(window) : clearTimeout;
+  const money = n => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+
+  /* ── сборщик шагов: часть полей переносится со шага на шаг ── */
+  function mk(init){
+    const L = [];
+    let cur = Object.assign({acc:{anna:1000, boris:500}, disk:{anna:1000, boris:500}, lock:{}, d1:[], d2:[], wal:[], tl:[], gone:false}, init || {});
+    const CARRY = ['acc','disk','lock','d1','d2','wal','tl','gone'];
+    return {
+      add(p){
+        const n = JSON.parse(JSON.stringify(CARRY.reduce((o, k) => (o[k] = cur[k], o), {})));
+        Object.keys(p).forEach(k => { if(k !== 'walAdd' && k !== 'tlAdd' && k !== 'walMemToDisk') n[k] = JSON.parse(JSON.stringify(p[k])); });
+        if(p.walMemToDisk) n.wal.forEach(w => { if(w.c === 'mem') w.c = ''; });
+        if(p.walAdd) p.walAdd.forEach(x => n.wal.push(typeof x === 'string' ? {s:x, c:'', at:L.length} : Object.assign({at:L.length}, x)));
+        if(p.tlAdd) n.tl.push(Object.assign({at:L.length}, p.tlAdd));
+        L.push(n); cur = n;
+        return this;
+      },
+      list: L
+    };
+  }
+
+  const APP1 = [{n:'🧑 Анна', s:'приложение банка'}];
+
+  /* ── A ── */
+  function buildA(o){
+    const b = mk();
+    b.add({t:'Исходное состояние', what:'У Анны 1 000 ₽, у Бориса 500 ₽. Анна нажимает «Перевести 300 ₽».',
+      why:'Перевод — это два отдельных UPDATE: списать у Анны и начислить Борису. Между ними есть момент, когда деньги «в пути». Весь вопрос — что будет, если именно в этот момент всё сломается.'});
+    if(o.tx === 'on'){
+      b.add({t:'BEGIN — открываем транзакцию', fly:{dir:'r', txt:'BEGIN'}, hl:['wal'], walAdd:['BEGIN T1'],
+        what:'Приложение говорит базе: «всё, что дальше, — одно целое».', why:'С этой секунды база ведёт для транзакции черновик и помечает в журнале, к какой транзакции относится каждое действие.'});
+      b.add({t:'UPDATE: списать 300 ₽ у Анны', fly:{dir:'r', txt:'UPDATE accounts SET balance = balance − 300 WHERE id = anna'}, hl:['d1','wal'],
+        d1:['anna: 1 000 → 700'], walAdd:['T1: anna 1000 → 700'],
+        what:'Списание легло в черновик транзакции и в журнал. В общей таблице у Анны всё ещё 1 000.', why:'Пока нет COMMIT, изменения — черновик. Их видит только сама транзакция. Поэтому снаружи сумма по-прежнему 1 500.'});
+      if(o.crash === 'yes'){
+        b.add({t:'💥 Сбой между двумя UPDATE', app:['bad'], cut:true, cmd:'💥 приложение упало — соединение с базой оборвалось',
+          what:'Второй UPDATE (начислить Борису) так и не отправлен.', why:'Причина не важна: сервер приложения перезагрузился, пропала сеть, код упал с ошибкой. Для базы это выглядит одинаково — соединение исчезло посреди транзакции.'});
+        b.add({t:'База откатывает транзакцию', app:['bad'], db:'on', hl:['d1','wal','acc'], d1:[], walAdd:[{s:'T1: ROLLBACK (соединение потеряно)', c:'err'}], cmd:'ROLLBACK',
+          what:'База замечает, что соединение пропало, и выбрасывает черновик целиком. Списание у Анны отменено.', why:'Транзакция без COMMIT считается несостоявшейся. Отменяется всё, что успело пройти. Если бы упал не сервис, а сама база, при запуске она нашла бы в журнале транзакцию без COMMIT и сделала бы то же самое.'});
+        b.add({t:'Итог: деньги на месте', hl:['acc'], end:true,
+          what:'У Анны 1 000, у Бориса 500 — как до перевода. Анна увидит ошибку и повторит перевод.', why:'<b>Это и есть атомарность</b>: либо оба UPDATE, либо ни одного. Состояния «списали, но не начислили» не увидит никто и никогда. Переключите режим «без транзакции» — и посмотрите на разницу.'});
+      } else {
+        b.add({t:'UPDATE: начислить 300 ₽ Борису', fly:{dir:'r', txt:'UPDATE accounts SET balance = balance + 300 WHERE id = boris'}, hl:['d1','wal'],
+          d1:['anna: 1 000 → 700', 'boris: 500 → 800'], walAdd:['T1: boris 500 → 800'],
+          what:'Оба изменения в черновике. Общая таблица всё ещё показывает 1 000 и 500.', why:'Снаружи перевод пока не случился вовсе. Это нормально: он случится целиком в следующую секунду.'});
+        b.add({t:'COMMIT — черновик становится общим', fly:{dir:'r', txt:'COMMIT'}, hl:['acc','wal','d1'], d1:[], acc:{anna:700, boris:800}, walAdd:['T1: COMMIT'],
+          what:'Обе суммы поменялись в один момент: 700 и 800.', why:'Никто не мог увидеть промежуточное «700 и 500». Для всех остальных перевод произошёл мгновенно и целиком.'});
+        b.add({t:'Итог: Анне ответили «OK»', fly:{dir:'l', txt:'OK'}, hl:['acc'], end:true,
+          what:'Перевод выполнен, всего по-прежнему 1 500 ₽.', why:'Когда ничего не ломается, транзакция незаметна. Её смысл виден только при сбое — включите «💥 сбой между двумя UPDATE».'});
+      }
+    } else {
+      b.add({t:'UPDATE сразу подтверждается', fly:{dir:'r', txt:'UPDATE accounts SET balance = balance − 300 WHERE id = anna'}, hl:['acc','wal'],
+        acc:{anna:700, boris:500}, walAdd:['anna 1000 → 700', 'COMMIT (автоматически)'],
+        what:'Без BEGIN каждая команда — отдельная маленькая транзакция. Списание у Анны уже окончательное и видно всем.',
+        why:'Этот режим называется автофиксацией (autocommit): база подтверждает каждую команду сразу. Обратите внимание на индикатор: даже без сбоя в этот момент любой, кто сложит счета, получит 1 200.'});
+      if(o.crash === 'yes'){
+        b.add({t:'💥 Сбой между двумя UPDATE', app:['bad'], cut:true, cmd:'💥 приложение упало — второй UPDATE не отправлен',
+          what:'Начисление Борису так и не дошло до базы.', why:'Тот же сбой, что и в режиме с транзакцией.'});
+        b.add({t:'Базе нечего откатывать', app:['bad'], db:'bad', hl:['acc'], end:true,
+          what:'У Анны 700, у Бориса 500. 300 ₽ исчезли: списали, но не начислили.', why:'База не знала, что два UPDATE — одно дело: ей никто этого не сказал. Первый подтверждён и честно сохранён. Искать пропавшие деньги придётся людям — вручную, по журналам и жалобам.'});
+      } else {
+        b.add({t:'UPDATE: начислить Борису', fly:{dir:'r', txt:'UPDATE accounts SET balance = balance + 300 WHERE id = boris'}, hl:['acc','wal'],
+          acc:{anna:700, boris:800}, walAdd:['boris 500 → 800', 'COMMIT (автоматически)'],
+          what:'Второе действие тоже прошло. Сумма снова 1 500.', why:'На этот раз повезло. Но между двумя командами было окно, когда деньги «висели в воздухе». Сбой в этом окне — и они пропадут.'});
+        b.add({t:'Итог: повезло', hl:['acc'], end:true,
+          what:'Перевод выполнен.', why:'Без транзакции корректность держится на удаче. Включите «💥 сбой» — окно между двумя UPDATE станет видно.'});
+      }
+    }
+    return b.list;
+  }
+
+  /* ── C ── */
+  function buildC(o){
+    const b = mk();
+    b.add({t:'Правила записаны в схеме', hl:['acc'],
+      what:'В схеме таблиц записаны два правила: баланс не может быть меньше нуля, а перевод может ссылаться только на существующий счёт.',
+      why:'<code class="inl">CHECK (balance &gt;= 0)</code> и внешний ключ <code class="inl">transfers.to → accounts.id</code> живут в самой базе. Их нельзя обойти ни кривым кодом, ни ручным скриптом поддержки.'});
+    b.add({t:'BEGIN', fly:{dir:'r', txt:'BEGIN'}, hl:['wal'], walAdd:['BEGIN T1'], what:'Транзакция открыта.', why:'Дальше база будет проверять правила на каждом шаге.'});
+    if(o.c === 'big'){
+      b.add({t:'UPDATE: списать 1 200 ₽', fly:{dir:'r', txt:'UPDATE accounts SET balance = balance − 1200 WHERE id = anna'}, hl:['d1'], db:'bad',
+        d1:[{s:'anna: 1 000 → −200 ✕', c:'err'}],
+        what:'База пробует применить изменение и проверяет правило CHECK: −200 меньше нуля.', why:'Проверка происходит внутри базы, до того как изменение станет хоть чьим-то.'});
+      b.add({t:'ERROR: нарушено правило', fly:{dir:'l', txt:'ERROR: violates check constraint', bad:true}, db:'bad', hl:['d1'],
+        cmd:'ERROR:  new row for relation "accounts" violates check constraint "balance_nonneg"',
+        what:'База отказалась выполнять команду и вернула ошибку.', why:'Правило сработало независимо от того, как написан код. Даже если в приложении забыли проверить баланс, минуса в базе не будет.'});
+    } else if(o.c === 'fk'){
+      b.add({t:'UPDATE: списать 300 ₽ у Анны', fly:{dir:'r', txt:'UPDATE accounts SET balance = balance − 300 WHERE id = anna'}, hl:['d1'],
+        d1:['anna: 1 000 → 700 ✓'], walAdd:['T1: anna 1000 → 700'],
+        what:'Списание прошло проверку: 700 ≥ 0.', why:'Пока всё в порядке, изменение лежит в черновике.'});
+      b.add({t:'INSERT: перевод на счёт «boriss»', fly:{dir:'r', txt:"INSERT INTO transfers (from, to, sum) VALUES ('anna', 'boriss', 300)"}, db:'bad', hl:['d1'],
+        d1:['anna: 1 000 → 700 ✓', {s:'transfers: → boriss ✕ такого счёта нет', c:'err'}],
+        what:'Опечатка в номере счёта. Внешний ключ требует, чтобы получатель существовал.', why:'Без этого правила деньги ушли бы «в никуда»: списаны у Анны, записаны на несуществующий счёт.'});
+      b.add({t:'ERROR: нарушен внешний ключ', fly:{dir:'l', txt:'ERROR: violates foreign key constraint', bad:true}, db:'bad', hl:['d1'],
+        cmd:'ERROR:  insert or update on table "transfers" violates foreign key constraint',
+        what:'База отказалась вставлять перевод.', why:'Но списание у Анны уже лежит в черновике. Что с ним будет — следующий шаг.'});
+    } else {
+      b.add({t:'UPDATE: списать 300 ₽ у Анны', fly:{dir:'r', txt:'UPDATE … anna − 300'}, hl:['d1'], d1:['anna: 1 000 → 700 ✓'], walAdd:['T1: anna 1000 → 700'],
+        what:'700 ≥ 0 — правило соблюдено.', why:'База проверяет CHECK на каждой изменённой строке.'});
+      b.add({t:'UPDATE и INSERT: начислить Борису и записать перевод', fly:{dir:'r', txt:"UPDATE … boris + 300; INSERT INTO transfers … 'boris'"}, hl:['d1'],
+        d1:['anna: 1 000 → 700 ✓', 'boris: 500 → 800 ✓', 'transfers: anna → boris ✓'], walAdd:['T1: boris 500 → 800', 'T1: transfer #7'],
+        what:'Получатель существует — внешний ключ доволен.', why:'Все правила схемы соблюдены.'});
+      b.add({t:'COMMIT', fly:{dir:'r', txt:'COMMIT'}, hl:['acc','wal'], d1:[], acc:{anna:700, boris:800}, walAdd:['T1: COMMIT'],
+        what:'Перевод подтверждён: 700 и 800.', why:'Согласованность не мешает правильным операциям — она отсекает только неправильные.'});
+      b.add({t:'Итог и честная оговорка', hl:['acc'], end:true, fly:{dir:'l', txt:'OK'},
+        what:'Всё прошло. Попробуйте «1 200 ₽» или «несуществующий счёт».',
+        why:'Важно: буква C обещает только то, что <b>записано в схеме</b>. Правило «не больше 100 000 ₽ в сутки» база сама не знает — такие бизнес-правила проверяет приложение. Хотите, чтобы правило нельзя было обойти, — переносите его в схему, если оно туда помещается.'});
+      return b.list;
+    }
+    b.add({t:'ROLLBACK — отменяется вся транзакция', hl:['d1','wal','acc'], d1:[], walAdd:[{s:'T1: ROLLBACK', c:'err'}], db:'on', cmd:'ROLLBACK',
+      what:o.c === 'fk' ? 'Списание у Анны тоже отменено — хотя само по себе оно было правильным.' : 'Черновик выброшен, таблица не тронута.',
+      why:'Вот как C держится на A. Правило ловит нарушение, а атомарность гарантирует, что откатится <b>всё</b>, а не только сломанная команда. Иначе у Анны списали бы 300 ₽ за перевод, который не состоялся.'});
+    b.add({t:'Итог и честная оговорка', hl:['acc'], end:true,
+      what:'Счета как были: 1 000 и 500. Анна видит понятную ошибку.',
+      why:'Буква C обещает только то, что <b>записано в схеме</b>. Правило «не больше 100 000 ₽ в сутки» база сама не знает — такие бизнес-правила проверяет приложение. Хотите, чтобы правило нельзя было обойти, — переносите его в схему, если оно туда помещается.'});
+    return b.list;
+  }
+
+  /* ── I ── */
+  const LV = {RU:'READ UNCOMMITTED', RC:'READ COMMITTED', RR:'REPEATABLE READ', SER:'SERIALIZABLE'};
+  function buildI(o){
+    const b = mk();
+    const lv = LV[o.lvl];
+    if(o.s === 'dirty'){
+      const see = o.lvl === 'RU';
+      b.add({t:'Две транзакции одновременно', what:'T1 — перевод Анны. T2 — Вера из отдела отчётов считает, сколько всего денег в банке. Уровень изоляции: ' + lv + '.',
+        why:'Обе работают в один и тот же момент. Вопрос: может ли Вера увидеть недоделанный перевод Анны?'});
+      b.add({t:'T1 списала у Анны — пока в черновике', fly:{lane:0, dir:'r', txt:'BEGIN; UPDATE … anna − 300'}, hl:['d1'], d1:['anna: 1 000 → 700'], walAdd:['BEGIN T1', 'T1: anna 1000 → 700'],
+        tlAdd:{a:'BEGIN; anna − 300 (черновик)'},
+        what:'Списание есть только в черновике T1.', why:'Начисления Борису ещё нет. Перевод на полпути.'});
+      b.add({t:'T2: Вера считает сумму', fly:{lane:1, dir:'r', txt:'SELECT sum(balance) FROM accounts'}, hl:see ? ['d1','d2'] : ['acc','d2'],
+        d2:see ? [{s:'anna = 700 (чужой черновик!)', c:'err'}, 'boris = 500', {s:'сумма = 1 200', c:'err'}] : ['anna = 1 000', 'boris = 500', 'сумма = 1 500'],
+        tlAdd:{b:see ? 'SELECT → 1 200 ✕' : 'SELECT → 1 500 ✓', cb:see ? 'bad' : 'ok'},
+        inv:see ? {ok:false, txt:'Вера насчитала 1 200 ₽ ❌'} : {ok:true, txt:'Вера насчитала 1 500 ₽ ✅'},
+        what:see ? 'На READ UNCOMMITTED Вера видит чужой черновик: 700 + 500 = 1 200.' : 'Вера видит только подтверждённое: 1 000 + 500 = 1 500.',
+        why:see ? 'Это <b>грязное чтение</b> — чтение данных, которые ещё могут отмениться.' : 'Начиная с READ COMMITTED, чужие черновики не видны никогда.'});
+      b.add({t:'T1 отменяется', fly:{lane:0, dir:'r', txt:'ROLLBACK'}, hl:['d1'], d1:[], walAdd:[{s:'T1: ROLLBACK', c:'err'}], tlAdd:{a:'ROLLBACK'},
+        inv:see ? {ok:false, txt:'в отчёте Веры 1 200 ₽ ❌'} : {ok:true, txt:'в отчёте Веры 1 500 ₽ ✅'},
+        what:'Анна передумала (или случилась ошибка). Перевода не было вовсе.', why:see ? 'А в отчёте Веры осталась сумма 1 200 — по данным, которых никогда не существовало.' : 'Отчёт Веры верен: он и не видел отменённого.'});
+      b.add({t:'Итог', end:true, inv:see ? {ok:false, txt:'отчёт Веры неверен ❌'} : {ok:true, txt:'отчёт Веры верен ✅'},
+        what:see ? 'Грязное чтение случилось.' : 'Грязного чтения нет.',
+        why:'Грязное чтение запрещают все уровни начиная с READ COMMITTED. PostgreSQL вообще не умеет READ UNCOMMITTED: попросите его — получите READ COMMITTED. Попробуйте ситуацию «неповторяемое чтение» — она коварнее.'});
+    } else if(o.s === 'nonrep'){
+      const snap = o.lvl === 'RR' || o.lvl === 'SER';
+      b.add({t:'Две транзакции одновременно', what:'T2 — Вера строит отчёт: читает счёт Анны, потом счёт Бориса. Между этими чтениями T1 успевает провести перевод. Уровень: ' + lv + '.',
+        why:'Каждое чтение по отдельности честное. Вопрос — сложатся ли они в правду.'});
+      b.add({t:'T2 читает счёт Анны', fly:{lane:1, dir:'r', txt:'BEGIN; SELECT balance … anna'}, hl:['acc','d2'], d2:['anna = 1 000'], tlAdd:{b:'BEGIN; anna → 1 000'},
+        what:'Вера прочитала: у Анны 1 000.', why:snap ? 'На ' + lv + ' в этот момент база фиксирует для T2 <b>снимок</b>: всю транзакцию Вера будет видеть базу такой, какой она была сейчас.' : 'На ' + lv + ' каждый SELECT видит свежие подтверждённые данные — на момент этого SELECT.'});
+      b.add({t:'T1 проводит перевод целиком', fly:{lane:0, dir:'r', txt:'BEGIN; anna − 300; boris + 300; COMMIT'}, hl:['acc','wal'], acc:{anna:700, boris:800},
+        walAdd:['BEGIN T1', 'T1: anna 1000 → 700', 'T1: boris 500 → 800', 'T1: COMMIT'], tlAdd:{a:'перевод 300 ₽, COMMIT ✓', ca:'ok'},
+        what:'Перевод подтверждён: 700 и 800. В таблице всё правильно, сумма 1 500.', why:'Сама T1 ничего не нарушила. Проблема может возникнуть у того, кто читает «до» и «после» вперемешку.'});
+      b.add({t:'T2 читает счёт Бориса', fly:{lane:1, dir:'r', txt:'SELECT balance … boris'}, hl:snap ? ['d2'] : ['acc','d2'],
+        d2:['anna = 1 000', snap ? 'boris = 500 (из снимка)' : {s:'boris = 800 (уже после перевода)', c:'err'}],
+        tlAdd:{b:snap ? 'boris → 500 (снимок)' : 'boris → 800', cb:snap ? 'ok' : 'bad'},
+        what:snap ? 'Вера видит Бориса таким, каким он был в начале её транзакции: 500.' : 'Вера видит Бориса уже после перевода: 800.',
+        why:snap ? 'База хранит старые версии строк (это называется MVCC — многоверсионность), поэтому может показать T2 её снимок, хотя в таблице уже 800.' : 'Анна прочитана «до», Борис — «после». Два запроса одной транзакции увидели два разных момента времени.'});
+      b.add({t:'T2 складывает', hl:['d2'], end:true,
+        d2:snap ? ['anna = 1 000', 'boris = 500', 'сумма = 1 500 ✓'] : ['anna = 1 000', 'boris = 800', {s:'сумма = 1 800 ✕', c:'err'}],
+        tlAdd:{b:snap ? 'сумма 1 500 ✓' : 'сумма 1 800 ✕', cb:snap ? 'ok' : 'bad'},
+        inv:snap ? {ok:true, txt:'отчёт Веры: 1 500 ₽ ✅'} : {ok:false, txt:'отчёт Веры: 1 800 ₽ ❌ — 300 ₽ посчитаны дважды'},
+        what:snap ? 'Отчёт сошёлся: 1 500.' : 'В отчёте 1 800: перевод Анны посчитан дважды.',
+        why:snap ? 'REPEATABLE READ и SERIALIZABLE читают всю транзакцию из одного снимка. Для отчётов это ровно то, что нужно.' : 'Это <b>неповторяемое чтение</b> — одна транзакция видит данные в разные моменты. Лечится уровнем REPEATABLE READ для отчётов. На тесте не повторяется: там никто не переводит деньги посреди отчёта.'});
+    } else {
+      const lockOn = o.fu === 'yes';
+      b.add({t:'Два списания с одного счёта', app:['', ''],
+        what:'У Анны 1 000 ₽. Одновременно приходят два платежа по 800 ₽: T1 — квартплата, T2 — автоплатёж по кредиту. Денег хватает только на один. Уровень: ' + lv + (lockOn ? ', чтение с FOR UPDATE.' : '.'),
+        why:'Код устроен так: прочитать баланс, в приложении проверить «хватает ли» и посчитать остаток, потом записать новый баланс. Между «прочитал» и «записал» проходит время.'});
+      if(lockOn){
+        b.add({t:'T1 читает и запирает строку', fly:{lane:0, dir:'r', txt:'SELECT balance … anna FOR UPDATE'}, hl:['acc','d1'], lock:{anna:'T1'}, d1:['прочитала 1 000 · 🔒 anna'], tlAdd:{a:'SELECT … FOR UPDATE → 1 000 🔒'},
+          what:'T1 прочитала 1 000 и поставила на строку Анны замок.', why:'FOR UPDATE означает «я собираюсь это менять, остальные — ждите».'});
+        b.add({t:'T2 упирается в замок', fly:{lane:1, dir:'r', txt:'SELECT balance … anna FOR UPDATE'}, app:['', 'wait'], hl:['acc'], d2:['⏳ ждёт замок'], tlAdd:{b:'SELECT … FOR UPDATE ⏳ ждёт', cb:'wait'},
+          what:'T2 тоже хочет прочитать баланс «для изменения» — и встаёт в очередь.', why:'Это как вторая касса, которая видит на билете табличку «оформляется» и ждёт.'});
+        b.add({t:'T1 списывает и подтверждает', fly:{lane:0, dir:'r', txt:'UPDATE … balance = 200; COMMIT'}, app:['', 'wait'], hl:['acc','wal'], acc:{anna:200, boris:500}, lock:{}, d1:[],
+          walAdd:['T1: anna 1000 → 200', 'T1: COMMIT'], tlAdd:{a:'balance = 200; COMMIT ✓ 🔓', ca:'ok'},
+          inv:{ok:true, txt:'списано 800 · у Анны 200 ✅'},
+          what:'Квартплата прошла. Замок снят.', why:'Теперь очередь T2.'});
+        b.add({t:'T2 просыпается и видит 200', fly:{lane:1, dir:'l', txt:'200 < 800 → «недостаточно средств»', bad:true}, hl:['acc','d2'], d2:['прочитала 200 → отказ'], tlAdd:{b:'→ 200; отказ; ROLLBACK', cb:'ok'},
+          inv:{ok:true, txt:'списано 800 · у Анны 200 ✅'}, end:true,
+          what:'T2 прочитала уже новый баланс и честно отказала.', why:'Замок заставил вторую транзакцию дождаться первой. Цена — ожидание: если T1 долгая (например, внутри неё звонок в другой банк), T2 и все за ней будут ждать так же долго. Другой способ — атомарный <code class="inl">UPDATE … SET balance = balance − 800</code> вместе с правилом CHECK: база сама не даст уйти в минус.'});
+        return b.list;
+      }
+      b.add({t:'T1 читает баланс', fly:{lane:0, dir:'r', txt:'SELECT balance … anna'}, hl:['acc','d1'], d1:['прочитала 1 000'], tlAdd:{a:'SELECT → 1 000'},
+        what:'T1 прочитала 1 000.', why:'Замка нет: читать может кто угодно.'});
+      b.add({t:'T2 читает тот же баланс', fly:{lane:1, dir:'r', txt:'SELECT balance … anna'}, hl:['acc','d2'], d2:['прочитала 1 000'], tlAdd:{b:'SELECT → 1 000'},
+        what:'T2 тоже прочитала 1 000.', why:'Обе транзакции уверены, что денег хватает. Каждая права — на момент своего чтения.'});
+      b.add({t:'T1 записывает 1 000 − 800 = 200', fly:{lane:0, dir:'r', txt:'UPDATE accounts SET balance = 200 …; COMMIT'}, hl:['acc','wal'], acc:{anna:200, boris:500}, d1:[],
+        walAdd:['T1: anna 1000 → 200', 'T1: COMMIT'], tlAdd:{a:'balance = 200; COMMIT ✓', ca:'ok'},
+        inv:{ok:true, txt:'списано 800 · у Анны 200 ✅'},
+        what:'Квартплата прошла, у Анны 200.', why:'Пока всё верно. Но T2 всё ещё помнит «1 000».'});
+      if(o.lvl === 'RU' || o.lvl === 'RC'){
+        b.add({t:'T2 записывает 1 000 − 800 = 200', fly:{lane:1, dir:'r', txt:'UPDATE accounts SET balance = 200 …; COMMIT'}, db:'bad', hl:['acc','wal'], d2:[],
+          walAdd:['T2: anna 200 → 200', 'T2: COMMIT'], tlAdd:{b:'balance = 200; COMMIT ✓ — затёрла T1', cb:'bad'},
+          inv:{ok:false, txt:'списано 1 600 · у Анны 200 ❌ — 800 ₽ из воздуха'},
+          what:'T2 тоже записала 200 — и затёрла результат T1.', why:'Оба платежа прошли, а со счёта списано как за один. 800 ₽ банк просто подарил.'});
+        b.add({t:'Итог: потерянное обновление', db:'bad', end:true, inv:{ok:false, txt:'списано 1 600 · у Анны 200 ❌'},
+          what:'На ' + lv + ' это обычное дело.', why:'Это <b>потерянное обновление</b>: вторая запись затёрла первую. Лечится одним из трёх способов: <code class="inl">SELECT … FOR UPDATE</code> (включите его выше), атомарный <code class="inl">UPDATE … SET balance = balance − 800</code> вместе с CHECK, или уровень REPEATABLE READ / SERIALIZABLE с повтором транзакции.'});
+      } else {
+        b.add({t:'T2 пытается записать — и получает ошибку', fly:{lane:1, dir:'l', txt:'ERROR: could not serialize access', bad:true}, app:['', 'bad'], hl:['acc'], d2:[{s:'ERROR: could not serialize access', c:'err'}],
+          tlAdd:{b:'UPDATE → ERROR, ROLLBACK', cb:'bad'},
+          inv:{ok:true, txt:'списано 800 · у Анны 200 ✅'},
+          what:'База видит: строку Анны изменили после того, как T2 сделала свой снимок. Она откатывает T2.', why:'На ' + lv + ' PostgreSQL не даёт записать поверх изменения, которого транзакция не видела. Внимание: в MySQL на REPEATABLE READ такой проверки нет — там обновление потеряется.'});
+        b.add({t:'Приложение повторяет T2', fly:{lane:1, dir:'l', txt:'200 < 800 → «недостаточно средств»', bad:true}, app:['', ''], hl:['acc','d2'], d2:['повтор: прочитала 200 → отказ'],
+          tlAdd:{b:'повтор: → 200; отказ', cb:'ok'}, end:true, inv:{ok:true, txt:'списано 800 · у Анны 200 ✅'},
+          what:'Повтор увидел честные 200 и отказал.', why:'Строгий уровень защищает, но перекладывает работу на приложение: ошибку сериализации <b>обязательно</b> ловить и повторять транзакцию целиком. Код без повтора будет падать в бою и прекрасно работать на тесте.'});
+      }
+    }
+    return b.list;
+  }
+
+  /* ── D ── */
+  function buildD(o){
+    const b = mk();
+    const M = s => ({s:s, c:'mem'});
+    b.add({t:'Исходное состояние', hl:['acc','disk'],
+      what:'Таблица счетов работает в оперативной памяти. На диске лежат файлы таблиц (1 000 и 500) и журнал WAL.',
+      why:'Память быстрая, но исчезает при отключении питания. Диск медленный, но переживает всё. Весь вопрос D — в какой момент данные оказываются на диске.'});
+    b.add({t:'BEGIN и два UPDATE — всё в памяти', fly:{dir:'r', txt:'BEGIN; UPDATE anna − 300; UPDATE boris + 300'}, hl:['d1','wal'],
+      d1:['anna: 1 000 → 700', 'boris: 500 → 800'], walAdd:[M('BEGIN T1'), M('T1: anna 1000 → 700'), M('T1: boris 500 → 800')],
+      what:'Изменения в черновике, записи журнала — пока в буфере памяти (оранжевые).', why:'На диск пока не ушло ничего. Выключите свет сейчас — и никто даже не узнает, что перевод начинался.'});
+    b.add({t:'COMMIT: запись о подтверждении — в журнал', fly:{dir:'r', txt:'COMMIT'}, hl:['wal'], walAdd:[M('T1: COMMIT')],
+      what:'Приложение просит подтвердить. Строка COMMIT легла в журнал — но журнал всё ещё в памяти.', why:'Ответить «OK» прямо сейчас было бы враньём: при отключении питания журнал пропадёт вместе с памятью.'});
+    if(o.cr === 'before'){
+      b.add({t:'💥 Питание выдернули до fsync', db:'bad', gone:true, d1:[], wal:[], app:['bad'], cut:true, cmd:'💥 сервер базы обесточен',
+        what:'Всё, что было в памяти, исчезло: черновик, таблица в памяти, несброшенный журнал.', why:'На диске остались старые файлы таблиц: 1 000 и 500. Журнал на диске не содержит ни одной строки про T1.'});
+      b.add({t:'Перезапуск: транзакции не было', gone:false, acc:{anna:1000, boris:500}, db:'on', hl:['acc','disk','wal'], app:[''],
+        walAdd:['восстановление: в журнале нет T1 → нечего повторять'],
+        what:'База поднялась и прочитала журнал с диска. Про T1 там ничего нет — значит, перевода не было.', why:'Анне «OK» не отправляли. Её приложение получило обрыв соединения и показало ошибку. Анна повторит перевод — и ничего не потеряно, и ничего не соврали.'});
+      b.add({t:'Итог: почему «OK» — только после fsync', hl:['acc'], end:true,
+        what:'Сбой до fsync безопасен: клиенту ещё ничего не обещали.', why:'Если бы база отвечала «OK» до записи журнала на диск, Анна видела бы «переведено», а после сбоя перевода бы не было. Поэтому порядок жёсткий: <b>сначала журнал на диск, потом «OK»</b>. Настройка <code class="inl">fsync = off</code> ускоряет запись в разы и ломает ровно это обещание.'});
+      return b.list;
+    }
+    b.add({t:'fsync: журнал физически на диске', hl:['wal','disk'], walMemToDisk:true, cmd:'fsync(pg_wal/000000010000000000000007)  → ждём подтверждения от диска',
+      what:'База просит операционную систему сбросить журнал на диск и ждёт подтверждения. Строки журнала больше не оранжевые — они на диске.', why:'Это несколько миллисекунд — самая дорогая часть COMMIT. Журнал короткий и пишется подряд, поэтому это быстрее, чем переписывать сами таблицы.'});
+    b.add({t:'Только теперь — «OK» Анне', fly:{dir:'l', txt:'OK: перевод выполнен'}, hl:['acc','disk'], d1:[], acc:{anna:700, boris:800},
+      what:'Анна видит «переведено». Таблица в памяти обновлена: 700 и 800. А файлы таблиц на диске — всё ещё 1 000 и 500!', why:'Переписывать файлы таблиц на каждый COMMIT дорого: они большие и лежат вразброс. Их сбрасывают потом, пачкой, — это называется контрольная точка (checkpoint). Надёжность держится на журнале.'});
+    if(o.cr === 'after'){
+      b.add({t:'💥 Питание выдернули после «OK»', db:'bad', gone:true, app:[''], cmd:'💥 сервер базы обесточен',
+        what:'Память пропала. На диске: старые файлы таблиц (1 000 и 500) и журнал, в котором есть T1 с COMMIT.', why:'Анне уже сказали «OK». Если перевод сейчас потеряется, банк соврал. Смотрим, что будет при запуске.'});
+      b.add({t:'Перезапуск: база проигрывает журнал', gone:false, db:'on', hl:['wal','disk','acc'], disk:{anna:700, boris:800}, acc:{anna:700, boris:800},
+        walAdd:['восстановление: повторили T1 ✓'],
+        what:'База читает журнал и повторяет все подтверждённые транзакции, которых ещё нет в файлах таблиц. Диск: 700 и 800.', why:'Журнал содержит всё, что нужно, чтобы повторить изменения. Именно поэтому его пишут на диск до «OK», а таблицы — когда удобно.'});
+      b.add({t:'Итог: сказали «OK» — значит сохранено', hl:['acc','disk'], end:true,
+        what:'Перевод пережил отключение питания.', why:'Это и есть долговечность. Для распределённой базы есть ещё вопрос: сохранено на одном сервере или и на реплике? Об этом — глава 8, «синхронная или асинхронная репликация».'});
+    } else {
+      b.add({t:'Контрольная точка: таблицы — на диск', hl:['disk'], disk:{anna:700, boris:800}, walAdd:['checkpoint: файлы таблиц обновлены'],
+        what:'Через какое-то время база сбрасывает изменённые страницы на диск. Теперь и файлы таблиц: 700 и 800.', why:'Старую часть журнала после этого можно удалить — всё, что в ней было, уже есть в файлах.'});
+      b.add({t:'Итог', end:true, hl:['acc','disk'],
+        what:'Перевод сохранён и в журнале, и в файлах таблиц.', why:'Самое интересное — выдернуть питание. Выберите «после OK» или «до fsync».'});
+    }
+    return b.list;
+  }
+
+  const SPEC = {
+    A:{build:buildA, apps:() => APP1, def:{tx:'on', crash:'yes'},
+      life:'<b>Житейски.</b> Переезд: либо все вещи уже в новой квартире, либо все ещё в старой. Коробки, застрявшие ночью в грузовике на полпути, — ровно то, чего атомарность не допускает. В банке то же самое: «списали, но не начислили» быть не может.',
+      opts:[{k:'tx', l:'режим', it:[['on','в транзакции'],['off','без транзакции']]}, {k:'crash', l:'сбой', it:[['yes','💥 сбой между UPDATE'],['no','без сбоя']]}]},
+    C:{build:buildC, apps:() => APP1, def:{c:'big'},
+      life:'<b>Житейски.</b> Банковский бланк с жёсткими правилами: поле «сумма» не примет минус, а поле «получатель» — несуществующий счёт. Кассир не исправляет бланк частично — он возвращает его целиком.',
+      opts:[{k:'c', l:'перевод', it:[['big','1 200 ₽ — больше, чем есть'],['fk','300 ₽ на несуществующий счёт'],['ok','300 ₽ как обычно']]}]},
+    I:{build:buildI, def:{s:'dirty', lvl:'RU', fu:'no'},
+      apps:o => o.s === 'lost' ? [{n:'🧑 T1 · квартплата', s:'списать 800 ₽'}, {n:'🤖 T2 · автоплатёж', s:'списать 800 ₽'}] : [{n:'🧑 T1 · Анна', s:'перевод 300 ₽'}, {n:'👩 T2 · Вера', s:'отчёт: сколько денег'}],
+      life:'<b>Житейски.</b> Две кассы продают последний билет на концерт. Без договорённости обе его продадут, и двое придут на одно место. Изоляция — это правила, по которым кассы договариваются: ждать друг друга, работать по своей копии списка или отменять одну из продаж.',
+      opts:[{k:'s', l:'ситуация', it:[['dirty','грязное чтение'],['nonrep','неповторяемое чтение'],['lost','потерянное обновление']]},
+            {k:'lvl', l:'уровень', it:[['RU','READ UNCOMMITTED'],['RC','READ COMMITTED'],['RR','REPEATABLE READ'],['SER','SERIALIZABLE']]},
+            {k:'fu', l:'замок', show:o => o.s === 'lost', it:[['no','без FOR UPDATE'],['yes','SELECT … FOR UPDATE']]}]},
+    D:{build:buildD, apps:() => APP1, def:{cr:'after'},
+      life:'<b>Житейски.</b> Касса сначала пробивает покупку на кассовой ленте и только потом выдаёт чек. Чек на руках — значит, запись на ленте уже есть, даже если касса сломается через секунду. «OK» от базы — это чек, журнал WAL — кассовая лента.',
+      opts:[{k:'cr', l:'выдернуть питание', it:[['after','после «OK»'],['before','до fsync журнала'],['none','не выдёргивать']]}]},
+  };
+
+  let letter = 'A', i = 0, steps = [], timer = null, rafId = 0;
+  const opts = {}; Object.keys(SPEC).forEach(k => opts[k] = Object.assign({}, SPEC[k].def));
+  const done = new Set();
+  Progress.register('dbx-acid', 4, 'Базы данных: ACID вживую');
+
+  function stop(){
+    if(timer){ clearInterval(timer); timer = null; }
+    $('dbx-acid-play').textContent = '▶';
+  }
+  function rebuild(){
+    stop();
+    steps = SPEC[letter].build(opts[letter]);
+    i = 0;
+    const r = $('dbx-acid-rng'); r.max = steps.length - 1; r.value = 0;
+    paintOpts(); paint();
+  }
+  function paintOpts(){
+    const sp = SPEC[letter], o = opts[letter];
+    $('dbx-acid-life').innerHTML = sp.life;
+    $('dbx-acid-opts').innerHTML = sp.opts.filter(g => !g.show || g.show(o)).map(g =>
+      '<span class="dbx-acid-ol">' + g.l + '</span><div class="seg sm">' +
+      g.it.map(x => '<button data-k="' + g.k + '" data-v="' + x[0] + '"' + (o[g.k] === x[0] ? ' class="on"' : '') + '>' + x[1] + '</button>').join('') + '</div>').join('');
+  }
+  const line = x => {
+    const o = typeof x === 'string' ? {s:x, c:''} : x;
+    return '<div class="dbx-acid-ln' + (o.c ? ' ' + o.c : '') + '">' + esc(o.s) + '</div>';
+  };
+  const emp = t => '<div class="dbx-acid-emp">' + t + '</div>';
+  function accRows(a, lock, prev){
+    return ['anna', 'boris'].map(k => '<div class="dbx-acid-row' + (a[k] < 0 ? ' neg' : prev && prev[k] !== a[k] ? ' chg' : '') + '"><span>' + k + (lock && lock[k] ? ' 🔒' + lock[k] : '') + '</span><b>' + money(a[k]) + ' ₽</b></div>').join('');
+  }
+  function paint(){
+    caf(rafId);
+    const s = steps[i], prev = i > 0 ? steps[i - 1] : null;
+    const apps = SPEC[letter].apps(opts[letter]);
+    const hl = new Set(s.hl || []);
+    const fly = s.fly;
+    const two = apps.length > 1;
+    const appCls = s.app || [];
+    const accLabel = letter === 'D' ? 'accounts · в памяти' : 'accounts · видят все' + (letter === 'C' ? ' · CHECK (balance ≥ 0)' : '');
+    scene.innerHTML =
+      '<div class="dbx-acid-apps">' + apps.map((a, k) =>
+        '<div class="dbx-acid-app' + (appCls[k] ? ' ' + appCls[k] : fly && (fly.lane || 0) === k ? ' on' : '') + '"><b>' + a.n + '</b>' + a.s +
+        (appCls[k] === 'wait' ? '<br>⏳ ждёт замок' : appCls[k] === 'bad' ? '<br>✕ сбой / откат' : '') + '</div>').join('') + '</div>' +
+      '<div class="dbx-acid-lanes">' + apps.map((a, k) =>
+        '<div class="dbx-acid-lane' + (s.cut && k === 0 ? ' cut' : fly && (fly.lane || 0) === k ? ' on' : '') + '" data-lane="' + k + '"></div>').join('') + '</div>' +
+      '<div class="dbx-acid-db' + (s.db ? ' ' + s.db : '') + '">' +
+        '<div class="dbx-acid-dbh">🗄 База данных</div>' +
+        '<div class="dbx-acid-pan' + (hl.has('acc') ? ' hl' : '') + (s.gone ? ' gone' : '') + '"><h5>' + accLabel + '</h5>' +
+          (s.gone ? emp('память стёрта') : accRows(s.acc, s.lock, prev && !prev.gone ? prev.acc : null)) + '</div>' +
+        '<div class="dbx-acid-pan' + (hl.has('d1') ? ' hl' : '') + '"><h5>черновик T1 · видит только она</h5>' + (s.d1.length ? s.d1.map(line).join('') : emp('пусто')) + '</div>' +
+        (two ? '<div class="dbx-acid-pan' + (hl.has('d2') ? ' hl' : '') + '"><h5>T2 · что видит и делает</h5>' + (s.d2.length ? s.d2.map(line).join('') : emp('пусто')) + '</div>' : '') +
+        '<div class="dbx-acid-pan' + (hl.has('wal') ? ' hl' : '') + '"><h5>журнал WAL' + (letter === 'D' ? ' · оранжевое — ещё в памяти' : '') + '</h5>' +
+          (s.wal.length ? s.wal.slice(-6).map(w => '<div class="dbx-acid-ln' + (w.c ? ' ' + w.c : w.at === i ? ' new' : '') + '">' + esc(w.s) + '</div>').join('') : emp('пусто')) + '</div>' +
+        '<div class="dbx-acid-pan' + (hl.has('disk') ? ' hl' : '') + '"' + (two ? '' : ' style="grid-column:1 / -1"') + '><h5>💾 диск · файлы таблиц</h5>' + accRows(s.disk, null, prev ? prev.disk : null) + '</div>' +
+      '</div>';
+    // летящая команда
+    if(fly){
+      const lane = scene.querySelector('[data-lane="' + (fly.lane || 0) + '"]');
+      if(lane){
+        const p = document.createElement('span');
+        p.className = 'dbx-acid-pkt' + (fly.dir === 'l' ? ' l' : '') + (fly.bad ? ' bad' : '');
+        p.textContent = (fly.dir === 'l' ? '← ' : '') + fly.txt + (fly.dir === 'l' ? '' : ' →');
+        lane.appendChild(p);
+        if(RM){ p.classList.add('still', 'go'); }
+        else rafId = raf(() => { rafId = raf(() => p.classList.add('go')); });
+      }
+    }
+    $('dbx-acid-cmd').textContent = s.cmd || (fly ? fly.txt : '— команда не отправляется —');
+    // таймлайн для I
+    const tlw = $('dbx-acid-tlw');
+    if(letter === 'I'){
+      tlw.innerHTML = '<table class="dbx-acid-tl"><thead><tr><th>время</th><th>' + esc(apps[0].n) + '</th><th>' + esc(apps[1].n) + '</th></tr></thead><tbody>' +
+        (s.tl.length ? s.tl.map((r, k) => '<tr' + (r.at === i ? ' class="cur"' : '') + '><td>t' + (k + 1) + '</td><td' + (r.ca ? ' class="' + r.ca + '"' : '') + '>' + esc(r.a || '') + '</td><td' + (r.cb ? ' class="' + r.cb + '"' : '') + '>' + esc(r.b || '') + '</td></tr>').join('')
+          : '<tr><td>—</td><td colspan="2" style="color:var(--faint)">общая шкала времени: жмите «Дальше»</td></tr>') + '</tbody></table>';
+    } else tlw.innerHTML = '';
+    $('dbx-acid-t').textContent = (i + 1) + '. ' + s.t;
+    $('dbx-acid-what').innerHTML = s.what || '';
+    $('dbx-acid-why').innerHTML = s.why || '';
+    const base = s.gone ? s.disk : s.acc;
+    const inv = s.inv || (() => { const sum = base.anna + base.boris; return {ok:sum === 1500, txt:'всего денег: ' + money(sum) + ' ₽ ' + (sum === 1500 ? '✅' : '❌ должно быть 1 500')}; })();
+    const iv = $('dbx-acid-inv'); iv.className = 'dbx-acid-inv ' + (inv.ok ? 'ok' : 'bad'); iv.textContent = inv.txt;
+    $('dbx-acid-lab').textContent = 'шаг ' + (i + 1) + ' из ' + steps.length;
+    $('dbx-acid-rng').value = i;
+    if(i === steps.length - 1 && !done.has(letter)){
+      done.add(letter);
+      const m = document.querySelector('#dbx-acid-pick [data-d="' + letter + '"]'); if(m) m.textContent = '✓ пройдено';
+      Progress.report('dbx-acid', done.size);
+    }
+  }
+  function go(d){ const n = Math.max(0, Math.min(steps.length - 1, i + d)); if(n !== i){ i = n; paint(); } }
+
+  $('dbx-acid-pick').addEventListener('click', e => {
+    const b = e.target.closest('button[data-l]'); if(!b) return;
+    [...$('dbx-acid-pick').children].forEach(x => x.classList.toggle('on', x === b));
+    letter = b.dataset.l; rebuild();
+  });
+  $('dbx-acid-opts').addEventListener('click', e => {
+    const b = e.target.closest('button[data-k]'); if(!b) return;
+    opts[letter][b.dataset.k] = b.dataset.v; rebuild();
+  });
+  $('dbx-acid-next').addEventListener('click', () => { stop(); go(1); });
+  $('dbx-acid-prev').addEventListener('click', () => { stop(); go(-1); });
+  $('dbx-acid-reset').addEventListener('click', () => { stop(); i = 0; paint(); });
+  $('dbx-acid-rng').addEventListener('input', e => { stop(); i = +e.target.value; paint(); });
+  scene.addEventListener('keydown', e => {
+    if(e.key === 'ArrowRight'){ e.preventDefault(); stop(); go(1); }
+    if(e.key === 'ArrowLeft'){ e.preventDefault(); stop(); go(-1); }
+  });
+  $('dbx-acid-play').addEventListener('click', () => {
+    if(timer){ stop(); return; }
+    if(i >= steps.length - 1){ i = 0; paint(); }
+    $('dbx-acid-play').textContent = '⏸';
+    timer = setInterval(() => {
+      if(document.hidden || (panel && !panel.classList.contains('active')) || i >= steps.length - 1){ stop(); return; }
+      go(1);
+    }, 2400);
+  });
+  document.addEventListener('visibilitychange', () => { if(document.hidden) stop(); });
+
+  rebuild();
+
+  /* ── мини-тест ── */
+  renderSort('dbx-acid-test', [
+    {t:'Сервер упал между списанием и начислением: у отправителя деньги ушли, получатель ничего не получил', bucket:'A',
+     why:'Два действия одного перевода разделились: одно прошло, другое нет. Это нарушение «всё или ничего» — атомарности.'},
+    {t:'Банк ответил «Перевод выполнен», через минуту отключили свет — после перезапуска перевода нет', bucket:'D',
+     why:'«OK» был, а данных нет — нарушена долговечность. Скорее всего, база отвечала до записи журнала на диск.'},
+    {t:'Отчёт насчитал в банке 1 200 ₽ вместо 1 500: он прочитал перевод, который потом отменили', bucket:'I',
+     why:'Отчёт увидел чужой черновик — грязное чтение. Это изоляция.'},
+    {t:'В таблице оказался счёт с балансом −200 ₽, хотя правило банка запрещает минус', bucket:'C',
+     why:'Нарушено правило данных — согласованность. Лечится ограничением CHECK в самой схеме, а не проверкой в коде.'},
+    {t:'Два платежа по 800 ₽ одновременно списались с 1 000 ₽, а баланс стал 200 — одно списание потерялось', bucket:'I',
+     why:'Потерянное обновление: вторая транзакция затёрла первую. Это про параллельные транзакции — изоляцию.'},
+    {t:'Заказ ссылается на клиента, которого уже удалили из базы', bucket:'C',
+     why:'Нарушена ссылочная целостность — правило «ссылка ведёт на существующую запись». Это согласованность, и держит её внешний ключ.'},
+    {t:'Из трёх строк импорта две записались, на третьей ошибка — а первые две так и остались', bucket:'A',
+     why:'Операция прошла наполовину. Если импорт — одно целое, его надо делать одной транзакцией, и тогда ошибка откатит всё.'},
+    {t:'Ради скорости выключили fsync; после аварии пропали последние подтверждённые платежи', bucket:'D',
+     why:'Без fsync база не дожидается записи журнала на диск и отвечает «OK» раньше времени. Это прямой отказ от долговечности.'},
+  ], [{id:'A', n:'A — атомарность'}, {id:'C', n:'C — согласованность'}, {id:'I', n:'I — изоляция'}, {id:'D', n:'D — долговечность'}], 'dbx-acid-score', 'dbx-acid-total');
+  Progress.register('dbx-acid-score', 8, 'Базы данных: какая буква ACID');
 })();
 </script>
 <!-- ==================== 21. РЕЛИЗЫ ==================== -->
