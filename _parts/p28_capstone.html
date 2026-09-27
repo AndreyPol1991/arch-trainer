@@ -1,9 +1,71 @@
 <!-- ==================== 26. КАПСТОУН ==================== -->
 <section class="panel" id="capstone" data-accent="ms" role="tabpanel">
-  <p class="lead">Спроектируйте систему целиком. Четырнадцать решений, и каждое влияет на следующие. По дороге собирается <b>документ архитектурного решения</b> — тот самый, который обычно просят приложить к постановке. Неверных путей нет: есть решения с разной ценой, и разбор показывает, чем вы заплатите.</p>
+  <p class="lead"><b>Этот раздел — одна история.</b> Мы проектируем сервис продажи билетов «Афиша» от первых требований до выкатки. Главная героиня — Анна: она хочет купить билет на концерт в ту самую минуту, когда вместе с ней на кнопку жмут ещё пятьдесят тысяч человек. Сначала вы примете четырнадцать решений, потом увидите, как из них складывается система и как по ней проходит покупка Анны. Идите по главам по порядку.</p>
 
-  <div class="card">
-    <h2><span class="tag">вводная</span> «Афиша» — продажа билетов на мероприятия</h2>
+  <style>
+    .cpx-map{display:flex; flex-wrap:wrap; gap:7px}
+    .cpx-map button{appearance:none; border:1px solid var(--line); background:var(--surface-2); color:var(--ink); font:600 12.5px var(--sans); padding:7px 12px; border-radius:18px; cursor:pointer; text-align:left}
+    .cpx-map button:hover{border-color:var(--accent)}
+    .cpx-map button b{color:var(--accent); font-family:var(--mono); margin-right:6px}
+
+    .cpx-ep{display:grid; grid-template-columns:128px 1fr; gap:9px 14px; font-size:13.5px; color:var(--muted); margin-top:12px}
+    .cpx-ep > b{font:600 10.5px var(--mono); color:var(--faint); text-transform:uppercase; letter-spacing:.03em; padding-top:3px}
+    .cpx-ep > div b{color:var(--ink)}
+    @media(max-width:560px){ .cpx-ep{grid-template-columns:1fr; gap:2px 0} .cpx-ep > b{margin-top:8px} }
+
+    .cpx-hist{display:flex; flex-wrap:wrap; gap:5px; margin:0 0 14px}
+    .cpx-hist span{border:1px solid var(--line); border-radius:7px; padding:3px 8px; font:600 11.5px var(--mono); background:var(--surface-2); color:var(--muted)}
+    .cpx-hist span.p2{border-color:var(--ok); color:var(--ok); background:var(--ok-bg)}
+    .cpx-hist span.p1{border-color:var(--warn); color:var(--warn); background:var(--warn-bg)}
+    .cpx-hist span.p0{border-color:var(--danger); color:var(--danger); background:var(--danger-bg)}
+    .cpx-story{font-size:14px; color:var(--ink); background:var(--surface-2); border:1px solid var(--line); border-radius:10px; padding:11px 14px; margin:0 0 12px}
+    .cpx-story .l{display:block; font:600 10.5px var(--mono); color:var(--faint); text-transform:uppercase; margin-bottom:4px}
+    .cpx-gos{display:flex; flex-wrap:wrap; gap:6px; margin-top:10px}
+    .cpx-gos button{appearance:none; border:1px solid var(--line); background:var(--surface); color:var(--accent); font:600 12px var(--sans); padding:5px 10px; border-radius:14px; cursor:pointer}
+    .cpx-gos button:hover{border-color:var(--accent)}
+
+    .cpx-dia{border:1px solid var(--line); border-radius:12px; background:var(--surface-2); padding:6px 12px; margin-top:12px}
+    .cpx-layer{display:grid; grid-template-columns:92px 1fr; gap:10px; align-items:center; padding:9px 0; border-bottom:1px dashed var(--line)}
+    .cpx-layer:last-child{border-bottom:0}
+    .cpx-layer.cpx-hide{display:none}
+    .cpx-ll{font:600 10.5px var(--mono); color:var(--faint); text-transform:uppercase; letter-spacing:.03em}
+    .cpx-nodes{display:flex; flex-wrap:wrap; gap:9px}
+    .cpx-node{position:relative; border:1px solid var(--line); background:var(--surface); border-radius:9px; padding:7px 10px; flex:1 1 130px; max-width:240px; font-size:12.5px; transition:background .25s, border-color .25s}
+    .cpx-node .n{font-weight:640; color:var(--ink)}
+    .cpx-node .s{font-size:11.5px; color:var(--muted); margin-top:1px}
+    .cpx-node.cpx-hide{display:none}
+    .cpx-node.cpx-new{border-color:var(--accent); animation:cpxpop .35s ease}
+    .cpx-node.cpx-hot{border-color:var(--accent); background:color-mix(in srgb, var(--accent) 13%, var(--surface)); box-shadow:0 0 0 2px color-mix(in srgb, var(--accent) 24%, transparent)}
+    .cpx-node.cpx-bad{border-color:var(--danger); background:var(--danger-bg)}
+    .cpx-node.cpx-warn{border-color:var(--warn); background:var(--warn-bg)}
+    .cpx-node .cpx-b{position:absolute; top:-9px; right:-6px; background:var(--accent); color:#fff; font:700 10.5px var(--mono); border-radius:10px; padding:1px 6px}
+    .cpx-node.cpx-bad .cpx-b{background:var(--danger)}
+    @keyframes cpxpop{from{transform:scale(.92); opacity:.2}to{transform:none; opacity:1}}
+    @media (prefers-reduced-motion:reduce){ .cpx-node.cpx-new{animation:none} }
+    @media(max-width:560px){ .cpx-layer{grid-template-columns:1fr; gap:5px} .cpx-node{flex:1 1 120px} }
+    .cpx-path{display:flex; flex-wrap:wrap; gap:5px; align-items:center; margin-top:10px; font:600 12px var(--mono)}
+    .cpx-path span{border:1px solid var(--accent); color:var(--accent); border-radius:7px; padding:3px 8px; background:var(--surface)}
+    .cpx-path i{color:var(--faint); font-style:normal}
+    .cpx-what .seg button{font-family:var(--sans); text-align:left}
+  </style>
+
+  <div class="card" id="cpx-c0">
+    <h2><span class="tag">карта раздела</span> куда мы идём</h2>
+    <div class="cpx-map" id="cpx-map">
+      <button data-jump="cpx-c1"><b>1</b>Что строим и для кого</button>
+      <button data-jump="cpx-c2"><b>2</b>Как принимается решение</button>
+      <button data-jump="cpx-c3"><b>3</b>Четырнадцать решений</button>
+      <button data-jump="cpx-c4"><b>4</b>Собираем систему по кирпичику</button>
+      <button data-jump="cpx-c5"><b>5</b>Что, если сломается</button>
+      <button data-jump="cpx-c6"><b>6</b>Проверьте себя</button>
+      <button data-jump="cpx-c7"><b>7</b>Документ решения</button>
+    </div>
+  </div>
+
+  <div class="card" id="cpx-c1">
+    <h2><span class="tag">глава 1 · вводная</span> что строим и для кого</h2>
+    <p>Компания «Афиша» продаёт билеты на концерты, спектакли и матчи. Нас позвали спроектировать систему. Чтобы не утонуть в абстракциях, будем всё время держать в голове одного человека.</p>
+    <div class="cpx-story"><span class="l">знакомьтесь: Анна</span>Анна давно ждёт концерт любимой группы. Продажи открываются в пятницу в 12:00. В 11:58 она сидит с телефоном и обновляет страницу. Ей нужно одно: нажать «Купить», выбрать место в двенадцатом ряду, заплатить и получить билет. Она не знает и не хочет знать, что в эту же минуту на ту же кнопку жмут ещё пятьдесят тысяч человек.</div>
     <div class="grid2">
       <div class="box">
         <h4>Что делает бизнес</h4>
@@ -16,39 +78,115 @@
       <div class="box">
         <h4>Ограничения</h4>
         <ul style="margin:0">
-          <li><b>Пики:</b> обычный день — 300 rps; старт продаж на крупный концерт — до 50 000 rps за первые минуты.</li>
+          <li><b>Пики:</b> обычный день — 300 запросов в секунду (rps); старт продаж на крупный концерт — до 50 000 rps за первые минуты.</li>
           <li><b>Одно место нельзя продать дважды</b> — это деньги, скандал и возврат.</li>
           <li>Команда: 14 инженеров, выделенной платформенной команды нет.</li>
           <li>Платежи — через внешнего провайдера; билеты уходят в почту и в приложение.</li>
         </ul>
       </div>
     </div>
+    <h3>Три вещи, ради которых всё затевается</h3>
+    <div class="grid3">
+      <div class="box"><h4>🎟 Не продать место дважды</h4><p class="bs">Если место 7 в ряду 12 уйдёт и Анне, и Борису, один из них придёт на концерт и не сядет. Это самое жёсткое правило.</p></div>
+      <div class="box"><h4>🌊 Пережить пик</h4><p class="bs">В обычный день система почти скучает. В 12:00 нагрузка вырастает в 150 раз. Строить сервер «под пик» дорого, падать в пик — ещё дороже.</p></div>
+      <div class="box"><h4>🧰 Потянуть силами 14 человек</h4><p class="bs">Каждый новый сервис — это свой пайплайн, свои алерты и своё дежурство. Людей на всё не хватит, поэтому лишнего не строим.</p></div>
+    </div>
+    <div class="note">Житейски это похоже на организацию свадьбы: гостей много, зал один, бюджет ограничен. Хочется всего и сразу, но придётся выбирать, на чём экономить, а на чём нельзя.</div>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">решения</span> шаг <span id="cap-i">1</span> из <span id="cap-n">14</span></h2>
+  <div class="card" id="cpx-c2">
+    <h2><span class="tag">глава 2 · как</span> как принимается архитектурное решение</h2>
+    <p>Архитектура — это не одна большая картинка, а цепочка решений. Каждое решение мы будем разбирать по одной схеме из пяти шагов. Сначала посмотрим на неё на бытовом примере, чтобы схема стала привычной.</p>
+    <div class="cpx-ep">
+      <b>что случилось</b><div>Анне нужно добраться до концертного зала к 19:00. Сейчас 18:10, на улице пробки.</div>
+      <b>варианты</b><div>Такси, метро или пешком.</div>
+      <b>выбор</b><div><b>Метро.</b></div>
+      <b>почему</b><div>Такси в пробке непредсказуемо, пешком не успеть. Метро медленнее такси без пробок, но приходит вовремя почти всегда.</div>
+      <b>чем платим</b><div>Давка в вагоне и десять минут пешком от станции. Эту цену Анна приняла осознанно.</div>
+    </div>
+    <div class="note good" style="margin-top:14px"><b>Главная мысль:</b> правильных ответов без цены не бывает. Хорошее решение — не то, у которого нет минусов, а то, у которого минусы известны заранее и приемлемы для этой задачи. Поэтому в каждом эпизоде дальше вы увидите не только «почему так», но и «чем платим».</div>
+    <p style="margin-top:14px">Каждое решение опирается на разделы тренажёра, где тема разобрана подробно. Под эпизодом будут кнопки со ссылками — если что-то непонятно, загляните туда и возвращайтесь.</p>
+  </div>
+
+  <div class="card" id="cpx-c3">
+    <h2><span class="tag">глава 3 · решения</span> эпизод <span id="cap-i">1</span> из <span id="cap-n">14</span></h2>
+    <p>Теперь архитектор — вы. Каждый эпизод начинается с того, что произошло с Анной или с проектом. Выберите вариант — и увидите разбор: почему он хорош или плох, чем за него платят и где тема разобрана подробно. Решения накапливаются: из них в конце соберётся документ.</p>
     <div id="cap-root"></div>
     <div class="form-row"><button class="ghost" id="cap-restart">Начать заново</button></div>
   </div>
 
-  <div class="card" id="cap-doc-card" hidden>
-    <h2><span class="tag">результат</span> документ архитектурного решения</h2>
-    <div class="meters">
-      <span class="meter">Набрано: <b id="cap-pts">0</b> из <span id="cap-max">0</span></span>
-      <span class="meter" id="cap-grade-m">Оценка: <b id="cap-grade">—</b></span>
+  <div class="card" id="cpx-c4">
+    <h2><span class="tag">глава 4 · что получилось</span> собираем систему по кирпичику</h2>
+    <p>Посмотрим, как из решений вырастает система. Нажимайте «Дальше»: на схеме по одному появляются компоненты, а подсвеченная цепочка показывает, как по ним идёт запрос Анны. Цифры в углу — порядок, в котором запрос проходит компоненты.</p>
+    <div class="skbar">
+      <button class="ghost" id="cpx-b-prev">←</button>
+      <button class="act" id="cpx-b-next">Дальше →</button>
+      <button class="ghost" id="cpx-b-play">▶ Прогнать</button>
+      <button class="ghost" id="cpx-b-reset">Сначала</button>
+      <span class="skstep" id="cpx-b-lab"></span>
     </div>
-    <div class="console" id="cap-verdict"></div>
-    <pre class="json" id="cap-doc"></pre>
+    <div class="cpx-dia" id="cpx-dia"></div>
+    <div class="cpx-path" id="cpx-b-path"></div>
+    <div id="cpx-b-out"></div>
+  </div>
+
+  <div class="card cpx-what" id="cpx-c5">
+    <h2><span class="tag">глава 5 · почему это важно</span> что, если сломается</h2>
+    <p>Архитектуру проверяют не в хороший день, а в плохой. Выберите аварию — схема из главы 4 покажет, что сломалось (красным) и что задело (жёлтым), а ниже будет рассказ, что при этом видит Анна и какое из ваших решений её спасло.</p>
+    <div class="seg" id="cpx-w-pick">
+      <button data-w="broker">📨 Брокер событий лежит 10 минут</button>
+      <button data-w="notif">✉️ Упал сервис уведомлений</button>
+      <button data-w="node">🔄 Перезапустился узел шлюза</button>
+      <button data-w="pay">💳 Платёжный провайдер тормозит</button>
+      <button data-w="peak">🌊 Пришло 80 000 вместо 50 000</button>
+      <button data-w="seats">🗄 Упала база мест</button>
+    </div>
+    <div id="cpx-w-out"><div class="console"><span class="ic">ℹ</span><span>Выберите аварию выше.</span></div></div>
+  </div>
+
+  <div class="card" id="cpx-c6">
+    <h2><span class="tag">глава 6 · задание</span> проверьте себя на истории Анны</h2>
+    <p>Пять вопросов по тому, что мы собрали. Правильно: <b id="cpx-score">0</b> из <span id="cpx-total">5</span>.</p>
+    <div id="cpx-quiz"></div>
+  </div>
+
+  <div class="card" id="cpx-c7">
+    <h2><span class="tag">глава 7 · результат</span> документ архитектурного решения</h2>
+    <p>Всё, что вы решили в главе 3, собирается в документ. Такой документ обычно просят приложить к постановке задачи: он объясняет следующему архитектору, почему система устроена именно так.</p>
+    <div class="note" id="cpx-doc-wait">Документ появится здесь, когда вы пройдёте все четырнадцать эпизодов в главе 3.</div>
+    <div id="cap-doc-card" hidden>
+      <div class="meters">
+        <span class="meter">Набрано: <b id="cap-pts">0</b> из <span id="cap-max">0</span></span>
+        <span class="meter" id="cap-grade-m">Оценка: <b id="cap-grade">—</b></span>
+      </div>
+      <div class="console" id="cap-verdict"></div>
+      <pre class="json" id="cap-doc"></pre>
+    </div>
   </div>
 
   <div class="nextbar">
-    <div><b>Дальше →</b> <span class="sub">глоссарий: 140 терминов с поиском — чтобы говорить с командой на одном языке</span></div>
+    <div><b>Дальше →</b> <span class="sub">глоссарий: 150 терминов простыми словами, с аналогиями и ссылками на разделы</span></div>
     <button data-goto="gloss">К глоссарию</button>
   </div>
 </section>
 
 <script>
+/* ═══ Капстоун: карта раздела ═══ */
 (function(){
+  const map = document.getElementById('cpx-map');
+  if(!map) return;
+  map.addEventListener('click', e => {
+    const b = e.target.closest('button[data-jump]'); if(!b) return;
+    const t = document.getElementById(b.dataset.jump);
+    if(t) t.scrollIntoView({behavior:'smooth', block:'start'});
+  });
+})();
+</script>
+
+<script>
+/* ═══ Капстоун: четырнадцать решений (ключ прогресса cap) ═══ */
+(function(){
+  if(!document.getElementById('cap-root')) return;
   const STEPS = [
     {t:'Стартовая архитектура', q:'С чего начинаем, учитывая 14 инженеров и отсутствие платформенной команды?',
      opts:[
@@ -233,34 +371,108 @@
      ]},
   ];
 
+  /* Повествование к каждому эпизоду: что случилось, чем платим за лучший вариант, где разобрано. */
+  const EXTRA = [
+    {story:'Проект стартует. До запуска полгода, в команде 14 человек, отдельной команды, которая держит серверы и пайплайны, нет. Нужно выбрать форму системы на первые годы.',
+     pay:'Внутри монолита границы модулей держатся на дисциплине и автоматических проверках. Сервис продаж — это отдельный пайплайн, отдельный мониторинг и отдельное дежурство.',
+     go:[['modular','Модульный монолит'],['versus','Монолит или микросервисы'],['micro','Микросервисы']]},
+    {story:'Аналитик приносит список слов: мероприятия, места, заказы, оплаты, партнёры, письма, отчёты. Их нужно разложить на части так, чтобы каждая часть менялась без оглядки на остальные.',
+     pay:'Нужно время на разговоры с бизнесом и общий словарь. Когда предметная область станет понятнее, какие-то границы придётся подвинуть.',
+     go:[['bc','Ограниченные контексты'],['split','Как резать'],['domains','Домены']]},
+    {story:'Анна и ещё тысяча человек смотрят на место 7 в ряду 12. В эту же минуту партнёр может закрыть весь ряд для прессы. Кто решает, свободно ли место?',
+     pay:'Всем остальным приходится ходить к «Местам» через их API или ждать событий. Сервис мест становится критичным, его нужно беречь больше остальных.',
+     go:[['data','Данные и владение'],['consist','Согласованность']]},
+    {story:'Пятница, 12:00. Анна и ещё 50 000 человек жмут «Купить» в одну и ту же минуту. Это в 150 раз больше обычного.',
+     pay:'Анна несколько минут ждёт в очереди. Очередь — ещё один компонент, и позиции в ней нужно где-то надёжно хранить.',
+     go:[['scale','Масштаб и состояние'],['resil','Устойчивость']]},
+    {story:'Очередь дошла. Анна нажимает на место 7 в ряду 12. В ту же секунду на него нажимает Борис.',
+     pay:'Все резервы одного зала проходят через одного владельца — это узкое место, его нужно беречь. И нужен фоновый процесс, который освобождает просроченные резервы.',
+     go:[['saga','Саги'],['db','Базы данных'],['consist','Согласованность']]},
+    {story:'Место за Анной. Впереди промокод, оплата, выпуск билета и письмо. В каком порядке их делать, чтобы ни при каком сбое не получить «деньги списали, а билета нет»?',
+     pay:'Письмо приходит только после оплаты, а не сразу. Экран должен честно показывать статус «оплачиваем…».',
+     go:[['saga','Саги: точка невозврата']]},
+    {story:'Оплата у Анны зависла на 40 секунд. Анна звонит в поддержку: «Где мой билет?» Кто знает, на каком шаге сейчас её покупка?',
+     pay:'Координатор — ещё один компонент со своей базой состояний. Его нельзя ронять, а логика процесса собрана в одном месте, и за неё кто-то отвечает.',
+     go:[['saga','Саги: оркестрация и хореография']]},
+    {story:'Билет Анны продан. Об этом должны узнать уведомления (чтобы отправить письмо), аналитика (для отчёта партнёру) и рекомендации. Как сообщить им, не потеряв ни одного факта?',
+     pay:'Появляются лишняя таблица и фоновый процесс-реле. События иногда приходят дважды, поэтому получатели обязаны спокойно пропускать повтор.',
+     go:[['outbox','Outbox и CDC']]},
+    {story:'Организатор концерта в разгар продаж жмёт «Отчёт за сегодня». Его тяжёлый запрос не должен мешать Анне покупать.',
+     pay:'Отчёт отстаёт от реальности на минуты. Витрину надо поддерживать и уметь перестроить с нуля.',
+     go:[['cqrs','CQRS и витрины'],['data','Данные и владение']]},
+    {story:'Перед стартом продаж 50 000 человек обновляют карточку концерта каждые несколько секунд. Сама карточка при этом не меняется.',
+     pay:'Анна может несколько секунд видеть старое описание или цену. Нужны сброс кеша по событию и страховочный срок жизни записи.',
+     go:[['cache','Кеш']]},
+    {story:'Анна стоит в очереди под номером 3 812. В этот момент один из серверов перезагружается из-за выкатки.',
+     pay:'Внешнее хранилище — ещё одна зависимость на критическом пути. У него должна быть копия, иначе оно само станет точкой отказа.',
+     go:[['scale','Масштаб и состояние'],['lb','Балансировщики']]},
+    {story:'Нагрузка всё равно выше расчётной. Что-то придётся выключить. Что именно — решаем заранее и спокойно, а не в панике во время пика.',
+     pay:'Анна какое-то время не видит персональных рекомендаций, а письмо с билетом приходит через пять минут вместо одной.',
+     go:[['resil','Устойчивость: деградация']]},
+    {story:'Через неделю новый крупный старт продаж, а команда хочет выкатить исправление в сервис продаж.',
+     pay:'Выкатка занимает часы, а не минуты. Изменения схемы базы растягиваются на несколько релизов. В дни больших продаж новые фичи ждут.',
+     go:[['release','Релизы']]},
+    {story:'Первый крупный старт продаж позади. Утром приходит жалоба: «у части людей оплата висела минуту». У кого, где и почему?',
+     pay:'Хранение трасс и метрик стоит денег. Сквозной идентификатор надо протаскивать через каждый вызов, иначе цепочка рвётся.',
+     go:[['obs','Наблюдаемость'],['duty','Дежурный']]},
+  ];
+  STEPS.forEach((s, k) => Object.assign(s, EXTRA[k] || {}));
+
   const el = id => document.getElementById(id);
-  let i = 0, pts = 0, doc = [], picks = [];
+  let i = 0, pts = 0, doc = [], picks = [], chosen = null;
   const MAX = STEPS.reduce((s,x) => s + Math.max(...x.opts.map(o => o.pts)), 0);
   el('cap-n').textContent = STEPS.length;
   el('cap-max').textContent = MAX;
+
+  const cls = p => p === 2 ? 'done' : p === 1 ? 'comp' : 'fail';
+  const gos = s => (s.go || []).length
+    ? '<div class="cpx-gos">' + s.go.map(g => '<button data-goto=\"' + g[0] + '\">📖 ' + esc(g[1]) + '</button>').join('') + '</div>' : '';
+
+  function hist(){
+    if(!picks.length) return '';
+    return '<div class="cpx-hist">' + picks.map((p,k) =>
+      '<span class="p' + p.pts + '" title="' + esc(STEPS[k].t + ': ' + p.t) + '">' + (k+1) + ' · ' + esc(STEPS[k].t) + '</span>').join('') + '</div>';
+  }
 
   function draw(){
     if(i >= STEPS.length){ finish(); return; }
     const s = STEPS[i];
     el('cap-i').textContent = i + 1;
-    el('cap-root').innerHTML =
-      (picks.length ? '<div class="steps" style="margin-bottom:16px">' + picks.map((p,k) =>
-        '<div class="step '+(p.pts===2?'done':p.pts===1?'comp':'fail')+'"><div class="si">'+(k+1)+'</div><div><b>'+esc(STEPS[k].t)+':</b> '+esc(p.t)+'<span class="sx">'+p.why+'</span></div></div>').join('') + '</div>' : '') +
-      '<div class="rtask"><div class="rq2"><b>'+esc(s.t)+'.</b> '+esc(s.q)+'</div>' +
-      '<div class="rbtns" style="flex-direction:column;align-items:stretch">' +
-      shuffleBy(s.opts, s.q).map(j => '<button class="rb" data-j="'+j+'">'+esc(s.opts[j].t)+'</button>').join('') + '</div></div>';
+    let html = hist() +
+      '<div class="cpx-story"><span class="l">что случилось</span>' + esc(s.story || '') + '</div>' +
+      '<div class="rtask"><div class="rq2"><b>' + esc(s.t) + '.</b> ' + esc(s.q) + '</div>';
+    if(!chosen){
+      html += '<div class="rbtns" style="flex-direction:column;align-items:stretch">' +
+        shuffleBy(s.opts, s.q).map(j => '<button class="rb" data-j="' + j + '">' + esc(s.opts[j].t) + '</button>').join('') + '</div></div>';
+    } else {
+      const best = s.opts.reduce((a,b) => b.pts > a.pts ? b : a);
+      html += '<div class="steps"><div class="step ' + cls(chosen.pts) + '"><div class="si">' + (i+1) + '</div><div><b>Ваш выбор:</b> ' + esc(chosen.t) + '</div></div></div>' +
+        '<div class="cpx-ep">' +
+          '<b>почему</b><div>' + chosen.why + '</div>' +
+          (chosen === best ? '' : '<b>лучше было</b><div><b>' + esc(best.t) + '.</b> ' + best.why + '</div>') +
+          '<b>чем платим</b><div>' + (chosen === best ? '' : 'За лучший вариант: ') + esc(s.pay || '') + '</div>' +
+          '<b>где разобрано</b><div>' + gos(s) + '</div>' +
+        '</div>' +
+        '<div class="form-row"><button class="act" data-cpx="next">' + (i + 1 < STEPS.length ? 'Следующий эпизод →' : 'Собрать документ →') + '</button></div></div>';
+    }
+    el('cap-root').innerHTML = html;
   }
   el('cap-root').addEventListener('click', e => {
-    const b = e.target.closest('.rb'); if(!b) return;
+    const nx = e.target.closest('[data-cpx=next]');
+    if(nx){ chosen = null; i++; draw(); return; }
+    const b = e.target.closest('.rb'); if(!b || chosen) return;
     const o = STEPS[i].opts[+b.dataset.j];
-    pts += o.pts; doc.push(o.doc); picks.push(o);
-    i++; draw();
+    pts += o.pts; doc.push(o.doc); picks.push(o); chosen = o;
+    draw();
     Progress.report('cap', pts);
   });
   function finish(){
+    el('cap-i').textContent = STEPS.length;
     el('cap-root').innerHTML = '<div class="steps">' + picks.map((p,k) =>
-      '<div class="step '+(p.pts===2?'done':p.pts===1?'comp':'fail')+'"><div class="si">'+(k+1)+'</div><div><b>'+esc(STEPS[k].t)+':</b> '+esc(p.t)+'<span class="sx">'+p.why+'</span></div></div>').join('') + '</div>';
+      '<div class="step ' + cls(p.pts) + '"><div class="si">' + (k+1) + '</div><div><b>' + esc(STEPS[k].t) + ':</b> ' + esc(p.t) + '<span class="sx">' + p.why + '</span></div></div>').join('') + '</div>' +
+      '<div class="note good">Готово. Документ решения — в главе 7, а в главе 4 можно посмотреть, как эти решения складываются в схему.</div>';
     el('cap-doc-card').hidden = false;
+    const w = el('cpx-doc-wait'); if(w) w.hidden = true;
     el('cap-pts').textContent = pts;
     const pct = pts / MAX;
     const grade = pct >= .9 ? 'архитектор' : pct >= .75 ? 'крепко' : pct >= .55 ? 'рабочий вариант' : 'есть чему поучиться';
@@ -279,13 +491,192 @@
       '  продано дважды. Команда 14 человек, платформенной команды нет.\n\n' +
       'ПРИНЯТЫЕ РЕШЕНИЯ\n' +
       doc.map((d,k) => '  ' + (k+1) + '. ' + d).join('\n') + '\n\n' +
+      'ЧЕМ ПЛАТИМ (за рекомендованные варианты)\n' +
+      STEPS.map((s,k) => '  ' + (k+1) + '. ' + (s.pay || '')).join('\n') + '\n\n' +
       'ОЦЕНКА: ' + pts + ' / ' + MAX + ' (' + Math.round(pct*100) + ' %) — ' + grade + '\n' +
       'Дата: ' + new Date().toISOString().slice(0,10);
-    if(pct >= .75) confetti(34);
+    if(pct >= .75 && typeof matchMedia === 'function') confetti(34);
     Progress.report('cap', pts);
   }
-  el('cap-restart').addEventListener('click', () => { i = 0; pts = 0; doc = []; picks = []; el('cap-doc-card').hidden = true; draw(); });
+  el('cap-restart').addEventListener('click', () => {
+    i = 0; pts = 0; doc = []; picks = []; chosen = null;
+    el('cap-doc-card').hidden = true;
+    const w = el('cpx-doc-wait'); if(w) w.hidden = false;
+    draw();
+  });
   draw();
   Progress.register('cap', MAX, 'Капстоун');
+})();
+</script>
+
+<script>
+/* ═══ Капстоун: сборка системы по шагам и аварии (глава 4–5) ═══ */
+(function(){
+  const dia = document.getElementById('cpx-dia');
+  if(!dia) return;
+  const $ = id => document.getElementById(id);
+
+  const LAYERS = [
+    {n:'клиент',   ids:['anna']},
+    {n:'вход',     ids:['cdn','gw','queue']},
+    {n:'сервисы',  ids:['mono','sales','seats']},
+    {n:'данные',   ids:['session','dbm','dbs','dbseat']},
+    {n:'события',  ids:['broker','notif','analytics','pay']},
+    {n:'присмотр', ids:['obs']},
+  ];
+  const N = {
+    anna:     ['📱 Анна', 'приложение в телефоне'],
+    cdn:      ['🌍 CDN', 'копии карточек афиши рядом с людьми'],
+    gw:       ['🚪 Шлюз API', 'вход, лимиты, trace_id'],
+    queue:    ['⏳ Очередь ожидания', 'пускает к покупке порциями'],
+    mono:     ['🏠 Модульный монолит', 'афиша, партнёры, отчёты'],
+    sales:    ['🧾 Продажа билетов', 'координатор покупки'],
+    seats:    ['💺 Места и брони', 'единственный владелец мест'],
+    session:  ['🗝 Хранилище сессий', 'сессии и номера в очереди'],
+    dbm:      ['🗄 База монолита', 'мероприятия, партнёры'],
+    dbs:      ['🗄 База продаж', 'покупки + таблица outbox'],
+    dbseat:   ['🗄 База мест', 'свободно / резерв / продано'],
+    broker:   ['📨 Брокер событий', 'разносит факты подписчикам'],
+    notif:    ['✉️ Уведомления', 'письмо с билетом'],
+    analytics:['📊 Аналитика', 'витрина отчётов для партнёров'],
+    pay:      ['💳 Платёжный провайдер', 'внешняя система'],
+    obs:      ['🔭 Наблюдаемость', 'трассы, метрики, цель 99,9 % покупок'],
+  };
+  const STEPS = [
+    {add:['anna'], path:['anna'], t:'Начинаем с человека',
+     d:'Не с серверов, а с Анны. Продажи стартуют в 12:00, у неё есть только приложение. Всё, что появится дальше, нужно ради одного: чтобы её нажатие «Купить» закончилось билетом.'},
+    {add:['mono','dbm'], path:['anna','mono','dbm'], t:'Модульный монолит — основа', ep:'эпизод 1', go:[['modular','Модульный монолит']],
+     d:'Анна открывает афишу. Запрос приходит в одно приложение, разделённое внутри на модули: афиша, партнёры, отчёты. База одна. Для команды из 14 человек это дёшево в работе.'},
+    {add:['sales','seats','dbs','dbseat'], path:['anna','sales','seats','dbseat'], t:'Выносим продажу и места', ep:'эпизоды 1–3', go:[['split','Как резать'],['data','Данные и владение']],
+     d:'Продажа билетов и места живут отдельно: у них свой профиль нагрузки и жёсткое правило «одно место — один покупатель». У мест единственный владелец и своя база. Больше никто не пишет в таблицу мест напрямую.'},
+    {add:['gw'], path:['anna','gw','mono'], t:'Шлюз — единая дверь', go:[['gw','Gateway, BFF, mesh']],
+     d:'Сервисов уже несколько, но Анна не должна знать их адреса. Шлюз принимает все запросы, проверяет вход, отсекает лишнее по лимитам, выдаёт запросу сквозной номер trace_id и отправляет туда, куда нужно. Как ресепшен в бизнес-центре.'},
+    {add:['cdn'], path:['anna','cdn'], t:'CDN и кеш афиши', ep:'эпизод 10', go:[['cache','Кеш']],
+     d:'Анна обновляет карточку концерта каждые пять секунд. Ответ приходит с ближайшего сервера CDN — до нашей системы запрос даже не доходит. Когда карточка меняется, событие сбрасывает кеш.'},
+    {add:['queue','session'], path:['anna','gw','queue','session'], t:'Очередь ожидания', ep:'эпизоды 4 и 11', go:[['scale','Масштаб и состояние'],['resil','Устойчивость']],
+     d:'12:00. Анна и ещё 50 000 человек жмут «Купить». Шлюз отправляет всех в очередь, Анна получает номер 3 812. Номер лежит во внешнем хранилище, а не в памяти сервера, поэтому перезапуск сервера его не потеряет.'},
+    {add:[], path:['anna','gw','sales','seats','dbseat'], t:'Резерв места', ep:'эпизод 5', go:[['saga','Саги'],['db','Базы данных']], ok:true,
+     d:'Очередь дошла. Анна жмёт на место 7 в ряду 12. Сервис мест в одной транзакции проверяет, что место свободно, и ставит резерв на 15 минут. Борис, нажавший в ту же секунду, видит «место уже занято» — вежливо и без ошибки.'},
+    {add:['pay'], path:['sales','pay','sales','dbs'], t:'Оплата — точка невозврата', ep:'эпизоды 6–7', go:[['saga','Саги']],
+     d:'Координатор в сервисе продаж ведёт шаги по порядку: резерв → промокод → оплата. Оплата — единственная точка, после которой назад не откатываемся. Состояние покупки Анны записано в базе продаж, поэтому поддержка видит, на каком она шаге.'},
+    {add:['broker'], path:['sales','dbs','broker'], t:'Outbox и брокер', ep:'эпизод 8', go:[['outbox','Outbox и CDC']],
+     d:'Билет выпущен. В той же транзакции, что и билет, в таблицу outbox записано событие «билет продан». Отдельный процесс-реле забирает его и публикует в брокер. Если брокер лежит, событие просто подождёт в таблице.'},
+    {add:['notif','analytics'], path:['broker','notif','analytics'], t:'Письмо и отчёт', ep:'эпизоды 9 и 12', go:[['cqrs','CQRS и витрины'],['comm','Как сервисы говорят']],
+     d:'Из брокера событие забирают уведомления — Анне уходит письмо с билетом — и аналитика: витрина партнёра обновится через минуту. Покупку они не тормозят, а если упадут, догонят потом.'},
+    {add:['obs'], path:['gw','sales','seats','obs'], t:'Наблюдаемость', ep:'эпизод 14', go:[['obs','Наблюдаемость']],
+     d:'Каждый шаг Анны оставил след с одним и тем же trace_id. На дашборде видна доля успешных покупок. Если она упадёт ниже цели 99,9 %, сработает алерт и разбудит дежурного.'},
+    {add:[], path:['anna','cdn','gw','queue','session','sales','seats','dbseat','pay','dbs','broker','notif','analytics'], t:'Весь путь Анны', ok:true,
+     d:'12:00:00 — нажала «Купить». 12:03:40 — очередь дошла. 12:04:10 — место выбрано и зарезервировано. 12:05:02 — оплата прошла. 12:05:03 — билет выпущен. 12:05:30 — письмо в почте. Каждый компонент на схеме появился не «потому что модно», а в ответ на конкретную проблему.'},
+  ];
+  const WHAT = {
+    broker:{bad:['broker'], warn:['notif','analytics'], k:'ok', go:[['outbox','Outbox и CDC']],
+      d:'<b>Анна покупает как обычно.</b> События «билет продан» копятся в таблице outbox, реле пробует снова. Письмо придёт на десять минут позже, отчёт партнёра отстанет. Когда брокер поднимется, всё догонит. <b>Спасло:</b> transactional outbox (эпизод 8).'},
+    notif:{bad:['notif'], warn:[], k:'ok', go:[['resil','Устойчивость'],['comm','Как сервисы говорят']],
+      d:'<b>Покупка не страдает.</b> Уведомления отделены брокером: продажа не ждёт, пока уйдёт письмо. Сообщения ждут в очереди, и письмо уйдёт, когда сервис поднимут. Билет Анна видит в приложении сразу. <b>Спасло:</b> асинхронная связь и план деградации (эпизоды 8 и 12).'},
+    node:{bad:[], warn:['gw'], k:'ok', go:[['scale','Масштаб и состояние'],['lb','Балансировщики']],
+      d:'<b>Анна ничего не заметила.</b> Её номер 3 812 лежит во внешнем хранилище, поэтому следующий запрос спокойно обработает другой узел. Балансировщик просто перестал слать трафик на перезапускающийся. <b>Спасло:</b> узлы без состояния (эпизод 11).'},
+    pay:{bad:['pay'], warn:['sales'], k:'warn', go:[['resil','Устойчивость'],['saga','Саги']],
+      d:'<b>Анна ждёт, но не теряет ни денег, ни места.</b> Координатор ждёт ответа провайдера с таймаутом, резерв места держится 15 минут. Если оплата так и не прошла, резерв снимается, деньги не списаны, Анна видит «оплата не прошла, попробуйте ещё раз». <b>Спасло:</b> таймауты, резерв со сроком жизни и координатор (эпизоды 5–7).'},
+    peak:{bad:[], warn:['queue','session'], k:'warn', go:[['scale','Масштаб и состояние'],['resil','Устойчивость']],
+      d:'<b>Анна ждёт в очереди шесть минут вместо четырёх, но система не падает.</b> К покупке пускают столько людей, сколько выдерживает ядро продаж. Рекомендации временно выключены, письма идут с задержкой. <b>Спасло:</b> очередь ожидания и заранее решённый план деградации (эпизоды 4 и 12).'},
+    seats:{bad:['dbseat','seats'], warn:['sales','queue'], k:'err', go:[['db','Базы данных'],['duty','Дежурный']],
+      d:'<b>Продажи останавливаются.</b> Это честный отказ: продавать без владельца мест нельзя, иначе будут двойные продажи. Афиша продолжает открываться из кеша, очередь держит людей. Алерт на долю успешных покупок будит дежурного. <b>Урок:</b> у критичного компонента должна быть реплика и отрепетированный план восстановления — это цена решения «единственный владелец» (эпизод 3).'},
+  };
+
+  const nm = id => N[id][0].replace(/^\S+\s/, '');
+  dia.innerHTML = LAYERS.map((L, li) =>
+    '<div class="cpx-layer" data-l="' + li + '"><div class="cpx-ll">' + L.n + '</div><div class="cpx-nodes">' +
+      L.ids.map(id => '<div class="cpx-node" data-id="' + id + '"><div class="n">' + N[id][0] + '</div><div class="s">' + esc(N[id][1]) + '</div></div>').join('') +
+    '</div></div>').join('');
+  const nodes = [...dia.querySelectorAll('.cpx-node')];
+  const layers = [...dia.querySelectorAll('.cpx-layer')];
+  let cur = 0, timer = null, fail = null;
+
+  function goBtns(go){
+    return (go && go.length) ? '<div class="cpx-gos">' + go.map(g => '<button data-goto=\"' + g[0] + '\">📖 ' + esc(g[1]) + '</button>').join('') + '</div>' : '';
+  }
+  function paint(){
+    const st = STEPS[cur];
+    const shown = new Set();
+    for(let k = 0; k <= cur; k++) STEPS[k].add.forEach(x => shown.add(x));
+    const fresh = new Set(fail ? [] : st.add);
+    const order = {};
+    if(!fail) st.path.forEach((id, k) => { if(!(id in order)) order[id] = k + 1; });
+    nodes.forEach(n => {
+      const id = n.dataset.id;
+      n.classList.toggle('cpx-hide', !shown.has(id));
+      n.classList.toggle('cpx-new', fresh.has(id));
+      n.classList.toggle('cpx-hot', id in order);
+      n.classList.toggle('cpx-bad', !!fail && fail.bad.includes(id));
+      n.classList.toggle('cpx-warn', !!fail && fail.warn.includes(id));
+      const old = n.querySelector('.cpx-b'); if(old) old.remove();
+      if(id in order) n.insertAdjacentHTML('beforeend', '<span class="cpx-b">' + order[id] + '</span>');
+      if(fail && fail.bad.includes(id)) n.insertAdjacentHTML('beforeend', '<span class="cpx-b">✕</span>');
+    });
+    layers.forEach((l, li) => l.classList.toggle('cpx-hide', !LAYERS[li].ids.some(id => shown.has(id))));
+    $('cpx-b-lab').textContent = 'шаг ' + (cur + 1) + ' из ' + STEPS.length;
+    $('cpx-b-path').innerHTML = fail ? '' : '<i>путь запроса:</i> ' + st.path.map(id => '<span>' + esc(nm(id)) + '</span>').join('<i>→</i>');
+    $('cpx-b-out').innerHTML = fail ? '' : '<div class="skout" style="margin-top:10px"><h4>Шаг ' + (cur + 1) + '. ' + esc(st.t) + (st.ep ? ' <span style="color:var(--faint);font-weight:500">· ' + st.ep + '</span>' : '') + '</h4>' +
+      '<div class="note' + (st.ok ? ' good' : '') + '" style="margin:0">' + st.d + '</div>' + goBtns(st.go) + '</div>';
+  }
+  function stop(){ if(timer){ clearInterval(timer); timer = null; } $('cpx-b-play').textContent = '▶ Прогнать'; }
+  function clearFail(){
+    fail = null;
+    [...$('cpx-w-pick').children].forEach(b => b.classList.remove('on'));
+    $('cpx-w-out').innerHTML = '<div class="console"><span class="ic">ℹ</span><span>Выберите аварию выше.</span></div>';
+  }
+  $('cpx-b-next').addEventListener('click', () => { stop(); clearFail(); if(cur < STEPS.length - 1) cur++; paint(); });
+  $('cpx-b-prev').addEventListener('click', () => { stop(); clearFail(); if(cur > 0) cur--; paint(); });
+  $('cpx-b-reset').addEventListener('click', () => { stop(); clearFail(); cur = 0; paint(); });
+  $('cpx-b-play').addEventListener('click', () => {
+    if(timer){ stop(); return; }
+    clearFail();
+    if(cur >= STEPS.length - 1) cur = 0;
+    paint();
+    $('cpx-b-play').textContent = '⏸ Пауза';
+    timer = setInterval(() => {
+      const panel = dia.closest('.panel');
+      if(cur >= STEPS.length - 1 || (panel && !panel.classList.contains('active'))){ stop(); return; }
+      cur++; paint();
+    }, 1800);
+  });
+
+  $('cpx-w-pick').addEventListener('click', e => {
+    const b = e.target.closest('button[data-w]'); if(!b) return;
+    stop();
+    const w = WHAT[b.dataset.w];
+    [...b.parentNode.children].forEach(x => x.classList.toggle('on', x === b));
+    cur = STEPS.length - 1; fail = w; paint();
+    $('cpx-w-out').innerHTML = '<div class="console ' + w.k + '"><span class="ic">' + (w.k === 'ok' ? '✓' : w.k === 'warn' ? '⚠' : '✕') + '</span><span>' + w.d + '</span></div>' +
+      goBtns(w.go) +
+      '<p style="font-size:12.5px;color:var(--faint);margin:10px 0 0">Схема в главе 4 переключилась на итоговую и показывает аварию. Чтобы вернуться к пошаговой сборке, нажмите там «Сначала».</p>';
+  });
+
+  paint();
+})();
+</script>
+
+<script>
+/* ═══ Капстоун: проверьте себя (ключ прогресса cpx-score) ═══ */
+(function(){
+  if(!document.getElementById('cpx-quiz')) return;
+  renderTasks('cpx-quiz', [
+    {q:'Анна обновляет карточку концерта, а запрос даже не доходит до наших серверов. Кто ей ответил?',
+     opts:[{t:'CDN', ok:true},{t:'Шлюз API'},{t:'Модульный монолит'}],
+     why:'Карточку раздаёт CDN — сеть серверов с копиями рядом с пользователями. Шлюз и монолит в этот момент отдыхают. Поэтому 50 000 обновлений в минуту не превращаются в 50 000 запросов к базе.'},
+    {q:'Сервер, через который Анна стояла в очереди, перезагрузился. Почему она не потеряла номер 3 812?',
+     opts:[{t:'Номер хранится во внешнем хранилище, а узлы ничего не помнят сами', ok:true},{t:'Липкая сессия вернула её на тот же сервер'},{t:'Номер записан в браузере Анны'}],
+     why:'Узлы без состояния взаимозаменяемы: любой следующий узел достанет номер из внешнего хранилища. Липкая сессия, наоборот, потеряла бы номер вместе с упавшим узлом, а номеру в браузере нельзя доверять — его можно подделать.'},
+    {q:'Брокер событий лежал 10 минут. Что стало с событием «билет Анны продан»?',
+     opts:[{t:'Подождало в таблице outbox и ушло, когда брокер поднялся', ok:true},{t:'Потерялось, письмо не придёт'},{t:'Покупка откатилась'}],
+     why:'Событие записано в той же транзакции, что и билет. Реле публикует его, как только брокер снова доступен. Покупка при этом не зависит от брокера вовсе.'},
+    {q:'Анна и Борис нажали на одно место в одну и ту же секунду. Что гарантирует, что место достанется одному?',
+     opts:[{t:'Проверка и резерв в одной транзакции у единственного владельца мест', ok:true},{t:'Кеш на шлюзе'},{t:'Очередь ожидания'}],
+     why:'Очередь только сглаживает поток, кеш вообще про чтение. Двойную продажу предотвращает то, что «проверить и занять» — одна неделимая операция, и делает её только сервис мест.'},
+    {q:'Какой шаг покупки Анны — точка невозврата?',
+     opts:[{t:'Списание денег', ok:true},{t:'Резерв места'},{t:'Письмо с билетом'}],
+     why:'Резерв легко отменить — он сам истечёт через 15 минут. Письмо идёт уже после точки невозврата. А вот после списания денег откатываться дорого: это возврат, поддержка и недовольный человек. Поэтому всё, что можно отменить, делается до оплаты.'},
+  ], 'cpx-score', 'cpx-total');
+  Progress.register('cpx-score', 5, 'Капстоун: история Анны');
 })();
 </script>
