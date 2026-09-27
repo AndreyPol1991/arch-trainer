@@ -69,6 +69,25 @@
     .gwx-sw button.off{border-color:var(--danger); background:var(--danger-bg); text-decoration:line-through}
     .gwx-prob{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:12px; align-items:start}
     @media (max-width:760px){.gwx-prob{grid-template-columns:1fr}}
+
+    /* один звонок изнутри: sidecar */
+    .gwx-sc-wrap{overflow-x:auto; margin-top:12px; border:1px solid var(--line); border-radius:10px; background:var(--surface-2); padding:10px}
+    .gwx-sc-lane{position:relative; min-width:600px; height:150px}
+    .gwx-sc-pod{position:absolute; top:0; bottom:0; border:1.5px dashed var(--line); border-radius:10px; background:var(--surface)}
+    .gwx-sc-pod span{position:absolute; top:5px; left:9px; font:600 10.5px var(--mono); color:var(--faint)}
+    .gwx-sc-row{position:absolute; left:0; right:0; top:28px; display:grid; grid-template-columns:repeat(5,1fr); gap:0 10px; padding:0 10px}
+    .gwx-sc-nd{border:1.5px solid var(--line); background:var(--surface-2); border-radius:9px; padding:7px 8px; font-size:12px; line-height:1.3; text-align:center; transition:all .25s}
+    .gwx-sc-nd b{display:block; font-size:12.5px}
+    .gwx-sc-nd small{display:block; color:var(--faint); font:500 10.5px var(--mono); margin-top:2px}
+    .gwx-sc-nd.on{border-color:var(--accent); background:color-mix(in srgb, var(--accent) 13%, var(--surface)); box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 20%, transparent)}
+    .gwx-sc-nd.bad{border-color:var(--danger); background:var(--danger-bg)}
+    .gwx-sc-nd.none{border-style:dashed; opacity:.45}
+    .gwx-sc-net{align-self:center; text-align:center; font:600 11px var(--mono); color:var(--faint); border-top:2px dashed var(--line); padding-top:4px}
+    .gwx-sc-track{position:absolute; left:0; right:0; bottom:12px; height:30px}
+    .gwx-sc-pkt{position:absolute; top:0; transform:translateX(-50%); white-space:nowrap; font:600 11.5px var(--mono); padding:5px 9px; border-radius:14px; border:1.5px solid var(--accent); background:var(--surface); color:var(--ink); transition:left .6s ease, border-color .2s; box-shadow:var(--shadow)}
+    .gwx-sc-pkt.lock{border-color:var(--ok)}
+    .gwx-sc-pkt.bad{border-color:var(--danger); color:var(--danger)}
+    @media (prefers-reduced-motion:reduce){.gwx-sc-pkt{transition:none}}
   </style>
 
   <div class="card">
@@ -111,7 +130,7 @@
       </div>
       <div class="box">
         <h4><span>📦</span> Сервисная сетка (service mesh)</h4>
-        <p class="bs"><b>Что это:</b> общая служба связи <b>между</b> сервисами. У каждого сервиса есть свой прокси-помощник (sidecar), который сам шифрует, повторяет и записывает каждый вызов.</p>
+        <p class="bs"><b>Что это:</b> общая служба связи <b>между</b> сервисами. Рядом с каждым сервисом запускают маленькую программу-посредника — <b>sidecar</b> («коляска мотоцикла»). Все звонки сервиса незаметно для его кода идут через неё, и она сама шифрует, повторяет и записывает каждый вызов. Подробно — в главе 6.</p>
         <div class="gwx-life">🏢 Внутренняя курьерская служба: у каждого офиса свой курьер, который сам запечатывает конверт, повторяет доставку и ведёт журнал.</div>
       </div>
     </div>
@@ -264,7 +283,50 @@
   <div class="card gwx-ch" id="gwx-ch6">
     <h2><span class="tag">глава 6 · сетка</span> внутри тоже непросто: сервисная сетка</h2>
     <p>Снаружи порядок: шлюз и BFF. Но BFF и сервисы постоянно вызывают друг друга, и у каждого такого вызова одни и те же вопросы. Сколько ждать ответа? Повторять ли, если не ответили? Шифровать ли соединение? Как передать идентификатор запроса дальше? Каждая команда отвечает на них по-своему, на своём языке программирования.</p>
-    <p><b>Определение.</b> Сервисная сетка (service mesh) — слой инфраструктуры, который берёт на себя связь между сервисами. Рядом с каждым сервисом запускается маленький прокси — <b>sidecar</b> («коляска», как у мотоцикла). Весь сетевой трафик сервиса идёт через него, а сам сервис об этом даже не знает. Правила для всех прокси задаются в одном месте.</p>
+    <p>Чтобы понять сетку, сначала надо понять её главную деталь — sidecar.</p>
+
+    <h3>Что такое sidecar</h3>
+    <div class="note" style="margin-top:6px"><b>Определение.</b> Sidecar (читается «сайдкар», дословно «коляска мотоцикла») — отдельная маленькая программа-прокси, чаще всего Envoy. Её запускают <b>рядом с каждым экземпляром</b> сервиса: в том же поде Kubernetes (под — минимальная «коробка», в которой запускаются контейнеры с общим сетевым адресом), то есть на том же localhost. Весь сетевой трафик сервиса, входящий и исходящий, проходит через неё — а код сервиса об этом не знает.</div>
+    <p style="margin-top:12px"><b>Как это выглядит изнутри.</b> Код Заказов думает, что звонит напрямую в <code class="inl">payments:8080</code>. На самом деле правило сетевого фильтра Linux (iptables) незаметно разворачивает звонок на <code class="inl">localhost:15001</code> — в собственный sidecar Заказов. Тот сам шифрует соединение, ставит таймаут, при сбое повторяет, записывает метрики и уже потом доставляет запрос. На другой стороне звонок принимает sidecar Платежей и отдаёт его коду Платежей тоже по localhost.</p>
+    <div class="grid2">
+      <div class="box">
+        <h4>🏍 Из жизни</h4>
+        <p class="bs">Мотоцикл с коляской: мотоцикл едет сам, а в коляске сидит штурман, который читает карту и следит за дорогой. Или в бизнес-центре: у каждого офиса свой секретарь-курьер. Все письма офиса — и входящие, и исходящие — идут через него. Сотрудник пишет «в бухгалтерию», а курьер сам запечатывает конверт, проверяет, от кого пришло письмо, повторяет доставку и ведёт журнал.</p>
+      </div>
+      <div class="box">
+        <h4>❓ Зачем он нужен</h4>
+        <p class="bs"><b>Без sidecar</b> каждый сервис сам в коде реализует шифрование TLS, повторы, таймауты, размыкатель цепи и трассировку. На пяти языках — пятью способами, с разными ошибками. Чтобы поменять таймаут, надо пересобрать и выкатить сервис.</p>
+        <p class="bs" style="margin:0"><b>С sidecar</b> всё это делает одна и та же программа рядом с каждым сервисом. Настраивается она из одного места (об этом ниже), а правила меняются без пересборки кода.</p>
+      </div>
+    </div>
+    <div class="note warn"><b>Чем платите.</b> На каждый экземпляр сервиса — ещё один процесс: память и процессор, умноженные на число экземпляров. На каждом переходе — плюс 1–2 мс. Ещё одна сложная система в эксплуатации. И новый вид отладки: кто порвал соединение — сервис или его sidecar?</div>
+
+    <h3>Интерактив: один звонок изнутри</h3>
+    <p>Сервис Заказов вызывает сервис Платежей. Выберите режим и сценарий и нажимайте «Дальше»: конверт с запросом поедет по схеме, а под ней видно, что происходит на каждом шаге. Справа от схемы — какой код для этого написан в сервисе и что лежит в настройках sidecar.</p>
+    <div class="seg" id="gwx-sc-mode">
+      <button class="on" data-m="0">🧑‍💻 Без sidecar</button>
+      <button data-m="1">🏍 С sidecar</button>
+    </div>
+    <div class="seg" id="gwx-sc-scn">
+      <button class="on" data-s="ok">✅ Обычный звонок</button>
+      <button data-s="slow">🐢 Платежи тормозят</button>
+    </div>
+    <div class="gwx-sc-wrap"><div class="gwx-sc-lane" id="gwx-sc-lane"></div></div>
+    <div class="skbar">
+      <button class="ghost" id="gwx-sc-prev">← Назад</button>
+      <button class="act" id="gwx-sc-next">Дальше →</button>
+      <button class="ghost" id="gwx-sc-reset">⟲ Сначала</button>
+      <span class="skstep" id="gwx-sc-lab"></span>
+    </div>
+    <div id="gwx-sc-out"></div>
+    <div class="gwx-grid">
+      <div><div class="gwx-lbl" id="gwx-sc-l1"></div><pre class="json" id="gwx-sc-code" style="font-size:12px;margin:0;white-space:pre-wrap"></pre></div>
+      <div><div class="gwx-lbl" id="gwx-sc-l2"></div><pre class="json" id="gwx-sc-cfg" style="font-size:12px;margin:0;white-space:pre-wrap"></pre></div>
+    </div>
+    <p style="color:var(--muted);font-size:13.5px;margin-top:12px">Пройдено сценариев до конца: <b id="gwx-sc-score">0</b> из 4.</p>
+
+    <h3>Теперь — сетка целиком</h3>
+    <p><b>Определение.</b> Сервисная сетка (service mesh) — это все sidecar-ы рядом со всеми сервисами плюс «диспетчерская», которая раздаёт им одинаковые правила. Вместе они берут на себя связь между сервисами, а код сервисов об этом не знает.</p>
     <p>В бизнес-центре это внутренняя курьерская служба. У каждого офиса свой курьер. Сотрудник просто отдаёт ему бумагу: «в бухгалтерию». Курьер сам запечатывает конверт, ждёт не дольше положенного, при неудаче приходит ещё раз и записывает каждую доставку в журнал. Правила для всех курьеров одни.</p>
 
     <div class="seg" id="gwx-mesh-mode">
@@ -283,11 +345,11 @@
     <div class="grid2">
       <div class="box">
         <h4>Плоскость данных (data plane)</h4>
-        <p class="bs">Это сами прокси рядом с каждым экземпляром, чаще всего Envoy. Они перехватывают входящий и исходящий трафик и делают всю работу: mTLS (взаимное шифрование, где <b>обе</b> стороны предъявляют сертификат), повторы, таймауты, размыкание цепи (circuit breaker — перестать звонить тому, кто всё равно не отвечает), балансировку, метрики и трассировку. В коде сервиса — ни строчки.</p>
+        <p class="bs"><b>Простыми словами: все sidecar-ы, которые реально носят трафик.</b> Это сами прокси рядом с каждым экземпляром, чаще всего Envoy. Они перехватывают входящий и исходящий трафик и делают всю работу: mTLS (взаимное шифрование, где <b>обе</b> стороны предъявляют сертификат), повторы, таймауты, размыкание цепи (circuit breaker — перестать звонить тому, кто всё равно не отвечает), балансировку, метрики и трассировку. В коде сервиса — ни строчки.</p>
       </div>
       <div class="box">
         <h4>Плоскость управления (control plane)</h4>
-        <p class="bs">Диспетчерская курьерской службы: Istio, Linkerd. Раздаёт прокси правила и сертификаты. Политика «сервис A может ходить в B, но не в C» описывается декларативно, то есть одним файлом-описанием, и применяется ко всем сразу.</p>
+        <p class="bs"><b>Простыми словами: диспетчерская, которая раздаёт всем sidecar-ам настройки и сертификаты.</b> Сама трафик не носит. Примеры: Istio, Linkerd. Вы пишете правило один раз — она рассылает его всем прокси. Политика «сервис A может ходить в B, но не в C» описывается декларативно, то есть одним файлом-описанием, и применяется ко всем сразу.</p>
       </div>
     </div>
     <div id="mesh-pm"></div>
@@ -907,7 +969,7 @@ OE --&gt; [Сервис платежей]</pre>
        data:"правило:  /mobile/**  →  bff-mobile\n\nбыло:  GET /mobile/orders/77\nстало: GET /orders/77\n       X-User-Id: cus-3\n       X-Request-Id: 8f21a4c0",
        why:'Шлюз знает только маршруты. Что показать на экране мобильного, его не касается.'},
       {who:'🧑‍💼 BFF мобильного', on:['bff','scb'], arr:[], t:'BFF: какие данные нужны экрану',
-       d:'Запрос сначала принимает sidecar — прокси рядом с BFF — и отдаёт его BFF по локальному адресу. BFF знает экран заказа в мобильном приложении: нужны товары, срок доставки и статус оплаты. Он отправляет три вызова <b>одновременно</b>, а не по очереди.',
+       d:'Запрос сначала принимает sidecar BFF — маленькая программа-прокси, запущенная рядом с BFF на той же машине (как коляска у мотоцикла). Через неё идут все звонки BFF, внутрь и наружу. Она отдаёт запрос BFF по локальному адресу. BFF знает экран заказа в мобильном приложении: нужны товары, срок доставки и статус оплаты. Он отправляет три вызова <b>одновременно</b>, а не по очереди.',
        data:"BFF вызывает сервисы по именам, без адресов:\n  → http://orders/orders/77\n  → http://delivery/deliveries?order=77\n  → http://payments/payments?order=77\n\nв коде BFF нет ни таймаутов, ни повторов,\nни шифрования — это сделает sidecar",
        why:'По внутренней сети три вызова занимают миллисекунды. С телефона в метро это были бы три похода по медленной сети.'},
       {who:'📦 Сетка · sidecar', on:['scb','sco','scd','scp'], arr:['a4'], t:'Сетка: курьеры везут три конверта',
@@ -1308,5 +1370,148 @@ OE --&gt; [Сервис платежей]</pre>
     }));
     rec();
   })();
+})();
+</script>
+
+<script>
+/* ═══ 18.y Один звонок изнутри: что делает sidecar ═══ */
+(function(){
+  const lane = document.getElementById('gwx-sc-lane');
+  if(!lane) return;
+  const $id = s => document.getElementById(s);
+  const POS = {co:10, so:30, net:50, sp:70, cp:90};
+  let md = 0, scn = 'ok', i = 0;
+  const done = new Set();
+  Progress.register('gwx-sc', 4, 'Sidecar: один звонок изнутри');
+
+  const S1 = [
+    {p:'co', pkt:'✉ GET /pay', t:'Код Заказов звонит в Платежи',
+     d:'Код пишет обычный вызов по имени и думает, что звонит прямо в payments:8080. Ни шифрования, ни повторов, ни таймаутов в нём нет.',
+     data:"payments.pay(order77)\n  → GET http://payments:8080/pay?order=77\n    Idempotency-Key: ord-77-pay"},
+    {p:'so', pkt:'✉ GET /pay', t:'Перехват: звонок попал в свой sidecar',
+     d:'Правило сетевого фильтра Linux (iptables), которое сетка поставила при запуске пода, разворачивает все исходящие соединения на localhost:15001. Там слушает sidecar Заказов. Код ничего не заметил: для него соединение просто открылось.',
+     data:"iptables в поде orders:\n  весь исходящий TCP → 127.0.0.1:15001\n\nкод думает:     orders → payments:8080\nна самом деле:  orders → localhost:15001 (свой sidecar)"},
+    {p:'so', pkt:'✉ + заголовки', t:'sidecar Заказов готовит конверт',
+     d:'Sidecar добавляет заголовок трассировки, ставит таймаут 2 с, смотрит, какие экземпляры Платежей сейчас живы, и выбирает один. Потом открывает соединение mTLS и предъявляет сертификат «я — orders».',
+     data:"+ traceparent: 00-8f21a4c0…-3c1f-01\n  таймаут: 2 с, повторов: до 2\n  экземпляры payments: p-1 ✓  p-2 ✓  p-3 ✕\n  выбран: p-2\n  mTLS: сертификат spiffe://shop/sa/orders"},
+    {p:'net', pkt:'🔒 ▓▓▓▓▓▓', k:'lock', t:'По сети — только зашифрованно',
+     d:'Между подами летят зашифрованные байты. Тот, кто подслушивает сеть, не увидит ни адреса запроса, ни номера заказа, ни суммы.',
+     data:"что видно в сети:\n  10.1.4.17:41822 → 10.1.7.33:15006\n  ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓  (TLS 1.3)"},
+  ];
+  const STEPS = {
+    '1ok': S1.concat([
+      {p:'sp', pkt:'✉ GET /pay', t:'sidecar Платежей проверяет, кто звонит',
+       d:'Sidecar Платежей расшифровывает запрос и смотрит на сертификат собеседника: это orders. Правило разрешает orders звонить в payments — пропускаем. Заодно записывает метрику.',
+       data:"сертификат клиента: spiffe://shop/sa/orders ✓\nполитика: orders → payments   РАЗРЕШЕНО\n(звонок от reviews получил бы 403)\n\nметрика: requests_total{src=orders,dst=payments} +1"},
+      {p:'cp', pkt:'✉ GET /pay', t:'Код Платежей получает обычный запрос',
+       d:'Код Платежей видит простой HTTP-запрос на localhost:8080. Ему не нужно знать про сертификаты и шифрование: всё уже проверено.',
+       data:"GET /pay?order=77 HTTP/1.1\nHost: payments:8080\ntraceparent: 00-8f21a4c0…\nIdempotency-Key: ord-77-pay\n(пришёл с 127.0.0.1 — от своего sidecar)"},
+      {p:'co', pkt:'✓ 200 OK', k:'lock', t:'Ответ идёт обратно тем же путём',
+       d:'Ответ проходит через оба sidecar, и они записывают время и код ответа. Код Заказов получает результат, как будто звонил напрямую.',
+       data:"HTTP 200 OK  (38 мс)\nметрика: latency{orders→payments} = 38 мс\n\nкод Заказов: result = payments.pay(order77) ✓"},
+    ]),
+    '1slow': S1.concat([
+      {p:'sp', pkt:'✉ … ждём', k:'bad', bad:['cp'], t:'Платежи задумались',
+       d:'Экземпляр p-2 перегружен и молчит. Код Заказов в это время просто ждёт результата своего вызова.',
+       data:"p-2: 0,5 с … 1 с … 1,5 с … тишина"},
+      {p:'so', pkt:'⏱ 2 с', k:'bad', t:'Таймаут: sidecar оборвал ожидание',
+       d:'Через 2 секунды sidecar Заказов перестаёт ждать и сам, без участия кода, повторяет запрос на другой экземпляр. Повтор оплаты безопасен только потому, что у запроса есть ключ идемпотентности: Платежи узнают его и не спишут деньги дважды.',
+       data:"p-2: нет ответа за 2 с ✕\nправило: retries 2, retryOn: 5xx, reset\n→ повтор на p-1\n\nIdempotency-Key: ord-77-pay   ← без него повторять оплату нельзя!"},
+      {p:'cp', pkt:'🔒 повтор', k:'lock', t:'Повтор на живой экземпляр',
+       d:'p-1 отвечает за 40 мс. Sidecar помечает p-2 как подозрительный.',
+       data:"попытка 2 → p-1: 200 OK (40 мс) ✓\nsidecar: у p-2 ошибок подряд: 1 из 5"},
+      {p:'co', pkt:'✓ 200 OK', k:'lock', t:'Код Заказов даже не узнал о заминке',
+       d:'Код получил обычный ответ, только позже. В его логике нет ни строчки про повтор.',
+       data:"result = payments.pay(order77)   ✓\n(всего 2,04 с: таймаут + повтор)"},
+      {p:'so', pkt:'⚡ 503 сразу', k:'bad', bad:['cp'], t:'А если тормозят все экземпляры — размыкатель',
+       d:'После 5 ошибок подряд sidecar выключает больной экземпляр на 30 секунд (размыкание цепи, circuit breaker). Если больны все, следующие звонки получают отказ сразу, без похода в сеть. Заказы не держат потоки в ожидании, а Платежи могут отдышаться. Что показать пользователю, решает уже код Заказов.',
+       data:"outlierDetection: 5 ошибок подряд → выключить на 30 с\n\np-1 ✕  p-2 ✕  p-3 ✕\nвызов → 503 за 1 мс, без сети\n\nкод Заказов: поймал ошибку → «оплата обрабатывается»"},
+    ]),
+    '0ok': [
+      {p:'co', pkt:'✉ GET /pay', t:'Код Заказов сам готовит звонок',
+       d:'Всё, что делал бы sidecar, теперь написано в коде Заказов: загрузить сертификат, открыть TLS, добавить заголовок трассировки, выставить таймаут, выбрать живой экземпляр. Посмотрите на код ниже.',
+       data:"≈ 40 строк служебного кода\nвокруг одной строки бизнес-логики"},
+      {p:'net', pkt:'🔒? ▓▓▓', t:'По сети — если команда настроила TLS',
+       d:'Шифрование будет, только если обе команды его настроили и не отключили проверку сертификата «на время теста». На практике в части сервисов его нет.',
+       data:"если TLS настроен: ▓▓▓▓▓▓\nесли нет:          GET /pay?order=77&amount=4200\n                   ← видно всем, кто слушает сеть"},
+      {p:'cp', pkt:'✉ GET /pay', t:'Код Платежей сам проверяет всё',
+       d:'Код Платежей сам принимает TLS, сам проверяет сертификат звонящего, сам пишет метрику и сам достаёт заголовок трассировки. На Python — своими библиотеками и со своими ошибками.',
+       data:"# Платежи, Python — ещё ~30 строк\nssl_ctx.verify_mode = ssl.CERT_REQUIRED\nif peer_cn not in ALLOWED: abort(403)\nmetrics.inc('requests', src=peer_cn)\n…"},
+      {p:'co', pkt:'✓ 200 OK', t:'Ответ',
+       d:'Работает, и даже на 1–2 мс быстрее. Но то же самое написано ещё в четырёх сервисах, на других языках и немного по-разному.',
+       data:"HTTP 200 OK (37 мс)\n\nцена: ~70 строк служебного кода\nв каждой паре «кто звонит — кому звонят»"},
+    ],
+    '0slow': [
+      {p:'co', pkt:'✉ GET /pay', t:'Код Заказов сам готовит звонок',
+       d:'Как и в обычном сценарии: сертификаты, TLS, трассировка, таймаут — всё в коде Заказов.',
+       data:"≈ 40 строк служебного кода\nвокруг одной строки бизнес-логики"},
+      {p:'cp', pkt:'✉ … ждём', k:'bad', bad:['cp'], t:'Платежи задумались',
+       d:'Экземпляр Платежей перегружен. Код Заказов ждёт — сколько именно, зависит от того, что написал программист.',
+       data:"ожидание: 0,5 с … 1 с … 2 с …"},
+      {p:'co', pkt:'⏱ 2 с', k:'bad', t:'Таймаут и повтор — в коде каждого сервиса',
+       d:'Таймаут 2 с и цикл повторов написаны в Java-коде Заказов. А в Python-сервисе Возвратов тот же вызов написан с таймаутом 30 с и 5 повторами без паузы.',
+       data:"// Заказы, Java\nfor (int i = 0; i < 3; i++) { … timeout(2s) … }\n\n# Возвраты, Python\nfor i in range(5): requests.post(url, timeout=30)"},
+      {p:'co', pkt:'🔧 пересборка', k:'bad', t:'Поменять таймаут = выпустить сервис',
+       d:'Дежурный хочет уменьшить таймаут до 1 с. Для этого нужно поменять код, пересобрать, прогнать тесты и выкатить Заказы. А потом ещё четыре сервиса, где этот вызов написан по-своему.',
+       data:"правка → сборка → тесты → выкатка ≈ 40 мин\n× 5 сервисов на 4 языках"},
+      {p:'co', pkt:'⚡ размыкателя нет', k:'bad', bad:['co','cp'], t:'Размыкателя нет — Заказы тонут вместе с Платежами',
+       d:'Пока Платежи лежат, Заказы продолжают звонить в них раз за разом. Потоки заняты ожиданием, и Заказы начинают тормозить сами. Размыкатель можно написать и в коде — но опять в каждом сервисе и на каждом языке.',
+       data:"потоки Заказов: 200 из 200 ждут Платежи\nочередь растёт → тормозят и Заказы"},
+    ],
+  };
+  const CODE0 = "// Заказы: вызов Платежей БЕЗ sidecar\nSSLContext tls = SSLContextBuilder.create()\n    .loadKeyMaterial(keystore(\"orders.p12\"), pass)  // свой сертификат\n    .loadTrustMaterial(truststore(\"ca.jks\"))        // кому доверяем\n    .build();                                       // + продлевать раз в 90 дней\nHttpClient http = HttpClient.newBuilder().sslContext(tls).build();\n\nList<URI> nodes = registry.lookup(\"payments\");      // где живые экземпляры\nCircuitBreaker cb = breakers.get(\"payments\");        // свой размыкатель\n\nfor (int attempt = 1; attempt <= 3; attempt++) {    // свои повторы\n  if (!cb.allow()) throw new PaymentsDown();\n  var req = HttpRequest.newBuilder(pickAlive(nodes).resolve(\"/pay?order=\" + id))\n      .header(\"traceparent\", tracer.current().toHeader())  // трассировка\n      .header(\"Idempotency-Key\", \"ord-\" + id + \"-pay\")\n      .timeout(Duration.ofSeconds(2))               // таймаут\n      .build();\n  long t0 = System.nanoTime();\n  try {\n    var res = http.send(req, ofString());\n    metrics.timer(\"payments.call\").record(System.nanoTime() - t0);  // метрики\n    cb.success();\n    return res;\n  } catch (HttpTimeoutException e) {\n    cb.failure();\n    Thread.sleep(backoff(attempt));                 // пауза перед повтором\n  }\n}\n// …и то же самое в Python, Go и Node.js";
+  const CODE1 = "// Заказы: вызов Платежей С sidecar\nvar res = http.get(\"http://payments:8080/pay?order=\" + id,\n                   header(\"Idempotency-Key\", \"ord-\" + id + \"-pay\"));\n\n// и всё. Шифрование, таймаут, повторы,\n// размыкатель, метрики и трассировку\n// делает sidecar рядом";
+  const CFG0 = "Отдельных настроек нет:\nвсе правила зашиты в код каждого сервиса (слева).\n\nПоменять таймаут или число повторов —\nзначит пересобрать и выкатить сервис.";
+  const CFG1 = "# Istio: правила для всех, кто звонит в payments\nkind: VirtualService\nmetadata: { name: payments }\nspec:\n  hosts: [payments]\n  http:\n  - route: [{ destination: { host: payments } }]\n    timeout: 5s\n    retries: { attempts: 2, perTryTimeout: 2s, retryOn: \"5xx,reset\" }\n---\nkind: DestinationRule\nmetadata: { name: payments }\nspec:\n  host: payments\n  trafficPolicy:\n    tls: { mode: ISTIO_MUTUAL }   # mTLS, сертификаты выдаёт сетка\n    outlierDetection:              # размыкатель\n      consecutive5xxErrors: 5\n      baseEjectionTime: 30s\n\n# поменяли число — через секунды оно у всех\n# sidecar-ов, без пересборки сервисов";
+
+  function nd(k, b, s, cls){ return '<div class="gwx-sc-nd' + (cls ? ' ' + cls : '') + '" data-k="' + k + '"><b>' + b + '</b><small>' + s + '</small></div>'; }
+  function build(){
+    lane.innerHTML =
+      '<div class="gwx-sc-pod" style="left:0;width:40%"><span>под «orders» · общий localhost</span></div>' +
+      '<div class="gwx-sc-pod" style="left:60%;width:40%"><span>под «payments» · общий localhost</span></div>' +
+      '<div class="gwx-sc-row">' +
+        nd('co', 'код Заказов', 'Java · :8080') +
+        (md ? nd('so', '🏍 sidecar', 'Envoy · :15001') : nd('so', 'нет sidecar', '—', 'none')) +
+        '<div class="gwx-sc-net">сеть ⇄</div>' +
+        (md ? nd('sp', '🏍 sidecar', 'Envoy · :15006') : nd('sp', 'нет sidecar', '—', 'none')) +
+        nd('cp', 'код Платежей', 'Python · :8080') +
+      '</div>' +
+      '<div class="gwx-sc-track"><div class="gwx-sc-pkt" id="gwx-sc-pkt"></div></div>';
+  }
+  function list(){ return STEPS[md + scn]; }
+  function paint(){
+    const L = list(), st = L[i];
+    lane.querySelectorAll('.gwx-sc-nd').forEach(el => {
+      el.classList.toggle('on', el.dataset.k === st.p);
+      el.classList.toggle('bad', !!st.bad && st.bad.indexOf(el.dataset.k) >= 0);
+    });
+    const pk = $id('gwx-sc-pkt');
+    pk.style.left = POS[st.p] + '%';
+    pk.textContent = st.pkt;
+    pk.className = 'gwx-sc-pkt' + (st.k ? ' ' + st.k : '');
+    $id('gwx-sc-lab').textContent = 'шаг ' + (i + 1) + ' из ' + L.length;
+    $id('gwx-sc-out').innerHTML = '<div class="gwx-say"><div class="skout" style="margin:0"><h4>Шаг ' + (i + 1) + '. ' + st.t + '</h4>' +
+      '<div style="font-size:13.5px;color:var(--muted)">' + st.d + '</div></div>' +
+      '<div><div class="gwx-lbl">данные на этом шаге</div><pre class="json">' + esc(st.data) + '</pre></div></div>';
+    if(i === L.length - 1 && !done.has(md + scn)){
+      done.add(md + scn); Progress.report('gwx-sc', done.size);
+      $id('gwx-sc-score').textContent = done.size;
+    }
+  }
+  function panels(){
+    [...$id('gwx-sc-mode').children].forEach(b => b.classList.toggle('on', +b.dataset.m === md));
+    [...$id('gwx-sc-scn').children].forEach(b => b.classList.toggle('on', b.dataset.s === scn));
+    $id('gwx-sc-l1').textContent = md ? 'код в сервисе Заказов: одна строка' : 'код в сервисе Заказов: всё сам';
+    $id('gwx-sc-l2').textContent = md ? 'настройки sidecar (раздаёт control plane)' : 'настройки sidecar';
+    $id('gwx-sc-code').textContent = md ? CODE1 : CODE0;
+    $id('gwx-sc-cfg').textContent = md ? CFG1 : CFG0;
+  }
+  function restart(){ i = 0; build(); panels(); paint(); }
+  $id('gwx-sc-mode').addEventListener('click', e => { const b = e.target.closest('button[data-m]'); if(b){ md = +b.dataset.m; restart(); } });
+  $id('gwx-sc-scn').addEventListener('click', e => { const b = e.target.closest('button[data-s]'); if(b){ scn = b.dataset.s; restart(); } });
+  $id('gwx-sc-next').addEventListener('click', () => { if(i < list().length - 1){ i++; paint(); } });
+  $id('gwx-sc-prev').addEventListener('click', () => { if(i > 0){ i--; paint(); } });
+  $id('gwx-sc-reset').addEventListener('click', () => { i = 0; paint(); });
+  restart();
 })();
 </script>
