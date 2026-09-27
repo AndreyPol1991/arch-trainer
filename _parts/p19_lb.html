@@ -69,6 +69,31 @@
     .lbx-gr > span.lbx-mark{background:color-mix(in srgb,var(--warn) 20%,transparent); color:var(--warn); font-weight:700}
     .lbx-gr > span.lbx-now{outline:2px solid var(--accent)}
     .lbx-verdict{font:700 15px var(--sans); margin:4px 0}
+    /* живое распределение (глава 4) */
+    .lbx-an-stage{position:relative; min-width:600px; display:grid; grid-template-columns:118px 1fr 210px; gap:0 12px; padding:14px 12px; border:1px solid var(--line); border-radius:12px; background:var(--surface-2); margin-top:12px; overflow:hidden}
+    .lbx-an-col{display:flex; flex-direction:column; gap:7px; justify-content:center}
+    .lbx-an-cl{font:600 12px var(--sans); display:flex; align-items:center; gap:7px; padding:5px 8px; border-radius:8px; background:var(--surface); border:1px solid var(--line)}
+    .lbx-an-cl i{flex:none; width:11px; height:11px; border-radius:50%}
+    .lbx-an-cl.lbx-an-send{border-color:var(--accent)}
+    .lbx-an-mid{display:flex; align-items:center; justify-content:center}
+    .lbx-an-lb{width:190px; border:2px solid var(--accent); border-radius:12px; background:var(--surface); padding:9px 10px; text-align:center; transition:box-shadow .2s}
+    .lbx-an-lb.lbx-an-flash{box-shadow:0 0 0 5px color-mix(in srgb,var(--accent) 25%,transparent)}
+    .lbx-an-lbn{font:700 13px var(--sans)}
+    .lbx-an-th{font:600 11.5px/1.4 var(--mono); color:var(--accent); margin-top:6px; min-height:48px; word-break:break-word}
+    .lbx-an-srv{border:1.5px solid var(--line); border-radius:10px; background:var(--surface); padding:6px 9px; transition:box-shadow .2s, border-color .2s}
+    .lbx-an-srv.lbx-an-pick{border-color:var(--accent); box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 22%,transparent)}
+    .lbx-an-srv.lbx-an-down{border-color:var(--danger); background:var(--danger-bg)}
+    .lbx-an-sh{display:flex; align-items:center; justify-content:space-between; gap:6px; font:700 13px var(--sans)}
+    .lbx-an-ss{font:500 10.5px/1.35 var(--mono); color:var(--muted); margin-top:2px}
+    .lbx-an-wt{display:inline-flex; align-items:center; gap:3px; font:600 11px var(--mono); color:var(--muted)}
+    .lbx-an-wt button{appearance:none; border:1px solid var(--line); background:var(--surface-2); color:var(--ink); border-radius:5px; width:20px; height:20px; padding:0; cursor:pointer; font:700 12px var(--mono); line-height:1}
+    .lbx-an-dot{position:absolute; left:0; top:0; width:12px; height:12px; margin:-6px 0 0 -6px; border-radius:50%; pointer-events:none; border:2px solid var(--surface); z-index:3; display:grid; place-items:center; font-size:10px; line-height:1; color:#fff}
+    .lbx-an-dot.lbx-an-long{width:22px; height:22px; margin:-11px 0 0 -11px}
+    .lbx-an-dot.lbx-an-bad{background:var(--danger) !important}
+    .lbx-an-dot.lbx-an-ret{opacity:.5}
+    .lbx-an-log{font:500 11.5px/1.5 var(--mono); color:var(--muted); margin-top:9px; padding:8px 11px; border:1px dashed var(--line); border-radius:9px; min-height:24px}
+    .lbx-an-log div:first-child{color:var(--ink); font-weight:600}
+    .lbx-an-moved{color:var(--danger); font-weight:700}
   </style>
 
   <div class="card">
@@ -82,7 +107,7 @@
       <button data-ch="lbx-ch5"><span class="lbx-num">5</span><span>Кассир ушёл на обед<span class="lbx-mt">проверки здоровья</span></span></button>
       <button data-ch="lbx-ch6"><span class="lbx-num">6</span><span>Постоянный покупатель<span class="lbx-mt">липкие сессии и хеш</span></span></button>
       <button data-ch="lbx-ch7"><span class="lbx-num">7</span><span>Касса закрывается<span class="lbx-mt">вывод сервера при выкатке</span></span></button>
-      <button data-ch="lbx-ch8"><span class="lbx-num">8</span><span>Конверт или письмо<span class="lbx-mt">L4 и L7</span></span></button>
+      <button data-ch="lbx-ch8"><span class="lbx-num">8</span><span>Конверт или письмо<span class="lbx-mt">L4 и L7 — и зачем это аналитику</span></span></button>
       <button data-ch="lbx-ch9"><span class="lbx-num">9</span><span>Полигон<span class="lbx-mt">всё вместе в одном симуляторе</span></span></button>
       <button data-ch="lbx-ch10"><span class="lbx-num">10</span><span>Балансировщик, шлюз, BFF, mesh<span class="lbx-mt">кто есть кто</span></span></button>
       <button data-ch="lbx-ch11"><span class="lbx-num">11</span><span>Проверь себя<span class="lbx-mt">задачи из жизни</span></span></button>
@@ -138,6 +163,8 @@
       <b>«касса закрывается»</b><div>drain: новых не принимаем, но тех, кто уже стоит, дообслужим (глава 7)</div>
     </div>
 
+    <div class="note" style="margin-top:4px"><b>Анонс для аналитиков.</b> Балансировщики бывают двух «уровней» — L4 и L7. От уровня зависит, какие требования из ТЗ (маршрут по пути, канарейка, лимиты, липкие сессии) система выполнит без доработок. Зачем вам уровни — см. <a href="#lbx-ch8b" data-ch="lbx-ch8b">главу 8</a>.</div>
+
     <h3 style="margin:18px 0 6px;font-size:14px">Зачем это всё: что будет, если балансировщика нет</h3>
     <div id="why-lb"></div>
   </div>
@@ -173,6 +200,35 @@
       <div class="box"><h4>🏋 Опытному больше (weighted)</h4><p class="bs">У каждой кассы есть <b>вес</b> — сколько покупателей ей давать за один круг. Опытный кассир с весом 2 получает вдвое больше новичка с весом 1.</p></div>
       <div class="box"><h4>🔑 Ваша касса (hash)</h4><p class="bs">Кассу выбирают по номеру карты покупателя: из номера считают число и по нему находят кассу. Один и тот же человек всегда попадает к одному кассиру. Подробно — в главе 6.</p></div>
     </div>
+
+    <h3 style="margin:18px 0 6px;font-size:14px">Живое распределение: смотрите, как летят запросы</h3>
+    <p>Слева — покупатели (у каждого свой цвет), в центре — балансировщик, справа — три кассы. Каждый кружок — запрос. Он летит к балансировщику, тот решает, куда его отправить, и кружок «садится» у кассы на время обработки. Большой кружок 🛒 — долгий запрос. Потом ответ возвращается к покупателю. Над балансировщиком видна его «мысль» — почему он выбрал именно эту кассу.</p>
+    <div class="seg" id="lbx-an-mode">
+      <button class="on" data-m="rr">🔁 По кругу</button>
+      <button data-m="wrr">⚖️ По весу</button>
+      <button data-m="lc">📉 По числу соединений</button>
+      <button data-m="hash">🔑 По ключу (hash)</button>
+    </div>
+    <div class="form-row">
+      <button class="act" id="lbx-an-play">▶ Поток</button>
+      <button class="ghost" id="lbx-an-one">＋ Один запрос</button>
+      <button class="ghost" id="lbx-an-break">💥 Сломать B</button>
+      <button class="ghost" id="lbx-an-add">➕ Добавить сервер D</button>
+      <button class="ghost" id="lbx-an-reset">⟲ Сброс</button>
+    </div>
+    <div class="slider-row"><span>Скорость</span><input type="range" id="lbx-an-speed" min="0.5" max="3" step="0.5" value="1"><span class="sv" id="lbx-an-speedv">×1</span></div>
+    <div class="slider-row"><span>Доля долгих запросов 🛒</span><input type="range" id="lbx-an-long" min="0" max="60" step="10" value="30"><span class="sv" id="lbx-an-longv">30 %</span></div>
+    <div class="lbx-scroll">
+      <div class="lbx-an-stage" id="lbx-an-stage">
+        <div class="lbx-an-col" id="lbx-an-cls"></div>
+        <div class="lbx-an-mid"><div class="lbx-an-lb" id="lbx-an-lb"><div class="lbx-an-lbn">⚖ Балансировщик</div><div class="lbx-an-th" id="lbx-an-th">Жду запросов. Нажмите «▶ Поток» или «＋ Один запрос».</div></div></div>
+        <div class="lbx-an-col" id="lbx-an-srvs"></div>
+      </div>
+    </div>
+    <div class="meters" id="lbx-an-m"></div>
+    <div class="lbx-an-log" id="lbx-an-log"></div>
+    <div id="lbx-an-hash"></div>
+    <div class="note" id="lbx-an-exp"></div>
 
     <h3 style="margin:18px 0 6px;font-size:14px">Сначала медленно: куда уйдёт каждый запрос и почему</h3>
     <p>Выберите алгоритм и жмите «Следующий запрос». На схеме видно, <b>куда</b> уходит запрос и <b>почему именно туда</b>. Узел C мощнее остальных втрое.</p>
@@ -340,6 +396,7 @@
   <!-- ─────────── ГЛАВА 8 ─────────── -->
   <div class="card" id="lbx-ch8">
     <h2><span class="tag">глава 8 · конверт или письмо</span> что за «уровни» L4 и L7</h2>
+    <p style="font-size:13px;color:var(--muted)">Аналитикам: в конце главы есть блок «<a href="#lbx-ch8b" data-ch="lbx-ch8b">зачем это системному аналитику</a>» — таблица «требование из ТЗ → L4 или L7» и тренажёр.</p>
     <p>В главе 3 наш балансировщик прочитал путь <code class="inl">/catalog</code> и заметил ошибку сервера A. Так умеют не все балансировщики. Всё зависит от того, <b>насколько глубоко</b> он заглядывает в запрос.</p>
     <p>Буква L — это <b>layer</b>, слой. Цифра — номер слоя в сетевой модели OSI (это стандартная «лестница» из семи ступеней: от проводов внизу до приложения наверху). Звучит академично, но идея простая.</p>
     <div class="note good"><b>Житейски: письмо на почте.</b> <b>L4 смотрит только на адрес на конверте</b>: откуда и куда. Этого хватает, чтобы доставить, но что внутри — неизвестно. <b>L7 вскрывает письмо и читает, о чём оно</b>: «это жалоба — в отдел качества, это заказ — в отдел продаж». Отсюда и все различия: L7 умнее, L4 быстрее.</div>
@@ -372,6 +429,42 @@
       </table>
     </div>
     <div class="note"><b>Обычная схема в продакшене — оба сразу:</b> снаружи L4 (принимает огромный поток, распределяет по нескольким L7), за ним L7 (разбирает HTTP, маршрутизирует по путям, повторяет при ошибке, собирает метрики). Сверху DNS с несколькими адресами — грубая балансировка между площадками.</div>
+  </div>
+
+  <div class="card" id="lbx-ch8b">
+    <h2><span class="tag">глава 8 · аналитику</span> зачем системному аналитику L4 и L7</h2>
+    <div class="note good" style="margin-top:4px"><b>Суть одной фразой.</b> От уровня балансировщика зависит, какие требования к маршрутизации, выкатке, сессиям, лимитам и трассировке система выполнит <b>без доработок</b> — и где эти требования писать: в настройках L7-балансировщика или шлюза, а не в коде каждого сервиса.</div>
+    <p>Аналитик сам балансировщик не настраивает. Но он пишет требования вида «премиум-клиентов — на отдельный кластер» или «новую версию сначала показать 5 % пользователей». Если на входе стоит только L4, такие требования невыполнимы без доработки инфраструктуры. Лучше узнать это до оценки, а не на приёмке.</p>
+
+    <h3 style="margin:16px 0 6px;font-size:14px">Требование из ТЗ → справится ли L4, справится ли L7</h3>
+    <div class="table-wrap">
+      <table class="db">
+        <thead><tr><th>Требование</th><th>L4 (конверт)</th><th>L7 (письмо)</th></tr></thead>
+        <tbody>
+          <tr><td><b>Маршрут по пути:</b> <code class="inl">/api/payments</code> → сервис оплаты</td><td class="no">Нет: пути не видит</td><td class="yes">Да, базовая функция</td></tr>
+          <tr><td><b>Канарейка:</b> 5 % пользователей — на новую версию</td><td class="no">Только грубо, по доле соединений; один человек может прыгать между версиями</td><td class="yes">Да: по cookie или заголовку, пользователь стабильно в одной группе</td></tr>
+          <tr><td><b>Мобильное приложение v2</b> по заголовку <code class="inl">X-App-Version: 2</code> — на новый бэкенд</td><td class="no">Нет: заголовков не видит</td><td class="yes">Да</td></tr>
+          <tr><td><b>Липкие сессии</b></td><td class="no">Только по IP: ломаются при смене сети (Wi-Fi → мобильный), перекос за NAT</td><td class="yes">По cookie: переживают смену сети</td></tr>
+          <tr><td><b>Повтор GET</b> при ответе 503 — на другом сервере</td><td class="no">Нет: не знает, что такое ответ</td><td class="yes">Да</td></tr>
+          <tr><td><b>X-Request-Id</b> для сквозной трассировки</td><td class="no">Нет: не может дописать заголовок</td><td class="yes">Да: добавляет, если его нет</td></tr>
+          <tr><td><b>Лимит</b> 100 запросов в минуту на клиента</td><td class="no">Нет: не знает, кто клиент (разве что по IP)</td><td class="yes">Да, по токену или ключу (часто это делает шлюз)</td></tr>
+          <tr><td><b>Не-HTTP поток:</b> база данных, MQTT от датчиков, видеозвонок, игровой сервер</td><td class="yes">Да, это его работа</td><td class="no">Обычно нет: понимает только HTTP и немногие известные протоколы</td></tr>
+          <tr><td><b>Минимальная задержка</b> и миллионы одновременных соединений</td><td class="yes">Да, почти без накладных расходов</td><td>Дороже: разбор и шифрование едят процессор</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 style="margin:16px 0 6px;font-size:14px">Четыре практических применения</h3>
+    <div class="steps">
+      <div class="step"><div class="si">1</div><div><b>Проверка реализуемости требования.</b> «Премиум-клиентов — на отдельный кластер» при одном L4 на входе невозможно: L4 не видит, кто клиент. Значит, нужна доработка (L7 или шлюз), и её надо заложить в оценку и план.<span class="sx">Вопрос к себе: «чтобы выполнить это требование, балансировщику нужно заглянуть внутрь запроса?» Если да — нужен L7.</span></div></div>
+      <div class="step"><div class="si">2</div><div><b>Правильное место для нефункциональных требований.</b> Маршрутизация, канарейки, повторы, лимиты, заголовки трассировки — это требования к L7-балансировщику или шлюзу, а не к каждому сервису.<span class="sx">Иначе каждая команда напишет свой лимитер и свои повторы, и все они будут вести себя по-разному.</span></div></div>
+      <div class="step"><div class="si">3</div><div><b>Правильный вопрос архитектору или DevOps.</b> «Что у нас на входе — L4 или L7? Кто терминирует TLS? Можно ли маршрутизировать по заголовку?» Ответ сразу показывает, какие требования бесплатны, а какие — нет.<span class="sx">Терминировать TLS — значит расшифровывать трафик в этой точке.</span></div></div>
+      <div class="step"><div class="si">4</div><div><b>Интеграции не по обычному HTTP.</b> gRPC, WebSocket, MQTT, прямые подключения к базе: проверьте, что балансировщик их пропускает и держит долгие соединения.<span class="sx">Типичный сюрприз: WebSocket обрывается через 60 секунд, потому что у L7 стоит таймаут простоя для обычных запросов.</span></div></div>
+    </div>
+
+    <h3 style="margin:16px 0 6px;font-size:14px">Мини-тренажёр: вот требование — чем его закрыть?</h3>
+    <p>Решено <b id="lbx-req-score">0</b> из <span id="lbx-req-total">0</span>.</p>
+    <div id="lbx-req"></div>
   </div>
 
   <!-- ─────────── ГЛАВА 9 ─────────── -->
@@ -808,8 +901,9 @@
 (function(){
   const map = document.getElementById('lbx-map');
   if(!map) return;
-  map.addEventListener('click', e => {
-    const b = e.target.closest('button[data-ch]'); if(!b) return;
+  (document.getElementById('lb') || map).addEventListener('click', e => {
+    const b = e.target.closest('[data-ch]'); if(!b) return;
+    e.preventDefault();
     const t = document.getElementById(b.dataset.ch);
     if(t && t.scrollIntoView) t.scrollIntoView({behavior:'smooth', block:'start'});
   });
@@ -1330,5 +1424,307 @@
     {id:'lb', n:'⚖ Балансировщик'}, {id:'gw', n:'🛂 API-шлюз'}, {id:'bff', n:'🧑‍💼 BFF'}, {id:'mesh', n:'🚚 Mesh'},
   ], 'lbx-who-score', 'lbx-who-total');
   Progress.register('lbx-who-score', 6, 'Балансировщик, шлюз, BFF, mesh');
+})();
+/* --- глава 4: живое распределение запросов (lbx-an-) --- */
+(function(){
+  const stage = document.getElementById('lbx-an-stage');
+  if(!stage) return;
+  const panel = document.getElementById('lb');
+  const $id = id => document.getElementById(id);
+  const RM = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const CL = [
+    {n:'Анна',  k:'anna',  c:'var(--mn)'}, {n:'Борис', k:'boris', c:'var(--ms)'},
+    {n:'Вера',  k:'vera',  c:'var(--dt)'}, {n:'Глеб',  k:'gleb',  c:'var(--nt)'},
+    {n:'Дина',  k:'dina',  c:'var(--warn)'}, {n:'Егор', k:'egor', c:'var(--ok)'},
+  ];
+  const hashOf = k => { let h = 0; for(const ch of k) h += ch.charCodeAt(0); return h; };
+  const T_FLY = RM ? 0.01 : 0.6, T_BACK = RM ? 0.01 : 0.35, T_SHORT = 1.4, T_LONG = 5.5, HC = 2.0, GAP = 0.8;
+  const NAMES = {rr:'по кругу', wrr:'по весу', lc:'по числу соединений', hash:'по ключу'};
+  const EXP = {
+    rr:'<b>🔁 По кругу (round robin).</b> Администратор отправляет покупателей по очереди: на A, на B, на C, снова на A. Ни на что не смотрит — поэтому быстрый и предсказуемый. <b>Где проигрывает:</b> поднимите долю 🛒 — кассе, которой «повезло» с тележками, достаётся больше работы, хотя людей у всех поровну. Смотрите на «разброс работы» в счётчиках. <b>Когда брать:</b> одинаковые серверы и одинаковые запросы.',
+    wrr:'<b>⚖️ По весу (weighted round robin).</b> Тот же круг, но опытный кассир с весом 3 получает трёх покупателей, пока новички по одному. Крутите веса кнопками − и + в карточках касс. <b>Где проигрывает:</b> вес задаётся руками и ничего не знает про текущую загрузку и тележки. <b>Когда брать:</b> серверы разной мощности, а ещё канареечная выкатка (новой версии вес 1, старой 9).',
+    lc:'<b>📉 По числу соединений (least connections).</b> Администратор смотрит, у какой кассы сейчас меньше всего людей, и отправляет туда. Касса, занятая тележкой, сама перестаёт получать новых — нагрузка выравнивается. <b>Где проигрывает:</b> считает людей, а не товары, и новый пустой сервер получает сразу всё (нужен медленный старт). <b>Когда брать:</b> по умолчанию для API с запросами разной длины.',
+    hash:'<b>🔑 По ключу (hash).</b> Кассу выбирают по имени покупателя: из имени считают число, делят с остатком на число касс. Анна <b>всегда</b> попадает на одну и ту же кассу — удобно, если там хранится её корзина или кеш. <b>Где проигрывает:</b> нажмите «Добавить сервер D»: делитель сменился с 3 на 4, и почти все покупатели переехали на другие кассы — весь кеш разом «остыл». Поэтому для кешей берут <b>согласованное хеширование</b> (consistent hashing): там при добавлении кассы переезжает только примерно четверть клиентов. И ещё: хеш не смотрит на загрузку — «тяжёлый» клиент перегрузит свою кассу.',
+  };
+
+  let S = [], reqs = [], mode = 'rr', playing = false, stepping = false, raf = null, last = 0, now = 0, nextSpawn = 0;
+  let seq = 0, rrCur = 0, errs = 0, log = [], pickTimer = null;
+  const tried = {rr:0, wrr:0, lc:0, hash:0};
+
+  function mkServers(n){
+    S = [];
+    for(let i = 0; i < n; i++) S.push({n:'ABCD'[i], w:i === 0 ? 3 : 1, up:true, known:true, downAt:0, tot:0, work:0, cw:0, cyc:0});
+  }
+  function resetStats(){
+    reqs.forEach(r => r.el && r.el.remove()); reqs = [];
+    S.forEach(s => { s.tot = 0; s.work = 0; s.cw = 0; s.cyc = 0; });
+    rrCur = 0; errs = 0; log = []; now = 0; nextSpawn = 0;
+  }
+  const active = s => reqs.filter(r => r.srv === s && (r.ph === 'go' || r.ph === 'srv')).length;
+  const serving = s => reqs.filter(r => r.srv === s && r.ph === 'srv');
+
+  $id('lbx-an-cls').innerHTML = CL.map((c, i) =>
+    '<div class="lbx-an-cl" data-c="' + i + '"><i style="background:' + c.c + '"></i>' + c.n + '</div>').join('');
+  const clEls = [...$id('lbx-an-cls').children];
+
+  function drawServers(){
+    $id('lbx-an-srvs').innerHTML = S.map((s, i) =>
+      '<div class="lbx-an-srv" data-s="' + i + '"><div class="lbx-an-sh"><span>🖥 Касса ' + s.n + '</span>' +
+      (mode === 'wrr' ? '<span class="lbx-an-wt"><button data-w="-1" data-s="' + i + '" aria-label="уменьшить вес">−</button>вес ' + s.w + '<button data-w="1" data-s="' + i + '" aria-label="увеличить вес">+</button></span>' : '') +
+      '</div><div class="lbx-an-ss" data-st></div><div class="lbx-bar"><i data-bar style="width:0"></i></div></div>').join('');
+    paintStats();
+  }
+  function srvEls(){ return [...$id('lbx-an-srvs').children]; }
+
+  function paintStats(){
+    const els = srvEls();
+    S.forEach((s, i) => {
+      const e = els[i]; if(!e) return;
+      const a = active(s);
+      e.classList.toggle('lbx-an-down', !s.up);
+      e.querySelector('[data-st]').innerHTML = (!s.up ? (s.known ? '✕ выведен из пула<br>' : '⚠ сломан, балансировщик ещё не знает<br>') : '') +
+        'в работе: <b>' + a + '</b> · принято: ' + s.tot + '<br>работы: ' + s.work.toFixed(1).replace('.', ',') + ' с';
+      const b = e.querySelector('[data-bar]');
+      b.style.width = Math.min(100, a / 6 * 100) + '%';
+      b.className = a >= 5 ? 'lbx-hot' : a >= 3 ? 'lbx-warm' : '';
+    });
+    const live = S.filter(s => s.up && s.tot > 0);
+    const ws = live.map(s => s.work), mx = Math.max(0, ...ws), mn = ws.length ? Math.min(...ws) : 0;
+    const tot = S.reduce((x, s) => x + s.tot, 0);
+    $id('lbx-an-m').innerHTML =
+      '<span class="meter">Правило: <b>' + NAMES[mode] + '</b></span>' +
+      '<span class="meter">Запросов: <b>' + tot + '</b></span>' +
+      '<span class="meter bad">Ошибок: <b>' + errs + '</b></span>' +
+      '<span class="meter wq">Разброс работы max/min: <b>' + (live.length > 1 && mn > 0 ? '×' + (mx / mn).toFixed(2).replace('.', ',') : '—') + '</b></span>';
+    $id('lbx-an-log').innerHTML = log.length ? log.map(x => '<div>' + x + '</div>').join('') : 'Здесь появится журнал решений балансировщика.';
+  }
+
+  function decide(r){
+    const pool = S.filter(s => !(s.known && !s.up));
+    const skipped = S.filter(s => s.known && !s.up).map(s => s.n);
+    const skipTxt = skipped.length ? ' (' + skipped.join(',') + ' выведен — пропускаю)' : '';
+    let s, th;
+    if(!pool.length){ return {s:null, th:'живых касс нет — отдаю ошибку 503'}; }
+    if(mode === 'rr'){
+      s = pool[rrCur % pool.length]; rrCur++;
+      th = 'очередь по кругу: сейчас ' + s.n + ', следующий ' + pool[rrCur % pool.length].n + skipTxt;
+    } else if(mode === 'wrr'){
+      const total = pool.reduce((x, y) => x + y.w, 0);
+      pool.forEach(y => y.cw += y.w);
+      s = pool.reduce((a, b) => b.cw > a.cw ? b : a);
+      s.cw -= total;
+      if(pool.reduce((x, y) => x + y.cyc, 0) >= total) pool.forEach(y => y.cyc = 0);
+      s.cyc++;
+      th = 'веса ' + pool.map(y => y.w).join(':') + ', сейчас ' + s.n + ' (' + s.cyc + ' из ' + s.w + ' в этом круге)' + skipTxt;
+    } else if(mode === 'lc'){
+      const cnt = pool.map(y => active(y));
+      const mn = Math.min(...cnt);
+      s = pool[cnt.indexOf(mn)];
+      th = 'соединений ' + pool.map((y, i) => y.n + '=' + cnt[i]).join(', ') + ' → ' + s.n + (cnt.filter(x => x === mn).length > 1 ? ' (ничья — беру первого)' : '') + skipTxt;
+    } else {
+      const c = CL[r.c], h = hashOf(c.k), idx = h % pool.length;
+      s = pool[idx];
+      th = 'hash("' + c.k + '") = ' + h + ', ' + h + ' % ' + pool.length + ' = ' + idx + ' → ' + s.n + skipTxt;
+    }
+    return {s, th};
+  }
+
+  function spawn(){
+    const c = Math.floor(Math.random() * CL.length);
+    const long = Math.random() * 100 < +$id('lbx-an-long').value;
+    const el = document.createElement('div');
+    el.className = 'lbx-an-dot' + (long ? ' lbx-an-long' : '');
+    el.style.background = CL[c].c;
+    if(long) el.textContent = '🛒';
+    stage.appendChild(el);
+    reqs.push({id:++seq, c, long, dur:long ? T_LONG : T_SHORT, ph:'in', t:0, srv:null, bad:false, el});
+    clEls.forEach((e, i) => e.classList.toggle('lbx-an-send', i === c));
+  }
+
+  function flashPick(s){
+    const lb = $id('lbx-an-lb'); lb.classList.add('lbx-an-flash');
+    const els = srvEls(); els.forEach((e, i) => e.classList.toggle('lbx-an-pick', S[i] === s));
+    clearTimeout(pickTimer);
+    pickTimer = setTimeout(() => { lb.classList.remove('lbx-an-flash'); srvEls().forEach(e => e.classList.remove('lbx-an-pick')); }, 450);
+  }
+
+  function advance(dt){
+    now += dt;
+    S.forEach(s => { if(!s.up && !s.known && now - s.downAt >= HC){ s.known = true; log.unshift('проверка здоровья: касса ' + s.n + ' не отвечает → выведена из пула'); } });
+    if(playing && now >= nextSpawn){ spawn(); nextSpawn = now + GAP * (0.6 + Math.random() * 0.8); }
+    reqs.forEach(r => {
+      r.t += dt;
+      if(r.ph === 'in' && r.t >= T_FLY){
+        const d = decide(r); r.t = 0;
+        $id('lbx-an-th').textContent = d.th;
+        log.unshift('#' + r.id + ' ' + CL[r.c].n + (r.long ? ' 🛒' : '') + ': ' + d.th);
+        log = log.slice(0, 5);
+        tried[mode]++;
+        if(tried.rr >= 3 && tried.wrr >= 3 && tried.lc >= 3 && tried.hash >= 3) Progress.report('lbx-anim', 1);
+        if(!d.s){ r.bad = true; errs++; r.ph = 'b2'; }
+        else { r.srv = d.s; r.ph = 'go'; d.s.tot++; d.s.work += r.dur; flashPick(d.s); }
+      } else if(r.ph === 'go' && r.t >= T_FLY){
+        r.t = 0;
+        if(!r.srv.up){ r.bad = true; errs++; r.ph = 'b1'; log.unshift('#' + r.id + ': касса ' + r.srv.n + ' не ответила — ошибка'); log = log.slice(0, 5); }
+        else r.ph = 'srv';
+      } else if(r.ph === 'srv'){
+        if(!r.srv.up){ r.bad = true; errs++; r.ph = 'b1'; r.t = 0; }
+        else if(r.t >= r.dur){ r.ph = 'b1'; r.t = 0; }
+      } else if(r.ph === 'b1' && r.t >= T_BACK){ r.ph = 'b2'; r.t = 0; }
+      else if(r.ph === 'b2' && r.t >= T_BACK){ r.ph = 'done'; }
+    });
+    reqs.filter(r => r.ph === 'done').forEach(r => r.el.remove());
+    reqs = reqs.filter(r => r.ph !== 'done');
+    if(stepping && !reqs.length) stepping = false;
+  }
+
+  function center(el, sr){
+    const b = el.getBoundingClientRect();
+    return {x:b.left - sr.left + b.width / 2, y:b.top - sr.top + b.height / 2, l:b.left - sr.left};
+  }
+  const ease = t => t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+  const mix = (a, b, t) => ({x:a.x + (b.x - a.x) * t, y:a.y + (b.y - a.y) * t});
+
+  function render(){
+    const sr = stage.getBoundingClientRect();
+    const lb = center($id('lbx-an-lb'), sr);
+    const sEls = srvEls();
+    reqs.forEach(r => {
+      const cl = center(clEls[r.c], sr);
+      cl.x += 40;
+      let seat = lb;
+      if(r.srv){
+        const i = S.indexOf(r.srv), se = sEls[i] ? center(sEls[i], sr) : lb;
+        const list = serving(r.srv);
+        const k = r.ph === 'srv' ? list.indexOf(r) : list.length;
+        const sw = sEls[i] ? sEls[i].getBoundingClientRect().width : 0;
+        seat = {x:se.x - sw / 2 - 14 - Math.min(k, 6) * 15, y:se.y + (k > 6 ? 6 : 0)};
+      }
+      let p;
+      const tf = r.t / T_FLY, tb = r.t / T_BACK;
+      if(r.ph === 'in') p = mix(cl, lb, ease(Math.min(1, tf)));
+      else if(r.ph === 'go') p = mix(lb, seat, ease(Math.min(1, tf)));
+      else if(r.ph === 'srv') p = seat;
+      else if(r.ph === 'b1') p = mix(seat, lb, ease(Math.min(1, tb)));
+      else p = mix(lb, cl, ease(Math.min(1, tb)));
+      r.el.style.transform = 'translate(' + p.x.toFixed(1) + 'px,' + p.y.toFixed(1) + 'px)';
+      r.el.classList.toggle('lbx-an-bad', r.bad);
+      r.el.classList.toggle('lbx-an-ret', r.ph === 'b1' || r.ph === 'b2');
+      if(r.bad) r.el.textContent = '✕';
+    });
+    paintStats();
+  }
+
+  const canRun = () => !document.hidden && (!panel || panel.classList.contains('active'));
+  function frame(ts){
+    raf = null;
+    if(!canRun()){ pause(); return; }
+    const dt = last ? Math.min(0.05, (ts - last) / 1000) * +$id('lbx-an-speed').value : 0;
+    last = ts;
+    advance(dt); render();
+    if(playing || stepping) raf = requestAnimationFrame(frame);
+    else last = 0;
+  }
+  function kick(){ if(!raf && canRun()){ last = 0; raf = requestAnimationFrame(frame); } }
+  function pause(){
+    playing = false; stepping = false;
+    if(raf){ cancelAnimationFrame(raf); raf = null; }
+    last = 0;
+    $id('lbx-an-play').textContent = '▶ Поток';
+  }
+
+  function paintHash(){
+    const box = $id('lbx-an-hash');
+    if(mode !== 'hash'){ box.innerHTML = ''; return; }
+    const n3 = 3, nN = S.length;
+    const rows = CL.map(c => {
+      const h = hashOf(c.k), a = 'ABCD'[h % n3], b = 'ABCD'[h % nN];
+      return {c, h, a, b, moved:a !== b};
+    });
+    const moved = rows.filter(x => x.moved).length;
+    box.innerHTML = '<div class="table-wrap" style="margin-top:10px"><table class="db"><thead><tr><th>Клиент</th><th>hash(имя)</th><th>при 3 кассах</th>' +
+      (nN > 3 ? '<th>при ' + nN + ' кассах</th>' : '') + '</tr></thead><tbody>' +
+      rows.map(x => '<tr><td><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:' + x.c.c + '"></span> ' + x.c.n + ' <code class="inl">' + x.c.k + '</code></td><td>' + x.h + '</td><td>' + x.h + ' % 3 = ' + (x.h % 3) + ' → <b>' + x.a + '</b></td>' +
+        (nN > 3 ? '<td>' + x.h + ' % ' + nN + ' = ' + (x.h % nN) + ' → <b>' + x.b + '</b>' + (x.moved ? ' <span class="lbx-an-moved">переехал</span>' : '') + '</td>' : '') + '</tr>').join('') +
+      '</tbody></table></div>' +
+      (nN > 3 ? '<div class="note warn" style="margin-top:8px"><b>Добавили одну кассу — переехали ' + moved + ' из ' + CL.length + ' клиентов.</b> Все их корзины и кеши на старых кассах стали бесполезны. Согласованное хеширование (consistent hashing) раскладывает кассы и клиентов по кругу, и новая касса забирает только соседний кусок — примерно 1/4 клиентов, остальные остаются на месте.</div>'
+              : '<div class="note" style="margin-top:8px">Хеш здесь нарочно простой: сумма кодов букв имени. Настоящие балансировщики используют хорошо перемешивающие функции, но принцип тот же: одно имя → одно число → одна касса.</div>');
+  }
+
+  function setMode(m){
+    pause(); mode = m; resetStats();
+    $id('lbx-an-exp').innerHTML = EXP[m];
+    $id('lbx-an-th').textContent = 'Правило «' + NAMES[m] + '». Нажмите «▶ Поток» или «＋ Один запрос».';
+    drawServers(); paintHash();
+  }
+
+  $id('lbx-an-mode').addEventListener('click', e => {
+    const b = e.target.closest('button[data-m]'); if(!b) return;
+    [...b.parentNode.children].forEach(x => x.classList.toggle('on', x === b));
+    setMode(b.dataset.m);
+  });
+  $id('lbx-an-play').addEventListener('click', () => {
+    if(playing){ pause(); return; }
+    playing = true; nextSpawn = now; $id('lbx-an-play').textContent = '⏸ Пауза'; kick();
+  });
+  $id('lbx-an-one').addEventListener('click', () => { spawn(); if(!playing){ stepping = true; } kick(); render(); });
+  $id('lbx-an-break').addEventListener('click', e => {
+    const s = S[1];
+    if(s.up){ s.up = false; s.known = false; s.downAt = now; e.currentTarget.textContent = '🔧 Починить B';
+      log.unshift('касса B сломалась. Балансировщик узнает через ' + HC + ' с — до тех пор запросы на B пропадут'); }
+    else { s.up = true; s.known = true; e.currentTarget.textContent = '💥 Сломать B'; log.unshift('касса B починена и снова в пуле'); }
+    log = log.slice(0, 5); paintStats(); kick();
+  });
+  $id('lbx-an-add').addEventListener('click', e => {
+    if(S.length >= 4) return;
+    S.push({n:'D', w:1, up:true, known:true, downAt:0, tot:0, work:0, cw:0, cyc:0});
+    e.currentTarget.disabled = true;
+    log.unshift('добавлена касса D — теперь их ' + S.length); log = log.slice(0, 5);
+    drawServers(); paintHash(); render();
+  });
+  $id('lbx-an-reset').addEventListener('click', () => {
+    pause(); mkServers(3); resetStats();
+    $id('lbx-an-add').disabled = false; $id('lbx-an-break').textContent = '💥 Сломать B';
+    setMode(mode);
+  });
+  $id('lbx-an-srvs').addEventListener('click', e => {
+    const b = e.target.closest('button[data-w]'); if(!b) return;
+    const s = S[+b.dataset.s]; s.w = Math.max(1, Math.min(5, s.w + (+b.dataset.w)));
+    S.forEach(y => { y.cw = 0; y.cyc = 0; });
+    drawServers();
+  });
+  $id('lbx-an-speed').addEventListener('input', e => { $id('lbx-an-speedv').textContent = '×' + String(e.target.value).replace('.', ','); });
+  $id('lbx-an-long').addEventListener('input', e => { $id('lbx-an-longv').textContent = e.target.value + ' %'; });
+  document.addEventListener('visibilitychange', () => { if(document.hidden) pause(); });
+
+  mkServers(3); setMode('rr');
+  Progress.register('lbx-anim', 1, 'Живое распределение запросов');
+})();
+/* --- глава 8: L4 и L7 глазами аналитика --- */
+(function(){
+  if(!document.getElementById('lbx-req')) return;
+  renderSort('lbx-req', [
+    {t:'«Запросы /api/payments направлять в сервис оплаты, всё остальное — в монолит».', bucket:'l7',
+     why:'Путь <code class="inl">/api/payments</code> лежит внутри письма. L4 видит только адрес и порт, поэтому такой маршрут ему недоступен.'},
+    {t:'«Равномерно распределять HTTPS-трафик по трём одинаковым копиям сервиса. Других правил нет».', bucket:'l4',
+     why:'Для простого распределения содержимое читать не нужно. L4 справится, причём быстрее и дешевле. L7 тоже подойдёт, но он здесь не обязателен.'},
+    {t:'«Новую версию показывать 5 % пользователей, и один пользователь не должен прыгать между версиями».', bucket:'l7',
+     why:'Чтобы держать пользователя в одной группе, нужен признак пользователя: cookie или заголовок. Это содержимое запроса, значит, L7.'},
+    {t:'«Сохранять привязку к серверу, когда пользователь переходит с Wi-Fi на мобильный интернет».', bucket:'l7',
+     why:'При смене сети меняется IP-адрес, и привязка L4 по IP теряется. Cookie остаётся прежней, но её умеет читать только L7.'},
+    {t:'«Если сервер ответил 503 на GET-запрос, незаметно для пользователя повторить на другом».', bucket:'l7',
+     why:'Чтобы увидеть код 503, нужно понимать HTTP-ответ. L4 видит только поток байт, и повторять ему нечего.'},
+    {t:'«Балансировать подключения приложений к репликам PostgreSQL».', bucket:'l4only',
+     why:'Протокол PostgreSQL — не HTTP. Обычный L7-балансировщик (nginx в режиме http, ALB) его не поймёт. Нужен L4 (TCP) или специальный прокси для базы.'},
+    {t:'«Держать MQTT-подключения двух миллионов датчиков, соединения живут часами».', bucket:'l4only',
+     why:'MQTT — не HTTP, соединений миллионы, и живут они долго. Это классическая работа для L4.'},
+    {t:'«Шифрование должно идти до самого сервиса, расшифровывать трафик посередине запрещено».', bucket:'l4only',
+     why:'L7 обязан расшифровать запрос, чтобы прочитать его. Раз расшифровка посередине запрещена, остаётся только L4: он пропускает TLS насквозь.'},
+    {t:'«Премиум-клиентов (признак в токене) направлять на отдельный кластер».', bucket:'l7',
+     why:'Признак клиента лежит в токене, то есть внутри запроса. При одном L4 на входе это требование невыполнимо без доработки — такое нужно заложить в оценку.'},
+  ], [
+    {id:'l4', n:'Хватит L4'}, {id:'l7', n:'Нужен L7'}, {id:'l4only', n:'L7 не подходит — нужен L4'},
+  ], 'lbx-req-score', 'lbx-req-total');
+  Progress.register('lbx-req-score', 9, 'L4 и L7 для аналитика');
 })();
 </script>
