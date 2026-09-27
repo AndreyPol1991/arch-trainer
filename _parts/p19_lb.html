@@ -1,51 +1,181 @@
 <!-- ==================== 17. БАЛАНСИРОВЩИКИ ==================== -->
 <section class="panel" id="lb" data-accent="nt" role="tabpanel">
-  <p class="lead"><b>Балансировщик решает один вопрос: кому из живых отдать этот запрос.</b> Всё остальное — надстройки над ним. Ошибаются тут незаметно: система вроде работает, просто один сервер тащит вдвое больше остальных, а при каждой выкатке теряется сотня запросов, и все считают это нормой.</p>
+  <p class="lead"><b>Балансировщик решает один вопрос: кому из живых серверов отдать этот запрос.</b> Всё остальное — надстройки над этим вопросом. В этом разделе мы пройдём историю одного интернет-магазина от первой распродажи до спокойной выкатки без потерь. По дороге разберём, как балансировщик выбирает сервер, как замечает мёртвых и как закрывает «кассу», никого не обидев.</p>
+
+  <style>
+    .lbx-map{display:grid; grid-template-columns:repeat(2,1fr); gap:7px; margin-top:12px}
+    @media (max-width:700px){.lbx-map{grid-template-columns:1fr}}
+    .lbx-map button{appearance:none; display:flex; gap:10px; align-items:center; text-align:left; border:1px solid var(--line); background:var(--surface-2); color:var(--ink); border-radius:9px; padding:8px 11px; cursor:pointer; font:500 13px/1.35 var(--sans)}
+    .lbx-map button:hover{border-color:var(--accent)}
+    .lbx-map .lbx-num{flex:none; width:24px; height:24px; border-radius:50%; background:var(--accent); color:#fff; font:700 11.5px var(--mono); display:grid; place-items:center}
+    .lbx-map .lbx-mt{display:block; font-size:11.5px; color:var(--faint)}
+    .lbx-analogy{display:grid; grid-template-columns:auto 1fr; gap:6px 14px; margin:12px 0; font-size:13.5px}
+    .lbx-analogy b{font:600 13px var(--mono); color:var(--accent)}
+    @media (max-width:560px){.lbx-analogy{grid-template-columns:1fr; gap:2px} .lbx-analogy b{margin-top:8px}}
+    .lbx-bar{height:9px; background:var(--surface-3); border-radius:5px; overflow:hidden; margin-top:7px}
+    .lbx-bar > i{display:block; height:100%; background:var(--accent); transition:width .25s}
+    .lbx-bar > i.lbx-hot{background:var(--danger)}
+    .lbx-bar > i.lbx-warm{background:var(--warn)}
+    /* схема пути запроса */
+    .lbx-scroll{overflow-x:auto; -webkit-overflow-scrolling:touch}
+    .lbx-scheme{min-width:320px; display:flex; flex-direction:column; gap:4px; margin-top:12px; padding:12px; border:1px solid var(--line); border-radius:12px; background:var(--surface-2)}
+    .lbx-row{display:flex; gap:9px; justify-content:center; flex-wrap:nowrap}
+    .lbx-n{flex:1 1 0; max-width:190px; min-width:88px; border:1.5px solid var(--line); border-radius:10px; background:var(--surface); padding:7px 9px; text-align:center; opacity:.5; transition:all .2s}
+    .lbx-n .lbx-ic{font-size:18px; line-height:1.1}
+    .lbx-n .lbx-nn{font:650 12.5px/1.25 var(--sans); margin-top:2px}
+    .lbx-n .lbx-ns{font:500 10.5px/1.3 var(--mono); color:var(--faint); margin-top:2px}
+    .lbx-n.lbx-on{opacity:1; border-color:var(--accent); box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 18%,transparent)}
+    .lbx-n.lbx-bad{opacity:1; border-color:var(--danger); background:var(--danger-bg)}
+    .lbx-n.lbx-good{opacity:1; border-color:var(--ok); background:var(--ok-bg)}
+    .lbx-wire{min-height:24px; text-align:center; font:600 11px/1.3 var(--mono); color:var(--faint); padding:3px 0}
+    .lbx-wire span{display:inline-block; border:1px dashed var(--line); border-radius:12px; padding:2px 9px}
+    .lbx-wire span.lbx-on{color:var(--accent); border:1px solid var(--accent); background:color-mix(in srgb,var(--accent) 8%,transparent)}
+    .lbx-wire span.lbx-bad{color:var(--danger); border:1px solid var(--danger)}
+    .lbx-card{border:1px solid var(--line); border-left:3px solid var(--accent); border-radius:10px; background:var(--surface-2); padding:11px 14px; margin-top:11px}
+    .lbx-card.lbx-bad{border-left-color:var(--danger)}
+    .lbx-card.lbx-good{border-left-color:var(--ok)}
+    .lbx-card h4{margin:0 0 6px; font-size:14px}
+    .lbx-card .lbx-lbl{display:block; font:600 10.5px var(--mono); color:var(--faint); text-transform:uppercase; letter-spacing:.04em; margin:9px 0 3px}
+    .lbx-card pre.json{margin:0; font-size:12px}
+    /* кассы */
+    .lbx-lane{display:grid; grid-template-columns:150px 1fr; gap:10px; align-items:center; border:1px solid var(--line); border-radius:10px; background:var(--surface-2); padding:8px 11px; margin-top:7px}
+    @media (max-width:560px){.lbx-lane{grid-template-columns:1fr; gap:3px}}
+    .lbx-lane .lbx-ln{font:600 13px var(--sans)}
+    .lbx-lane .lbx-ls{font:500 11px var(--mono); color:var(--faint)}
+    .lbx-lane .cells{margin-top:0}
+    .lbx-lane .cell{padding:4px 7px; font-size:11.5px}
+    .lbx-lane .cell.lbx-cur{box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 45%,transparent)}
+    .lbx-arrive{font:600 12px var(--mono); color:var(--muted); margin-top:10px; min-height:18px}
+    /* таймлайн проверок */
+    .lbx-tl{display:flex; flex-wrap:wrap; gap:3px; margin-top:10px}
+    .lbx-tl .lbx-s{width:34px; border:1px solid var(--line); border-radius:6px; background:var(--surface); text-align:center; padding:3px 0; font:600 10.5px/1.3 var(--mono); color:var(--faint)}
+    .lbx-tl .lbx-s b{display:block; font-size:12px; color:var(--ink)}
+    .lbx-tl .lbx-s.lbx-ok{border-color:var(--ok); background:var(--ok-bg)}
+    .lbx-tl .lbx-s.lbx-lost{border-color:var(--danger); background:var(--danger-bg)}
+    .lbx-tl .lbx-s.lbx-p{border-color:var(--warn); background:var(--warn-bg)}
+    .lbx-tl .lbx-s.lbx-out{opacity:.45}
+    .lbx-tl .lbx-s.lbx-hide{visibility:hidden}
+    .lbx-legend{display:flex; flex-wrap:wrap; gap:6px 14px; font:500 11.5px var(--mono); color:var(--faint); margin-top:8px}
+    .lbx-legend i{display:inline-block; width:11px; height:11px; border-radius:3px; vertical-align:-1px; margin-right:4px; border:1px solid var(--line)}
+    /* диаграмма выкатки */
+    .lbx-gantt{min-width:560px; margin-top:12px; font:500 11px var(--mono)}
+    .lbx-gr{display:grid; grid-template-columns:92px repeat(16, 1fr); gap:2px; align-items:center; margin-bottom:2px}
+    .lbx-gr > span{height:20px; border-radius:4px; display:grid; place-items:center; color:var(--faint)}
+    .lbx-gr > span.lbx-lab{place-items:center start; color:var(--muted)}
+    .lbx-gr > span.lbx-run{background:color-mix(in srgb,var(--accent) 55%,transparent); color:#fff}
+    .lbx-gr > span.lbx-done{background:var(--ok); color:#fff}
+    .lbx-gr > span.lbx-x{background:var(--danger); color:#fff; font-weight:700}
+    .lbx-gr > span.lbx-oth{background:var(--surface-3); color:var(--muted)}
+    .lbx-gr > span.lbx-mark{background:color-mix(in srgb,var(--warn) 20%,transparent); color:var(--warn); font-weight:700}
+    .lbx-gr > span.lbx-now{outline:2px solid var(--accent)}
+    .lbx-verdict{font:700 15px var(--sans); margin:4px 0}
+  </style>
 
   <div class="card">
-    <h2><span class="tag">зачем это</span> зачем нужны балансировщики</h2>
+    <h2><span class="tag">карта раздела</span> куда мы пойдём</h2>
+    <p>Раздел — одна история. Читать лучше по порядку: каждая глава опирается на предыдущую. Но можно и прыгнуть сразу к нужной главе.</p>
+    <div class="lbx-map" id="lbx-map">
+      <button data-ch="lbx-ch1"><span class="lbx-num">1</span><span>Один сервер и распродажа<span class="lbx-mt">откуда вообще берётся задача</span></span></button>
+      <button data-ch="lbx-ch2"><span class="lbx-num">2</span><span>Что такое балансировщик<span class="lbx-mt">определение и администратор у касс</span></span></button>
+      <button data-ch="lbx-ch3"><span class="lbx-num">3</span><span>Путь одного запроса<span class="lbx-mt">Анна открывает каталог — по шагам</span></span></button>
+      <button data-ch="lbx-ch4"><span class="lbx-num">4</span><span>Как выбрать кассу<span class="lbx-mt">алгоритмы и гонка на одном потоке</span></span></button>
+      <button data-ch="lbx-ch5"><span class="lbx-num">5</span><span>Кассир ушёл на обед<span class="lbx-mt">проверки здоровья</span></span></button>
+      <button data-ch="lbx-ch6"><span class="lbx-num">6</span><span>Постоянный покупатель<span class="lbx-mt">липкие сессии и хеш</span></span></button>
+      <button data-ch="lbx-ch7"><span class="lbx-num">7</span><span>Касса закрывается<span class="lbx-mt">вывод сервера при выкатке</span></span></button>
+      <button data-ch="lbx-ch8"><span class="lbx-num">8</span><span>Конверт или письмо<span class="lbx-mt">L4 и L7</span></span></button>
+      <button data-ch="lbx-ch9"><span class="lbx-num">9</span><span>Полигон<span class="lbx-mt">всё вместе в одном симуляторе</span></span></button>
+      <button data-ch="lbx-ch10"><span class="lbx-num">10</span><span>Балансировщик, шлюз, BFF, mesh<span class="lbx-mt">кто есть кто</span></span></button>
+      <button data-ch="lbx-ch11"><span class="lbx-num">11</span><span>Проверь себя<span class="lbx-mt">задачи из жизни</span></span></button>
+    </div>
+  </div>
+
+  <!-- ─────────── ГЛАВА 1 ─────────── -->
+  <div class="card" id="lbx-ch1">
+    <h2><span class="tag">глава 1 · проблема</span> один сервер и распродажа</h2>
+    <p>Начнём с маленького интернет-магазина. У него <b>один сервер</b> — один компьютер, на котором работает программа магазина. Сервер принимает <b>запросы</b>: «покажи каталог», «положи в корзину», «оформи заказ». Каждое нажатие покупателя — это запрос.</p>
+    <p>Мощность сервера меряют в <b>запросах в секунду</b> (по-английски RPS, requests per second). Пусть наш сервер спокойно переваривает <b>100 запросов в секунду</b>. В обычный день приходит 40 — всё хорошо.</p>
+    <p>А потом наступает распродажа. Запросов становится 240 в секунду. Что делать? Самое простое — поставить ещё два таких же сервера. Но тут возникает вопрос, ради которого и написан весь раздел: <b>а как покупатели узнают, что серверов теперь три?</b></p>
+    <p>Подвигайте нагрузку и переключайте, как устроен магазин.</p>
+    <div class="seg" id="lbx-one-mode">
+      <button class="on" data-m="1">🖥 Один сервер</button>
+      <button data-m="3">🖥🖥🖥 Три сервера, без балансировщика</button>
+      <button data-m="lb">⚖ Три сервера + балансировщик</button>
+    </div>
+    <div class="slider-row">
+      <span>Покупателей нажимают в секунду</span>
+      <input type="range" id="lbx-one-rps" min="20" max="300" step="10" value="240">
+      <span class="sv" id="lbx-one-rv">240</span>
+    </div>
+    <div class="rack" id="lbx-one-rack"></div>
+    <div class="meters" id="lbx-one-m"></div>
+    <div class="console" id="lbx-one-msg"></div>
+    <div class="note"><b>Суть главы.</b> Купить серверы мало. Нужен кто-то, кто стоит <b>перед</b> ними, принимает всех покупателей по одному адресу и раскладывает их по серверам. Этот кто-то и называется балансировщиком нагрузки.</div>
+  </div>
+
+  <!-- ─────────── ГЛАВА 2 ─────────── -->
+  <div class="card" id="lbx-ch2">
+    <h2><span class="tag">глава 2 · определение</span> что такое балансировщик</h2>
+    <div class="note good" style="margin-top:4px"><b>Определение.</b> <b>Балансировщик нагрузки</b> (load balancer) — программа или устройство, которое стоит перед группой одинаковых серверов, принимает все запросы на один адрес и для каждого запроса решает, <b>какому из живых серверов</b> его отдать.</div>
+    <p>Три важных слова в определении:</p>
+    <ul>
+      <li><b>Одинаковых.</b> Серверы за балансировщиком — копии одной и той же программы. Их ещё называют <b>узлами</b>, <b>экземплярами</b> или <b>бэкендами</b>. Всю группу называют <b>пулом</b>.</li>
+      <li><b>Один адрес.</b> Покупатель знает только адрес балансировщика. Сколько серверов за ним, ему не видно — и не нужно.</li>
+      <li><b>Живых.</b> Балансировщик следит, какие серверы работают, и мёртвым запросы не отдаёт.</li>
+    </ul>
+
+    <h3 style="margin:18px 0 6px;font-size:14px">Житейская картинка на весь раздел: супермаркет</h3>
+    <p>Представьте большой супермаркет с несколькими кассами. У входа в зону касс стоит <b>администратор</b>. Он смотрит на кассы и говорит каждому покупателю: «Вам — на третью». Покупатель не выбирает кассу сам и не думает, сколько их. Он просто идёт, куда показали.</p>
+    <p>Всё, что умеет балансировщик, есть у этого администратора. Мы будем возвращаться к нему в каждой главе:</p>
+    <div class="lbx-analogy">
+      <b>касса</b><div>сервер (узел) в пуле</div>
+      <b>покупатель</b><div>запрос</div>
+      <b>администратор</b><div>балансировщик</div>
+      <b>«по очереди»</b><div>round robin: первый — на кассу 1, второй — на 2, третий — на 3, четвёртый — снова на 1 (глава 4)</div>
+      <b>«где короче»</b><div>least connections: к кассе, где сейчас меньше всего людей (глава 4)</div>
+      <b>«опытному больше»</b><div>weighted: быстрый кассир получает больше покупателей (глава 4)</div>
+      <b>«ваша касса»</b><div>hash и sticky: постоянный покупатель всегда идёт к «своему» кассиру (глава 6)</div>
+      <b>«кассир ушёл»</b><div>health check: администратор замечает пустую кассу и туда больше не шлёт (глава 5)</div>
+      <b>«касса закрывается»</b><div>drain: новых не принимаем, но тех, кто уже стоит, дообслужим (глава 7)</div>
+    </div>
+
+    <h3 style="margin:18px 0 6px;font-size:14px">Зачем это всё: что будет, если балансировщика нет</h3>
     <div id="why-lb"></div>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">сначала разберёмся</span> что вообще за «уровни» L4 и L7</h2>
-    <p>Буква L — это <b>layer</b>, слой. Цифра — номер слоя в модели сети. Звучит academично, но идея простая, и без неё половина разговоров про балансировку непонятна.</p>
-
-    <div class="note good"><b>Житейски: посылка в почтовом отделении.</b> На коробке написан адрес — этого достаточно, чтобы её доставить. Что внутри коробки, почтальону знать не нужно и не положено. <b>Адрес на коробке — это четвёртый слой. Содержимое коробки — седьмой.</b></div>
-
-    <h3 style="margin:18px 0 6px;font-size:14px">Один и тот же запрос на двух уровнях</h3>
-    <p>Нажмите — посмотрите, что <b>видит</b> балансировщик на каждом уровне и что он поэтому <b>может</b> и <b>не может</b>.</p>
-    <div class="seg" id="l47-pick">
-      <button class="on" data-i="0">📦 L4 — видит только адрес</button>
-      <button data-i="1">📖 L7 — читает содержимое</button>
-      <button data-i="2">🏗 Как их ставят вместе</button>
+  <!-- ─────────── ГЛАВА 3 ─────────── -->
+  <div class="card" id="lbx-ch3">
+    <h2><span class="tag">глава 3 · путь запроса</span> Анна в распродажу открывает каталог</h2>
+    <p>Теперь посмотрим, что происходит на самом деле, когда покупатель нажимает кнопку. Возьмём одного человека — <b>Анну</b>. Полдень, распродажа, Анна открывает в телефоне каталог. У магазина уже три сервера — A, B и C — и балансировщик перед ними.</p>
+    <p>Жмите «Дальше» и следите: какие участники подсвечены, какие данные летают и <b>почему</b> всё устроено именно так. Потом переключите сценарий на «сервер падает посреди запроса».</p>
+    <div class="seg" id="lbx-trip-sc">
+      <button class="on" data-s="ok">☀️ Обычный запрос</button>
+      <button data-s="fail">💥 Сервер A падает посреди запроса</button>
     </div>
-    <div id="l47-out"></div>
+    <div class="lbx-scroll">
+      <div class="lbx-scheme" id="lbx-trip-map"></div>
+    </div>
+    <div class="skbar">
+      <button class="ghost" id="lbx-trip-prev">← Назад</button>
+      <button class="act" id="lbx-trip-next">Дальше →</button>
+      <button class="ghost" id="lbx-trip-play">▶ Проиграть</button>
+      <span class="skstep" id="lbx-trip-lab"></span>
+    </div>
+    <div id="lbx-trip-out"></div>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">уровни</span> L4 против L7</h2>
-    <div class="table-wrap">
-      <table class="db">
-        <thead><tr><th>&nbsp;</th><th>L4 — транспортный</th><th>L7 — прикладной</th></tr></thead>
-        <tbody>
-          <tr><td><b>Что видит</b></td><td>IP-адреса и порты. Содержимое — непрозрачный поток байт</td><td>HTTP-запрос целиком: путь, метод, заголовки, cookie</td></tr>
-          <tr><td><b>Может маршрутизировать</b></td><td>Только по адресу назначения</td><td>По пути (<code class="inl">/api/orders</code> → одному, <code class="inl">/api/catalog</code> → другому), по заголовку, по версии</td></tr>
-          <tr><td><b>Скорость</b></td><td class="yes">Очень высокая, почти нет накладных расходов</td><td>Ниже: надо разобрать запрос, часто расшифровать TLS</td></tr>
-          <tr><td><b>Повтор при ошибке</b></td><td class="no">Не умеет: не знает, что такое «запрос»</td><td class="yes">Умеет: видит код ответа и может отправить запрос другому узлу</td></tr>
-          <tr><td><b>TLS</b></td><td>Проходит насквозь, шифрование до узла</td><td>Обычно завершается здесь, дальше — заново или открыто</td></tr>
-          <tr><td><b>Типичное применение</b></td><td>Базы данных, gRPC-потоки, всё не-HTTP, вход в кластер</td><td>Веб-трафик, API, канареечные выкатки, A/B</td></tr>
-          <tr><td><b>Примеры</b></td><td>LVS/IPVS, AWS NLB, HAProxy в режиме tcp</td><td>nginx, Envoy, Traefik, AWS ALB, HAProxy в режиме http</td></tr>
-        </tbody>
-      </table>
+  <!-- ─────────── ГЛАВА 4 ─────────── -->
+  <div class="card" id="lbx-ch4">
+    <h2><span class="tag">глава 4 · как выбрать кассу</span> алгоритмы балансировки на пальцах</h2>
+    <p><b>Алгоритм балансировки</b> — правило, по которому администратор решает, к какой кассе отправить очередного покупателя. Правил немного, и у каждого своя цена:</p>
+    <div class="grid2">
+      <div class="box"><h4>🔁 По очереди (round robin)</h4><p class="bs">Первый — на кассу 1, второй — на 2, третий — на 3, дальше по кругу. Ни на что не смотрит. Просто и честно по числу людей — но не по их тележкам.</p></div>
+      <div class="box"><h4>📏 Где короче (least connections)</h4><p class="bs">К кассе, где сейчас меньше всего людей. «Соединение» — это покупатель, которого касса уже взяла в работу. Смотрит на реальную картину, а не на порядок.</p></div>
+      <div class="box"><h4>🏋 Опытному больше (weighted)</h4><p class="bs">У каждой кассы есть <b>вес</b> — сколько покупателей ей давать за один круг. Опытный кассир с весом 2 получает вдвое больше новичка с весом 1.</p></div>
+      <div class="box"><h4>🔑 Ваша касса (hash)</h4><p class="bs">Кассу выбирают по номеру карты покупателя: из номера считают число и по нему находят кассу. Один и тот же человек всегда попадает к одному кассиру. Подробно — в главе 6.</p></div>
     </div>
-    <div class="note good"><b>Проще говоря.</b> L4 — это охранник на входе: видит, сколько людей зашло, но не знает, кто за чем пришёл. L7 — хостес: читает заказ и отправляет «за пиццей — туда, за кофе — сюда». Поэтому L7 умеет переспросить у другого повара, если первый уронил тарелку, а L4 — нет.</div>
-    <div class="note"><b>Обычная схема в продакшене — оба сразу:</b> снаружи L4 (принимает огромный поток, распределяет по нескольким L7), за ним L7 (разбирает HTTP, маршрутизирует по путям, повторяет при ошибке, собирает метрики). Сверху DNS с несколькими адресами — грубая балансировка между площадками.</div>
-  </div>
 
-  <div class="card">
-    <h2><span class="tag">на схеме</span> как балансировщик принимает решение — по шагам</h2>
-    <p>Прежде чем щёлкать симулятор, посмотрите на схему. Выберите алгоритм и жмите «Следующий запрос»: видно, <b>куда</b> уходит запрос и <b>почему именно туда</b>.</p>
+    <h3 style="margin:18px 0 6px;font-size:14px">Сначала медленно: куда уйдёт каждый запрос и почему</h3>
+    <p>Выберите алгоритм и жмите «Следующий запрос». На схеме видно, <b>куда</b> уходит запрос и <b>почему именно туда</b>. Узел C мощнее остальных втрое.</p>
     <div class="seg" id="lbd-alg">
       <button class="on" data-a="rr">По кругу</button>
       <button data-a="wrr">По весу</button>
@@ -62,8 +192,192 @@
   </div>
 
   <div class="card">
-    <h2><span class="tag">симулятор</span> балансировщик вживую</h2>
-    <p>Четыре узла разной мощности. Выберите алгоритм, отправьте запросы, уроните узел, включите липкие сессии — и смотрите, как меняется распределение и откуда берутся ошибки.</p>
+    <h2><span class="tag">глава 4 · гонка касс</span> один и тот же поток покупателей — разные правила</h2>
+    <p>Теперь главный опыт. В магазин по одному заходят 24 покупателя, раз в секунду. Большинство — с корзинкой на одну покупку (🧺, обслуживание 1 секунда). Но каждый третий — с огромной тележкой (🛒, 6 секунд). В жизни это обычный запрос каталога и тяжёлая выгрузка отчёта.</p>
+    <p>Поток всегда <b>один и тот же</b>. Меняется только правило администратора. Запустите «по очереди», потом «где короче» — и сравните, сколько люди простояли.</p>
+    <div class="seg" id="lbx-race-alg">
+      <button class="on" data-a="rr">🔁 По очереди</button>
+      <button data-a="rnd">🎲 Наугад</button>
+      <button data-a="wrr">🏋 По весу</button>
+      <button data-a="lc">📏 Где короче</button>
+    </div>
+    <div class="form-row">
+      <button class="act" id="lbx-race-go">▶ Запустить покупателей</button>
+      <button class="ghost" id="lbx-race-step">+1 секунда</button>
+      <button class="ghost" id="lbx-race-fast">Кассир 1 опытный: выкл</button>
+      <button class="ghost" id="lbx-race-reset">⟲ Сначала</button>
+    </div>
+    <div class="lbx-arrive" id="lbx-race-now"></div>
+    <div id="lbx-race-lanes"></div>
+    <div class="meters" id="lbx-race-m"></div>
+    <div class="console" id="lbx-race-msg"></div>
+    <div id="lbx-race-cmp"></div>
+  </div>
+
+  <div class="card">
+    <h2><span class="tag">глава 4 · шпаргалка</span> какой алгоритм когда</h2>
+    <p>Кроме четырёх «кассовых» правил, в настоящих балансировщиках есть ещё несколько. Щёлкните строку, чтобы раскрыть подробности.</p>
+    <div id="lb-alg-table"></div>
+  </div>
+
+  <!-- ─────────── ГЛАВА 5 ─────────── -->
+  <div class="card" id="lbx-ch5">
+    <h2><span class="tag">глава 5 · кассир ушёл</span> проверки здоровья</h2>
+    <p>Кассир ушёл на обед, а табличку не повесил. Если администратор этого не заметит, он продолжит слать людей к пустой кассе. Они постоят и уйдут ни с чем.</p>
+    <p>У балансировщика для этого есть <b>проверка здоровья</b> (health check). Это регулярный вопрос каждому серверу: «ты жив?». Обычно балансировщик раз в несколько секунд делает запрос <code class="inl">GET /health</code>. Ответил «200 OK» — жив. Не ответил или ответил ошибкой — неудача.</p>
+    <p>Две настройки решают всё:</p>
+    <ul>
+      <li><b>Интервал</b> — как часто спрашивать. Раз в секунду или раз в десять.</li>
+      <li><b>Порог</b> — сколько неудач <b>подряд</b> нужно, чтобы объявить сервер мёртвым и убрать его из пула.</li>
+    </ul>
+    <p>Пока балансировщик не убедился, что сервер мёртв, он шлёт туда запросы — и они пропадают. Это <b>слепое окно</b>. Попробуйте подобрать настройки: чтобы слепое окно было не больше 5 секунд, но короткая трёхсекундная «задумчивость» сервера (например, пауза на сборку мусора) не выкидывала его зря.</p>
+    <div class="seg" id="lbx-hc-sc">
+      <button class="on" data-s="dead">💥 Сервер упал насовсем</button>
+      <button data-s="pause">⏸ Сервер задумался на 3 секунды</button>
+    </div>
+    <div class="slider-row"><span>Интервал проверки, секунд</span><input type="range" id="lbx-hc-iv" min="1" max="10" step="1" value="5"><span class="sv" id="lbx-hc-ivv">5 с</span></div>
+    <div class="slider-row"><span>Порог: неудач подряд</span><input type="range" id="lbx-hc-k" min="1" max="5" step="1" value="3"><span class="sv" id="lbx-hc-kv">3</span></div>
+    <div class="slider-row"><span>Всего запросов в секунду (на 3 сервера)</span><input type="range" id="lbx-hc-rps" min="30" max="600" step="30" value="300"><span class="sv" id="lbx-hc-rv">300</span></div>
+    <div class="form-row">
+      <button class="act" id="lbx-hc-play">▶ Проиграть по секундам</button>
+      <button class="ghost" id="lbx-hc-retry">L7-повтор при ошибке: выкл</button>
+      <button class="ghost" id="lbx-hc-pass">Пассивная проверка: выкл</button>
+    </div>
+    <div class="lbx-tl" id="lbx-hc-tl"></div>
+    <div class="lbx-legend">
+      <span><i style="background:var(--ok-bg);border-color:var(--ok)"></i>сервер работает</span>
+      <span><i style="background:var(--danger-bg);border-color:var(--danger)"></i>слепое окно: запросы пропадают</span>
+      <span><i style="background:var(--warn-bg);border-color:var(--warn)"></i>сервер задумался</span>
+      <span><i style="opacity:.45"></i>выведен из пула</span>
+      <span>✓ ✕ — момент проверки</span>
+    </div>
+    <div class="meters" id="lbx-hc-m"></div>
+    <div class="console" id="lbx-hc-msg"></div>
+  </div>
+
+  <div class="card">
+    <h2><span class="tag">глава 5 · глубже</span> активная и пассивная проверка, три вида «здоровья»</h2>
+    <div class="grid2">
+      <div class="box">
+        <h4>Активная проверка</h4>
+        <p class="bs">Балансировщик сам стучится в <code class="inl">/health</code> раз в N секунд. Узел объявляется мёртвым после K неудач подряд и живым — после M удач. Простая, предсказуемая, но узнаёт о смерти с задержкой до N×K секунд. Это ровно то, что вы крутили выше.</p>
+      </div>
+      <div class="box">
+        <h4>Пассивная проверка (outlier detection)</h4>
+        <p class="bs">Балансировщик смотрит на настоящие ответы: узел, который чаще остальных отвечает ошибками 5xx или не успевает ответить, временно убирается из пула. Реагирует почти сразу и видит реальные проблемы, а не ответ «заглушки». Администратор не ждёт обхода — он видит, что от третьей кассы люди уходят злые.</p>
+      </div>
+    </div>
+    <h3>Три вида проверок, которые надо различать</h3>
+    <p>В Kubernetes и похожих системах «здоровье» делят на три вопроса. Путать их — самая частая ошибка.</p>
+    <ul>
+      <li><b>Liveness</b> («жив ли процесс») — не завис ли он так, что его надо перезапустить. Должна быть максимально тупой: если она проверяет базу, то недоступность базы вызовет перезапуск всех узлов разом, и станет хуже.</li>
+      <li><b>Readiness</b> («готов ли принимать покупателей прямо сейчас»). Здесь уместно проверять зависимости: прогрет ли кеш, есть ли соединение с базой. Узел не готов — его убирают из балансировки, но не убивают. Кассир на месте, но пересчитывает кассу — табличка «подождите».</li>
+      <li><b>Startup</b> («ещё открываемся»). Отдельная проверка нужна, чтобы медленно стартующее приложение не убивалось liveness-проверкой на старте.</li>
+    </ul>
+    <div class="note bad"><b>Классическая авария:</b> <code class="inl">/health</code> проверяет доступность базы, база на минуту тормозит — все узлы разом объявляются мёртвыми, балансировщику некуда слать трафик, сервис падает полностью вместо частичной деградации. Правило: liveness не должна зависеть от внешних систем, а readiness — должна, но её срабатывание не должно быть синхронным у всех узлов сразу.</div>
+  </div>
+
+  <!-- ─────────── ГЛАВА 6 ─────────── -->
+  <div class="card" id="lbx-ch6">
+    <h2><span class="tag">глава 6 · постоянный покупатель</span> липкие сессии: зачем, как и почему это долг</h2>
+    <p>Бывает, что кассир что-то помнит про покупателя: «вы отложили у меня пакет». Тогда покупателя надо отправлять именно к нему, иначе пакет потеряется. В серверах это то же самое: если сервер хранит у себя в памяти корзину или сессию входа, следующий запрос того же клиента должен прийти на тот же сервер.</p>
+    <p><b>Липкая сессия</b> (sticky session) — привязка клиента к конкретному узлу, чтобы все его запросы шли туда же. Нужна, когда узел хранит <b>состояние</b> этого клиента: сессию в памяти, открытое соединение, накопленный контекст.</p>
+    <div class="grid3">
+      <div class="box">
+        <h4>По cookie</h4>
+        <p class="bs">Балансировщик ставит свою cookie с номером узла — как бирка «ваш кассир — №2». Точно, работает через общий интернет-шлюз (NAT) и мобильные сети. Требует L7 и того, чтобы клиент принимал cookie.</p>
+      </div>
+      <div class="box">
+        <h4>По IP-хешу</h4>
+        <p class="bs">Узел выбирается по адресу клиента. Работает на L4 и без cookie. Но за одним офисным NAT сидят тысячи людей с одним адресом — все попадут к одному кассиру. А смена сети (Wi-Fi → мобильный) меняет адрес и теряет привязку.</p>
+      </div>
+      <div class="box">
+        <h4>По идентификатору из приложения</h4>
+        <p class="bs">Маршрутизация по заголовку или пути (<code class="inl">/session/{id}</code>) через согласованное хеширование. Самый управляемый вариант, применяется для шардированных stateful-сервисов.</p>
+      </div>
+    </div>
+    <div id="sticky-pm"></div>
+    <div class="note warn"><b>Чем заменяют липкость:</b> вынести состояние из узла — сессии в Redis или в подписанный токен у клиента, кеш сделать общим или смириться с его повторным прогревом, WebSocket-соединения развязать через общую шину. Пакет хранится не у кассира, а в общей камере хранения. После этого узлы становятся взаимозаменяемыми, и всё остальное — масштабирование, выкатка, отказоустойчивость — упрощается разом. <b>Липкость — это не решение, а отсрочка.</b></div>
+  </div>
+
+  <!-- ─────────── ГЛАВА 7 ─────────── -->
+  <div class="card" id="lbx-ch7">
+    <h2><span class="tag">глава 7 · касса закрывается</span> как вывести сервер при выкатке и никого не потерять</h2>
+    <p>Новая версия магазина готова. Серверы надо обновить по одному. Значит, сервер B придётся выключить — а на нём прямо сейчас обслуживаются люди, и новые продолжают подходить.</p>
+    <p>В супермаркете это решают табличкой «<b>касса закрывается</b>»: новых не принимаем, но тех, кто уже стоит, дообслужим. В серверах это называется <b>drain</b> («осушение», вывод без потерь) или connection draining.</p>
+    <p>Ниже — сервер B и его запросы по секундам. Каждая строка — один запрос. На третьей секунде начинается выкатка. Балансировщик проверяет готовность раз в 3 секунды, поэтому узнаёт о выкатке только на шестой. Сравните три способа.</p>
+    <div class="seg" id="lbx-dr-mode">
+      <button class="on" data-m="kill">🔌 Выдернуть шнур (kill -9)</button>
+      <button data-m="nowait">🚪 «Не готов» и сразу выключить</button>
+      <button data-m="right">🪧 Табличка, ждём, дообслуживаем</button>
+    </div>
+    <div class="form-row">
+      <button class="act" id="lbx-dr-play">▶ Выкатить</button>
+      <button class="ghost" id="lbx-dr-all">Показать сразу</button>
+    </div>
+    <div class="lbx-scroll"><div class="lbx-gantt" id="lbx-dr-g"></div></div>
+    <div class="lbx-legend">
+      <span><i style="background:color-mix(in srgb,var(--accent) 55%,transparent)"></i>обслуживается</span>
+      <span><i style="background:var(--ok)"></i>обслужен</span>
+      <span><i style="background:var(--danger)"></i>✕ потерян</span>
+      <span><i style="background:var(--surface-3)"></i>ушёл на A или C</span>
+    </div>
+    <div class="meters" id="lbx-dr-m"></div>
+    <div class="console" id="lbx-dr-msg"></div>
+  </div>
+
+  <div class="card">
+    <h2><span class="tag">глава 7 · рецепт</span> вывод узла без потерь — по шагам</h2>
+    <div class="steps">
+      <div class="step done"><div class="si">1</div><div><b>Повесить табличку: «не готов».</b> Readiness-проверка начинает отвечать отказом. Балансировщик перестаёт слать новые запросы.<span class="sx">Между этим моментом и фактическим прекращением трафика проходит до одного интервала проверки — это и есть окно потерь, если пропустить шаг 2.</span></div></div>
+      <div class="step done"><div class="si">2</div><div><b>Подождать.</b> Несколько секунд, пока балансировщик заметит и пока новые запросы перестанут приходить.<span class="sx">Самый пропускаемый шаг. Именно из-за него при каждом деплое «теряется по сто запросов», и все считают это нормой.</span></div></div>
+      <div class="step done"><div class="si">3</div><div><b>Дать дожить текущим запросам (connection draining).</b> Сервер не принимает новые соединения, но доделывает начатые.<span class="sx">Для долгих операций нужен разумный предел — обычно 30–60 секунд, дальше обрыв.</span></div></div>
+      <div class="step done"><div class="si">4</div><div><b>Остановить процесс.</b> По сигналу завершения (SIGTERM), а не по kill -9.<span class="sx">Приложение должно обрабатывать SIGTERM: закрыть пул соединений, дописать буферы, отпустить блокировки.</span></div></div>
+      <div class="step comp"><div class="si">5</div><div><b>При вводе обратно — медленный старт (slow start).</b> Новый узел получает долю трафика постепенно.<span class="sx">Новый кассир в первый день медленный. Если least connections увидит пустую кассу, он отправит туда всех сразу: у неё ноль людей, и она выглядит самой свободной. А у узла холодный кеш и непрогретая программа. Узел захлебнётся, провалит проверку, вылетит из пула, трафик вернётся к остальным — и цикл повторится.</span></div></div>
+    </div>
+  </div>
+
+  <!-- ─────────── ГЛАВА 8 ─────────── -->
+  <div class="card" id="lbx-ch8">
+    <h2><span class="tag">глава 8 · конверт или письмо</span> что за «уровни» L4 и L7</h2>
+    <p>В главе 3 наш балансировщик прочитал путь <code class="inl">/catalog</code> и заметил ошибку сервера A. Так умеют не все балансировщики. Всё зависит от того, <b>насколько глубоко</b> он заглядывает в запрос.</p>
+    <p>Буква L — это <b>layer</b>, слой. Цифра — номер слоя в сетевой модели OSI (это стандартная «лестница» из семи ступеней: от проводов внизу до приложения наверху). Звучит академично, но идея простая.</p>
+    <div class="note good"><b>Житейски: письмо на почте.</b> <b>L4 смотрит только на адрес на конверте</b>: откуда и куда. Этого хватает, чтобы доставить, но что внутри — неизвестно. <b>L7 вскрывает письмо и читает, о чём оно</b>: «это жалоба — в отдел качества, это заказ — в отдел продаж». Отсюда и все различия: L7 умнее, L4 быстрее.</div>
+
+    <h3 style="margin:18px 0 6px;font-size:14px">Один и тот же запрос на двух уровнях</h3>
+    <p>Нажмите — посмотрите, что <b>видит</b> балансировщик на каждом уровне и что он поэтому <b>может</b> и <b>не может</b>.</p>
+    <div class="seg" id="l47-pick">
+      <button class="on" data-i="0">✉️ L4 — видит только конверт</button>
+      <button data-i="1">📖 L7 — читает письмо</button>
+      <button data-i="2">🏗 Как их ставят вместе</button>
+    </div>
+    <div id="l47-out"></div>
+  </div>
+
+  <div class="card">
+    <h2><span class="tag">глава 8 · таблица</span> L4 против L7</h2>
+    <div class="table-wrap">
+      <table class="db">
+        <thead><tr><th>&nbsp;</th><th>L4 — транспортный</th><th>L7 — прикладной</th></tr></thead>
+        <tbody>
+          <tr><td><b>Житейски</b></td><td>Читает адрес на конверте</td><td>Вскрывает письмо и читает</td></tr>
+          <tr><td><b>Что видит</b></td><td>IP-адреса и порты. Содержимое — непрозрачный поток байт</td><td>HTTP-запрос целиком: путь, метод, заголовки, cookie</td></tr>
+          <tr><td><b>Может маршрутизировать</b></td><td>Только по адресу назначения</td><td>По пути (<code class="inl">/api/orders</code> → одному, <code class="inl">/api/catalog</code> → другому), по заголовку, по версии</td></tr>
+          <tr><td><b>Скорость</b></td><td class="yes">Очень высокая, почти нет накладных расходов</td><td>Ниже: надо разобрать запрос, часто расшифровать TLS</td></tr>
+          <tr><td><b>Повтор при ошибке</b></td><td class="no">Не умеет: не знает, что такое «запрос»</td><td class="yes">Умеет: видит код ответа и может отправить запрос другому узлу</td></tr>
+          <tr><td><b>TLS</b></td><td>Проходит насквозь, шифрование до узла</td><td>Обычно завершается здесь, дальше — заново или открыто</td></tr>
+          <tr><td><b>Типичное применение</b></td><td>Базы данных, gRPC-потоки, всё не-HTTP, вход в кластер</td><td>Веб-трафик, API, канареечные выкатки, A/B</td></tr>
+          <tr><td><b>Примеры</b></td><td>LVS/IPVS, AWS NLB, HAProxy в режиме tcp</td><td>nginx, Envoy, Traefik, AWS ALB, HAProxy в режиме http</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="note"><b>Обычная схема в продакшене — оба сразу:</b> снаружи L4 (принимает огромный поток, распределяет по нескольким L7), за ним L7 (разбирает HTTP, маршрутизирует по путям, повторяет при ошибке, собирает метрики). Сверху DNS с несколькими адресами — грубая балансировка между площадками.</div>
+  </div>
+
+  <!-- ─────────── ГЛАВА 9 ─────────── -->
+  <div class="card" id="lbx-ch9">
+    <h2><span class="tag">глава 9 · полигон</span> балансировщик вживую</h2>
+    <p>Всё, что было в главах 4–7, собрано в одном месте. Четыре узла разной мощности. Выберите алгоритм, отправьте запросы, уроните узел, включите липкие сессии, выведите узел — и смотрите, как меняется распределение и откуда берутся ошибки.</p>
     <div class="seg" id="lb-alg">
       <button class="on" data-a="rr">Round-robin</button>
       <button data-a="wrr">Weighted RR</button>
@@ -90,66 +404,36 @@
     <div class="console" id="lb-msg"></div>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">алгоритмы</span> какой когда</h2>
-    <div id="lb-alg-table"></div>
-  </div>
-
-  <div class="card">
-    <h2><span class="tag">живость</span> проверки здоровья — где ошибаются</h2>
-    <div class="grid2">
-      <div class="box">
-        <h4>Активная проверка</h4>
-        <p class="bs">Балансировщик сам стучится в <code class="inl">/health</code> раз в N секунд. Узел объявляется мёртвым после K неудач подряд и живым — после M удач. Простая, предсказуемая, но узнаёт о смерти с задержкой до N×K секунд.</p>
-      </div>
-      <div class="box">
-        <h4>Пассивная проверка (outlier detection)</h4>
-        <p class="bs">Балансировщик смотрит на реальные ответы: узел, дающий 5xx или таймауты чаще остальных, временно выводится из ротации. Реагирует мгновенно и видит настоящие проблемы, а не ответ заглушки.</p>
-      </div>
+  <!-- ─────────── ГЛАВА 10 ─────────── -->
+  <div class="card" id="lbx-ch10">
+    <h2><span class="tag">глава 10 · кто есть кто</span> балансировщик, шлюз, BFF и mesh</h2>
+    <p>Рядом с балансировщиком постоянно звучат ещё три слова. Все они стоят «на пути запроса», поэтому их легко спутать. Разница — в том, <b>на какой вопрос</b> каждый отвечает.</p>
+    <div class="table-wrap">
+      <table class="db">
+        <thead><tr><th>&nbsp;</th><th>⚖ Балансировщик</th><th>🛂 API-шлюз</th><th>🧑‍💼 BFF</th><th>🚚 Service mesh</th></tr></thead>
+        <tbody>
+          <tr><td><b>Житейски</b></td><td>Администратор у касс: «вам — на третью»</td><td>Ресепшен бизнес-центра: проверяет пропуск и говорит, на какой этаж</td><td>Личный помощник для гостей одного типа: собирает всё нужное им в одну папку</td><td>Курьерская служба между офисами: сама возит, шифрует, повторяет доставку</td></tr>
+          <tr><td><b>Главный вопрос</b></td><td>Какой из одинаковых копий отдать запрос?</td><td>В какой сервис этот запрос и можно ли его пускать?</td><td>Что нужно именно этому экрану этого клиента?</td><td>Как сервисам надёжно звонить друг другу?</td></tr>
+          <tr><td><b>Где стоит</b></td><td>Перед копиями одного сервиса (или на входе)</td><td>На входе в систему, один на всех клиентов</td><td>Отдельный на каждый тип клиента: веб, мобильное, партнёры</td><td>Внутри, рядом с каждым сервисом (sidecar)</td></tr>
+          <tr><td><b>Типичная работа</b></td><td>Алгоритм выбора, проверки здоровья, drain</td><td>Проверка токена, лимиты, маршрут по пути, версии API</td><td>Склейка ответов нескольких сервисов, обрезка полей под экран</td><td>Шифрование mTLS, повторы, таймауты, балансировка между сервисами</td></tr>
+          <tr><td><b>Знает бизнес-смысл</b></td><td class="no">Нет</td><td>Почти нет</td><td class="yes">Да, про экраны</td><td class="no">Нет</td></tr>
+          <tr><td><b>Примеры</b></td><td>nginx, HAProxy, AWS ALB/NLB</td><td>Kong, Spring Cloud Gateway, AWS API Gateway</td><td>Свой сервис на Node, Kotlin, Go</td><td>Istio, Linkerd</td></tr>
+        </tbody>
+      </table>
     </div>
-    <h3>Три вида проверок, которые надо различать</h3>
-    <ul>
-      <li><b>Liveness</b> — «процесс жив или его надо перезапустить». Должна быть максимально тупой: если она проверяет базу, то недоступность базы вызовет перезапуск всех узлов разом, и станет хуже.</li>
-      <li><b>Readiness</b> — «готов ли принимать трафик прямо сейчас». Вот здесь уместно проверять зависимости: прогрет ли кеш, есть ли соединение с базой. Узел не готов — его убирают из балансировки, но не убивают.</li>
-      <li><b>Startup</b> — «долгий старт ещё идёт». Отдельная проверка нужна, чтобы медленно стартующее приложение не убивалось liveness-проверкой на старте.</li>
-    </ul>
-    <div class="note bad"><b>Классическая авария:</b> <code class="inl">/health</code> проверяет доступность базы, база на минуту тормозит — все узлы разом объявляются мёртвыми, балансировщику некуда слать трафик, сервис падает полностью вместо частичной деградации. Правило: liveness не должна зависеть от внешних систем, а readiness — должна, но её срабатывание не должно быть синхронным у всех узлов сразу.</div>
-  </div>
+    <div class="note"><b>Важная оговорка.</b> Балансировка — это <b>функция</b>, а не только отдельная коробка. Шлюз обычно сам балансирует между копиями сервиса, а mesh балансирует вызовы между сервисами внутри. Поэтому в маленькой системе отдельного балансировщика может не быть — его работу делает шлюз.</div>
 
-  <div class="card">
-    <h2><span class="tag">липкость</span> sticky session: зачем, как и почему это долг</h2>
-    <p>Липкая сессия — привязка клиента к конкретному узлу, чтобы его последующие запросы шли туда же. Нужна, когда узел хранит <b>состояние</b> этого клиента: сессию в памяти, открытое соединение, накопленный контекст.</p>
-    <div class="grid3">
-      <div class="box">
-        <h4>По cookie</h4>
-        <p class="bs">Балансировщик ставит свою cookie с идентификатором узла. Точно, работает через NAT и мобильные сети. Требует L7 и того, чтобы клиент принимал cookie.</p>
-      </div>
-      <div class="box">
-        <h4>По IP-хешу</h4>
-        <p class="bs">Узел выбирается хешем адреса клиента. Работает на L4 и без cookie. Но за одним NAT сидят тысячи клиентов — перекос гарантирован; а смена сети меняет адрес и теряет привязку.</p>
-      </div>
-      <div class="box">
-        <h4>По идентификатору из приложения</h4>
-        <p class="bs">Маршрутизация по заголовку или пути (<code class="inl">/session/{id}</code>) через согласованное хеширование. Самый управляемый вариант, применяется для шардированных stateful-сервисов.</p>
-      </div>
-    </div>
-    <div id="sticky-pm"></div>
-    <div class="note warn"><b>Чем заменяют липкость:</b> вынести состояние из узла — сессии в Redis или в подписанный токен у клиента, кеш сделать общим или смириться с его повторным прогревом, WebSocket-соединения развязать через общую шину. После этого узлы становятся взаимозаменяемыми, и всё остальное — масштабирование, выкатка, отказоустойчивость — упрощается разом. <b>Липкость — это не решение, а отсрочка.</b></div>
-  </div>
-
-  <div class="card">
-    <h2><span class="tag">выкатка</span> как выводить узел из-под нагрузки без потерь</h2>
-    <div class="steps">
-      <div class="step done"><div class="si">1</div><div><b>Пометить как «не готов».</b> Readiness-проверка начинает отвечать отказом. Балансировщик перестаёт слать новые запросы.<span class="sx">Между этим моментом и фактическим прекращением трафика проходит до одного интервала проверки — это и есть окно потерь, если пропустить шаг 2.</span></div></div>
-      <div class="step done"><div class="si">2</div><div><b>Подождать.</b> Несколько секунд, пока балансировщик заметит и пока новые запросы перестанут приходить.<span class="sx">Самый пропускаемый шаг. Именно из-за него при каждом деплое «теряется по сто запросов», и все считают это нормой.</span></div></div>
-      <div class="step done"><div class="si">3</div><div><b>Дать дожить текущим запросам (connection draining).</b> Сервер не принимает новые соединения, но доделывает начатые.<span class="sx">Для долгих операций нужен разумный предел — обычно 30–60 секунд, дальше обрыв.</span></div></div>
-      <div class="step done"><div class="si">4</div><div><b>Остановить процесс.</b> По сигналу завершения, а не по kill -9.<span class="sx">Приложение должно обрабатывать SIGTERM: закрыть пул соединений, дописать буферы, отпустить блокировки.</span></div></div>
-      <div class="step comp"><div class="si">5</div><div><b>При вводе обратно — медленный старт (slow start).</b> Новый узел получает долю трафика постепенно.<span class="sx">Иначе «least connections» отправит на пустой узел сразу всё: у него ноль соединений, и он выглядит самым свободным — а у него холодный кеш и непрогретый JIT. Узел захлебнётся и будет выведен проверкой живости, трафик вернётся к остальным, и цикл повторится.</span></div></div>
+    <h3 style="margin:18px 0 6px;font-size:14px">Кому поручить задачу?</h3>
+    <p>Разложите задачи по исполнителям. Решено <b id="lbx-who-score">0</b> из <span id="lbx-who-total">0</span>.</p>
+    <div id="lbx-who"></div>
+    <div class="form-row">
+      <button class="act" data-goto="gw">Подробно про шлюз, BFF и mesh →</button>
     </div>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">задание</span> балансировка</h2>
+  <!-- ─────────── ГЛАВА 11 ─────────── -->
+  <div class="card" id="lbx-ch11">
+    <h2><span class="tag">глава 11 · проверь себя</span> балансировка</h2>
     <p>Решено <b id="lbq-score">0</b> из <span id="lbq-total">0</span>.</p>
     <div id="lbq-tasks"></div>
   </div>
@@ -514,5 +798,537 @@
     paint(null);
   });
   paint(null);
+})();
+</script>
+
+<script>
+/* ═══ 19.x Повествовательные интерактивы раздела «Балансировщики» (lbx-) ═══ */
+
+/* --- карта раздела --- */
+(function(){
+  const map = document.getElementById('lbx-map');
+  if(!map) return;
+  map.addEventListener('click', e => {
+    const b = e.target.closest('button[data-ch]'); if(!b) return;
+    const t = document.getElementById(b.dataset.ch);
+    if(t && t.scrollIntoView) t.scrollIntoView({behavior:'smooth', block:'start'});
+  });
+})();
+
+/* --- глава 1: один сервер и распродажа --- */
+(function(){
+  const rack = document.getElementById('lbx-one-rack');
+  if(!rack) return;
+  const CAP = 100;
+  let mode = '1';
+  const rng = document.getElementById('lbx-one-rps'), rv = document.getElementById('lbx-one-rv');
+  function draw(){
+    const L = +rng.value; rv.textContent = L;
+    const n = mode === '1' ? 1 : 3;
+    const load = [];
+    for(let i = 0; i < n; i++){
+      if(mode === 'lb') load.push(L / 3);
+      else load.push(i === 0 ? L : 0);
+    }
+    let served = 0, lost = 0;
+    rack.innerHTML = (mode === 'lb'
+      ? '<div class="svc pick" style="min-width:150px"><div class="sn">⚖ Балансировщик</div><div class="sm">адрес shop.ru</div><div class="sc">' + L + '</div><div class="sm">принял, раздаёт поровну</div></div>'
+      : '') +
+      load.map((x, i) => {
+        const ok = Math.min(x, CAP), bad = Math.max(0, x - CAP);
+        served += ok; lost += bad;
+        const pct = Math.min(100, Math.round(x / CAP * 100));
+        const cls = bad > 0 ? 'down' : x > 80 ? 'busy' : '';
+        const barc = bad > 0 ? 'lbx-hot' : x > 80 ? 'lbx-warm' : '';
+        const state = bad > 0 ? 'захлебнулся' : x === 0 ? 'простаивает' : x > 80 ? 'на пределе' : 'справляется';
+        return '<div class="svc ' + cls + '" style="min-width:150px"><div class="sn">🖥 Сервер ' + (i + 1) + '</div>' +
+          '<div class="sm">может ' + CAP + ' в секунду</div>' +
+          '<div class="sc">' + Math.round(x) + '</div>' +
+          '<div class="sm">' + state + (bad > 0 ? ' · отказов ' + Math.round(bad) + '/с' : '') + '</div>' +
+          '<div class="lbx-bar"><i class="' + barc + '" style="width:' + pct + '%"></i></div></div>';
+      }).join('');
+    document.getElementById('lbx-one-m').innerHTML =
+      '<span class="meter">Пришло: <b>' + L + '/с</b></span>' +
+      '<span class="meter good">Обслужено: <b>' + Math.round(served) + '/с</b></span>' +
+      '<span class="meter bad">Получили ошибку: <b>' + Math.round(lost) + '/с</b></span>' +
+      '<span class="meter">Суммарная мощность: <b>' + (n * CAP) + '/с</b></span>';
+    const m = document.getElementById('lbx-one-msg');
+    if(mode === '1'){
+      msg(m, lost ? 'err' : 'ok', lost
+        ? 'Один сервер тянет 100 запросов в секунду, а пришло ' + L + '. Лишние ' + Math.round(lost) + ' в секунду получают ошибку или ждут бесконечно. Это как одна касса в час пик: очередь до входа, люди бросают тележки. Добавим серверов — переключите на «Три сервера».'
+        : 'Нагрузка в пределах мощности — одному серверу хватает. Поднимите ползунок до уровня распродажи.');
+    } else if(mode === '3'){
+      msg(m, lost ? 'err' : 'warn', '<b>Серверов три, а толку нет.</b> В приложении и в DNS записан адрес только первого сервера — все покупатели идут туда. Второй и третий простаивают. Суммарная мощность 300, а обслуживаем максимум 100. Как в магазине, где открыли три кассы, но все по привычке стоят в первую: никто не подсказал.' +
+        ' Можно раздать клиентам три адреса, но тогда каждый клиент должен сам следить, какой сервер жив, и заново узнавать список при каждом добавлении сервера. Нужен посредник.');
+    } else {
+      msg(m, lost ? 'warn' : 'ok', lost
+        ? 'Балансировщик раздал поровну, но и трёх серверов не хватает: ' + L + ' больше, чем 300. Значит, нужен четвёртый — и его просто добавят в пул за балансировщиком, клиенты ничего не заметят.'
+        : '<b>Вот оно.</b> Покупатели знают один адрес — балансировщика. Он раздаёт запросы по ' + Math.round(L / 3) + ' в секунду на каждый сервер, и все справляются. Добавить четвёртый сервер можно, не трогая ни приложение, ни DNS.');
+    }
+  }
+  document.getElementById('lbx-one-mode').addEventListener('click', e => {
+    const b = e.target.closest('button[data-m]'); if(!b) return;
+    mode = b.dataset.m;
+    [...b.parentNode.children].forEach(x => x.classList.toggle('on', x === b));
+    draw();
+  });
+  rng.addEventListener('input', draw);
+  draw();
+})();
+
+/* --- глава 3: путь запроса Анны --- */
+(function(){
+  const map = document.getElementById('lbx-trip-map'), out = document.getElementById('lbx-trip-out');
+  if(!map || !out) return;
+  const ROWS = [
+    [{id:'anna', ic:'📱', n:'Телефон Анны', s:'92.113.44.7'}, {id:'dns', ic:'📖', n:'DNS', s:'справочная имён'}],
+    [{id:'lb', ic:'⚖', n:'Балансировщик', s:'203.0.113.10'}, {id:'hc', ic:'🩺', n:'Проверка здоровья', s:'GET /health раз в 2 с'}],
+    [{id:'A', ic:'🖥', n:'Сервер A', s:'10.0.1.11'}, {id:'B', ic:'🖥', n:'Сервер B', s:'10.0.1.12'}, {id:'C', ic:'🖥', n:'Сервер C', s:'10.0.1.13'}],
+  ];
+  map.innerHTML = ROWS.map((r, i) =>
+    '<div class="lbx-row">' + r.map(n =>
+      '<div class="lbx-n" data-id="' + n.id + '"><div class="lbx-ic">' + n.ic + '</div><div class="lbx-nn">' + n.n + '</div><div class="lbx-ns">' + n.s + '</div></div>').join('') + '</div>' +
+    (i < ROWS.length - 1 ? '<div class="lbx-wire" data-w="' + i + '"></div>' : '')).join('');
+  const nodes = [...map.querySelectorAll('.lbx-n')], wires = [...map.querySelectorAll('.lbx-wire')];
+
+  const BASE = [
+    {on:['anna'], dead:['C'], w:['',''], t:'12:00:03. Анна нажимает «Каталог»',
+     d:'Идёт распродажа. Анна открывает приложение магазина и жмёт «Каталог». Телефон собирает запрос — просьбу к магазину «покажи товары распродажи».',
+     data:'GET https://shop.ru/catalog?sale=1\n\nкто спрашивает: телефон Анны, адрес 92.113.44.7\nкуда: shop.ru — но где это физически?',
+     why:'У Анны есть только <b>имя</b> магазина — shop.ru. Она не знает, сколько у магазина серверов и где они стоят. И не должна знать.'},
+    {on:['anna','dns'], dead:['C'], w:['📱 ⇄ 📖  «какой адрес у shop.ru?»',''], t:'Телефон спрашивает DNS: где shop.ru?',
+     d:'<b>DNS</b> (Domain Name System) — справочная интернета: по имени сайта выдаёт числовой адрес компьютера. Телефон спрашивает, справочная отвечает.',
+     data:'вопрос:  shop.ru → ?\nответ:   203.0.113.10   (запомнить на 60 секунд)\n\n203.0.113.10 — это адрес БАЛАНСИРОВЩИКА,\nа не какого-то из серверов',
+     why:'В справочнике записан адрес балансировщика, а не серверов. Ответ DNS клиенты запоминают на минуты и часы, поэтому менять его часто нельзя. А серверы за балансировщиком можно добавлять и убирать хоть каждую минуту — справочник об этом не знает.'},
+    {on:['anna','lb'], dead:['C'], w:['📱 → ⚖  соединение, шифрование TLS',''], t:'Запрос приходит на балансировщик',
+     d:'Телефон устанавливает защищённое соединение с балансировщиком. <b>TLS</b> — это шифрование: по дороге никто не прочитает запрос. Наш балансировщик расшифровывает запрос и читает его.',
+     data:'после расшифровки видно:\n\nGET /catalog?sale=1 HTTP/1.1\nHost: shop.ru\nCookie: session=a91f\nUser-Agent: ShopApp/5.2 (Android)',
+     why:'Этот балансировщик работает на уровне <b>L7</b> — он вскрывает письмо и читает его (подробно в главе 8). Поэтому он видит путь <code class="inl">/catalog</code> и позже сможет понять, что сервер ответил ошибкой.'},
+    {on:['lb','hc','A','B'], dead:['C'], w:['','🩺 → A ✓   B ✓   C ✕ ✕ ✕'], t:'Кто сейчас жив?',
+     d:'Прежде чем выбирать, балансировщик смотрит на список живых серверов. Этот список он ведёт <b>заранее</b>: каждые 2 секунды спрашивает каждый сервер «ты жив?».',
+     data:'последние проверки GET /health:\n\n  A: 200 OK за 3 мс\n  B: 200 OK за 4 мс\n  C: нет ответа, нет ответа, нет ответа\n     → 3 неудачи подряд → ВЫВЕДЕН из пула в 12:00:01\n\nв пуле сейчас: A, B',
+     why:'Проверять сервер в момент запроса поздно и дорого — Анна бы ждала. Администратор у касс тоже заранее видел, что кассир C ушёл на обед, и туда людей не шлёт. Подробнее — в главе 5.'},
+    {on:['lb','A','B'], dead:['C'], w:['',''], t:'Выбор сервера: A',
+     d:'Живы двое. Правило этого балансировщика — <b>least connections</b>: отдать тому, у кого сейчас меньше всего запросов в работе.',
+     data:'алгоритм: least connections\n\n  A: 12 запросов в работе\n  B: 31 запрос в работе   (там тяжёлые выгрузки отчётов)\n  C: — выведен\n\n→ выбран A',
+     why:'«По очереди» отправил бы Анну на B, потому что сейчас его черёд. Но B завален тяжёлыми запросами, и Анна ждала бы дольше. Смотреть на то, сколько <b>сейчас</b> в работе, выгоднее. В главе 4 это будет видно на гонке касс.'},
+    {on:['lb','A'], dead:['C'], w:['','⚖ → A  пересылка запроса'], t:'Балансировщик пересылает запрос на A',
+     d:'Балансировщик открывает своё соединение с сервером A и передаёт запрос. По дороге дописывает пару служебных строк.',
+     data:'→ 10.0.1.11:8080\n\nGET /catalog?sale=1 HTTP/1.1\nHost: shop.ru\nCookie: session=a91f\nX-Forwarded-For: 92.113.44.7     ← настоящий адрес Анны\nX-Request-Id: 7f3a-91c2           ← номер запроса для логов',
+     why:'Сервер A видит, что запрос пришёл от балансировщика, а не от Анны. Настоящий адрес ей передают в заголовке <code class="inl">X-Forwarded-For</code>. <code class="inl">X-Request-Id</code> нужен, чтобы потом найти этот запрос в логах всех систем.'},
+  ];
+  const TAIL = {
+    ok: [
+      {on:['A','lb'], good:['A'], dead:['C'], w:['','A → ⚖  200 OK, 84 мс'], t:'Сервер A отвечает',
+       d:'Сервер A собрал список товаров и ответил. Балансировщик записал, как всё прошло.',
+       data:'HTTP/1.1 200 OK        за 84 мс\nContent-Type: application/json\n\n[ 48 товаров распродажи … ]\n\nбалансировщик записал:\n  A · 200 · 84 мс\n  в работе у A: 12 → 11',
+       why:'Балансировщик замеряет каждый ответ. Из этих замеров получаются графики и <b>пассивная</b> проверка здоровья: если A начнёт часто отвечать ошибками, его уберут, не дожидаясь обхода.'},
+      {on:['anna','lb'], good:['anna'], dead:['C'], k:'good', w:['⚖ → 📱  каталог',''], t:'Анна видит каталог',
+       d:'Ответ ушёл обратно тем же путём. Анна листает товары.',
+       data:'Анна увидела каталог через 0,12 с после нажатия.\n\nОна не знает:\n  • что серверов три;\n  • что C сейчас лежит;\n  • что её обслужил именно A.',
+       why:'<b>В этом и вся работа балансировщика.</b> Снаружи — один адрес. Внутри — сколько угодно серверов. Мёртвые не получают запросов, занятые получают меньше. А теперь переключите сценарий на «Сервер A падает» и посмотрите, что будет, если беда случится прямо во время запроса.'},
+    ],
+    fail: [
+      {on:['A','lb'], bad:['A'], dead:['C'], w:['','A ✕ ⚖  соединение оборвано'], t:'Сервер A падает посреди запроса',
+       d:'Через 40 миллисекунд сервер A зависает и обрывает соединение. Балансировщик получает ошибку вместо ответа.',
+       data:'A: соединение сброшено через 40 мс\nбалансировщик: 502 Bad Gateway (сервер не ответил)\n\nпоследняя проверка здоровья A: 1,2 с назад — «жив»',
+       why:'Проверка здоровья ещё не успела ничего заметить: до следующего обхода почти секунда, а для вывода нужно три неудачи подряд. <b>Одной активной проверки мало</b> — между обходами сервер может умереть.'},
+      {on:['lb','B'], bad:['A'], dead:['C'], w:['','⚖ → B  повтор №1'], t:'Балансировщик повторяет запрос на B',
+       d:'Раз запрос — это <code class="inl">GET</code> (только чтение), его можно безопасно повторить на другом сервере. B отвечает.',
+       data:'GET — безопасно повторить: ничего не меняет\n\nповтор №1 → B (10.0.1.12)\nB: 200 OK за 130 мс\n\nпассивная проверка: у A 1 ошибка из 1 → A «на подозрении»,\nследующие 30 с новых запросов не получает',
+       why:'L7-балансировщик видит код ответа и умеет повторить. Но <b>только безопасные запросы</b>. <code class="inl">POST /orders</code> (оформить заказ) так повторять нельзя: вдруг A успел списать деньги перед смертью? Для таких запросов нужен ключ идемпотентности (про него — в разделе об устойчивости).'},
+      {on:['anna','lb'], good:['anna'], bad:['A'], dead:['C'], k:'warn', w:['⚖ → 📱  каталог (с задержкой)',''], t:'Анна всё равно видит каталог',
+       d:'Анна получила каталог, просто чуть позже обычного.',
+       data:'Анна увидела каталог через 0,21 с вместо 0,12 с.\nОшибки она не видела.\n\nВ пуле сейчас: B (A на подозрении, C выведен)',
+       why:'Два механизма сработали вместе: <b>повтор</b> спас этот конкретный запрос, <b>пассивная проверка</b> убрала A для следующих. А активная проверка через пару секунд подтвердит: A мёртв. Заметьте: в пуле остался один сервер — ему бы теперь выдержать всю распродажу. Отсюда правило «N+1»: серверов должно хватать на пик, даже если один выбыл.'},
+    ],
+  };
+  let sc = 'ok', cur = 0, timer = null;
+  const steps = () => BASE.concat(TAIL[sc]);
+  const lab = document.getElementById('lbx-trip-lab'), play = document.getElementById('lbx-trip-play');
+  function paint(){
+    const S = steps(), st = S[cur];
+    const on = new Set(st.on || []), bad = new Set(st.bad || []), good = new Set(st.good || []), dead = new Set(st.dead || []);
+    nodes.forEach(n => {
+      const id = n.dataset.id;
+      n.classList.toggle('lbx-on', on.has(id) && !bad.has(id) && !good.has(id));
+      n.classList.toggle('lbx-bad', bad.has(id) || (dead.has(id) && !on.has(id)));
+      n.classList.toggle('lbx-good', good.has(id));
+    });
+    wires.forEach((w, i) => {
+      const t = (st.w || [])[i] || '';
+      const isBad = /✕/.test(t) && i === 1 && bad.size;
+      w.innerHTML = t ? '<span class="' + (isBad ? 'lbx-bad' : 'lbx-on') + '">' + esc(t) + '</span>' : '<span>·</span>';
+    });
+    const kc = st.k === 'good' ? ' lbx-good' : (bad.size && !good.size) ? ' lbx-bad' : '';
+    out.innerHTML = '<div class="lbx-card' + kc + '"><h4>Шаг ' + (cur + 1) + '. ' + esc(st.t) + '</h4>' +
+      '<div style="font-size:13.5px">' + st.d + '</div>' +
+      '<span class="lbx-lbl">данные на этом шаге</span><pre class="json">' + esc(st.data) + '</pre>' +
+      '<span class="lbx-lbl">почему так</span><div style="font-size:13.5px">' + st.why + '</div></div>';
+    lab.textContent = 'шаг ' + (cur + 1) + ' из ' + S.length;
+    if(cur === S.length - 1) Progress.report('lbx-trip', 1);
+  }
+  function stop(){ if(timer){ clearInterval(timer); timer = null; } play.textContent = '▶ Проиграть'; }
+  document.getElementById('lbx-trip-next').addEventListener('click', () => { stop(); if(cur < steps().length - 1) cur++; paint(); });
+  document.getElementById('lbx-trip-prev').addEventListener('click', () => { stop(); if(cur > 0) cur--; paint(); });
+  play.addEventListener('click', () => {
+    if(timer){ stop(); return; }
+    if(cur >= steps().length - 1) cur = 0;
+    paint(); play.textContent = '⏸ Пауза';
+    timer = setInterval(() => {
+      if(!map.isConnected || cur >= steps().length - 1){ stop(); return; }
+      cur++; paint();
+    }, 2600);
+  });
+  document.getElementById('lbx-trip-sc').addEventListener('click', e => {
+    const b = e.target.closest('button[data-s]'); if(!b) return;
+    stop(); sc = b.dataset.s;
+    [...b.parentNode.children].forEach(x => x.classList.toggle('on', x === b));
+    cur = Math.min(cur, BASE.length - 1); paint();
+  });
+  paint();
+  Progress.register('lbx-trip', 1, 'Путь запроса через балансировщик');
+})();
+
+/* --- глава 4: гонка касс --- */
+(function(){
+  const lanes = document.getElementById('lbx-race-lanes');
+  if(!lanes) return;
+  const N = 24, W = [];
+  for(let i = 0; i < N; i++) W.push((i % 3 === 1 && i < 16) ? 6 : 1);
+  const NAMES = {rr:'По очереди', rnd:'Наугад', wrr:'По весу', lc:'Где короче'};
+  let alg = 'rr', fast = false, t = 0, timer = null;
+  const tried = new Set();
+  const speeds = () => fast ? [2, 1, 1] : [1, 1, 1];
+
+  function simulate(a, sp, upto){
+    const C = sp.map(s => ({s, q:[], served:0, work:0}));
+    const done = []; let cursor = 0, seed = 7, last = null;
+    const rnd = () => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed / 0x7fffffff; };
+    const pool = []; sp.forEach((s, i) => { for(let k = 0; k < s; k++) pool.push(i); });
+    for(let tt = 0; tt < upto; tt++){
+      if(tt < N){
+        const c = {id:tt + 1, w:W[tt], left:W[tt], arr:tt, start:null};
+        let k;
+        if(a === 'rr') k = cursor++ % C.length;
+        else if(a === 'wrr') k = pool[cursor++ % pool.length];
+        else if(a === 'rnd') k = Math.floor(rnd() * C.length);
+        else { k = 0; C.forEach((x, i) => { if(x.q.length < C[k].q.length) k = i; }); }
+        c.at = k; C[k].q.push(c); C[k].work += c.w;
+        last = {c, k, lens:C.map(x => x.q.length - (x === C[k] ? 1 : 0))};
+      }
+      C.forEach(x => {
+        let cap = x.s;
+        while(cap > 0 && x.q.length){
+          const h = x.q[0]; if(h.start == null) h.start = tt;
+          const u = Math.min(cap, h.left); h.left -= u; cap -= u;
+          if(h.left <= 0){ h.fin = tt + 1; x.q.shift(); x.served++; done.push(h); }
+        }
+      });
+      if(done.length === N) break;
+    }
+    return {C, done, last};
+  }
+  function stats(r){
+    const d = r.done;
+    if(!d.length) return {avg:0, maxw:0, end:0};
+    return {
+      avg: d.reduce((s, x) => s + x.fin - x.arr, 0) / d.length,
+      maxw: Math.max(...d.map(x => x.start - x.arr)),
+      end: Math.max(...d.map(x => x.fin)),
+    };
+  }
+  const cellOf = (c, i) => {
+    const heavy = c.w > 1, wait = t - c.arr;
+    const cls = i === 0 ? (heavy ? 'warn lbx-cur' : 'ok lbx-cur') : (wait > 5 ? 'bad' : heavy ? 'warn' : '');
+    return '<span class="cell ' + cls + '" title="покупатель №' + c.id + '">#' + c.id + ' ' + (heavy ? '🛒' : '🧺') + (i === 0 ? ' ' + c.left : '') + '</span>';
+  };
+  function paint(){
+    const sp = speeds();
+    const r = simulate(alg, sp, t);
+    lanes.innerHTML = r.C.map((x, i) =>
+      '<div class="lbx-lane"><div><div class="lbx-ln">🧾 Касса ' + (i + 1) + '</div>' +
+      '<div class="lbx-ls">' + (x.s > 1 ? 'опытный, ×2 быстрее' : 'обычный') + ' · обслужил ' + x.served + '</div></div>' +
+      '<div class="cells">' + (x.q.length ? x.q.map(cellOf).join('') : '<span class="cell dim">свободна</span>') + '</div></div>').join('');
+    const nowEl = document.getElementById('lbx-race-now');
+    if(t === 0) nowEl.textContent = 'Секунда 0. Покупатели ещё не пришли. Жмите «Запустить» или «+1 секунда».';
+    else if(r.last && t <= N){
+      const c = r.last.c;
+      nowEl.textContent = 'Секунда ' + t + ': зашёл №' + c.id + ' ' + (c.w > 1 ? '🛒 (тележка, 6 с)' : '🧺 (корзинка, 1 с)') +
+        ' → касса ' + (r.last.k + 1) + (alg === 'lc' ? ' (очереди были: ' + r.last.lens.join(' / ') + ')' : alg === 'rr' ? ' (просто её черёд)' : '');
+    } else nowEl.textContent = 'Секунда ' + t + ': новых покупателей нет, кассы дообслуживают очереди.';
+    const s = stats(r), fin = r.done.length === N;
+    document.getElementById('lbx-race-m').innerHTML =
+      '<span class="meter">Обслужено: <b>' + r.done.length + ' из ' + N + '</b></span>' +
+      '<span class="meter">Среднее время в магазине: <b>' + (r.done.length ? s.avg.toFixed(1).replace('.', ',') + ' с' : '—') + '</b></span>' +
+      '<span class="meter bad">Дольше всех ждал в очереди: <b>' + (r.done.length ? s.maxw + ' с' : '—') + '</b></span>' +
+      '<span class="meter">Кассы опустели на: <b>' + (fin ? s.end + ' с' : '…') + '</b></span>';
+    const m = document.getElementById('lbx-race-msg');
+    if(!fin){
+      msg(m, '', alg === 'rr' ? 'Следите за кассой 2: каждый третий покупатель с тележкой, и «по очереди» отправляет их всех туда же — черёд совпадает с ритмом тележек.'
+        : alg === 'lc' ? 'Правило «где короче» смотрит на число людей у каждой кассы. Тележка задерживает кассу — к ней перестают слать новых.'
+        : alg === 'wrr' ? (fast ? 'Касса 1 получает два места в круге, потому что кассир там вдвое быстрее.' : 'Все веса равны 1 — это тот же «по очереди». Включите «Кассир 1 опытный», чтобы веса стали разными.')
+        : 'Администратор выбирает кассу наугад. В среднем поровну, но случай может и собрать тележки в одну очередь.');
+    } else {
+      tried.add(alg);
+      msg(m, alg === 'lc' || (alg === 'wrr' && fast) ? 'ok' : 'warn',
+        '<b>' + NAMES[alg] + ':</b> в среднем покупатель провёл ' + s.avg.toFixed(1).replace('.', ',') + ' с, а самый невезучий простоял в очереди ' + s.maxw + ' с. ' +
+        (alg === 'rr' ? 'Людей раздали поровну — по 8 на кассу. А работы — нет: все тележки попали на кассу 2. <b>Равное число покупателей ≠ равная нагрузка.</b>'
+          : alg === 'lc' ? 'Тележки разошлись по свободным кассам сами собой: занятая касса перестаёт получать новых. Поэтому least connections — лучший выбор по умолчанию, когда запросы разной тяжести. Подвох: он считает людей, а не товары в тележках, — поэтому иногда ставит корзинку за тележку.'
+          : alg === 'wrr' ? 'Вес — ручная настройка. Он хорош, когда разница в скорости касс известна заранее и постоянна. Про тележки он не знает ничего.'
+          : 'Случай иногда лучше строгой очереди: он хотя бы не попадает в ритм тяжёлых запросов. Но предсказать результат нельзя.') +
+        (tried.size < 2 ? ' Теперь переключите правило и запустите тот же поток ещё раз.' : ''));
+      if(tried.size >= 2) Progress.report('lbx-race', 1);
+      drawCmp();
+    }
+  }
+  function drawCmp(){
+    const sp = speeds();
+    const rows = ['rr', 'rnd', 'wrr', 'lc'].map(a => ({a, s:stats(simulate(a, sp, 300))}));
+    const best = Math.min(...rows.map(x => x.s.avg));
+    document.getElementById('lbx-race-cmp').innerHTML =
+      '<h3 style="margin:16px 0 6px;font-size:14px">Итоги всех правил на этом же потоке</h3>' +
+      '<div class="table-wrap"><table class="db"><thead><tr><th>Правило</th><th>Среднее время в магазине</th><th>Самое долгое ожидание</th><th>Кассы опустели на</th></tr></thead><tbody>' +
+      rows.map(x => '<tr' + (x.a === alg ? ' style="font-weight:600"' : '') + '><td>' + NAMES[x.a] + (x.s.avg === best ? ' 🏆' : '') + '</td><td>' + x.s.avg.toFixed(1).replace('.', ',') + ' с</td><td' + (x.s.maxw > 5 ? ' class="no"' : '') + '>' + x.s.maxw + ' с</td><td>' + x.s.end + ' с</td></tr>').join('') +
+      '</tbody></table></div>';
+  }
+  function stop(){ if(timer){ clearInterval(timer); timer = null; } document.getElementById('lbx-race-go').textContent = '▶ Запустить покупателей'; }
+  function tick(){
+    const r = simulate(alg, speeds(), t);
+    if(r.done.length === N){ stop(); return false; }
+    t++; paint(); return true;
+  }
+  document.getElementById('lbx-race-go').addEventListener('click', () => {
+    if(timer){ stop(); return; }
+    if(simulate(alg, speeds(), t).done.length === N) t = 0;
+    document.getElementById('lbx-race-go').textContent = '⏸ Пауза';
+    timer = setInterval(() => {
+      if(!lanes.isConnected){ stop(); return; }
+      if(!tick()) stop();
+    }, 380);
+  });
+  document.getElementById('lbx-race-step').addEventListener('click', () => { stop(); tick(); });
+  document.getElementById('lbx-race-reset').addEventListener('click', () => { stop(); t = 0; document.getElementById('lbx-race-cmp').innerHTML = ''; paint(); });
+  document.getElementById('lbx-race-fast').addEventListener('click', e => {
+    stop(); fast = !fast; t = 0;
+    e.currentTarget.textContent = 'Кассир 1 опытный: ' + (fast ? 'вкл' : 'выкл');
+    e.currentTarget.classList.toggle('on', fast);
+    document.getElementById('lbx-race-cmp').innerHTML = '';
+    paint();
+  });
+  document.getElementById('lbx-race-alg').addEventListener('click', e => {
+    const b = e.target.closest('button[data-a]'); if(!b) return;
+    stop(); alg = b.dataset.a; t = 0;
+    [...b.parentNode.children].forEach(x => x.classList.toggle('on', x === b));
+    paint();
+  });
+  paint();
+  Progress.register('lbx-race', 1, 'Гонка алгоритмов');
+})();
+
+/* --- глава 5: кассир ушёл (проверки здоровья) --- */
+(function(){
+  const tl = document.getElementById('lbx-hc-tl');
+  if(!tl) return;
+  const FAIL = 4, PAUSE_END = 7;
+  let sc = 'dead', retry = false, passive = false, shown = Infinity, timer = null;
+  const iv = document.getElementById('lbx-hc-iv'), kk = document.getElementById('lbx-hc-k'), rps = document.getElementById('lbx-hc-rps');
+  const firstAfter = (x, I) => Math.floor(x / I) * I + I;
+  function model(){
+    const I = +iv.value, K = +kk.value, R = +rps.value, share = R / 3;
+    const removedAt = firstAfter(FAIL, I) + (K - 1) * I;
+    let pauseFails = 0;
+    for(let c = firstAfter(FAIL, I); c < PAUSE_END; c += I) pauseFails++;
+    const pauseOut = pauseFails >= K;
+    const pauseOutAt = pauseOut ? firstAfter(FAIL, I) + (K - 1) * I : null;
+    const backAt = pauseOut ? firstAfter(PAUSE_END - 0.001, I) + I : null; // две удачи подряд
+    const passAt = FAIL + Math.max(1, Math.ceil(5 / share));
+    const outAt = passive ? Math.min(removedAt, passAt) : removedAt;
+    return {I, K, R, share, removedAt, pauseFails, pauseOut, pauseOutAt, backAt, passAt, outAt, blind: outAt - FAIL, lost: Math.round(share * (outAt - FAIL))};
+  }
+  function draw(){
+    const m = model();
+    document.getElementById('lbx-hc-ivv').textContent = m.I + ' с';
+    document.getElementById('lbx-hc-kv').textContent = m.K;
+    document.getElementById('lbx-hc-rv').textContent = m.R;
+    const end = sc === 'dead' ? Math.max(m.outAt + 3, 14) : Math.max((m.backAt || 0) + 2, 14);
+    let html = '', lostSoFar = 0;
+    for(let s = 0; s <= end; s++){
+      const isCheck = s > 0 && s % m.I === 0;
+      let cls = 'lbx-ok', mark = isCheck ? '✓' : '';
+      if(sc === 'dead'){
+        if(s >= m.outAt){ cls = 'lbx-out'; mark = 'вне'; }
+        else if(s >= FAIL){ cls = 'lbx-lost'; mark = isCheck ? (s === FAIL ? '✓' : '✕') : ''; if(s < shown) lostSoFar += m.share; }
+      } else {
+        const inPause = s > FAIL && s < PAUSE_END;
+        if(m.pauseOut && s >= m.pauseOutAt && s < m.backAt){ cls = 'lbx-out'; mark = isCheck ? (s < PAUSE_END ? '✕' : '✓') : 'вне'; }
+        else if(inPause || s === FAIL){ cls = 'lbx-p'; mark = isCheck ? (s === FAIL ? '✓' : '✕') : '…'; }
+      }
+      html += '<div class="lbx-s ' + cls + (s >= shown ? ' lbx-hide' : '') + '"><b>' + s + '</b>' + (mark || '&nbsp;') + '</div>';
+    }
+    tl.innerHTML = html;
+    const activeBlind = m.removedAt - FAIL;
+    const ok = activeBlind <= 5 && !m.pauseOut;
+    const mm = document.getElementById('lbx-hc-m');
+    if(sc === 'dead'){
+      mm.innerHTML =
+        '<span class="meter">Сервер упал на: <b>' + FAIL + ' с</b></span>' +
+        '<span class="meter">Выведен на: <b>' + m.outAt + ' с</b></span>' +
+        '<span class="meter bad">Слепое окно: <b>' + m.blind + ' с</b></span>' +
+        '<span class="meter bad">Запросов ушло в пустую кассу: <b>' + m.lost + '</b></span>' +
+        '<span class="meter ' + (retry ? 'good' : 'bad') + '">Увидели ошибку: <b>' + (retry ? 0 : m.lost) + '</b></span>';
+    } else {
+      mm.innerHTML =
+        '<span class="meter">Пауза: <b>' + FAIL + '–' + PAUSE_END + ' с</b></span>' +
+        '<span class="meter">Проверок попало в паузу: <b>' + m.pauseFails + '</b> (порог ' + m.K + ')</span>' +
+        '<span class="meter ' + (m.pauseOut ? 'bad' : 'good') + '">Выкинут зря: <b>' + (m.pauseOut ? 'да, с ' + m.pauseOutAt + ' по ' + m.backAt + ' с' : 'нет') + '</b></span>';
+    }
+    let t;
+    if(sc === 'dead'){
+      t = 'Проверка каждые ' + m.I + ' с, порог неудач подряд: ' + m.K + '. Первая неудачная проверка — на ' + firstAfter(FAIL, m.I) + '-й секунде, ' + m.K + '-я — на ' + m.removedAt + '-й. ' +
+        'Всё это время балансировщик честно слал на мёртвый сервер треть запросов: ' + Math.round(m.share) + ' в секунду × ' + m.blind + ' с ≈ <b>' + m.lost + ' потерянных запросов</b>.';
+      if(passive) t += ' <b>Пассивная проверка</b> заметила 5 реальных ошибок подряд уже на ' + m.passAt + '-й секунде' + (m.passAt < m.removedAt ? ' — раньше активной.' : ' — но активная успела раньше.');
+      if(retry) t += ' <b>L7-повтор</b> отправил каждый упавший запрос на другой сервер — пользователи ошибок не увидели. Цена: ' + m.lost + ' лишних запросов на живые серверы, а изменяющие запросы (оформить заказ) так повторять нельзя.';
+    } else {
+      t = m.pauseOut
+        ? '<b>Ложная тревога.</b> Сервер просто задумался на 3 секунды, а балансировщик успел насчитать ' + m.K + ' неудач подряд и выкинул его. Остальные два получили его долю, и если они тоже на пределе — задумаются и вылетят они. Так начинаются «качели». Увеличьте порог или интервал.'
+        : 'Пауза пережита: за 3 секунды не набралось ' + m.K + ' неудач подряд, сервер остался в пуле. Часть запросов во время паузы ответила медленно, но никого не выкинули.';
+    }
+    t += ok ? ' <b>🎯 Цель выполнена:</b> слепое окно активной проверки ' + activeBlind + ' с, короткая пауза не выкидывает сервер.'
+            : ' Цель: слепое окно не больше 5 с <b>и</b> пауза в 3 с не выкидывает сервер. Сейчас: окно активной проверки ' + activeBlind + ' с, пауза ' + (m.pauseOut ? 'выкидывает' : 'не выкидывает') + '.';
+    msg(document.getElementById('lbx-hc-msg'), ok ? 'ok' : (sc === 'dead' && activeBlind > 5) || (sc === 'pause' && m.pauseOut) ? 'err' : 'warn', t);
+    if(ok) Progress.report('lbx-hc', 1);
+  }
+  function stop(){ if(timer){ clearInterval(timer); timer = null; } shown = Infinity; document.getElementById('lbx-hc-play').textContent = '▶ Проиграть по секундам'; }
+  document.getElementById('lbx-hc-play').addEventListener('click', e => {
+    if(timer){ stop(); draw(); return; }
+    shown = 0; e.currentTarget.textContent = '⏸ Стоп'; draw();
+    timer = setInterval(() => {
+      if(!tl.isConnected){ stop(); return; }
+      shown++;
+      if(shown > tl.children.length){ stop(); }
+      draw();
+    }, 260);
+  });
+  [iv, kk, rps].forEach(x => x.addEventListener('input', () => { stop(); draw(); }));
+  document.getElementById('lbx-hc-sc').addEventListener('click', e => {
+    const b = e.target.closest('button[data-s]'); if(!b) return;
+    stop(); sc = b.dataset.s;
+    [...b.parentNode.children].forEach(x => x.classList.toggle('on', x === b));
+    draw();
+  });
+  document.getElementById('lbx-hc-retry').addEventListener('click', e => {
+    retry = !retry; e.currentTarget.textContent = 'L7-повтор при ошибке: ' + (retry ? 'вкл' : 'выкл');
+    e.currentTarget.classList.toggle('on', retry); draw();
+  });
+  document.getElementById('lbx-hc-pass').addEventListener('click', e => {
+    passive = !passive; e.currentTarget.textContent = 'Пассивная проверка: ' + (passive ? 'вкл' : 'выкл');
+    e.currentTarget.classList.toggle('on', passive); draw();
+  });
+  draw();
+  Progress.register('lbx-hc', 1, 'Настройка проверок здоровья');
+})();
+
+/* --- глава 7: касса закрывается (drain) --- */
+(function(){
+  const g = document.getElementById('lbx-dr-g');
+  if(!g) return;
+  const DUR = [4, 3, 4, 2, 3, 4, 2, 3, 2, 2, 3, 2], T0 = 3, SEE = 6, COLS = 16;
+  let mode = 'kill', now = COLS, timer = null;
+  function plan(){
+    const R = DUR.map((d, a) => {
+      const r = {i:a + 1, a, d};
+      if(a >= SEE){ r.st = 'oth'; r.end = a + 1; }
+      else if(a < T0){
+        const fin = a + d;
+        if(mode === 'kill' && fin > T0){ r.st = 'lost'; r.end = T0; } else { r.st = 'ok'; r.end = fin; }
+      } else if(mode === 'right'){ r.st = 'ok'; r.end = a + d; }
+      else { r.st = 'lost'; r.end = a; }
+      return r;
+    });
+    const stopAt = mode === 'kill' ? T0 : Math.max(...R.filter(r => r.st === 'ok').map(r => r.end), T0);
+    return {R, stopAt};
+  }
+  function draw(){
+    const {R, stopAt} = plan();
+    const head = '<div class="lbx-gr"><span class="lbx-lab">секунда</span>' +
+      Array.from({length:COLS}, (_, c) => {
+        const mk = c === T0 ? '🚀' : c === SEE ? '👁' : c === stopAt ? '⏹' : c;
+        return '<span class="' + ((c === T0 || c === SEE || c === stopAt) ? 'lbx-mark' : '') + (c === now ? ' lbx-now' : '') + '" title="' +
+          (c === T0 ? 'началась выкатка' : c === SEE ? 'балансировщик заметил' : c === stopAt ? 'процесс остановлен' : '') + '">' + mk + '</span>';
+      }).join('') + '</div>';
+    let okN = 0, lostN = 0, othN = 0;
+    const rows = R.map(r => {
+      let cells = '';
+      for(let c = 0; c < COLS; c++){
+        let cls = '', tx = '';
+        if(c <= now){
+          if(r.st === 'oth' && c === r.a){ cls = 'lbx-oth'; tx = '→A/C'; }
+          else if(r.st === 'lost' && r.a >= T0 && c === r.a){ cls = 'lbx-x'; tx = '✕'; }
+          else if(r.st === 'lost' && r.a < T0 && c >= r.a && c < T0){ cls = 'lbx-run'; }
+          else if(r.st === 'lost' && r.a < T0 && c === T0){ cls = 'lbx-x'; tx = '✕'; }
+          else if(r.st === 'ok' && c >= r.a && c < r.end){ cls = now >= r.end ? 'lbx-done' : 'lbx-run'; }
+        }
+        cells += '<span class="' + cls + '">' + tx + '</span>';
+      }
+      if(now >= COLS - 1 || now >= r.end){ if(r.st === 'ok') okN++; else if(r.st === 'lost') lostN++; else othN++; }
+      return '<div class="lbx-gr"><span class="lbx-lab">запрос #' + r.i + '</span>' + cells + '</div>';
+    }).join('');
+    g.innerHTML = head + rows;
+    document.getElementById('lbx-dr-m').innerHTML =
+      '<span class="meter good">Обслужено сервером B: <b>' + okN + '</b></span>' +
+      '<span class="meter bad">Потеряно: <b>' + lostN + '</b></span>' +
+      '<span class="meter">Ушли на другие серверы: <b>' + othN + '</b></span>' +
+      '<span class="meter">Процесс B остановлен на: <b>' + stopAt + ' с</b></span>';
+    const m = document.getElementById('lbx-dr-msg');
+    if(now < COLS - 1){ msg(m, '', 'Секунда ' + now + '. ' + (now < T0 ? 'Обычная работа: запросы приходят и обслуживаются.' : now < SEE ? 'Выкатка началась, но балансировщик ещё не знает — продолжает слать запросы на B.' : 'Балансировщик заметил и шлёт новые запросы на A и C.')); return; }
+    const lostOld = R.filter(r => r.st === 'lost' && r.a < T0).length, lostNew = R.filter(r => r.st === 'lost' && r.a >= T0).length;
+    if(mode === 'kill') msg(m, 'err', '<b>Кассир просто встал и ушёл.</b> Брошено на полпути: ' + lostOld + ' (их уже обслуживали). Подошли к пустой кассе, пока администратор не заметил: ' + lostNew + '. Итого потерь: ' + (lostOld + lostNew) + ' — и так на каждой выкатке каждого сервера.');
+    else if(mode === 'nowait') msg(m, 'warn', '<b>Лучше, но не всё.</b> Начатые запросы сервер доделал (он корректно обработал сигнал остановки). Но двери закрыл сразу, а балансировщик узнал об этом только через 3 секунды. Упёрлись в закрытую дверь: ' + lostNew + '. Это и есть те самые «сто запросов на каждый деплой, которые все считают нормой».');
+    else {
+      msg(m, 'ok', '<b>Ноль потерь.</b> На 3-й секунде повесили табличку «не готов», но двери не закрыли. Пока балансировщик не заметил, B продолжал принимать и обслуживать. С 6-й секунды новые ушли на A и C, B дообслужил своих и остановился на ' + stopAt + '-й секунде. Цена — выкатка на несколько секунд дольше.');
+      Progress.report('lbx-drain', 1);
+    }
+  }
+  function stop(){ if(timer){ clearInterval(timer); timer = null; } document.getElementById('lbx-dr-play').textContent = '▶ Выкатить'; }
+  document.getElementById('lbx-dr-play').addEventListener('click', e => {
+    if(timer){ stop(); return; }
+    now = 0; draw(); e.currentTarget.textContent = '⏸ Пауза';
+    timer = setInterval(() => {
+      if(!g.isConnected || now >= COLS - 1){ stop(); return; }
+      now++; draw();
+    }, 520);
+  });
+  document.getElementById('lbx-dr-all').addEventListener('click', () => { stop(); now = COLS - 1; draw(); });
+  document.getElementById('lbx-dr-mode').addEventListener('click', e => {
+    const b = e.target.closest('button[data-m]'); if(!b) return;
+    stop(); mode = b.dataset.m; now = COLS - 1;
+    [...b.parentNode.children].forEach(x => x.classList.toggle('on', x === b));
+    draw();
+  });
+  now = COLS - 1; draw();
+  Progress.register('lbx-drain', 1, 'Вывод узла без потерь');
+})();
+
+/* --- глава 10: кому поручить --- */
+(function(){
+  if(!document.getElementById('lbx-who')) return;
+  renderSort('lbx-who', [
+    {t:'Три одинаковые копии каталога. Надо делить между ними трафик и не слать запросы на упавшую.', bucket:'lb',
+     why:'Одинаковые копии одного сервиса, выбор живой — ровно определение балансировщика. Администратор у касс.'},
+    {t:'Проверять токен у каждого внешнего запроса и пускать не больше 100 запросов в минуту на клиента.', bucket:'gw',
+     why:'Пропуск и лимит на входе в систему — работа ресепшена, то есть API-шлюза. Делать это в каждом сервисе отдельно — двадцать самодельных охранников.'},
+    {t:'Мобильному приложению нужен один ответ на экран «Главная»: каталог, акции и корзина вместе, без лишних полей для слабого интернета.', bucket:'bff',
+     why:'Склейка под конкретный экран конкретного клиента — это BFF, личный помощник мобильных гостей. Шлюз не должен знать, что нужно экрану «Главная».'},
+    {t:'Сервис заказов вызывает сервис оплаты. Нужны шифрование между ними, повторы и таймауты — без правок в коде сервисов.', bucket:'mesh',
+     why:'Надёжные звонки между сервисами внутри, без изменения их кода, — это service mesh: курьерская служба рядом с каждым офисом.'},
+    {t:'Выкатка: плавно вывести одну копию сервиса и дать дожить её запросам.', bucket:'lb',
+     why:'Drain — классическая функция балансировщика: «касса закрывается, новых не принимаем».'},
+    {t:'Снаружи один адрес api.shop.ru, а за ним 12 разных сервисов: /orders — в заказы, /catalog — в каталог.', bucket:'gw',
+     why:'Маршрут в <b>разные</b> сервисы по пути — это шлюз. Балансировщик выбирает между <b>одинаковыми</b> копиями. (L7-балансировщик тоже умеет маршрут по пути — граница размыта, но по смыслу это задача входа, то есть шлюза.)'},
+  ], [
+    {id:'lb', n:'⚖ Балансировщик'}, {id:'gw', n:'🛂 API-шлюз'}, {id:'bff', n:'🧑‍💼 BFF'}, {id:'mesh', n:'🚚 Mesh'},
+  ], 'lbx-who-score', 'lbx-who-total');
+  Progress.register('lbx-who-score', 6, 'Балансировщик, шлюз, BFF, mesh');
 })();
 </script>

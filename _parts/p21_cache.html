@@ -1,26 +1,273 @@
 <!-- ==================== 19. КЕШ ==================== -->
 <section class="panel" id="cache" data-accent="nt" role="tabpanel">
-  <p class="lead"><b>Кеш — это обмен: отдаём свежесть, получаем скорость.</b> Поэтому первый вопрос не «где поставить», а <b>«насколько несвежие данные тут можно показать»</b>. Без ответа на него кеш превращается в источник багов, которые не воспроизводятся.</p>
+  <p class="lead"><b>Этот раздел — одна история.</b> В интернет-магазине карточка кроссовок открывается почти секунду. Мы разберёмся почему, придумаем, как это исправить, и по дороге узнаем всё про кеш: что это, как он работает, где его ставят и как он ломается. Главная мысль, которую стоит унести: <b>кеш — это обмен. Отдаём свежесть, получаем скорость.</b> Идите по главам по порядку, каждая опирается на предыдущую.</p>
 
-  <div class="card">
-    <h2><span class="tag">зачем это</span> зачем нужен кеш</h2>
+  <style>
+    .chx-map{display:grid; grid-template-columns:repeat(auto-fill,minmax(215px,1fr)); gap:8px; margin-top:12px}
+    .chx-map button{appearance:none; display:flex; gap:10px; align-items:flex-start; text-align:left; border:1px solid var(--line); background:var(--surface-2); color:var(--ink); font:inherit; font-size:13px; font-weight:600; padding:9px 11px; border-radius:9px; cursor:pointer; line-height:1.35}
+    .chx-map button:hover{border-color:var(--accent)}
+    .chx-map button b{flex:none; width:22px; height:22px; border-radius:50%; background:var(--accent); color:#fff; font:700 11px var(--mono); display:grid; place-items:center}
+    .chx-map button small{display:block; font-weight:400; font-size:11.5px; color:var(--muted); margin-top:1px}
+
+    .chx-def{font-size:15px; line-height:1.55; border:1.5px solid var(--accent); border-radius:11px; padding:13px 16px; background:color-mix(in srgb,var(--accent) 7%,var(--surface)); margin:12px 0}
+    .chx-def b{color:var(--ink)}
+
+    .chx-bar{display:flex; height:30px; border-radius:8px; overflow:hidden; border:1px solid var(--line); margin-top:10px}
+    .chx-bar i{display:flex; align-items:center; justify-content:center; font:600 10.5px var(--mono); color:#fff; font-style:normal; white-space:nowrap; overflow:hidden; min-width:0}
+    .chx-legend{display:flex; flex-wrap:wrap; gap:6px 14px; margin-top:7px; font:500 11.5px var(--mono); color:var(--muted)}
+    .chx-legend span::before{content:''; display:inline-block; width:10px; height:10px; border-radius:3px; margin-right:5px; vertical-align:-1px; background:var(--c)}
+
+    .chx-fwrap{overflow-x:auto; margin-top:12px; border:1px solid var(--line); border-radius:12px; background:var(--surface-2); padding:16px 14px}
+    .chx-fgrid{min-width:600px; display:grid; grid-template-columns:128px 1fr 150px 1fr 170px; grid-template-rows:auto auto; gap:22px 6px; align-items:center}
+    .chx-node{border:1.5px solid var(--line); border-radius:10px; background:var(--surface); padding:9px 10px; text-align:center; font:600 12.5px/1.3 var(--sans); color:var(--muted); transition:all .22s}
+    .chx-node small{display:block; font:500 10.5px var(--mono); color:var(--faint); margin-top:3px}
+    .chx-node .chx-slot{display:block; margin-top:6px; font:600 10.5px/1.35 var(--mono); border-top:1px dashed var(--line); padding-top:5px; color:var(--faint)}
+    .chx-node .chx-slot.full{color:var(--ok)}
+    .chx-node.on{border-color:var(--accent); color:var(--ink); box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 20%,transparent); transform:scale(1.03)}
+    .chx-node.hit{border-color:var(--ok); color:var(--ink); background:var(--ok-bg); box-shadow:0 0 0 4px color-mix(in srgb,var(--ok) 20%,transparent)}
+    .chx-node.miss{border-color:var(--danger); color:var(--ink); background:var(--danger-bg); box-shadow:0 0 0 4px color-mix(in srgb,var(--danger) 18%,transparent)}
+    .chx-node.idle{opacity:.45}
+    .chx-u{grid-row:1 / span 2; grid-column:1}
+    .chx-a1{grid-row:1 / span 2; grid-column:2}
+    .chx-s{grid-row:1 / span 2; grid-column:3}
+    .chx-a2{grid-row:1; grid-column:4}
+    .chx-a3{grid-row:2; grid-column:4}
+    .chx-c{grid-row:1; grid-column:5}
+    .chx-d{grid-row:2; grid-column:5}
+    .chx-arr{position:relative; height:2px; background:var(--line); margin:0 4px; transition:background .2s}
+    .chx-arr span{position:absolute; left:50%; bottom:6px; transform:translateX(-50%); font:600 10.5px var(--mono); color:var(--faint); white-space:nowrap; transition:color .2s}
+    .chx-arr.on{background:var(--accent); height:3px}
+    .chx-arr.on span{color:var(--accent)}
+    .chx-arr.ok{background:var(--ok)} .chx-arr.ok span{color:var(--ok)}
+    .chx-arr.bad{background:var(--danger)} .chx-arr.bad span{color:var(--danger)}
+    .chx-clock{display:flex; gap:9px; flex-wrap:wrap; margin-top:12px}
+    .chx-tl{display:flex; flex-direction:column; gap:7px; margin-top:12px}
+    .chx-tlr{display:grid; grid-template-columns:78px 1fr 70px; gap:8px; align-items:center; font:600 12px var(--mono); color:var(--muted)}
+    .chx-tlr b{color:var(--ink); text-align:right; font-variant-numeric:tabular-nums}
+    .chx-tlb{display:flex; height:16px; background:var(--surface-3); border-radius:5px; overflow:hidden}
+    .chx-tlb i{display:block; height:100%; transition:width .3s}
+
+    .chx-books{display:flex; flex-wrap:wrap; gap:6px; margin-top:8px}
+    .chx-desk{display:flex; gap:8px; flex-wrap:wrap; min-height:76px; padding:10px; border:1.5px dashed var(--line); border-radius:10px; background:var(--surface-2); margin-top:8px; align-items:stretch}
+    .chx-book{border:1.5px solid var(--line); border-radius:8px; background:var(--surface); padding:7px 10px; font:600 12.5px var(--sans); min-width:120px; animation:pop .2s ease}
+    .chx-book small{display:block; font:500 10.5px var(--mono); color:var(--faint); margin-top:2px}
+    .chx-book.new{border-color:var(--accent)}
+    .chx-book.hit{border-color:var(--ok); background:var(--ok-bg)}
+    .chx-book.victim{border-style:dashed; border-color:var(--danger)}
+    .chx-book.victim small.v{color:var(--danger)}
+    .chx-lbl{font:600 11px var(--mono); color:var(--faint); text-transform:uppercase; letter-spacing:.03em; margin-top:12px}
+
+    .chx-two{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:12px}
+    @media (max-width:700px){.chx-two{grid-template-columns:1fr}}
+    .chx-price{font:700 24px var(--mono); color:var(--ink); font-variant-numeric:tabular-nums; margin:4px 0}
+    .chx-price.old{color:var(--danger)}
+    .chx-ttl{height:9px; border-radius:5px; background:var(--surface-3); overflow:hidden; margin-top:6px}
+    .chx-ttl i{display:block; height:100%; background:var(--ok); transition:width .3s}
+    .chx-ttl.low i{background:var(--warn)}
+
+    .chx-cells .cell{min-width:30px; text-align:center; padding:4px 6px}
+    .chx-cells .cell.chx-run{border-color:var(--accent); color:var(--accent); background:color-mix(in srgb,var(--accent) 12%,var(--surface))}
+    .chx-chart{display:flex; gap:1px; align-items:flex-end; height:110px; margin-top:12px; border:1px solid var(--line); border-radius:9px; padding:8px; background:var(--surface-2)}
+    .chx-chart i{flex:1; border-radius:2px 2px 0 0; min-height:1px}
+    .chx-cap{font:500 11.5px var(--mono); color:var(--faint); margin:6px 0 0}
+  </style>
+
+  <div class="card" id="chx-map-card">
+    <h2><span class="tag">карта раздела</span> куда мы идём</h2>
+    <div class="chx-map" id="chx-map">
+      <button data-jump="chx-c1"><b>1</b><span>Проблема: 800 мс<small>почему карточка открывается так долго</small></span></button>
+      <button data-jump="chx-c2"><b>2</b><span>Что такое кеш<small>определение и библиотекарь</small></span></button>
+      <button data-jump="chx-c3"><b>3</b><span>Анна и Борис<small>один запрос по шагам</small></span></button>
+      <button data-jump="chx-c4"><b>4</b><span>Попадание и промах<small>доля попаданий, стол библиотекаря</small></span></button>
+      <button data-jump="chx-c5"><b>5</b><span>Срок годности<small>TTL и устаревшие данные</small></span></button>
+      <button data-jump="chx-c6"><b>6</b><span>Где кешировать<small>от браузера до диска</small></span></button>
+      <button data-jump="chx-c7"><b>7</b><span>Стратегии<small>кто ходит в базу и что при записи</small></span></button>
+      <button data-jump="chx-c8"><b>8</b><span>Инвалидация<small>«самая трудная задача»</small></span></button>
+      <button data-jump="chx-c9"><b>9</b><span>Беды<small>лавина, холодный старт и другие</small></span></button>
+      <button data-jump="chx-c10"><b>10</b><span>Проверьте себя<small>задания</small></span></button>
+    </div>
+  </div>
+
+  <!-- ─────────── глава 1 ─────────── -->
+  <div class="card" id="chx-c1">
+    <h2><span class="tag">глава 1 · проблема</span> карточка товара открывается 800 мс</h2>
+    <p>Интернет-магазин кроссовок. Пользователь нажимает на товар, и страница думает почти секунду. Почему так долго? Потому что карточка — это не одна строчка в базе. Каждый раз сервис <b>собирает её заново</b> из пяти кусков:</p>
+    <div class="chx-bar" id="chx-p-bar"></div>
+    <div class="chx-legend" id="chx-p-leg"></div>
+    <p style="margin-top:14px">Самое обидное: для всех покупателей карточка <b>одинаковая</b>. Цена меняется раз в день, отзывы — раз в час. А база тысячу раз в минуту делает одну и ту же работу. Откройте карточку несколько раз и посмотрите, сколько работы делает база.</p>
+    <div class="form-row">
+      <button class="act" id="chx-p-open">👟 Открыть карточку</button>
+      <button class="ghost" id="chx-p-cache">💡 Запомнить готовый ответ</button>
+      <button class="ghost" id="chx-p-reset">⟲ Сначала</button>
+    </div>
+    <div class="meters">
+      <span class="meter">Открытий: <b id="chx-p-n">0</b></span>
+      <span class="meter bad">Запросов в базу: <b id="chx-p-db">0</b></span>
+      <span class="meter wq">База проработала: <b id="chx-p-busy">0 мс</b></span>
+    </div>
+    <div class="cells" id="chx-p-log"><span class="empty">пока никто не открывал</span></div>
+    <div class="console" id="chx-p-msg">Нажмите «Открыть карточку» три-четыре раза.</div>
+  </div>
+
+  <!-- ─────────── глава 2 ─────────── -->
+  <div class="card" id="chx-c2">
+    <h2><span class="tag">глава 2 · определение</span> что такое кеш</h2>
+    <p>Идея из первой главы простая: <b>один раз посчитали — запомнили — дальше отдаём запомненное</b>. У этой идеи есть имя.</p>
+    <div class="chx-def"><b>Кеш</b> — это быстрое хранилище <b>копий</b> готовых ответов. Оно стоит ближе, чем настоящий источник данных, и отвечает быстрее. Кеш ничего не знает сам: всё, что в нём лежит, когда-то взяли из источника.</div>
+    <p>Несколько слов, которые понадобятся дальше:</p>
+    <ul>
+      <li><b>Источник правды</b> — место, где данные хранятся по-настоящему. Обычно база данных. Если кеш и база расходятся, права база.</li>
+      <li><b>Ключ</b> — имя, под которым ответ лежит в кеше. Например, <code class="inl">product:42</code> — «карточка товара 42».</li>
+      <li><b>Значение</b> — сам запомненный ответ: готовая карточка.</li>
+      <li><b>Попадание</b> — нужный ответ в кеше нашёлся. <b>Промах</b> — не нашёлся, придётся идти в источник.</li>
+    </ul>
+    <h3>Житейская картина на весь раздел: библиотекарь</h3>
+    <p>Представьте библиотекаря за стойкой. Настоящее хранилище книг — в подвале, туда идти десять минут. Но у стойки стоит <b>маленький стол</b>, и на нём лежат книги, которые спрашивают чаще всего. Попросили «Гарри Поттера» — библиотекарь просто протянул руку. Это и есть кеш. Дальше каждое понятие раздела будет иметь своё место в этой библиотеке:</p>
+    <div class="table-wrap">
+      <table class="db">
+        <thead><tr><th>В библиотеке</th><th>В системе</th><th>Где разбираем</th></tr></thead>
+        <tbody>
+          <tr><td>Хранилище в подвале, 10 минут ходьбы</td><td><b>База данных</b> — источник правды</td><td>глава 1</td></tr>
+          <tr><td>Стол у стойки с популярными книгами</td><td><b>Кеш</b></td><td>глава 2</td></tr>
+          <tr><td>Название книги</td><td><b>Ключ</b></td><td>глава 3</td></tr>
+          <tr><td>Книга на столе есть / её нет</td><td><b>Попадание / промах</b></td><td>глава 4</td></tr>
+          <tr><td>Стол маленький, новую книгу некуда положить — какую-то уносим обратно</td><td><b>Вытеснение</b> (например, LRU)</td><td>глава 4</td></tr>
+          <tr><td>Газету на столе меняют каждое утро</td><td><b>TTL</b> — срок жизни записи</td><td>глава 5</td></tr>
+          <tr><td>Вышло новое издание, а на столе лежит старое</td><td><b>Инвалидация</b> — сброс устаревшего</td><td>глава 8</td></tr>
+          <tr><td>Открытие библиотеки: все пришли за одной новинкой, а на столе её нет, и все бегут в подвал</td><td><b>Лавина</b> (cache stampede)</td><td>глава 9</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="note warn"><b>Главное с первой минуты:</b> кеш — это обмен. Копия на столе может оказаться старым изданием. Поэтому первый вопрос про любой кеш не «где его поставить», а <b>«насколько несвежие данные здесь можно показать»</b>. Для описания кроссовок — минуты. Для баланса на счёте перед списанием — ноль секунд, кешировать нельзя.</div>
+    <h3>Зачем он нужен — коротко</h3>
     <div id="why-cache"></div>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">карта</span> где кешировать — восемь слоёв, от браузера до диска</h2>
-    <p>Запрос проходит через восемь мест, где его можно перехватить. <b>Чем ближе к пользователю, тем дешевле</b> — запрос просто не доходит до системы. И тем труднее сбросить: чужим браузером вы не управляете.</p>
-    <p>Нажмите на слой — где он стоит, что в нём держат, сколько экономит, как сбрасывается и чем опасен.</p>
-    <div class="seg" id="cl-pick"></div>
-    <div id="cl-out"></div>
+  <!-- ─────────── глава 3 ─────────── -->
+  <div class="card" id="chx-c3">
+    <h2><span class="tag">глава 3 · сквозной пример</span> Анна и Борис открывают одни кроссовки</h2>
+    <p>Посмотрим на кеш изнутри на одном живом примере. Утро, сервис каталога только что перезапустили, кеш пустой. Сначала карточку кроссовок откроет Анна из Москвы, через 10 секунд — Борис из Казани. Жмите «Дальше» и следите за схемой: подсвечивается то, что работает прямо сейчас, а часы считают миллисекунды каждого покупателя.</p>
+    <div class="chx-fwrap">
+      <div class="chx-fgrid" id="chx-fl-grid">
+        <div class="chx-node chx-u" id="chx-fl-u">👩 Анна<small>браузер · Москва</small></div>
+        <div class="chx-arr chx-a1" id="chx-fl-a1"><span></span></div>
+        <div class="chx-node chx-s" id="chx-fl-s">⚙️ Сервис каталога<small>собирает карточку</small></div>
+        <div class="chx-arr chx-a2" id="chx-fl-a2"><span></span></div>
+        <div class="chx-arr chx-a3" id="chx-fl-a3"><span></span></div>
+        <div class="chx-node chx-c" id="chx-fl-c">⚡ Кеш (Redis)<small>память · ~1 мс</small><span class="chx-slot" id="chx-fl-slot">пусто</span></div>
+        <div class="chx-node chx-d" id="chx-fl-d">🗄 База данных<small>диск · 5 запросов ~780 мс</small></div>
+      </div>
+    </div>
+    <div class="skbar">
+      <button class="ghost" id="chx-fl-prev">← Назад</button>
+      <button class="act" id="chx-fl-next">Дальше →</button>
+      <button class="ghost" id="chx-fl-play">▶ Проиграть</button>
+      <button class="ghost" id="chx-fl-reset">⟲ Сначала</button>
+      <span class="skstep" id="chx-fl-lab"></span>
+    </div>
+    <div class="chx-tl" id="chx-fl-tl"></div>
+    <div class="chx-legend">
+      <span style="--c:var(--faint)">сеть до дата-центра</span>
+      <span style="--c:var(--ok)">кеш</span>
+      <span style="--c:var(--danger)">база</span>
+    </div>
+    <div id="chx-fl-out"></div>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">та же карта</span> одной таблицей — для быстрого сравнения</h2>
-    <p>Правило простое: <b>чем ближе к клиенту, тем дешевле</b>, потому что запрос вообще не доходит до системы. И тем труднее инвалидировать, потому что вы не управляете чужим браузером.</p>
+  <!-- ─────────── глава 4 ─────────── -->
+  <div class="card" id="chx-c4">
+    <h2><span class="tag">глава 4 · попадание и промах</span> доля попаданий решает всё</h2>
+    <p>Анна промахнулась, Борис попал. В живой системе таких Анн и Борисов тысячи в секунду, и важно, <b>какая часть из них попадает</b>. Это число называют <b>долей попаданий</b> (hit ratio):</p>
+    <div class="chx-def" style="font:600 14px var(--mono)">доля попаданий = попадания ÷ все запросы</div>
+    <p>Подвигайте ползунок. Обратите внимание на странную вещь: разница между 90 % и 99 % выглядит маленькой, но для базы это разница <b>в десять раз</b>.</p>
+    <div class="slider-row"><label for="chx-hr">Доля попаданий</label><input type="range" id="chx-hr" min="0" max="99" value="90"><span class="sv" id="chx-hr-v">90 %</span></div>
+    <div class="meters">
+      <span class="meter">Из 1 000 запросов в секунду до базы доходит: <b id="chx-hr-db">100</b></span>
+      <span class="meter good">Среднее время ответа: <b id="chx-hr-t">—</b></span>
+    </div>
+    <div class="console" id="chx-hr-msg"></div>
+
+    <h3>Стол библиотекаря: места мало</h3>
+    <p>Память кеша не бесконечна, как и стол у стойки. Когда стол заполнен, а читатель просит новую книгу, какую-то книгу со стола придётся унести обратно в подвал. Это называется <b>вытеснение</b>. Какую именно уносить, решает <b>политика вытеснения</b>:</p>
+    <ul>
+      <li><b>LRU</b> (least recently used, «дольше всех не брали») — уносим ту, которую дольше всех не спрашивали. Самая распространённая.</li>
+      <li><b>FIFO</b> (first in, first out, «первым пришёл — первым ушёл») — уносим ту, что лежит на столе дольше всех, даже если её только что брали.</li>
+      <li><b>LFU</b> (least frequently used, «реже всех брали») — уносим ту, которую спрашивали реже всего.</li>
+    </ul>
+    <p>Попросите книги от имени читателей. Попадание стоит полминуты, промах — десять минут похода в подвал. Книга с красной пунктирной рамкой уйдёт следующей.</p>
+    <div class="seg" id="chx-lru-cap"><button data-cap="3" class="on">Стол на 3 книги</button><button data-cap="4">на 4</button><button data-cap="5">на 5</button></div>
+    <div class="seg" id="chx-lru-pol"><button data-pol="lru" class="on">LRU</button><button data-pol="fifo">FIFO</button><button data-pol="lfu">LFU</button></div>
+    <div class="chx-lbl">читатель просит</div>
+    <div class="chx-books" id="chx-lru-books"></div>
+    <div class="chx-lbl">стол у стойки (кеш)</div>
+    <div class="chx-desk" id="chx-lru-desk"></div>
+    <div class="form-row">
+      <button class="act" id="chx-lru-day">📚 Обычный день: 40 читателей</button>
+      <button class="ghost" id="chx-lru-reset">⟲ Убрать всё со стола</button>
+    </div>
+    <div class="meters">
+      <span class="meter good">Попаданий: <b id="chx-lru-hit">0</b></span>
+      <span class="meter bad">Промахов: <b id="chx-lru-miss">0</b></span>
+      <span class="meter">Доля попаданий: <b id="chx-lru-ratio">—</b></span>
+      <span class="meter wq">Читатели ждали: <b id="chx-lru-time">0 мин</b></span>
+    </div>
+    <div class="cells" id="chx-lru-log"></div>
+    <div class="console" id="chx-lru-msg">Попросите «Гарри Поттера», потом «Дюну», потом снова «Гарри Поттера».</div>
+    <div class="note"><b>Почему кеш вообще работает:</b> спрос неравномерный. Несколько книг (товаров, страниц) спрашивают постоянно, остальные — редко. Поэтому маленький стол закрывает большую часть запросов. Если бы все книги спрашивали одинаково часто, стол на 3 места из 1000 книг почти не помогал бы.</div>
+  </div>
+
+  <!-- ─────────── глава 5 ─────────── -->
+  <div class="card" id="chx-c5">
+    <h2><span class="tag">глава 5 · срок годности</span> TTL: молоко в холодильнике</h2>
+    <p>Вернёмся к Борису. Он получил карточку из кеша за 41 мс. А что, если за эти 10 секунд маркетолог снизил цену? Борис увидит <b>старую</b> цену. Кеш не знает, что в базе что-то поменялось: он хранит копию.</p>
+    <p>Первая защита — срок жизни. <b>TTL</b> (time to live, «время жизни») — сколько секунд запись живёт в кеше. Когда срок истёк, кеш запись выбрасывает, и следующий запрос идёт в базу за свежими данными. Это как молоко в холодильнике: пока срок не вышел — пьём, вышел — выливаем и идём в магазин.</p>
+    <div class="grid2">
+      <div class="box"><h4>Короткий TTL — секунды</h4><p class="bs">Данные почти свежие. Но записи часто выбрасываются, промахов больше, база работает больше. Молоко покупаем каждый день.</p></div>
+      <div class="box"><h4>Длинный TTL — часы</h4><p class="bs">Почти все запросы попадают, база отдыхает. Но устаревшие данные показываются долго. Молоко стоит неделю и начинает киснуть.</p></div>
+    </div>
+    <p style="margin-top:14px">Сколько несвежести допустимо — решает не программист, а цена ошибки для бизнеса:</p>
     <div class="table-wrap">
       <table class="db">
-        <thead><tr><th>Слой</th><th>Что кешируем</th><th>Выигрыш</th><th>Как инвалидировать</th></tr></thead>
+        <thead><tr><th>Данные</th><th>Что будет, если показать старое</th><th>Разумный TTL</th></tr></thead>
+        <tbody>
+          <tr><td>Описание и фото товара</td><td>ничего страшного</td><td class="yes">часы</td></tr>
+          <tr><td>Отзывы и рейтинг</td><td>новый отзыв появится чуть позже</td><td class="yes">минуты</td></tr>
+          <tr><td>Цена</td><td>покупатель увидит одну цену, а в корзине другую</td><td class="may">секунды + сброс по событию</td></tr>
+          <tr><td>Остаток на складе</td><td>продадим то, чего нет</td><td class="may">секунды или без кеша</td></tr>
+          <tr><td>Баланс счёта перед списанием</td><td>спишем деньги, которых нет</td><td class="no">не кешировать</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <h3>Попробуйте сами: цена устарела</h3>
+    <p>Слева база, справа кеш. Двигайте время, меняйте цену и открывайте карточку. Сначала в режиме «только TTL» — увидите, как покупатели получают старую цену. Потом включите «сброс по событию»: при изменении цены сервис сам удаляет запись из кеша.</p>
+    <div class="seg" id="chx-st-mode"><button data-m="ttl" class="on">Только TTL</button><button data-m="event">TTL + сброс по событию</button></div>
+    <div class="slider-row"><label for="chx-st-ttl">TTL записи</label><input type="range" id="chx-st-ttl" min="10" max="120" step="5" value="60"><span class="sv" id="chx-st-ttl-v">60 с</span></div>
+    <div class="chx-two">
+      <div class="box"><h4>🗄 База — источник правды</h4><div class="chx-price" id="chx-st-db"></div><p class="bs" id="chx-st-dbn" style="margin:0"></p></div>
+      <div class="box" id="chx-st-cbox"><h4>⚡ Кеш — копия</h4><div class="chx-price" id="chx-st-c"></div><div class="chx-ttl" id="chx-st-bar"><i></i></div><p class="bs" id="chx-st-cn" style="margin:6px 0 0"></p></div>
+    </div>
+    <div class="form-row">
+      <button class="act" id="chx-st-read">👀 Покупатель открывает карточку</button>
+      <button class="ghost" id="chx-st-wait">⏱ Прошло 15 секунд</button>
+      <button class="ghost" id="chx-st-change">🏷 Маркетолог меняет цену</button>
+      <button class="ghost" id="chx-st-reset">⟲ Сначала</button>
+    </div>
+    <div class="meters"><span class="meter">Часы: <b id="chx-st-t">0 с</b></span><span class="meter bad">Показали старую цену: <b id="chx-st-bad">0</b> раз</span></div>
+    <div class="console" id="chx-st-msg"></div>
+    <div class="steps" id="chx-st-log"></div>
+  </div>
+
+  <!-- ─────────── глава 6 ─────────── -->
+  <div class="card" id="chx-c6">
+    <h2><span class="tag">глава 6 · где кешировать</span> восемь мест, от браузера до диска</h2>
+    <p>В главе 3 кеш стоял рядом с сервисом. Но запрос Анны по дороге проходит через восемь мест, где его можно перехватить. <b>Чем ближе к пользователю, тем дешевле</b>: запрос просто не доходит до системы. И тем труднее сбросить: чужим браузером вы не управляете.</p>
+    <p>Нажмите на слой: где он стоит, что в нём держат, сколько экономит, как сбрасывается и чем опасен.</p>
+    <div class="seg" id="cl-pick"></div>
+    <div id="cl-out"></div>
+    <h3>Те же слои одной таблицей</h3>
+    <div class="table-wrap">
+      <table class="db">
+        <thead><tr><th>Слой</th><th>Что кешируем</th><th>Выигрыш</th><th>Как сбросить</th></tr></thead>
         <tbody>
           <tr><td><b>Браузер</b></td><td>статика, редкие справочники</td><td class="yes">запрос не уходит вовсе</td><td class="no">почти никак — только версия в имени файла</td></tr>
           <tr><td><b>CDN</b></td><td>картинки, статика, публичные страницы</td><td class="yes">не доходит до дата-центра</td><td>принудительный сброс по ключу, обычно минуты</td></tr>
@@ -32,24 +279,82 @@
         </tbody>
       </table>
     </div>
-    <div class="note warn"><b>Про локальный кеш в каждом узле:</b> он самый быстрый и самый коварный. Двадцать узлов — двадцать независимых копий, которые расходятся, и пользователь видит разные данные при обновлении страницы. Годится для по-настоящему редко меняющихся вещей (конфигурация, справочник валют) и для коротких TTL в секунды. Для всего остального нужен общий кеш.</div>
+    <div class="note warn"><b>Про локальный кеш в каждом узле:</b> он самый быстрый и самый коварный. Двадцать узлов — двадцать независимых копий. Они расходятся, и пользователь видит разные данные при обновлении страницы. В библиотеке это двадцать столов у двадцати стоек, и на каждом своё издание. Годится для того, что меняется редко (конфигурация, справочник валют), и для коротких TTL в секунды. Для остального нужен общий кеш.</div>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">разбор</span> стратегии кеширования — каждая на схеме и в коде</h2>
-    <p>Стратегия кеша — это ответ на два вопроса: <b>кто ходит в базу при чтении</b> и <b>что происходит с кешем при записи</b>. Ответов пять, и они дают очень разное поведение. Выберите стратегию — увидите схему чтения, схему записи, живой секвенс и то, что случится, когда кеш или база откажут.</p>
+  <!-- ─────────── глава 7 ─────────── -->
+  <div class="card" id="chx-c7">
+    <h2><span class="tag">глава 7 · стратегии</span> кто ходит в базу и что происходит при записи</h2>
+    <p>В главе 3 сервис сам спрашивал кеш, сам ходил в базу и сам клал результат. Это одна из пяти стратегий. <b>Стратегия кеширования</b> — это ответ на два вопроса: <b>кто идёт в базу при промахе</b> и <b>что происходит с кешем при записи</b>. Сначала сравним все пять в одной таблице, с житейскими аналогиями. Нажмите на строку — будет подробнее.</p>
+    <div id="cs-table"></div>
+    <h3>Каждая стратегия на схеме и в коде</h3>
+    <p>Выберите стратегию: увидите схему чтения, схему записи, код и то, что случится, когда откажет кеш или база.</p>
     <div class="seg" id="cst-pick"></div>
     <div id="cst-out"></div>
+    <h3>Разложите по стратегиям</h3>
+    <p>Для каждой задачи выберите подходящую стратегию. Решено <b id="chx-srt-score">0</b> из <span id="chx-srt-total">0</span>.</p>
+    <div id="chx-srt"></div>
+  </div>
+
+  <!-- ─────────── глава 8 ─────────── -->
+  <div class="card" id="chx-c8">
+    <h2><span class="tag">глава 8 · инвалидация</span> «самая трудная задача в программировании»</h2>
+    <p>Есть старая шутка программиста Фила Карлтона: «В информатике две трудные вещи — инвалидация кеша и придумывание имён». <b>Инвалидация</b> — это сброс записи в кеше, когда данные в источнике поменялись. В библиотеке: вышло новое издание, и старое надо убрать со стола. Звучит просто. Трудность в том, что про стол должен помнить каждый, кто меняет книги в подвале. А кто-нибудь обязательно забудет.</p>
+    <h3>Четыре способа и их цена</h3>
+    <div class="grid4">
+      <div class="box"><h4>TTL</h4><p class="bs">Запись живёт N секунд. Просто и надёжно, но данные устаревают на время TTL, а истечение у всех сразу даёт лавину. <b>Всегда добавляйте разброс.</b></p></div>
+      <div class="box"><h4>Удаление по событию</h4><p class="bs">Изменили товар — удалили ключ. Точно и свежо. Требует, чтобы про кеш знали все, кто меняет данные, — а кто-нибудь обязательно не узнает.</p></div>
+      <div class="box"><h4>Версия в ключе</h4><p class="bs"><code class="inl">product:42:v7</code>. Удалять ничего не надо: новая версия — новый ключ, старый вытеснится сам. Отлично работает, но требует хранить версию.</p></div>
+      <div class="box"><h4>Теги / группы</h4><p class="bs">Сбросить всё по категории одним действием. Удобно, но опасно: сброс тега «каталог» разом обнуляет тысячи ключей и роняет базу.</p></div>
+    </div>
+    <div class="note"><b>Комбинация, которую применяют в проде:</b> TTL как страховка (данные не устареют навсегда, даже если событие потерялось) плюс удаление по событию как основной механизм свежести. Один TTL даёт устаревание, одно событие — вечный мусор при потере сообщения.</div>
+    <h3>Почему даже «удалить ключ» можно сделать неправильно</h3>
+    <p>Разберём гонку: два запроса одновременно, и порядок операций решает всё. Код меняет цену так: <b>сначала удаляет ключ из кеша, потом пишет в базу</b>. Кажется, всё честно.</p>
+    <div class="skbar">
+      <button class="ghost" id="chx-race-prev">← Назад</button>
+      <button class="act" id="chx-race-next">Дальше →</button>
+      <span class="skstep" id="chx-race-lab"></span>
+    </div>
+    <div id="chx-race-out"></div>
+  </div>
+
+  <!-- ─────────── глава 9 ─────────── -->
+  <div class="card" id="chx-c9">
+    <h2><span class="tag">глава 9 · беды · лавина</span> открытие библиотеки: все за одной книгой</h2>
+    <p>9:00, библиотека открывается. Сорок читателей пришли за вчерашней новинкой. На столе её нет: вечером стол убрали (так бывает после перезапуска кеша или когда у записи истёк TTL). Библиотекарей много, и каждый, услышав «нет на столе», бежит в подвал. Сорок человек в узком проходе подвала, очередь, кто-то не дождался и ушёл. Это <b>лавина</b> (cache stampede): много одновременных промахов по <b>одному</b> ключу, и все они разом бьют в базу.</p>
+    <p>Защита простая: <b>замок</b> (его ещё называют single-flight, «один полёт»). Первый библиотекарь вешает табличку «я уже пошёл за новинкой», остальные ждут его у стойки. В подвал идёт один человек. Сравните. База здесь выдерживает 6 запросов одновременно, каждый длится 200 мс, а читатель ждёт не больше 700 мс.</p>
+    <div class="form-row">
+      <button class="act danger" id="chx-av-off">🚪 Открыть двери без защиты</button>
+      <button class="act okk" id="chx-av-on">🔒 Открыть двери с замком</button>
+    </div>
+    <div class="cells chx-cells" id="chx-av-cells"></div>
+    <div class="chx-legend">
+      <span style="--c:var(--surface-3)">пришёл, ждёт очереди в базу</span>
+      <span style="--c:var(--accent)">его запрос выполняется в базе</span>
+      <span style="--c:var(--warn)">ждёт соседа (замок)</span>
+      <span style="--c:var(--ok)">получил книгу</span>
+      <span style="--c:var(--danger)">не дождался — ошибка</span>
+    </div>
+    <div class="meters">
+      <span class="meter bad">Запросов в базу: <b id="chx-av-db">—</b></span>
+      <span class="meter wq">Самая длинная очередь: <b id="chx-av-q">—</b></span>
+      <span class="meter good">Получили ответ: <b id="chx-av-ok">—</b></span>
+      <span class="meter bad">Ошибок: <b id="chx-av-bad">—</b></span>
+      <span class="meter">Последний ответ через: <b id="chx-av-t">—</b></span>
+    </div>
+    <div class="console" id="chx-av-msg">Сначала откройте двери без защиты.</div>
+
+    <h3>Лавина по расписанию: все записи истекают разом</h3>
+    <p>Вторая разновидность лавины. Утром кеш прогрели: положили 40 популярных карточек одновременно, у всех TTL 60 секунд. Значит, через минуту все 40 истекут <b>в одну секунду</b>. И ещё через минуту. И ещё. Пила. Лекарство — <b>случайный разброс TTL</b> (jitter): каждой записи срок чуть разный, например от 48 до 72 секунд. Истечения размазываются по времени.</p>
+    <div class="form-row"><button class="ghost" id="chx-jt-on">🎲 Разброс TTL: выключен</button></div>
+    <div class="chx-chart" id="chx-jt-chart"></div>
+    <p class="chx-cap">три минуты; каждый столбик — 2 секунды; высота — сколько записей истекло и ушло в базу</p>
+    <div class="console" id="chx-jt-msg"></div>
   </div>
 
   <div class="card">
-    <h2><span class="tag">стратегии</span> пять способов положить и достать</h2>
-    <div id="cs-table"></div>
-  </div>
-
-  <div class="card">
-    <h2><span class="tag">симулятор</span> минута трафика: попадания, промахи и лавина</h2>
-    <p>Смоделируем 60 секунд. Ключи запрашиваются неравномерно: есть горячие (как всегда в реальности). Посмотрите на нагрузку, доходящую до базы, — и особенно на <b>пик</b>.</p>
+    <h2><span class="tag">глава 9 · всё вместе</span> минута трафика: попадания, промахи и лавина</h2>
+    <p>Соберём всё в один симулятор. 60 секунд, ключи запрашиваются неравномерно: есть горячие, как в жизни. Двигайте ползунки и включайте защиты. Смотрите на нагрузку, которая доходит до базы, — и особенно на <b>пик</b>.</p>
     <div class="slider-row"><label for="ca-rps">Запросов в секунду</label><input type="range" id="ca-rps" min="50" max="3000" step="50" value="600"><span class="sv" id="ca-rps-v">600</span></div>
     <div class="slider-row"><label for="ca-keys">Разных ключей</label><input type="range" id="ca-keys" min="5" max="500" step="5" value="100"><span class="sv" id="ca-keys-v">100</span></div>
     <div class="slider-row"><label for="ca-ttl">Время жизни записи, с</label><input type="range" id="ca-ttl" min="1" max="60" value="20"><span class="sv" id="ca-ttl-v">20 с</span></div>
@@ -66,28 +371,25 @@
       <span class="meter wq">Экономия: <b id="ca-save">—</b></span>
     </div>
     <div id="ca-chart" style="display:flex;gap:2px;align-items:flex-end;height:110px;margin-top:14px;border:1px solid var(--line);border-radius:9px;padding:8px;background:var(--surface-2)"></div>
-    <p style="font:500 11.5px var(--mono);color:var(--faint);margin:6px 0 0">каждый столбик — одна секунда; высота — число запросов, дошедших до базы</p>
+    <p class="chx-cap">каждый столбик — одна секунда; высота — число запросов, дошедших до базы</p>
     <div class="console" id="ca-msg">Запустите моделирование.</div>
   </div>
 
   <div class="card">
-    <h2><span class="tag">инвалидация</span> четыре способа и их цена</h2>
-    <div class="grid4">
-      <div class="box"><h4>TTL</h4><p class="bs">Запись живёт N секунд. Просто и надёжно, но данные устаревают на время TTL, а истечение у всех сразу даёт лавину. <b>Всегда добавляйте разброс.</b></p></div>
-      <div class="box"><h4>Удаление по событию</h4><p class="bs">Изменили товар — удалили ключ. Точно и свежо. Требует, чтобы про кеш знали все, кто меняет данные, — а кто-нибудь обязательно не узнает.</p></div>
-      <div class="box"><h4>Версия в ключе</h4><p class="bs"><code class="inl">product:42:v7</code>. Удалять ничего не надо: новая версия — новый ключ, старый вытеснится сам. Отлично работает, но требует хранить версию.</p></div>
-      <div class="box"><h4>Теги / группы</h4><p class="bs">Сбросить всё по категории одним действием. Удобно, но опасно: сброс тега «каталог» разом обнуляет тысячи ключей и роняет базу.</p></div>
-    </div>
-    <div class="note"><b>Комбинация, которую применяют в проде:</b> TTL как страховка (данные не могут устареть навсегда, даже если событие потерялось) плюс удаление по событию как основной механизм свежести. TTL в одиночку даёт устаревание, событие в одиночку — вечный мусор при потере сообщения.</div>
-  </div>
-
-  <div class="card">
-    <h2><span class="tag">беды</span> пять способов сделать хуже, чем было</h2>
+    <h2><span class="tag">глава 9 · остальные беды</span> как кеш делает хуже, чем было</h2>
+    <p>Лавина — не единственная беда. Вот полный список того, что ломается на практике. Нажмите на пункт, чтобы раскрыть: что происходит, как это выглядит в библиотеке и как лечить.</p>
     <div id="ca-bad" class="numlist"></div>
   </div>
 
+  <!-- ─────────── глава 10 ─────────── -->
+  <div class="card" id="chx-c10">
+    <h2><span class="tag">глава 10 · проверьте себя</span> по всей истории</h2>
+    <p>Решено <b id="chx-q-score">0</b> из <span id="chx-q-total">0</span>.</p>
+    <div id="chx-q"></div>
+  </div>
+
   <div class="card">
-    <h2><span class="tag">задание</span> кеширование</h2>
+    <h2><span class="tag">задание</span> кеширование в проде</h2>
     <p>Решено <b id="caq-score">0</b> из <span id="caq-total">0</span>.</p>
     <div id="caq-tasks"></div>
   </div>
@@ -99,22 +401,512 @@
 </section>
 
 <script>
+/* ═══ 21.1 Карта раздела ═══ */
+(function(){
+  const map = document.getElementById('chx-map'); if(!map) return;
+  map.addEventListener('click', e => {
+    const b = e.target.closest('button[data-jump]'); if(!b) return;
+    const t = document.getElementById(b.dataset.jump);
+    if(t && t.scrollIntoView) t.scrollIntoView({behavior:'smooth', block:'start'});
+  });
+})();
+</script>
+
+<script>
+/* ═══ 21.2 Глава 1: карточка за 800 мс ═══ */
 (function(){
   const el = id => document.getElementById(id);
+  if(!el('chx-p-bar')) return;
+  const PARTS = [
+    ['сеть', 40, 'var(--faint)'], ['товар', 120, 'var(--nt)'], ['цена и акции', 180, 'var(--dt)'],
+    ['остатки', 220, 'var(--mn)'], ['отзывы', 190, 'var(--ms)'], ['похожие', 70, 'var(--warn)'],
+  ];
+  const total = PARTS.reduce((s, p) => s + p[1], 0);
+  el('chx-p-bar').innerHTML = PARTS.map(p => '<i style="width:' + (p[1] / total * 100) + '%;background:' + p[2] + '" title="' + p[0] + ' ' + p[1] + ' мс">' + p[1] + '</i>').join('');
+  el('chx-p-leg').innerHTML = PARTS.map(p => '<span style="--c:' + p[2] + '">' + p[0] + ' · ' + p[1] + ' мс</span>').join('') + '<span style="--c:var(--ink)"><b>итого ' + total + ' мс</b></span>';
+
+  let n = 0, db = 0, busy = 0, cacheOn = false, cached = false, log = [];
+  function paint(){
+    el('chx-p-n').textContent = n;
+    el('chx-p-db').textContent = db;
+    el('chx-p-busy').textContent = busy.toLocaleString('ru-RU') + ' мс';
+    el('chx-p-log').innerHTML = log.length ? log.slice(-14).map(x => '<span class="cell ' + x[1] + '">' + x[0] + '</span>').join('') : '<span class="empty">пока никто не открывал</span>';
+    el('chx-p-cache').classList.toggle('on', cacheOn);
+  }
+  el('chx-p-open').addEventListener('click', () => {
+    n++;
+    if(cacheOn && cached){
+      const t = 38 + Math.round(Math.random() * 8);
+      log.push([t + ' мс', 'ok']);
+      msg(el('chx-p-msg'), 'ok', 'Открытие №' + n + ': <b>' + t + ' мс</b>. Готовый ответ взят из памяти, в базу не ушло ни одного запроса. Первый покупатель уже заплатил за всех.');
+    } else {
+      const t = total + Math.round(Math.random() * 40 - 20);
+      db += 5; busy += t - 40; log.push([t + ' мс', 'bad']);
+      if(cacheOn){ cached = true;
+        msg(el('chx-p-msg'), 'warn', 'Открытие №' + n + ': <b>' + t + ' мс</b>. В памяти пока пусто — пришлось собрать карточку из базы. Но теперь готовый ответ <b>запомнили</b>. Откройте ещё раз.');
+      } else if(n >= 3){
+        msg(el('chx-p-msg'), 'warn', 'Открытие №' + n + ': снова <b>' + t + ' мс</b> и снова 5 запросов в базу. База уже ' + n + ' раз собрала <b>одну и ту же</b> карточку. А что, если собрать её один раз и запомнить? Нажмите «Запомнить готовый ответ».');
+      } else {
+        msg(el('chx-p-msg'), '', 'Открытие №' + n + ': <b>' + t + ' мс</b>, 5 запросов в базу. Откройте ещё раз.');
+      }
+    }
+    paint();
+  });
+  el('chx-p-cache').addEventListener('click', () => {
+    cacheOn = !cacheOn; cached = false;
+    msg(el('chx-p-msg'), '', cacheOn
+      ? 'Теперь сервис сначала смотрит в память. Если готовой карточки там нет — собирает из базы и запоминает. Откройте карточку пару раз.'
+      : 'Память выключена: каждое открытие снова собирает карточку из базы.');
+    paint();
+  });
+  el('chx-p-reset').addEventListener('click', () => {
+    n = 0; db = 0; busy = 0; cacheOn = false; cached = false; log = [];
+    msg(el('chx-p-msg'), '', 'Нажмите «Открыть карточку» три-четыре раза.');
+    paint();
+  });
+  paint();
+})();
+</script>
+
+<script>
+/* ═══ 21.3 Глава 3: Анна и Борис, пошаговый поток ═══ */
+(function(){
+  const el = id => document.getElementById(id);
+  if(!el('chx-fl-grid')) return;
+  const S = [
+    {who:'a', t:'Утро. Кеш пустой', ms:0, on:[], cache:0,
+     what:'Сервис каталога только что перезапустили после обновления. Кеш пустой: в нём нет ни одной карточки. Анна в Москве собирается нажать на кроссовки «Air 42».',
+     why:'Начинаем с пустого кеша нарочно: так видно, как он наполняется. В жизни так бывает после каждого перезапуска.'},
+    {who:'a', t:'Анна нажимает на карточку', ms:20, seg:'net', on:['u','s'], arr:{a1:['GET /products/42 →','on']}, cache:0,
+     what:'Браузер Анны отправляет запрос «дай карточку товара 42» в сервис каталога.',
+     why:'Дорога по интернету до дата-центра занимает время сама по себе, около 20 мс в одну сторону. Эту часть кеш на сервере не ускорит.'},
+    {who:'a', t:'Сервис сначала спрашивает кеш', ms:1, seg:'cache', on:['s','c'], arr:{a2:['GET product:42 →','on']}, cache:0,
+     what:'Сервис составляет <b>ключ</b> — имя, под которым ответ лежит в кеше: <code class="inl">product:42</code>. И спрашивает кеш: «есть что-нибудь под этим именем?»',
+     why:'Спросить кеш стоит 1 мс, а собрать карточку из базы — 780 мс. Даже если в кеше пусто, мы потеряли копейки. Поэтому сначала всегда спрашивают кеш.'},
+    {who:'a', t:'Промах: в кеше пусто', ms:0, on:['s'], cls:{c:'miss'}, arr:{a2:['← пусто (nil)','bad']}, cache:0, kind:'warn',
+     what:'Кеш отвечает: «под таким ключом ничего нет». Это <b>промах</b> (cache miss).',
+     why:'Анна — первая, кто спросил эту карточку после перезапуска. Кешу неоткуда было узнать ответ заранее. Первый покупатель промахивается всегда.'},
+    {who:'a', t:'Сервис идёт в базу — долгий путь', ms:780, seg:'db', on:['s','d'], arr:{a3:['5 × SELECT →','on']}, cache:0,
+     what:'Сервис делает пять запросов в базу: сам товар, цену с акциями, остатки по складам, отзывы с рейтингом, похожие товары. И склеивает из них карточку.',
+     why:'Вот та работа, из-за которой страница открывается почти секунду. Она одинаковая для всех, кто смотрит эту карточку. Её-то мы и хотим делать реже.'},
+    {who:'a', t:'Кладём готовую карточку в кеш', ms:1, seg:'cache', on:['s','c'], arr:{a2:['SET product:42 · TTL 300 с →','on']}, cache:1,
+     what:'Сервис кладёт в кеш <b>готовую карточку целиком</b> под ключом <code class="inl">product:42</code> и ставит срок жизни — <b>TTL</b> (time to live) 300 секунд.',
+     why:'Кладём готовый результат, а не пять кусков: следующему не придётся ничего склеивать. Срок жизни нужен, чтобы карточка не жила вечно. Через 5 минут кеш её выбросит, и следующий запрос возьмёт свежие данные из базы. Подробно — в главе 5.'},
+    {who:'a', t:'Анна видит карточку', ms:20, seg:'net', on:['u','s'], arr:{a1:['← 200 OK, карточка','on']}, cache:1,
+     what:'Ответ уходит в браузер. Анна ждала <b>822 мс</b>, почти секунду.',
+     why:'Анна заплатила полную цену. Зато она заплатила <b>за всех, кто придёт после неё</b>: карточка теперь лежит в кеше.'},
+    {who:'b', t:'Через 10 секунд Борис открывает ту же карточку', ms:20, seg:'net', on:['u','s'], arr:{a1:['GET /products/42 →','on']}, cache:1,
+     what:'Борис из Казани открывает те же кроссовки. Запрос приходит в сервис каталога, возможно, на другой сервер.',
+     why:'Кеш общий для всех серверов сервиса. Это Redis — отдельная программа, которая держит данные в памяти. Поэтому неважно, какой сервер принял Бориса.'},
+    {who:'b', t:'Попадание: карточка уже в кеше', ms:1, seg:'cache', on:['s'], cls:{c:'hit'}, arr:{a2:['GET product:42 → ← карточка','ok']}, cache:1, kind:'ok',
+     what:'Сервис спрашивает кеш по тому же ключу <code class="inl">product:42</code> и получает готовую карточку. Это <b>попадание</b> (cache hit).',
+     why:'Ключ тот же, а карточка лежит в кеше всего 10 секунд из 300 — ещё свежая. Кеш отвечает из памяти за 1 мс.'},
+    {who:'b', t:'База отдыхает', ms:0, on:['s'], cls:{d:'idle'}, cache:1, kind:'ok',
+     what:'В базу не ушло ни одного запроса. Пять запросов, склейка, 780 мс — всё это не понадобилось.',
+     why:'Вот где настоящая выгода. Если за 5 минут карточку откроют 1000 человек, база соберёт её <b>один раз</b>, а не тысячу. Остальные 999 получат копию из памяти.'},
+    {who:'b', t:'Борис видит карточку', ms:20, seg:'net', on:['u','s'], arr:{a1:['← 200 OK, карточка','ok']}, cache:1, kind:'ok',
+     what:'Борис ждал <b>41 мс</b> — в 20 раз меньше, чем Анна. Глазом разницу между 41 мс и мгновением не заметить: страница «просто открылась».',
+     why:'Это и есть кеш: <b>один раз посчитали — много раз отдали</b>. Дальше разберём цену этой скорости: карточка в кеше может устареть, место в памяти кончается, а в неудачный момент все промахи случаются разом.'},
+  ];
+  const USER = {a:'👩 Анна<small>браузер · Москва</small>', b:'👨 Борис<small>браузер · Казань</small>'};
+  const COL = {net:'var(--faint)', cache:'var(--ok)', db:'var(--danger)'};
+  const MAX = 822;
+  let i = 0, timer = null;
+
+  function paint(){
+    const st = S[i];
+    el('chx-fl-u').innerHTML = USER[st.who];
+    ['u','s','c','d'].forEach(k => {
+      const n = el('chx-fl-' + k);
+      n.classList.remove('on','hit','miss','idle');
+      if(st.on.includes(k)) n.classList.add('on');
+      if(st.cls && st.cls[k]) n.classList.add(st.cls[k]);
+    });
+    ['a1','a2','a3'].forEach(k => {
+      const a = el('chx-fl-' + k), v = st.arr && st.arr[k];
+      a.className = 'chx-arr chx-' + k + (v ? ' ' + v[1] : '');
+      a.firstElementChild.textContent = v ? v[0] : '';
+    });
+    const slot = el('chx-fl-slot');
+    slot.textContent = st.cache ? 'product:42 → карточка' : 'пусто';
+    slot.classList.toggle('full', !!st.cache);
+    el('chx-fl-lab').textContent = 'шаг ' + (i + 1) + ' из ' + S.length;
+    // таймлайны
+    const segs = {a:[], b:[]};
+    S.slice(0, i + 1).forEach(x => { if(x.seg && x.ms) segs[x.who].push([x.seg, x.ms]); });
+    const row = (w, name) => {
+      const sum = segs[w].reduce((s, x) => s + x[1], 0);
+      return '<div class="chx-tlr"><span>' + name + '</span><div class="chx-tlb">' +
+        segs[w].map(x => '<i style="width:' + (x[1] / MAX * 100) + '%;background:' + COL[x[0]] + '"></i>').join('') +
+        '</div><b>' + (sum ? sum + ' мс' : '—') + '</b></div>';
+    };
+    el('chx-fl-tl').innerHTML = row('a', 'Анна') + row('b', 'Борис');
+    el('chx-fl-out').innerHTML =
+      '<div class="skout"><h4>Шаг ' + (i + 1) + '. ' + st.t + (st.ms ? ' <span style="font:600 12px var(--mono);color:var(--accent)">+' + st.ms + ' мс</span>' : '') + '</h4>' +
+      '<div class="lgrid"><b>что происходит</b><div>' + st.what + '</div><b>почему так</b><div>' + st.why + '</div></div></div>' +
+      (i === S.length - 1
+        ? '<div class="note good"><b>Итог.</b> Анна: 822 мс и 5 запросов в базу. Борис: 41 мс и ноль запросов. Промах дорогой, попадание почти бесплатное. Значит, выгода кеша зависит от того, <b>сколько запросов попадает</b>. Об этом следующая глава.</div>'
+        : '');
+    el('chx-fl-next').disabled = i === S.length - 1;
+    el('chx-fl-prev').disabled = i === 0;
+    if(i === S.length - 1) Progress.report('chx-flow', 1);
+  }
+  function stop(){ if(timer){ clearInterval(timer); timer = null; } el('chx-fl-play').textContent = '▶ Проиграть'; }
+  el('chx-fl-next').addEventListener('click', () => { stop(); if(i < S.length - 1){ i++; paint(); } });
+  el('chx-fl-prev').addEventListener('click', () => { stop(); if(i > 0){ i--; paint(); } });
+  el('chx-fl-reset').addEventListener('click', () => { stop(); i = 0; paint(); });
+  el('chx-fl-play').addEventListener('click', () => {
+    if(timer){ stop(); return; }
+    if(i === S.length - 1){ i = 0; paint(); }
+    el('chx-fl-play').textContent = '⏸ Пауза';
+    timer = setInterval(() => { if(i < S.length - 1){ i++; paint(); } if(i === S.length - 1) stop(); }, 2200);
+  });
+  Progress.register('chx-flow', 1, 'Кеш: Анна и Борис');
+  paint();
+})();
+</script>
+
+<script>
+/* ═══ 21.4 Глава 4: доля попаданий и стол библиотекаря ═══ */
+(function(){
+  const el = id => document.getElementById(id);
+  if(!el('chx-hr')) return;
+  function hr(){
+    const p = +el('chx-hr').value;
+    el('chx-hr-v').textContent = p + ' %';
+    const db = Math.round(1000 * (100 - p) / 100);
+    const t = (p / 100) * 1 + (1 - p / 100) * 780;
+    el('chx-hr-db').textContent = db.toLocaleString('ru-RU');
+    el('chx-hr-t').textContent = (t < 10 ? t.toFixed(1).replace('.', ',') : Math.round(t)) + ' мс';
+    let s = 'Из 1 000 запросов ' + (1000 - db) + ' попадают (1 мс), ' + db + ' промахиваются и идут в базу (780 мс). ';
+    if(p < 50) s += 'Кеш почти не помогает: большинство всё равно ждёт базу. Так бывает, когда запросы очень разные или TTL слишком короткий.';
+    else if(p < 90) s += 'Уже заметно, но база всё ещё получает каждый ' + Math.max(2, Math.round(100 / (100 - p))) + '-й запрос.';
+    else if(p < 99) s += 'Хороший кеш. База разгружена в ' + Math.round(100 / (100 - p)) + ' раз.';
+    else s += '<b>Сравните с 90 %:</b> там до базы доходило 100 запросов, здесь 10. Девять процентов разницы на ползунке — десять раз разницы для базы.';
+    msg(el('chx-hr-msg'), p >= 90 ? 'ok' : p >= 50 ? '' : 'warn', s);
+  }
+  el('chx-hr').addEventListener('input', hr);
+  hr();
+
+  const BOOKS = [
+    {id:'hp', n:'Гарри Поттер'}, {id:'du', n:'Дюна'}, {id:'mm', n:'Мастер и Маргарита'}, {id:'or', n:'1984'},
+    {id:'lp', n:'Маленький принц'}, {id:'sh', n:'Шерлок Холмс'}, {id:'wp', n:'Война и мир'}, {id:'tt', n:'Три товарища'},
+  ];
+  const NAME = Object.fromEntries(BOOKS.map(b => [b.id, b.n]));
+  const POL = {lru:'LRU уносит книгу, которую дольше всех не спрашивали', fifo:'FIFO уносит книгу, которая лежит на столе дольше всех', lfu:'LFU уносит книгу, которую спрашивали реже всех'};
+  let cap = 3, pol = 'lru', desk = [], tick = 0, hits = 0, miss = 0, mins = 0, evicted = 0, log = [], last = null;
+
+  el('chx-lru-books').innerHTML = BOOKS.map(b => '<button class="ghost" data-book="' + b.id + '">' + b.n + '</button>').join('');
+
+  function victim(){
+    if(desk.length < cap) return null;
+    let v = desk[0];
+    desk.forEach(x => {
+      if(pol === 'lru' && x.used < v.used) v = x;
+      if(pol === 'fifo' && x.put < v.put) v = x;
+      if(pol === 'lfu' && (x.cnt < v.cnt || (x.cnt === v.cnt && x.used < v.used))) v = x;
+    });
+    return v;
+  }
+  function ask(id, quiet){
+    tick++;
+    const f = desk.find(x => x.id === id);
+    if(f){
+      hits++; mins += 0.5; f.used = tick; f.cnt++;
+      last = {id, kind:'hit'}; log.push(['✓', 'ok', NAME[id]]);
+      if(!quiet) msg(el('chx-lru-msg'), 'ok', '«' + NAME[id] + '» лежит на столе — <b>попадание</b>. Библиотекарь протянул руку: полминуты.');
+      return;
+    }
+    miss++; mins += 10;
+    const v = victim();
+    let out = '';
+    if(v){
+      desk = desk.filter(x => x !== v); evicted++;
+      out = ' Стол полон, поэтому «' + v.n + '» унесли в подвал. ' + POL[pol] + '.';
+    }
+    desk.push({id, n:NAME[id], put:tick, used:tick, cnt:1});
+    last = {id, kind:'miss', out: v ? v.n : null};
+    log.push(['✗', 'bad', NAME[id]]);
+    if(!quiet) msg(el('chx-lru-msg'), 'warn', '«' + NAME[id] + '» на столе нет — <b>промах</b>. Библиотекарь сходил в подвал: 10 минут. Книгу оставили на столе.' + out);
+    if(evicted >= 1 && hits >= 1) Progress.report('chx-lru', 1);
+  }
+  function paint(){
+    const v = victim();
+    const order = desk.slice().sort((a, b) => a.put - b.put);
+    el('chx-lru-desk').innerHTML = order.length ? order.map(x => {
+      const ago = tick - x.used;
+      const cls = (last && last.id === x.id ? (last.kind === 'hit' ? ' hit' : ' new') : '') + (v === x ? ' victim' : '');
+      return '<div class="chx-book' + cls + '">' + x.n +
+        '<small>брали ' + (ago === 0 ? 'только что' : ago + ' запр. назад') + '</small>' +
+        '<small>спрашивали: ' + x.cnt + ' раз</small>' +
+        (v === x ? '<small class="v">уйдёт следующей</small>' : '') + '</div>';
+    }).join('') + (desk.length < cap ? '<span class="empty" style="align-self:center">свободно мест: ' + (cap - desk.length) + '</span>' : '')
+      : '<span class="empty" style="align-self:center">стол пуст — свободно мест: ' + cap + '</span>';
+    el('chx-lru-hit').textContent = hits;
+    el('chx-lru-miss').textContent = miss;
+    el('chx-lru-ratio').textContent = (hits + miss) ? Math.round(hits / (hits + miss) * 100) + ' %' : '—';
+    el('chx-lru-time').textContent = (mins % 1 ? mins.toFixed(1).replace('.', ',') : mins) + ' мин';
+    el('chx-lru-log').innerHTML = log.slice(-24).map(x => '<span class="cell ' + x[1] + '" title="' + x[2] + '">' + x[0] + ' ' + x[2] + '</span>').join('');
+    [...el('chx-lru-cap').children].forEach(b => b.classList.toggle('on', +b.dataset.cap === cap));
+    [...el('chx-lru-pol').children].forEach(b => b.classList.toggle('on', b.dataset.pol === pol));
+  }
+  function reset(){ desk = []; tick = 0; hits = 0; miss = 0; mins = 0; evicted = 0; log = []; last = null; }
+  el('chx-lru-books').addEventListener('click', e => { const b = e.target.closest('button[data-book]'); if(!b) return; ask(b.dataset.book); paint(); });
+  el('chx-lru-cap').addEventListener('click', e => { const b = e.target.closest('button[data-cap]'); if(!b) return; cap = +b.dataset.cap; reset(); paint();
+    msg(el('chx-lru-msg'), '', 'Стол на ' + cap + ' книги, он пуст. Попросите книги.'); });
+  el('chx-lru-pol').addEventListener('click', e => { const b = e.target.closest('button[data-pol]'); if(!b) return; pol = b.dataset.pol; reset(); paint();
+    msg(el('chx-lru-msg'), '', 'Политика ' + pol.toUpperCase() + ': ' + POL[pol] + '. Стол пуст.'); });
+  el('chx-lru-reset').addEventListener('click', () => { reset(); paint(); msg(el('chx-lru-msg'), '', 'Стол пуст.'); });
+  el('chx-lru-day').addEventListener('click', () => {
+    reset();
+    // неравномерный спрос: первые книги спрашивают намного чаще
+    const w = BOOKS.map((b, k) => 1 / Math.pow(k + 1, 1.2)), sum = w.reduce((s, x) => s + x, 0);
+    for(let r = 0; r < 40; r++){
+      let x = Math.random() * sum, k = 0;
+      while(k < BOOKS.length - 1 && x > w[k]){ x -= w[k]; k++; }
+      ask(BOOKS[k].id, true);
+    }
+    const ratio = Math.round(hits / 40 * 100);
+    msg(el('chx-lru-msg'), ratio >= 50 ? 'ok' : 'warn',
+      '40 читателей, стол на ' + cap + ' книги из 8, политика ' + pol.toUpperCase() + '. Попаданий <b>' + ratio + ' %</b>. Без стола читатели ждали бы 400 минут, со столом — ' + (mins % 1 ? mins.toFixed(1).replace('.', ',') : mins) + '. ' +
+      'Популярные «Гарри Поттер» и «Дюна» почти не покидают стол, а редкие книги то и дело вытесняют друг друга. Смените размер стола или политику и запустите день ещё раз.');
+    if(evicted >= 1 && hits >= 1) Progress.report('chx-lru', 1);
+    paint();
+  });
+  Progress.register('chx-lru', 1, 'Кеш: стол библиотекаря');
+  paint();
+})();
+</script>
+
+<script>
+/* ═══ 21.5 Глава 5: цена устарела ═══ */
+(function(){
+  const el = id => document.getElementById(id);
+  if(!el('chx-st-read')) return;
+  const PRICES = [12990, 9990, 11490];
+  const rub = v => v.toLocaleString('ru-RU') + ' ₽';
+  let t, pi, db, cache, mode = 'ttl', changedAt, bad, log, staleSeen, evInval;
+  const ttl = () => +el('chx-st-ttl').value;
+  function reset(){ t = 0; pi = 0; db = PRICES[0]; cache = null; changedAt = null; bad = 0; log = []; staleSeen = false; evInval = false; }
+  function valid(){ return cache && t < cache.at + ttl(); }
+  function add(kind, text){ log.push([kind, 't = ' + t + ' с', text]); }
+  function paint(note){
+    el('chx-st-db').textContent = rub(db);
+    el('chx-st-dbn').textContent = changedAt === null ? 'цена не менялась' : 'цену поменяли на ' + changedAt + '-й секунде';
+    const v = valid(), rem = cache ? Math.max(0, cache.at + ttl() - t) : 0;
+    el('chx-st-c').textContent = cache ? rub(cache.v) : 'пусто';
+    el('chx-st-c').classList.toggle('old', !!(v && cache.v !== db));
+    const bar = el('chx-st-bar');
+    bar.firstElementChild.style.width = (cache ? rem / ttl() * 100 : 0) + '%';
+    bar.classList.toggle('low', rem > 0 && rem / ttl() < 0.3);
+    el('chx-st-cn').textContent = !cache ? 'записи нет — следующее чтение пойдёт в базу'
+      : v ? 'положили на ' + cache.at + '-й секунде · жить ещё ' + rem + ' с'
+      : 'срок истёк — запись будет выброшена при следующем чтении';
+    el('chx-st-t').textContent = t + ' с';
+    el('chx-st-bad').textContent = bad;
+    [...el('chx-st-mode').children].forEach(b => b.classList.toggle('on', b.dataset.m === mode));
+    el('chx-st-log').innerHTML = log.slice(-6).reverse().map(x =>
+      '<div class="step ' + x[0] + '"><span class="si">' + (x[0] === 'fail' ? '✕' : x[0] === 'done' ? '✓' : '•') + '</span><div><b>' + x[1] + '</b> · ' + x[2] + '</div></div>').join('');
+    if(note) msg(el('chx-st-msg'), note[0], note[1]);
+    else if(v && cache.v !== db) msg(el('chx-st-msg'), 'warn', 'Сейчас кеш <b>врёт</b>: в базе ' + rub(db) + ', а покупатели увидят ' + rub(cache.v) + '. Так будет ещё ' + rem + ' с, пока не истечёт TTL.');
+    else msg(el('chx-st-msg'), '', 'Кеш и база не расходятся. Откройте карточку, подвигайте время, поменяйте цену.');
+  }
+  el('chx-st-read').addEventListener('click', () => {
+    let note;
+    if(valid()){
+      if(cache.v !== db){
+        bad++; staleSeen = true;
+        add('fail', 'из кеша: ' + rub(cache.v) + ', а в базе уже ' + rub(db));
+        note = ['err', 'Попадание, быстро — но покупатель увидел <b>старую цену ' + rub(cache.v) + '</b>. В базе уже ' + rub(db) + '. Кеш не знает, что источник изменился. ' +
+          (mode === 'ttl' ? 'Он узнает об этом, только когда истечёт TTL. Включите «сброс по событию».' : '')];
+      } else {
+        add('done', 'из кеша: ' + rub(cache.v) + ' — совпадает с базой');
+        note = ['ok', 'Попадание: цена из кеша за 1 мс, и она совпадает с базой.'];
+      }
+    } else {
+      const expired = !!cache;
+      cache = {v:db, at:t};
+      add('done', (expired ? 'срок истёк → ' : 'промах → ') + 'из базы: ' + rub(db) + ', положили в кеш');
+      note = ['', (expired ? 'Срок записи истёк, кеш её выбросил. ' : 'В кеше пусто. ') + 'Промах: сервис сходил в базу за свежей ценой ' + rub(db) + ' и положил её в кеш на ' + ttl() + ' с.'];
+    }
+    if(staleSeen && evInval) Progress.report('chx-stale', 1);
+    paint(note);
+  });
+  el('chx-st-wait').addEventListener('click', () => { t += 15; paint(); });
+  el('chx-st-change').addEventListener('click', () => {
+    pi = (pi + 1) % PRICES.length; db = PRICES[pi]; changedAt = t;
+    let note;
+    if(mode === 'event' && cache){
+      cache = null; evInval = true;
+      add('comp', 'цена → ' + rub(db) + '; событие «цена изменилась» → DEL product:42');
+      note = ['ok', 'Маркетолог поставил ' + rub(db) + '. Сервис записал цену в базу и сразу <b>удалил ключ</b> из кеша. Следующий покупатель промахнётся и получит свежую цену. TTL остаётся страховкой на случай, если событие потеряется.'];
+      if(staleSeen) Progress.report('chx-stale', 1);
+    } else {
+      add('comp', 'в базе новая цена: ' + rub(db));
+      note = cache && valid()
+        ? ['warn', 'В базе теперь ' + rub(db) + ', а в кеше осталось ' + rub(cache.v) + '. Никто кешу об этом не сказал. Откройте карточку.']
+        : ['', 'В базе новая цена ' + rub(db) + '. В кеше записи нет, так что следующий покупатель получит свежую.'];
+    }
+    paint(note);
+  });
+  el('chx-st-mode').addEventListener('click', e => {
+    const b = e.target.closest('button[data-m]'); if(!b) return; mode = b.dataset.m;
+    paint(['', mode === 'event'
+      ? 'Режим «TTL + сброс по событию»: при изменении цены сервис сам удаляет ключ. Поменяйте цену и откройте карточку.'
+      : 'Режим «только TTL»: кеш узнаёт о новой цене, только когда истечёт срок записи.']);
+  });
+  el('chx-st-ttl').addEventListener('input', () => { el('chx-st-ttl-v').textContent = ttl() + ' с'; paint(); });
+  el('chx-st-reset').addEventListener('click', () => { reset(); paint(); });
+  Progress.register('chx-stale', 1, 'Кеш: устаревшая цена');
+  reset(); paint();
+})();
+</script>
+
+<script>
+/* ═══ 21.6 Глава 8: гонка при инвалидации ═══ */
+(function(){
+  if(!document.getElementById('chx-race-out')) return;
+  const steps = [
+    {t:'1. Исходное состояние', a:['база:  price = 12 990', 'кеш:   product:42 → 12 990'],
+     d:'Всё согласовано. Маркетолог (запрос <b>А</b>) хочет поставить цену 9 990. Код сначала удаляет ключ из кеша.'},
+    {t:'2. А удаляет ключ', a:['А:  DEL product:42', 'кеш:   (пусто)', 'база:  price = 12 990   ← ещё не записали'],
+     d:'Ключа в кеше нет. Запись в базу ещё не случилась: между двумя строками кода прошла миллисекунда.'},
+    {t:'3. В эту миллисекунду приходит покупатель Б', a:['Б:  GET product:42  → промах', 'Б:  SELECT price     → 12 990  (старое!)'], warn:true,
+     d:'Покупатель <b>Б</b> промахивается и идёт в базу. А там ещё старая цена: запрос А до неё не добрался.'},
+    {t:'4. А записывает новую цену', a:['А:  UPDATE price = 9 990', 'база:  price = 9 990   ✓'],
+     d:'Маркетолог доволен: цена в базе новая. Он уверен, что всё сделал правильно — ключ-то удалён.'},
+    {t:'5. Б кладёт в кеш то, что прочитал', a:['Б:  SET product:42 → 12 990, TTL 300 с', '', 'база:  9 990', 'кеш:   12 990   ✗ на 5 минут'], warn:true,
+     d:'Б положил в кеш <b>старую</b> цену, прочитанную на шаге 3. Теперь пять минут все покупатели видят 12 990. Никто не ошибся по отдельности — ошибся порядок.'},
+    {t:'6. Как лечат', a:['1. сначала UPDATE в базе,', '   потом DEL ключа из кеша', '2. удалять ключ, а не перезаписывать', '3. TTL всегда — как страховка', '4. при высокой гонке: повторное удаление', '   через полсекунды (delayed double delete)'], ok:true,
+     d:'Порядок «сначала база, потом удаление» сужает окно гонки до долей миллисекунды. Удалять лучше, чем перезаписывать: две параллельные перезаписи могут лечь в обратном порядке. А TTL гарантирует, что даже редкая гонка испортит данные ненадолго.'},
+  ];
+  dbStepper('chx-race', () => steps);
+})();
+</script>
+
+<script>
+/* ═══ 21.7 Глава 9: лавина и разброс TTL ═══ */
+(function(){
+  const el = id => document.getElementById(id);
+  if(!el('chx-av-cells')) return;
+  const N = 40, PAR = 6, DUR = 4, TO = 14, TMS = 50;
+  let R = [], t = 0, timer = null, dbN = 0, maxQ = 0, queue = [], running = [], cached = false, leader = null, lock = false, ran = {off:false, on:false};
+  function cellsHTML(){
+    return R.map((r, k) => {
+      const c = r.st === 'ok' ? 'ok' : r.st === 'bad' ? 'bad' : r.st === 'wait' ? 'warn' : r.st === 'run' ? 'chx-run' : r.st === 'q' ? '' : 'dim';
+      return '<span class="cell ' + c + '">' + (k + 1) + '</span>';
+    }).join('');
+  }
+  function paint(){
+    el('chx-av-cells').innerHTML = cellsHTML();
+    el('chx-av-db').textContent = dbN;
+    el('chx-av-q').textContent = maxQ;
+    el('chx-av-ok').textContent = R.filter(r => r.st === 'ok').length + ' из ' + N;
+    el('chx-av-bad').textContent = R.filter(r => r.st === 'bad').length;
+    const ends = R.filter(r => r.end != null).map(r => r.end);
+    el('chx-av-t').textContent = ends.length ? Math.max(...ends) * TMS + ' мс' : '—';
+  }
+  function step(){
+    // 1. завершения в базе
+    running = running.filter(r => {
+      if(t - r.start >= DUR){
+        if(r.st !== 'bad'){ r.st = 'ok'; r.end = t; }
+        cached = true;
+        if(lock && r === leader) R.forEach(x => { if(x.st === 'wait'){ x.st = 'ok'; x.end = t; } });
+        return false;
+      }
+      return true;
+    });
+    // 2. приход читателей
+    R.forEach(r => {
+      if(r.arr !== t) return;
+      if(cached){ r.st = 'ok'; r.end = t; }
+      else if(lock && leader){ r.st = 'wait'; }
+      else { r.st = 'q'; queue.push(r); dbN++; if(lock) leader = r; }
+    });
+    // 3. таймауты: кто ждёт дольше TO — уходит с ошибкой
+    queue = queue.filter(r => { if(t - r.arr >= TO){ r.st = 'bad'; r.end = t; return false; } return true; });
+    running.forEach(r => { if(t - r.arr >= TO && r.st === 'run'){ r.st = 'bad'; r.end = t; } });
+    // 4. база берёт в работу, сколько может
+    while(running.length < PAR && queue.length){ const r = queue.shift(); r.st = 'run'; r.start = t; running.push(r); }
+    maxQ = Math.max(maxQ, queue.length);
+    paint();
+    t++;
+    const done = R.every(r => r.st === 'ok' || r.st === 'bad') && !running.length;
+    if(done || t > 60){ stopT(); finish(); }
+  }
+  function stopT(){ if(timer){ clearInterval(timer); timer = null; } }
+  function finish(){
+    const bad = R.filter(r => r.st === 'bad').length;
+    const last = Math.max(...R.map(r => r.end || 0)) * TMS;
+    if(!lock){
+      msg(el('chx-av-msg'), 'err', 'Без защиты: <b>' + dbN + ' одинаковых запросов в базу</b> за одной и той же книгой. База тянет только ' + PAR + ' за раз, остальные стоят в очереди. ' +
+        'Не дождались ответа и получили ошибку: <b>' + bad + ' из ' + N + '</b>. Последний ответ пришёл через ' + last + ' мс. Причём все ' + dbN + ' запросов принесли <b>один и тот же</b> ответ. Теперь откройте двери с замком.');
+    } else {
+      msg(el('chx-av-msg'), 'ok', 'С замком: <b>1 запрос в базу</b>. Первый читатель пошёл в подвал, остальные ' + (N - 1) + ' ждали его у стойки и получили книгу вместе с ним через ' + last + ' мс. Ошибок: ' + bad + '. ' +
+        'В коде это несколько строк: «если за этим ключом уже кто-то пошёл — жди его результата». Хорошие библиотеки кеша (например, Caffeine) делают это сами.');
+    }
+    ran[lock ? 'on' : 'off'] = true;
+    if(ran.on && ran.off) Progress.report('chx-av', 1);
+  }
+  function start(withLock){
+    stopT();
+    lock = withLock; t = 0; dbN = 0; maxQ = 0; queue = []; running = []; cached = false; leader = null;
+    R = Array.from({length:N}, (_, k) => ({arr: Math.floor(k / 14), st:'—', start:null, end:null}));
+    msg(el('chx-av-msg'), '', withLock ? 'Двери открыты, первый библиотекарь повесил табличку «я уже иду»…' : 'Двери открыты, все бегут в подвал…');
+    paint();
+    timer = setInterval(step, 130);
+  }
+  el('chx-av-off').addEventListener('click', () => start(false));
+  el('chx-av-on').addEventListener('click', () => start(true));
+  R = Array.from({length:N}, () => ({arr:0, st:'—', start:null, end:null}));
+  paint();
+  Progress.register('chx-av', 1, 'Кеш: лавина');
+
+  // ── разброс TTL ──
+  let jit = false;
+  function chart(){
+    const K = 40, TTL = 60, T = 180, sec = new Array(T).fill(0);
+    for(let k = 0; k < K; k++){
+      let next = TTL * (jit ? 0.8 + Math.random() * 0.4 : 1);
+      while(next < T){ sec[Math.floor(next)]++; next += TTL * (jit ? 0.8 + Math.random() * 0.4 : 1); }
+    }
+    const bins = [];
+    for(let s = 0; s < T; s += 2) bins.push(sec[s] + sec[s + 1]);
+    const peak = Math.max(...bins), mx = Math.max(peak, 1);
+    el('chx-jt-chart').innerHTML = bins.map(v => {
+      const c = v > 20 ? 'var(--danger)' : v > 6 ? 'var(--warn)' : 'var(--ms)';
+      return '<i title="' + v + ' записей" style="height:' + (v ? Math.max(3, Math.round(v / mx * 92)) : 1) + 'px;background:' + (v ? c : 'var(--line)') + '"></i>';
+    }).join('');
+    el('chx-jt-on').textContent = '🎲 Разброс TTL: ' + (jit ? 'включён (TTL × 0,8…1,2)' : 'выключен');
+    el('chx-jt-on').classList.toggle('on', jit);
+    msg(el('chx-jt-msg'), jit ? 'ok' : 'err', jit
+      ? 'С разбросом: пик <b>' + peak + '</b> записей за 2 секунды вместо 40. Те же самые записи, та же нагрузка в сумме, но база получает её ровным потоком, а не ударами. Это одна строка кода: <code class="inl">ttl * (0.8 + random() * 0.4)</code>.'
+      : 'Без разброса: все 40 записей истекают на 60-й секунде, а потом снова на 120-й. Удар по <b>' + peak + '</b> запросов каждую минуту, а между ударами база скучает. Включите разброс.');
+  }
+  el('chx-jt-on').addEventListener('click', () => { jit = !jit; chart(); });
+  chart();
+})();
+</script>
+
+<script>
+(function(){
+  const el = id => document.getElementById(id);
+  if(!el('ca-run')) return;
   const opts = {jitter:false, single:false, neg:false};
 
   renderCmp('cs-table',
-    ['Стратегия','Кто ходит в базу','Сильная сторона','Слабое место'],
+    ['Стратегия','Как в жизни','Кто ходит в базу','Сильная сторона','Слабое место'],
     [
-      {cells:['<b>Cache-aside</b> (ленивая загрузка)','приложение','простая, кеш не обязателен для работы','первый запрос всегда медленный; риск лавины'],
-       why:'<b>Самая распространённая.</b> Приложение смотрит в кеш; промах — читает базу и кладёт в кеш. Система работает и без кеша (просто медленнее), что само по себе ценно. Минусы: «холодный старт» после перезапуска кеша, окно несогласованности между записью в базу и удалением ключа, и лавина при одновременном истечении.'},
-      {cells:['<b>Read-through</b>','библиотека кеша','приложение не знает о базе','кеш становится обязательным звеном'],
+      {cells:['<b>Cache-aside</b> (ленивая загрузка)','библиотекарь сам: нет книги на столе — сходил в подвал, принёс, оставил на столе','приложение','простая, кеш не обязателен для работы','первый запрос всегда медленный; риск лавины'],
+       why:'<b>Самая распространённая, именно её мы видели в главе 3.</b> Приложение смотрит в кеш; промах — читает базу и кладёт в кеш. Система работает и без кеша (просто медленнее), что само по себе ценно. Минусы: «холодный старт» после перезапуска кеша, окно несогласованности между записью в базу и удалением ключа, и лавина при одновременном истечении.'},
+      {cells:['<b>Read-through</b>','вы говорите только с помощником у стойки; в подвал он ходит сам, вы про подвал не знаете','библиотека кеша','приложение не знает о базе','кеш становится обязательным звеном'],
        why:'То же самое, но загрузкой занимается сам кеш через заданный загрузчик. Код приложения чище, логика загрузки в одном месте. Цена: недоступность кеша теперь означает недоступность данных — он перестал быть необязательным ускорителем и стал звеном в цепочке.'},
-      {cells:['<b>Write-through</b>','кеш пишет в базу синхронно','кеш всегда согласован с базой','запись медленнее; кешируется то, что не читают'],
+      {cells:['<b>Write-through</b>','записали в ежедневник и тут же продиктовали в общий журнал','кеш пишет в базу синхронно','кеш всегда согласован с базой','запись медленнее; кешируется то, что не читают'],
        why:'Запись идёт в кеш и сразу в базу. Данные в кеше свежие всегда. Но каждая запись оплачивается задержкой обоих хранилищ, а в кеш попадает всё записанное — включая то, что никто не прочитает. Хорошо при частом перечитывании только что записанного.'},
-      {cells:['<b>Write-behind</b> (write-back)','кеш пишет в базу асинхронно','очень быстрая запись, сглаживание пиков','риск потери данных при падении кеша'],
+      {cells:['<b>Write-behind</b> (write-back)','официант пишет заказы в блокнот, а в кассу переносит раз в час','кеш пишет в базу асинхронно','очень быстрая запись, сглаживание пиков','риск потери данных при падении кеша'],
        why:'Запись подтверждается сразу после попадания в кеш, в базу уходит пачками и позже. Самый быстрый вариант записи и единственный, где <b>падение кеша означает потерю подтверждённых данных</b>. Применяется для счётчиков, метрик, лент — там, где потеря последних секунд терпима. Для денег — никогда.'},
-      {cells:['<b>Refresh-ahead</b>','фоновый процесс','нет холодных промахов у горячих ключей','обновляет то, что может и не понадобиться'],
+      {cells:['<b>Refresh-ahead</b>','покупаете молоко сегодня, хотя старое кончится послезавтра','фоновый процесс','нет холодных промахов у горячих ключей','обновляет то, что может и не понадобиться'],
        why:'Популярные ключи обновляются заранее, до истечения. Пользователь никогда не ждёт загрузки. Цена: фоновая работа вхолостую для ключей, которые больше не запросят. Хорош в связке с cache-aside: горячие ключи обновляются заранее, остальные лениво.'},
     ]);
 
@@ -184,11 +976,14 @@
   Progress.register('ca-play', 1, 'Симулятор кеша');
 
   renderNum('ca-bad', [
-    {t:'Лавина истечения (cache stampede)', d:'Тысяча записей положена в кеш в одну секунду при прогреве — через TTL все истекают одновременно, и вся нагрузка проваливается в базу разом. <b>Лечение:</b> случайный разброс TTL (например, TTL × [0.8; 1.2]) плюс single-flight — при промахе по ключу в базу идёт ровно один запрос, остальные ждут его результата. Оба приёма — по несколько строк кода.'},
+    {t:'Лавина истечения (cache stampede)', d:'Тысяча записей положена в кеш в одну секунду при прогреве — через TTL все истекают одновременно, и вся нагрузка проваливается в базу разом. В библиотеке: открытие, все за новинкой, и все библиотекари бегут в подвал. <b>Лечение:</b> случайный разброс TTL (например, TTL × [0,8; 1,2]) плюс single-flight — при промахе по ключу в базу идёт ровно один запрос, остальные ждут его результата. Оба приёма — по несколько строк кода.'},
+    {t:'Холодный старт', d:'Кеш перезапустили — он пустой, и все запросы разом идут в базу. А база давно привыкла получать 10 % трафика и 100 % не выдерживает. В библиотеке: утром стол пуст, и первый час библиотекари только и делают, что бегают в подвал. <b>Лечение:</b> прогреть кеш до ввода под нагрузку (заранее положить самое популярное), пускать трафик постепенно, ограничить число одновременных походов в базу. И честно ответить себе: переживём ли мы потерю кеша?'},
+    {t:'Прожорливый кеш', d:'Два вида. Первый: кеш без предела размера. Он растёт, пока у сервиса не кончится память, — работает полгода, а потом падает, и причину ищут неделю. Второй: огромные значения. Кладём в кеш объект на 5 МБ — сеть до Redis становится узким местом, один такой ключ вытесняет тысячи полезных. В библиотеке: на стол положили энциклопедию в 30 томов, и больше ничего не помещается. <b>Лечение:</b> всегда задавать предел (<code class="inl">maximumSize</code>, <code class="inl">maxmemory</code>) и кешировать то, что реально нужно потребителю, а не «весь агрегат на всякий случай».'},
+    {t:'Кеширование ошибок', d:'База на секунду упала, сервис получил ошибку и… положил её в кеш на 5 минут. База давно поднялась, а все покупатели пять минут видят «сервис недоступен». В библиотеке: библиотекарь не нашёл книгу, потому что подвал был заперт, и повесил табличку «книги нет» на неделю. <b>Лечение:</b> ошибки не кешировать никогда. Кешировать можно только честный ответ «такого нет» (404) и только на короткий срок — см. следующий пункт.'},
+    {t:'Утечка чужих данных', d:'Страницу «Мой профиль» закешировали по адресу <code class="inl">/me</code> — без идентификатора пользователя в ключе. Первый, кто открыл страницу, положил в кеш свой профиль. Все следующие видят <b>его</b> имя, адрес и телефон. Это самая опасная беда: не медленно, а утечка персональных данных. В библиотеке: письмо, адресованное одному читателю, положили на общий стол. <b>Лечение:</b> ключ обязан включать всё, от чего зависит ответ: пользователя, язык, права. Персональное — только с <code class="inl">Cache-Control: private</code>, никогда в CDN и на шлюзе.'},
     {t:'Горячий ключ', d:'Один ключ (товар дня, главная страница) получает 60 % всех обращений и упирается в один узел Redis. <b>Лечение:</b> локальная копия горячих ключей в памяти приложения на 1–2 секунды (двухуровневый кеш) либо размножение ключа с суффиксом (<code class="inl">hot:42:#1..#8</code>) и случайным выбором. Согласованное хеширование здесь не помогает — проблема не в распределении, а в объёме одного ключа.'},
     {t:'Пробивание кеша несуществующими ключами', d:'Запросы к тому, чего нет: <code class="inl">product:99999999</code>. В кеше пусто всегда, поэтому каждый такой запрос идёт в базу. Может быть и случайностью, и целенаправленной атакой. <b>Лечение:</b> кешировать отрицательный ответ («такого нет») с коротким TTL, а при больших объёмах — фильтр Блума перед обращением к базе.'},
-    {t:'Слишком большие значения', d:'Кладём в кеш объект на 5 МБ. Сеть до Redis становится узким местом, один такой ключ вытесняет тысячи полезных, а сериализация съедает выигрыш. <b>Лечение:</b> кешировать то, что реально нужно потребителю, а не «весь агрегат на всякий случай»; хранить идентификаторы вместо объектов там, где это уместно.'},
-    {t:'Кеш стал источником правды', d:'Самый опасный случай. Кто-то положил в кеш данные, которых нет в базе, — например, счётчик, который обновляется только в Redis. Перезапуск кеша означает потерю данных, о которой никто не подумал. <b>Правило:</b> кеш обязан быть <b>полностью восстановим</b> из источника. Если его нельзя очистить без последствий — это уже не кеш, а база без резервных копий.'},
+    {t:'Кеш стал источником правды', d:'Кто-то положил в кеш данные, которых нет в базе, — например, счётчик, который обновляется только в Redis. Перезапуск кеша означает потерю данных, о которой никто не подумал. <b>Правило:</b> кеш обязан быть <b>полностью восстановим</b> из источника. Если его нельзя очистить без последствий — это уже не кеш, а база без резервных копий.'},
   ]);
 
   renderTasks('caq-tasks', [
@@ -238,12 +1033,56 @@
 </script>
 
 <script>
-/* ═══ 21.0 Стратегии кеширования ═══ */
+/* ═══ 21.8 Сортировка по стратегиям и итоговые задания ═══ */
+(function(){
+  if(!document.getElementById('chx-srt')) return;
+  renderSort('chx-srt', [
+    {t:'Карточка товара в магазине', s:'читают в сотни раз чаще, чем меняют; несколько секунд устаревания не страшны', bucket:'ca',
+     why:'Классический случай для cache-aside, как в главе 3. Кеш необязателен: упал — просто медленнее.'},
+    {t:'Счётчик просмотров видео', s:'50 000 увеличений в секунду, потеря пары секунд не страшна', bucket:'wb',
+     why:'Write-behind: копим в памяти, в базу сбрасываем пачкой раз в несколько секунд. База получает один запрос вместо тысяч.'},
+    {t:'Курс валют на главной странице', s:'читают все и постоянно, собирается дорого, меняется раз в минуту', bucket:'ra',
+     why:'Refresh-ahead: горячий ключ обновляется в фоне до истечения. Никто никогда не ждёт похода к источнику, и нет лавины.'},
+    {t:'Настройки профиля', s:'пользователь сохраняет и тут же видит их на следующем экране', bucket:'wt',
+     why:'Write-through: при сохранении пишем и в базу, и в кеш. Следующее чтение сразу попадает и видит свежее.'},
+    {t:'Справочник регионов', s:'читается из тридцати мест в коде, хочется одной строки вместо «проверь кеш, потом базу»', bucket:'rt',
+     why:'Read-through: загрузчик описан один раз, код просто вызывает <code class="inl">cache.get(id)</code>. Бонус — параллельные промахи схлопываются.'},
+    {t:'Баланс счёта перед списанием', s:'ошибка на копейку — это деньги клиента', bucket:'no',
+     why:'Здесь несвежее недопустимо вообще. Читаем из источника правды, в транзакции. Кеш тут — источник беды, а не ускорения.'},
+  ], [
+    {id:'ca', n:'Cache-aside'}, {id:'rt', n:'Read-through'}, {id:'wt', n:'Write-through'},
+    {id:'wb', n:'Write-behind'}, {id:'ra', n:'Refresh-ahead'}, {id:'no', n:'Не кешировать'},
+  ], 'chx-srt-score', 'chx-srt-total');
+  Progress.register('chx-srt-score', 6, 'Кеш: выбор стратегии');
+
+  renderTasks('chx-q', [
+    {q:'Кеш отвечает за 1 мс, база — за 780 мс. Доля попаданий 90 %. Сколько запросов из 1 000 в секунду дойдут до базы?',
+     opts:[{t:'900'}, {t:'100', ok:true}, {t:'10'}, {t:'Ни одного: в кеше всё есть'}],
+     why:'Промахи — 10 % от 1 000, то есть 100. Если поднять долю попаданий до 99 %, до базы дойдут 10 — в десять раз меньше. Поэтому за последние проценты попаданий борются всерьёз.'},
+    {q:'Стол на 3 книги, политика LRU. Читатели просили: «Дюна», «1984», «Гарри Поттер», «Дюна». Теперь просят «Маленького принца». Какую книгу унесут?',
+     opts:[{t:'«Дюну» — её положили первой'}, {t:'«1984» — её дольше всех не спрашивали', ok:true}, {t:'«Гарри Поттера» — её спрашивали один раз'}, {t:'Никакую — книга ляжет четвёртой'}],
+     why:'LRU смотрит, когда книгу <b>последний раз брали</b>. «Дюну» только что спросили повторно, «Гарри Поттера» — перед ней. Дольше всех не нужна «1984». FIFO унёс бы «Дюну» — она лежит дольше всех, хотя её только что брали. Это и есть слабость FIFO.'},
+    {q:'База на две секунды упала. Сервис получил ошибку и положил её в кеш с TTL 5 минут. Что увидят покупатели?',
+     opts:[{t:'Ничего: база уже поднялась'}, {t:'Пять минут все будут видеть ошибку, хотя база давно работает', ok:true}, {t:'Кеш сам поймёт, что это ошибка, и выбросит её'}, {t:'Ошибку увидит только первый покупатель'}],
+     why:'Кеш не отличает хороший ответ от плохого: что положили, то и отдаёт. Ошибки кешировать нельзя. Можно кешировать только честное «такого товара нет» и только на короткий срок.'},
+    {q:'Страницу «Мой профиль» закешировали на шлюзе по ключу <code class="inl">GET /me</code>. Что пойдёт не так?',
+     opts:[{t:'Профиль будет устаревать на время TTL — и только'}, {t:'Все пользователи увидят профиль того, кто открыл страницу первым', ok:true}, {t:'Шлюз не умеет кешировать GET'}, {t:'Ничего: адрес у всех одинаковый, это удобно'}],
+     why:'Ответ зависит от пользователя, а в ключе пользователя нет. Первый ответ ляжет в кеш и уйдёт всем остальным. Это утечка персональных данных. Правило: в ключе — всё, от чего зависит ответ, а персональное помечается <code class="inl">Cache-Control: private</code> и на общих слоях не кешируется.'},
+    {q:'Код меняет цену так: сначала удаляет ключ из кеша, потом пишет в базу. Что может пойти не так?',
+     opts:[{t:'Ничего, ключ ведь удалён'}, {t:'Между удалением и записью чужой запрос прочитает старую цену и положит её обратно в кеш', ok:true}, {t:'Redis не даст удалить ключ, пока идёт запись'}, {t:'База заблокирует чтение'}],
+     why:'Это гонка из главы 8. Правильный порядок — сначала база, потом удаление ключа. И TTL как страховка: даже если гонка случится, старое значение проживёт недолго.'},
+  ], 'chx-q-score', 'chx-q-total');
+  Progress.register('chx-q-score', 5, 'Кеш: вся история');
+})();
+</script>
+
+<script>
+/* ═══ 21.9 Стратегии кеширования: подробный разбор ═══ */
 (function(){
   const C = [
     {n:'1 · Cache-aside',
      ru:'«в стороне» · приложение само ходит и в кеш, и в базу',
-     life:'Вы держите дома копии документов. Нужен документ — сначала смотрите в свою папку; нет — едете в архив, берёте и <b>сами</b> кладёте копию в папку. Архив о вашей папке ничего не знает.',
+     life:'Библиотекарь сам: смотрит на стол; книги нет — идёт в подвал, приносит и <b>сам</b> оставляет её на столе. Подвал о столе ничего не знает.',
      read:"ЧТЕНИЕ:\n\n  [ приложение ]\n        │ 1. GET кеш:товар:42\n        ▼\n   [ КЕШ ]  ─── есть? ──► ДА  → отдать (2 мс)  ✓\n        │\n        │ НЕТ (промах)\n        ▼\n  [ приложение ]\n        │ 2. SELECT из базы (30 мс)\n        ▼\n   [ БАЗА ]\n        │ 3. приложение САМО кладёт в кеш\n        ▼\n   [ КЕШ ]  SET товар:42, TTL 300 сек",
      write:"ЗАПИСЬ:\n\n  [ приложение ]\n        │ 1. UPDATE в базе\n        ▼\n   [ БАЗА ]  ✓\n        │\n        │ 2. УДАЛИТЬ ключ из кеша\n        ▼   (именно удалить, а не обновить!)\n   [ КЕШ ]  DEL товар:42\n\n  следующее чтение промахнётся\n  и подтянет свежее значение",
      code:"public Product get(String id) {\n    var cached = cache.get(\"product:\" + id);\n    if (cached != null) return cached;          // попадание\n\n    var p = repo.findById(id);                  // промах → в базу\n    cache.set(\"product:\" + id, p, Duration.ofMinutes(5));\n    return p;\n}\n\npublic void update(Product p) {\n    repo.save(p);                    // 1. сначала база\n    cache.delete(\"product:\" + p.id());  // 2. потом УДАЛИТЬ ключ\n}\n\n// ПОЧЕМУ УДАЛИТЬ, А НЕ ОБНОВИТЬ:\n// две параллельные записи могут положить в кеш\n// значения в обратном порядке, и там останется старое.\n// Удаление такой гонки не создаёт: следующее чтение\n// в любом случае возьмёт свежее из базы.",
@@ -255,7 +1094,7 @@
 
     {n:'2 · Read-through',
      ru:'«сквозное чтение» · в базу ходит сам кеш, а не приложение',
-     life:'Вы обращаетесь только к секретарю. Есть у него бумага — отдаёт сразу; нет — <b>он сам</b> едет в архив, привозит и отдаёт вам. Вы про архив вообще не знаете.',
+     life:'Вы обращаетесь только к помощнику у стойки. Есть книга на столе — отдаёт сразу; нет — <b>он сам</b> идёт в подвал, приносит и отдаёт вам. Вы про подвал вообще не знаете.',
      read:"ЧТЕНИЕ:\n\n  [ приложение ]\n        │ get(\"товар:42\")   ← ОДНА строка кода\n        ▼\n  ┌─────────────────────────┐\n  │  КЕШ (умный)            │\n  │    есть? → отдал        │\n  │    нет?  → сходил САМ:  │\n  │             ▼           │\n  │        [ БАЗА ]         │\n  │             │           │\n  │    положил себе, отдал  │\n  └─────────────────────────┘\n        │\n        ▼\n  [ приложение ]  получило значение\n\n  приложение НЕ ЗНАЕТ, был промах или нет",
      write:"ЗАПИСЬ:\n\n  read-through описывает ТОЛЬКО ЧТЕНИЕ.\n\n  запись остаётся на вас и делается\n  одной из стратегий записи ниже —\n  обычно write-through или инвалидация.\n\n  это частая путаница:\n  read-through ≠ полная стратегия,\n  это половина решения",
      code:"// Spring Cache: загрузчик описан ОДИН раз\n@Cacheable(value = \"products\", key = \"#id\")\npublic Product get(String id) {\n    return repo.findById(id);   // вызовется ТОЛЬКО при промахе\n}\n\n// Caffeine: тот же смысл явно\nLoadingCache<String, Product> cache = Caffeine.newBuilder()\n    .maximumSize(10_000)\n    .expireAfterWrite(Duration.ofMinutes(5))\n    .build(id -> repo.findById(id));   // ← загрузчик\n\nProduct p = cache.get(\"42\");   // всё, больше ничего писать не надо\n\n// ВАЖНЫЙ БОНУС: хорошие библиотеки схлопывают\n// параллельные промахи по одному ключу в ОДИН поход в базу.\n// В cache-aside это пришлось бы делать руками —\n// иначе тысяча одновременных промахов даст\n// тысячу одинаковых запросов в базу.",
@@ -328,7 +1167,7 @@
       (i === 0
         ? '<div class="note warn" style="margin-top:11px"><b>Порядок операций при записи — это не мелочь.</b> ' +
           'Сначала база, потом удаление ключа. Наоборот — и между удалением и записью успеет вклиниться чтение, ' +
-          'которое положит в кеш <b>старое</b> значение, и оно останется там до истечения срока. ' +
+          'которое положит в кеш <b>старое</b> значение, и оно останется там до истечения срока (эту гонку разберём по шагам в главе 8). ' +
           'И удаляйте ключ, а не обновляйте: обновление двумя параллельными записями может лечь в обратном порядке.</div>'
         : '');
   }
@@ -338,7 +1177,7 @@
 </script>
 
 <script>
-/* ═══ 21.0b Слои кеширования ═══ */
+/* ═══ 21.10 Слои кеширования ═══ */
 (function(){
   const PATH = ['браузер','фронт','CDN','шлюз','локальный','Redis','витрина БД','буфер СУБД'];
   const L = [
