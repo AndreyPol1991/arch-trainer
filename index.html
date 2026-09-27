@@ -11803,50 +11803,221 @@ Content-Type: application/json
   show(0);
 })();
 </script>
-<!-- ==================== 16. GATEWAY, BFF, MESH ==================== -->
+<!-- ==================== 18. GATEWAY, BFF, MESH ==================== -->
 <section class="panel" id="gw" data-accent="nt" role="tabpanel">
-  <p class="lead"><b>Между клиентом и сервисами обычно стоит кто-то ещё.</b> Шлюз — одна дверь снаружи. BFF — сборщик данных под конкретное приложение. Сетка — общие правила связи внутри. Их часто путают и сваливают в одно, а потом получают узкое место, которое знает про всё на свете.</p>
+  <p class="lead"><b>Между телефоном пользователя и сервисами обычно стоит кто-то ещё.</b> Балансировщик раскидывает поток по копиям. Шлюз — одна дверь снаружи. BFF собирает данные под конкретное приложение. Сетка берёт на себя связь внутри. Их часто путают и сваливают в одно, а потом получают узкое место, которое знает про всё на свете. Разберём по порядку, как и зачем каждый из них появляется.</p>
+
+  <style>
+    .gwx-ch{scroll-margin-top:150px}
+    .gwx-map{display:grid; grid-template-columns:repeat(2,1fr); gap:7px; margin-top:12px}
+    @media (max-width:700px){.gwx-map{grid-template-columns:1fr}}
+    .gwx-map button{appearance:none; text-align:left; display:flex; gap:10px; align-items:flex-start; border:1px solid var(--line); background:var(--surface-2); color:var(--ink); font:inherit; font-size:13.5px; padding:9px 12px; border-radius:9px; cursor:pointer}
+    .gwx-map button:hover{border-color:var(--accent)}
+    .gwx-map .gwx-n{flex:none; width:24px; height:24px; border-radius:50%; background:var(--accent); color:#fff; font:700 12px var(--mono); display:grid; place-items:center}
+    .gwx-map .gwx-s{display:block; color:var(--muted); font-size:12.5px; margin-top:1px}
+
+    .gwx-roles{display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-top:12px}
+    @media (max-width:900px){.gwx-roles{grid-template-columns:repeat(2,1fr)}}
+    @media (max-width:520px){.gwx-roles{grid-template-columns:1fr}}
+    .gwx-roles .box h4{display:flex; gap:7px; align-items:center}
+    .gwx-life{font-size:12.5px; color:var(--muted); border-top:1px dashed var(--line); padding-top:7px; margin-top:7px}
+
+    /* схема бизнес-центра / запроса */
+    .gwx-dia{overflow-x:auto; margin-top:12px; border:1px solid var(--line); border-radius:10px; background:var(--surface-2); padding:12px}
+    .gwx-canvas{min-width:700px; display:grid; grid-template-columns:1fr 26px 1fr 26px 1.05fr 26px 1.3fr 26px 1.5fr; align-items:center; gap:0}
+    .gwx-col{display:flex; flex-direction:column; gap:8px}
+    .gwx-arr{text-align:center; font:700 15px var(--mono); color:var(--faint); transition:color .2s}
+    .gwx-arr.on{color:var(--accent)}
+    .gwx-nd{border:1.5px solid var(--line); background:var(--surface); border-radius:9px; padding:8px 9px; font-size:12.5px; line-height:1.3; transition:all .2s; position:relative}
+    .gwx-nd .gwx-ic{font-size:16px}
+    .gwx-nd b{display:block; font-size:12.5px}
+    .gwx-nd small{display:block; color:var(--faint); font:500 10.5px var(--mono); margin-top:2px}
+    .gwx-pod{border:1.5px dashed var(--line); border-radius:10px; padding:5px; display:flex; gap:5px; align-items:stretch; background:var(--surface); transition:all .2s}
+    .gwx-pod .gwx-nd{flex:1; border-width:1px}
+    .gwx-pod .gwx-sc{flex:none; width:64px; font:600 10.5px var(--mono); color:var(--muted); display:flex; align-items:center; justify-content:center; text-align:center; background:var(--surface-3)}
+    .gwx-nd.lit, .gwx-pod.lit{border-color:color-mix(in srgb, var(--accent) 45%, var(--line))}
+    .gwx-nd.on{border-color:var(--accent); background:color-mix(in srgb, var(--accent) 13%, var(--surface)); box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 20%, transparent)}
+    .gwx-nd.bad{border-color:var(--danger); background:var(--danger-bg)}
+    .gwx-nd.dim, .gwx-pod.dim{opacity:.33}
+    .gwx-nd.off{opacity:.45; border-style:dashed; text-decoration:line-through}
+    .gwx-zone{font:600 10.5px var(--mono); color:var(--faint); text-transform:uppercase; letter-spacing:.03em; display:flex; justify-content:space-between; gap:10px; margin-bottom:8px; min-width:700px}
+    .gwx-zone span{border-bottom:2px solid var(--line); padding-bottom:2px}
+    .gwx-zone .ns{border-color:var(--nt)} .gwx-zone .ew{border-color:var(--ms)}
+
+    .gwx-say{display:grid; grid-template-columns:1.05fr 1fr; gap:12px; margin-top:12px; align-items:start}
+    @media (max-width:760px){.gwx-say{grid-template-columns:1fr}}
+    .gwx-who{display:inline-block; font:600 11px var(--mono); padding:3px 8px; border-radius:12px; border:1px solid var(--accent); color:var(--accent); margin-bottom:6px}
+    .gwx-say pre.json{font-size:12px; margin:0; white-space:pre-wrap; word-break:break-word}
+    .gwx-lbl{font:600 10.5px var(--mono); color:var(--faint); text-transform:uppercase; margin:0 0 5px}
+
+    .gwx-kassy{display:grid; grid-template-columns:repeat(3,1fr); gap:9px; margin-top:12px}
+    @media (max-width:520px){.gwx-kassy{grid-template-columns:1fr}}
+    .gwx-kassa{border:1.5px solid var(--line); border-radius:9px; padding:9px 11px; background:var(--surface-2); min-height:84px}
+    .gwx-kassa.down{border-color:var(--danger); background:var(--danger-bg)}
+    .gwx-kassa h4{margin:0 0 6px; font-size:13px; display:flex; justify-content:space-between; gap:6px}
+
+    .gwx-grid{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:12px; align-items:start}
+    @media (max-width:760px){.gwx-grid{grid-template-columns:1fr}}
+    .gwx-clients{display:flex; flex-direction:column; gap:8px}
+    .gwx-cl{border:1px solid var(--line); border-radius:9px; padding:8px 11px; background:var(--surface-2)}
+    .gwx-cl h4{margin:0 0 4px; font-size:13px}
+
+    .gwx-tbl td.gwx-bad{color:var(--danger); font-weight:600}
+    .gwx-tbl td.gwx-warn{color:var(--warn); font-weight:600}
+    .gwx-tbl td.gwx-ok{color:var(--ok); font-weight:600}
+
+    .gwx-steps .step{transition:opacity .2s}
+    .gwx-steps .step.gwx-dim{opacity:.35}
+    .gwx-own{font:600 10.5px var(--mono); color:var(--faint); margin-left:auto; white-space:nowrap; padding-left:8px}
+    .gwx-sw{display:flex; gap:8px; flex-wrap:wrap; margin-top:12px}
+    .gwx-sw button{appearance:none; border:1.5px solid var(--ok); background:var(--ok-bg); color:var(--ink); font:600 13px var(--sans); padding:8px 12px; border-radius:9px; cursor:pointer}
+    .gwx-sw button.off{border-color:var(--danger); background:var(--danger-bg); text-decoration:line-through}
+    .gwx-prob{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:12px; align-items:start}
+    @media (max-width:760px){.gwx-prob{grid-template-columns:1fr}}
+  </style>
 
   <div class="card">
-    <h2><span class="tag">зачем это</span> зачем нужны шлюз, BFF и сервисная сетка</h2>
-    <div id="why-gw"></div>
+    <h2><span class="tag">карта раздела</span> одна история в десяти главах</h2>
+    <p>Раздел рассказывает одну историю: приложение магазина растёт, и на каждом шаге роста появляется новая проблема. Под каждую проблему появляется свой посредник. Читайте по порядку или прыгайте к нужной главе.</p>
+    <div class="gwx-map" id="gwx-map">
+      <button data-ch="gwx-ch1"><span class="gwx-n">1</span><span>Коротко: четыре посредника<span class="gwx-s">определения и сквозной пример: Анна открывает заказ</span></span></button>
+      <button data-ch="gwx-ch2"><span class="gwx-n">2</span><span>Один сервер и очередь к нему<span class="gwx-s">копии и балансировщик</span></span></button>
+      <button data-ch="gwx-ch3"><span class="gwx-n">3</span><span>Сервисов стало восемь<span class="gwx-s">хаос прямых подключений</span></span></button>
+      <button data-ch="gwx-ch4"><span class="gwx-n">4</span><span>Появляется шлюз<span class="gwx-s">одна дверь, пропуск, маршрут, лимиты</span></span></button>
+      <button data-ch="gwx-ch5"><span class="gwx-n">5</span><span>Разным клиентам — разные ответы<span class="gwx-s">BFF: помощник под свой тип гостя</span></span></button>
+      <button data-ch="gwx-ch6"><span class="gwx-n">6</span><span>Внутри тоже непросто<span class="gwx-s">сервисная сетка и sidecar</span></span></button>
+      <button data-ch="gwx-ch7"><span class="gwx-n">7</span><span>Кто есть кто<span class="gwx-s">один запрос, четыре роли, таблица</span></span></button>
+      <button data-ch="gwx-ch8"><span class="gwx-n">8</span><span>Что будет, если убрать<span class="gwx-s">и когда что на самом деле нужно</span></span></button>
+      <button data-ch="gwx-ch9"><span class="gwx-n">9</span><span>Как это нарисовать<span class="gwx-s">компонентная диаграмма</span></span></button>
+      <button data-ch="gwx-ch10"><span class="gwx-n">10</span><span>Проверьте себя<span class="gwx-s">разложить обязанности и решить задачи</span></span></button>
+    </div>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">схема</span> кто где стоит</h2>
-    <div class="flow" style="flex-direction:column;align-items:stretch;gap:6px">
-      <div class="flow" style="margin:0"><div class="fnode a">📱 Мобильное</div><div class="fnode a">💻 Веб</div><div class="fnode a">🤝 Партнёры</div></div>
-      <div class="farr" style="text-align:center">↓ снаружи</div>
-      <div class="fnode b" style="min-width:auto"><b>API Gateway</b> — единая дверь<span class="fs">TLS, аутентификация, лимиты, маршрутизация, единый формат ошибок</span></div>
-      <div class="farr" style="text-align:center">↓</div>
-      <div class="flow" style="margin:0"><div class="fnode c">BFF мобильного<span class="fs">свой набор данных</span></div><div class="fnode c">BFF веба<span class="fs">свой набор данных</span></div></div>
-      <div class="farr" style="text-align:center">↓ внутри — сервисная сетка (sidecar у каждого)</div>
-      <div class="flow" style="margin:0"><div class="fnode">Заказы</div><div class="fnode">Каталог</div><div class="fnode">Склад</div><div class="fnode">Платежи</div></div>
+  <!-- ═════════ ГЛАВА 1 ═════════ -->
+  <div class="card gwx-ch" id="gwx-ch1">
+    <h2><span class="tag">глава 1 · коротко</span> четыре посредника в одном бизнес-центре</h2>
+    <p>Представьте большой бизнес-центр. В нём много офисов, и в каждом работает своя компания: одна принимает заказы, другая возит посылки, третья принимает оплату. Гости приходят снаружи, а сотрудники офисов постоянно носят друг другу бумаги. <b>Система из микросервисов устроена так же:</b> офисы — это сервисы, гости — мобильное приложение, сайт и партнёры.</p>
+    <p>Чтобы в таком здании был порядок, нужны четыре службы. Вот каждая одной-двумя фразами.</p>
+    <div class="gwx-roles">
+      <div class="box">
+        <h4><span>⚖</span> Балансировщик</h4>
+        <p class="bs"><b>Что это:</b> распределитель потока между одинаковыми копиями одного и того же. Не смотрит, кто пришёл и зачем, решает только «к какой копии».</p>
+        <div class="gwx-life">🏢 Вращающиеся двери и распорядитель очереди: «вы — в третью кассу, там свободно».</div>
+      </div>
+      <div class="box">
+        <h4><span>🛎</span> Шлюз (API Gateway)</h4>
+        <p class="bs"><b>Что это:</b> единственная входная дверь в систему снаружи. Проверяет, кто пришёл, не слишком ли часто, и направляет к нужному сервису.</p>
+        <div class="gwx-life">🏢 Ресепшен в холле: проверяет пропуск, говорит «вам на пятый этаж», не пускает толпу.</div>
+      </div>
+      <div class="box">
+        <h4><span>🧑‍💼</span> BFF (Backend for Frontend)</h4>
+        <p class="bs"><b>Что это:</b> отдельный маленький сервер под один тип клиента. Сам обходит нужные сервисы и отдаёт клиенту ровно то, что нужно его экрану.</p>
+        <div class="gwx-life">🏢 Личный помощник для гостя определённого типа: мобильному — короткая выжимка, вебу — подробная папка.</div>
+      </div>
+      <div class="box">
+        <h4><span>📦</span> Сервисная сетка (service mesh)</h4>
+        <p class="bs"><b>Что это:</b> общая служба связи <b>между</b> сервисами. У каждого сервиса есть свой прокси-помощник (sidecar), который сам шифрует, повторяет и записывает каждый вызов.</p>
+        <div class="gwx-life">🏢 Внутренняя курьерская служба: у каждого офиса свой курьер, который сам запечатывает конверт, повторяет доставку и ведёт журнал.</div>
+      </div>
     </div>
-    <div class="note"><b>Не обязательно иметь все три.</b> Маленькой системе достаточно шлюза. BFF появляется, когда клиентов становится больше одного и их потребности расходятся. Сетка оправдана от нескольких десятков сервисов и при наличии команды, которая будет её обслуживать, — иначе она добавляет слой, который никто не понимает и который однажды сломается посреди ночи.</div>
+    <div class="note"><b>Два слова, которые пригодятся сразу.</b> Трафик <b>«север — юг»</b> (north-south) идёт снаружи внутрь: от телефона к системе. Трафик <b>«восток — запад»</b> (east-west) идёт внутри: от сервиса к сервису. Шлюз и BFF работают с первым, сетка — со вторым, балансировщик встречается и там и там.</div>
+
+    <h3>Сквозной пример: Анна открывает свой заказ</h3>
+    <p>Анна в метро открывает мобильное приложение магазина и нажимает на заказ №77. Экран должен показать товары, срок доставки и статус оплаты. Эти данные лежат в трёх разных сервисах. Нажимайте «Дальше» и смотрите, через кого проходит запрос, что каждый с ним делает и зачем.</p>
+    <div class="gwx-dia" id="gwx-flow-dia"></div>
+    <div class="skbar">
+      <button class="ghost" id="gwx-flow-prev">← Назад</button>
+      <button class="act" id="gwx-flow-next">Дальше →</button>
+      <button class="ghost" id="gwx-flow-play">▶ Прогнать</button>
+      <button class="ghost" id="gwx-flow-reset">⟲ Сначала</button>
+      <span class="skstep" id="gwx-flow-lab"></span>
+    </div>
+    <div id="gwx-flow-out"></div>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">на пальцах</span> балансировщик и шлюз: кто из них кто</h2>
-    <p>Эти двое стоят рядом и их постоянно путают. Проще всего понять на подъезде жилого дома.</p>
-    <div class="grid3">
-      <div class="box">
-        <h4>🚪 Домофон = балансировщик</h4>
-        <p class="bs">Стоит на входе и решает <b>одно</b>: в какой из подъездов вас направить. Не спрашивает, кто вы и зачем. Знает только, какие подъезды сегодня открыты, а какие на ремонте.</p>
+  <!-- ═════════ ГЛАВА 2 ═════════ -->
+  <div class="card gwx-ch" id="gwx-ch2">
+    <h2><span class="tag">глава 2 · начало истории</span> один сервер и очередь к нему</h2>
+    <p>Магазин начинался просто: одно приложение на одном сервере. Телефон Анны знал ровно один адрес, и всё — вход, заказы, оплата — жило внутри одной программы. Проверка пропуска, лимиты и журналы были написаны один раз, потому что и программа была одна.</p>
+    <p>Потом пришла распродажа, и один сервер перестал справляться. Первое решение — поставить <b>несколько одинаковых копий</b> и распорядителя перед ними. Этот распорядитель и есть <b>балансировщик</b>: он принимает поток и раздаёт его по копиям, пропуская те, что сейчас не отвечают.</p>
+    <p>Как в холле бизнес-центра: три одинаковые кассы и человек у входа, который говорит «вам в первую, вам во вторую». Попробуйте сами: запустите гостей, потом «сломайте» одну кассу.</p>
+    <div class="form-row">
+      <button class="act" id="gwx-lb-go">👥 Пришли 6 гостей</button>
+      <button class="ghost" id="gwx-lb-break">💥 Касса №2 сломалась</button>
+      <button class="ghost" id="gwx-lb-reset">⟲ Сначала</button>
+    </div>
+    <div class="gwx-kassy" id="gwx-lb-k"></div>
+    <div class="console" id="gwx-lb-msg"></div>
+    <div class="note good"><b>Что важно запомнить.</b> Балансировщик решает только <b>«куда»</b>. Он не спрашивает, кто вы, и не смотрит, что у вас в руках. Он знает, какие кассы открыты, и узнаёт это сам: регулярно спрашивает каждую «ты жива?». Эта проверка называется health check (проверка живости).</div>
+    <div class="note">Балансировщики бывают очень разными: одни видят только адреса и порты, другие читают запрос целиком. Алгоритмы, проверки живости и ловушки разобраны в соседнем разделе. <button class="ghost" data-goto="lb" style="padding:3px 9px;font-size:12px;margin-left:4px">К балансировщикам →</button></div>
+  </div>
+
+  <!-- ═════════ ГЛАВА 3 ═════════ -->
+  <div class="card gwx-ch" id="gwx-ch3">
+    <h2><span class="tag">глава 3 · рост</span> сервисов стало восемь, и клиенты ходят к каждому напрямую</h2>
+    <p>Прошло два года. Одну большую программу разрезали на сервисы: заказы, каталог, склад, доставка, платежи, отзывы, профиль, скидки. Каждым занимается своя команда. А клиенты — мобильное приложение, сайт и партнёры — по привычке ходят к каждому сервису <b>напрямую</b>.</p>
+    <p>Переключайте размер системы и смотрите, что приходится знать клиентам и сколько раз одно и то же написано в сервисах. Потом устройте системе пару обычных неприятностей.</p>
+    <div class="seg" id="gwx-chaos-pick">
+      <button class="on" data-n="1">🏠 Один сервер</button>
+      <button data-n="3">🏘 3 сервиса</button>
+      <button data-n="8">🏙 8 сервисов</button>
+    </div>
+    <div class="gwx-grid">
+      <div>
+        <div class="gwx-lbl">что знает каждый клиент</div>
+        <div class="gwx-clients" id="gwx-chaos-cl"></div>
       </div>
-      <div class="box">
-        <h4>💁 Консьерж = API-шлюз</h4>
-        <p class="bs">Уже <b>внутри</b>. Спрашивает паспорт, смотрит, к кому вы идёте, проверяет, пускают ли к этому жильцу, и записывает визит в журнал. Если пришли в десятый раз за час — не пустит.</p>
-      </div>
-      <div class="box">
-        <h4>🏠 Квартира = сервис</h4>
-        <p class="bs">Занимается своим делом и предполагает, что до неё дошли только те, кого домофон направил, а консьерж проверил.</p>
+      <div>
+        <div class="gwx-lbl">сколько раз одно и то же написано в сервисах</div>
+        <div class="meters" id="gwx-chaos-m"></div>
+        <div class="gwx-lbl" style="margin-top:12px">устроить неприятность</div>
+        <div class="form-row" style="margin-top:4px" id="gwx-chaos-inc">
+          <button class="ghost" data-e="rename">✏️ Переименовали склад</button>
+          <button class="ghost" data-e="forgot">🕳 Забыли проверку пропуска</button>
+          <button class="ghost" data-e="loop">🔁 Партнёр зациклился</button>
+          <button class="ghost" data-e="cert">📜 Истёк сертификат</button>
+        </div>
       </div>
     </div>
-    <div class="note good"><b>Разница одной фразой.</b> Балансировщик решает <b>куда</b>, не глядя на содержимое. Шлюз решает <b>можно ли</b> и <b>что с этим сделать</b>, заглядывая внутрь запроса.</div>
+    <div class="console" id="gwx-chaos-msg"></div>
+    <div class="note bad"><b>Вот он, хаос.</b> Клиенты знают внутреннее устройство системы. Каждый сервис сам проверяет токен, сам ограничивает частоту, сам держит сертификат. Восемь команд делают одну и ту же работу по-разному — и где-то обязательно ошибаются. Нужна <b>одна дверь</b>, через которую пускают всех.</div>
+  </div>
 
-    <h3 style="margin:18px 0 6px;font-size:14px">Проследите путь одного запроса</h3>
-    <p>Клиент нажал «Мои заказы». Прожмите шаги: что происходит на каждом и что будет, если этого звена нет.</p>
+  <!-- ═════════ ГЛАВА 4 ═════════ -->
+  <div class="card gwx-ch" id="gwx-ch4">
+    <h2><span class="tag">глава 4 · шлюз</span> появляется ресепшен: API Gateway</h2>
+    <p><b>Определение.</b> API-шлюз (API Gateway) — единственная публичная точка входа в систему. Все внешние запросы приходят в него, а он проверяет их и отправляет к нужному сервису. Клиент знает один адрес, <code class="inl">api.shop.ru</code>, и больше ничего.</p>
+    <p>В бизнес-центре это ресепшен. Гость не бродит по этажам в поисках нужного офиса: он подходит к стойке, показывает пропуск, и ему говорят «вам на пятый». Если гость пришёл в двадцатый раз за час с одним и тем же вопросом, его вежливо просят подождать.</p>
+    <div class="note"><b>Балансировщик и шлюз — не одно и то же, хотя стоят рядом.</b> Вращающиеся двери решают только «в какой проход», не глядя на гостя. Ресепшен уже <b>смотрит внутрь</b>: кто вы, к кому, можно ли. Поэтому шлюз умеет больше, но и работает дольше. На практике перед несколькими копиями шлюза стоит балансировщик — ведь ресепшен тоже бывает переполнен.</div>
+
+    <h3>Что шлюз должен и чего не должен</h3>
+    <div class="grid2">
+      <div class="box">
+        <h4 style="color:var(--ok)">Должен</h4>
+        <ul style="margin:0">
+          <li>Снимать шифрование TLS и быть единственной публичной точкой входа.</li>
+          <li>Проверять токен (подписанный «пропуск» пользователя) и передавать внутрь проверенную личность.</li>
+          <li>Ограничивать частоту запросов и размер тела.</li>
+          <li>Направлять запрос по пути и версии.</li>
+          <li>Приводить ошибки к единому формату и прятать внутренние детали.</li>
+          <li>Проставлять сквозной идентификатор запроса.</li>
+        </ul>
+      </div>
+      <div class="box down">
+        <h4 style="color:var(--danger)">Не должен</h4>
+        <ul style="margin:0">
+          <li>Содержать бизнес-логику и правила предметной области.</li>
+          <li>Ходить в базы сервисов.</li>
+          <li>Собирать ответы из пяти сервисов «на лету» — это работа BFF.</li>
+          <li>Знать про особенности конкретных клиентов.</li>
+          <li>Быть местом, где «удобно быстро дописать». Так рождается монолит на входе, который правят все команды.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="note bad"><b>Главный риск шлюза — организационный.</b> Шлюз один, а команд много, и каждая хочет добавить туда «маленькое исключение». Через год шлюз становится самым сложным компонентом системы: его правят все, а выкатывать боятся. Противоядие: конфигурация маршрута лежит <b>рядом с сервисом</b> и выкатывается его командой, а не одной центральной группой.</div>
+
+    <h3>Под лупой: путь запроса до шлюза и через него</h3>
+    <p>В первой главе мы прошли путь крупно. Теперь посмотрим подробнее на первую половину: как запрос находит здание (DNS), проходит двери (балансировщик уровня L4 — видит только адреса и порты), снимает «конверт» TLS и что происходит на ресепшене.</p>
     <div class="skbar">
       <button class="ghost" id="ed-prev">← Назад</button>
       <button class="act" id="ed-next">Дальше →</button>
@@ -11854,62 +12025,101 @@ Content-Type: application/json
       <span class="skstep" id="ed-step"></span>
     </div>
     <div id="ed-out"></div>
+
+    <h3>Пять слов, которые шлюз делает за всех</h3>
+    <p>TLS, аутентификация, авторизация, лимиты, журналы. Их обычно проговаривают скороговоркой. Разберём каждое до конца: что это, зачем, как выглядит в жизни и где ошибаются.</p>
+    <div class="seg" id="sec-pick"></div>
+    <div id="sec-out"></div>
+
+    <h3>Что именно делают на шлюзе — с настройками и кодом</h3>
+    <p>Шлюз — это не «просто прокси». Это место, где живёт десяток конкретных приёмов. Нажмите на любой: что делает, зачем, как настраивается и где грабли.</p>
+    <div class="seg" id="gwt-pick"></div>
+    <div id="gwt-out"></div>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">gateway</span> что шлюз должен и чего не должен</h2>
-    <div class="grid2">
-      <div class="box">
-        <h4 style="color:var(--ok)">Должен</h4>
-        <ul style="margin:0">
-          <li>Завершать TLS и быть единственной публичной точкой входа.</li>
-          <li>Проверять токен и превращать его во внутреннее представление личности.</li>
-          <li>Ограничивать частоту запросов и размер тела.</li>
-          <li>Маршрутизировать по пути и версии.</li>
-          <li>Приводить ошибки к единому формату, скрывать внутренние детали.</li>
-          <li>Проставлять сквозной идентификатор запроса.</li>
-        </ul>
-      </div>
-      <div class="box down">
-        <h4 style="color:var(--danger)">Не должен</h4>
-        <ul style="margin:0">
-          <li>Содержать бизнес-логику и правила домена.</li>
-          <li>Ходить в базы сервисов.</li>
-          <li>Собирать ответы из пяти сервисов «на лету» — это работа BFF.</li>
-          <li>Знать про особенности конкретных клиентов.</li>
-          <li>Быть местом, где «удобно быстро дописать» — так рождается монолит на входе, который правят все команды.</li>
-        </ul>
-      </div>
+  <!-- ═════════ ГЛАВА 5 ═════════ -->
+  <div class="card gwx-ch" id="gwx-ch5">
+    <h2><span class="tag">глава 5 · bff</span> разным клиентам — разные ответы</h2>
+    <p>Шлюз навёл порядок на входе. Но появилась новая беда. Экран заказа в мобильном приложении показывает шесть полей, а на сайте — тридцать. Партнёру нужен строгий, неизменный формат. Часы показывают одну строчку. А сервисы отдают всем одно и то же: полный заказ на сорок полей. Мобильное приложение делает три запроса по медленной сети и само склеивает экран.</p>
+    <p><b>Определение.</b> BFF (Backend for Frontend, «бэкенд для фронтенда») — отдельный небольшой сервер под <b>один тип клиента</b>. Он сам обходит нужные сервисы, параллельно и по быстрой внутренней сети, и отдаёт клиенту ровно тот ответ, который нужен его экрану. У мобильного свой BFF, у веба свой.</p>
+    <p>В бизнес-центре это личный помощник. Занятому гостю с телефоном он приносит выжимку на полстраницы. Аналитику из головного офиса — подробную папку. Сами офисы при этом ничего не переделывают.</p>
+    <div class="seg" id="gwx-bff-cl">
+      <button class="on" data-c="mob">📱 Мобильное</button>
+      <button data-c="web">💻 Веб</button>
+      <button data-c="prt">🤝 Партнёр</button>
+      <button data-c="watch">⌚ Часы</button>
     </div>
-    <div class="note bad"><b>Главный риск шлюза — организационный.</b> Он один, а команд много, поэтому каждая хочет добавить туда «маленькое исключение». Через год шлюз становится самым сложным компонентом системы, его правят все, а выкатывать боятся. Противоядие: конфигурация шлюза лежит <b>рядом с сервисом</b> и выкатывается его командой, а не централизованно.</div>
-  </div>
+    <div class="seg" id="gwx-bff-mode">
+      <button class="on" data-m="0">🚫 Без BFF: клиент сам ходит в сервисы</button>
+      <button data-m="1">🧑‍💼 С BFF: помощник собирает ответ</button>
+    </div>
+    <div class="meters" id="gwx-bff-m"></div>
+    <div class="gwx-grid">
+      <div><div class="gwx-lbl" id="gwx-bff-l1"></div><pre class="json" id="gwx-bff-req" style="font-size:12px;margin:0;white-space:pre-wrap"></pre></div>
+      <div><div class="gwx-lbl" id="gwx-bff-l2"></div><pre class="json" id="gwx-bff-res" style="font-size:12px;margin:0;white-space:pre-wrap"></pre></div>
+    </div>
+    <div class="note" id="gwx-bff-note"></div>
 
-  <div class="card">
-    <h2><span class="tag">bff</span> backend for frontend</h2>
-    <p>Отдельный backend на каждый тип клиента. У мобильного свой, у веба свой, у партнёрского API свой. Каждый собирает данные из сервисов и отдаёт ровно то, что нужно его клиенту, в удобной ему форме.</p>
+    <h3>Плюсы и минусы BFF</h3>
     <div id="bff-pm"></div>
-    <div class="note warn"><b>Кто должен владеть BFF:</b> команда клиента, а не команда бэкенда. Смысл BFF в том, что фронтендеры могут менять форму данных под свой экран, не согласовывая это ни с кем. Если BFF правит другая команда по заявке, он превращается в обычный API с лишним прыжком и всеми теми же очередями согласований.</div>
+    <div class="note warn"><b>Кто должен владеть BFF:</b> команда клиента, а не команда бэкенда. Смысл BFF в том, что фронтендеры меняют форму данных под свой экран, ни с кем это не согласовывая. Если BFF правит другая команда по заявке, он превращается в обычный API с лишним прыжком и теми же очередями согласований.</div>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">mesh</span> сервисная сетка: вынести связь из приложения</h2>
-    <p>Рядом с каждым сервисом ставится прокси-<span class="t" data-d="Sidecar — вспомогательный контейнер, который едет рядом с основным в одном поде и перехватывает весь его сетевой трафик.">коляска</span>, через которую идёт весь его трафик. Прокси берут на себя то, что иначе пришлось бы писать в каждом сервисе на каждом языке.</p>
+  <!-- ═════════ ГЛАВА 6 ═════════ -->
+  <div class="card gwx-ch" id="gwx-ch6">
+    <h2><span class="tag">глава 6 · сетка</span> внутри тоже непросто: сервисная сетка</h2>
+    <p>Снаружи порядок: шлюз и BFF. Но BFF и сервисы постоянно вызывают друг друга, и у каждого такого вызова одни и те же вопросы. Сколько ждать ответа? Повторять ли, если не ответили? Шифровать ли соединение? Как передать идентификатор запроса дальше? Каждая команда отвечает на них по-своему, на своём языке программирования.</p>
+    <p><b>Определение.</b> Сервисная сетка (service mesh) — слой инфраструктуры, который берёт на себя связь между сервисами. Рядом с каждым сервисом запускается маленький прокси — <b>sidecar</b> («коляска», как у мотоцикла). Весь сетевой трафик сервиса идёт через него, а сам сервис об этом даже не знает. Правила для всех прокси задаются в одном месте.</p>
+    <p>В бизнес-центре это внутренняя курьерская служба. У каждого офиса свой курьер. Сотрудник просто отдаёт ему бумагу: «в бухгалтерию». Курьер сам запечатывает конверт, ждёт не дольше положенного, при неудаче приходит ещё раз и записывает каждую доставку в журнал. Правила для всех курьеров одни.</p>
+
+    <div class="seg" id="gwx-mesh-mode">
+      <button class="on" data-m="0">🧑‍💻 Без сетки: каждый сервис сам</button>
+      <button data-m="1">📦 С сеткой: курьер у каждого сервиса</button>
+    </div>
+    <div id="gwx-mesh-tbl"></div>
+    <div class="form-row">
+      <button class="act danger" id="gwx-mesh-slow">🐢 Доставка начала тормозить</button>
+      <button class="ghost" id="gwx-mesh-reset">⟲ Сбросить журнал</button>
+    </div>
+    <div class="steps" id="gwx-mesh-log"></div>
+    <div id="gwx-mesh-cfg"></div>
+
+    <h3>Как сетка устроена внутри</h3>
     <div class="grid2">
       <div class="box">
-        <h4>Плоскость данных</h4>
-        <p class="bs">Прокси рядом с каждым экземпляром (Envoy). Перехватывает входящий и исходящий трафик: mTLS, повторы, таймауты, circuit breaker, балансировка, зеркалирование, метрики и трассировка — без единой строчки в сервисе.</p>
+        <h4>Плоскость данных (data plane)</h4>
+        <p class="bs">Это сами прокси рядом с каждым экземпляром, чаще всего Envoy. Они перехватывают входящий и исходящий трафик и делают всю работу: mTLS (взаимное шифрование, где <b>обе</b> стороны предъявляют сертификат), повторы, таймауты, размыкание цепи (circuit breaker — перестать звонить тому, кто всё равно не отвечает), балансировку, метрики и трассировку. В коде сервиса — ни строчки.</p>
       </div>
       <div class="box">
-        <h4>Плоскость управления</h4>
-        <p class="bs">Раздаёт прокси правила и сертификаты (Istio, Linkerd). Политика «сервис A может ходить в B, но не в C» описывается декларативно и применяется ко всем сразу.</p>
+        <h4>Плоскость управления (control plane)</h4>
+        <p class="bs">Диспетчерская курьерской службы: Istio, Linkerd. Раздаёт прокси правила и сертификаты. Политика «сервис A может ходить в B, но не в C» описывается декларативно, то есть одним файлом-описанием, и применяется ко всем сразу.</p>
       </div>
     </div>
     <div id="mesh-pm"></div>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">путь запроса</span> три мира: без шлюза, со шлюзом, со шлюзом и сеткой</h2>
-    <p>Один и тот же запрос — «открыть экран моего заказа» — в трёх системах. Переключайте мир и проходите по стрелкам: видно, кто какую работу делает и что случится, если этого слоя нет.</p>
+  <!-- ═════════ ГЛАВА 7 ═════════ -->
+  <div class="card gwx-ch" id="gwx-ch7">
+    <h2><span class="tag">глава 7 · сравнение</span> кто есть кто: один запрос, четыре роли</h2>
+    <p>Вот все четыре посредника вместе. Возьмём тот же запрос — Анна открывает экран заказа — и посмотрим, кто на каком шаге работает. Выберите посредника: на схеме подсветится, где он стоит, а в списке — какие шаги его.</p>
+    <div class="seg" id="gwx-who-pick">
+      <button class="on" data-w="all">Все сразу</button>
+      <button data-w="lb">⚖ Балансировщик</button>
+      <button data-w="gw">🛎 Шлюз</button>
+      <button data-w="bff">🧑‍💼 BFF</button>
+      <button data-w="mesh">📦 Сетка</button>
+      <button data-w="svc">🏢 Сам сервис</button>
+    </div>
+    <div class="gwx-dia" id="gwx-who-dia"></div>
+    <div id="gwx-who-card"></div>
+    <div class="steps gwx-steps" id="gwx-who-steps"></div>
+
+    <h3>Таблица сравнения</h3>
+    <p>Нажмите на строку, чтобы раскрыть пояснение.</p>
+    <div id="gwx-cmp"></div>
+
+    <h3>Три мира: без шлюза, со шлюзом и BFF, плюс сетка</h3>
+    <p>Тот же запрос в виде диаграммы последовательности — в трёх системах. Переключайте мир и проходите по стрелкам: видно, кто какую работу делает и что случится, если этого слоя нет.</p>
     <div class="seg" id="gwp-pick">
       <button class="on" data-i="0">🚫 Без шлюза — «напрямую»</button>
       <button data-i="1">🚪 Со шлюзом и BFF</button>
@@ -11918,29 +12128,44 @@ Content-Type: application/json
     <div id="gwp-out"></div>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">паттерны</span> что именно делают на шлюзе — с настройками и кодом</h2>
-    <p>Шлюз — это не «просто прокси». Это место, где живёт десяток вполне конкретных приёмов. Нажмите на любой: что делает, зачем, как настраивается и где грабли.</p>
-    <div class="seg" id="gwt-pick"></div>
-    <div id="gwt-out"></div>
+  <!-- ═════════ ГЛАВА 8 ═════════ -->
+  <div class="card gwx-ch" id="gwx-ch8">
+    <h2><span class="tag">глава 8 · что если убрать</span> выключите посредника — и посмотрите, что вернётся</h2>
+    <p>Лучший способ понять, зачем нужна деталь, — вынуть её. Нажимайте на посредников, чтобы выключить или включить. Справа — проблемы, которые возвращаются, и то, что честно становится лучше: минус один слой всегда что-то экономит.</p>
+    <div class="gwx-sw" id="gwx-off-sw">
+      <button data-k="lb">⚖ Балансировщик</button>
+      <button data-k="gw">🛎 Шлюз</button>
+      <button data-k="bff">🧑‍💼 BFF</button>
+      <button data-k="mesh">📦 Сетка</button>
+    </div>
+    <div class="gwx-dia" id="gwx-off-dia"></div>
+    <div class="meters" id="gwx-off-m"></div>
+    <div class="gwx-prob">
+      <div class="box" style="border-color:var(--danger)"><h4 style="color:var(--danger)">Что возвращается</h4><div id="gwx-off-bad"></div></div>
+      <div class="box" style="border-color:var(--ok)"><h4 style="color:var(--ok)">Что становится проще</h4><div id="gwx-off-good"></div></div>
+    </div>
+    <p style="color:var(--muted);font-size:13.5px;margin-top:12px">Выключено по разу: <b id="gwx-off-score">0</b> из 4.</p>
+
+    <h3>А что нужно именно вам</h3>
+    <p><b>Не обязательно иметь всех четырёх.</b> Ответьте на три вопроса про свою систему — получите минимальный разумный набор.</p>
+    <div class="grid3" style="margin-top:8px">
+      <div><div class="gwx-lbl">сколько сервисов</div><div class="seg" id="gwx-need-s" style="margin-top:4px"><button class="on" data-v="1">1–3</button><button data-v="2">5–15</button><button data-v="3">30+</button></div></div>
+      <div><div class="gwx-lbl">какие клиенты</div><div class="seg" id="gwx-need-c" style="margin-top:4px"><button class="on" data-v="1">один</button><button data-v="2">несколько разных</button></div></div>
+      <div><div class="gwx-lbl">языков программирования</div><div class="seg" id="gwx-need-l" style="margin-top:4px"><button class="on" data-v="1">один</button><button data-v="2">несколько</button></div></div>
+    </div>
+    <div id="gwx-need-out"></div>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">разбор слов</span> TLS, аутентификация, авторизация, лимиты, журналы — что за ними стоит</h2>
-    <p>Эти пять слов встречаются в каждом разделе, и их обычно проговаривают скороговоркой. Разберём каждое до конца: что это, зачем, как выглядит в жизни и где обычно ошибаются.</p>
-    <div class="seg" id="sec-pick"></div>
-    <div id="sec-out"></div>
-  </div>
-
-  <div class="card">
-    <h2><span class="tag">нотация</span> как нарисовать «кто где стоит»</h2>
-    <p>Всё, что разобрано выше, рано или поздно надо изобразить. Для этого есть <b>компонентная диаграмма</b> — структурная диаграмма UML: она показывает компоненты системы и их взаимозависимости. Шесть элементов покрывают почти любую схему; ниже — как они пишутся в PlantUML.</p>
+  <!-- ═════════ ГЛАВА 9 ═════════ -->
+  <div class="card gwx-ch" id="gwx-ch9">
+    <h2><span class="tag">глава 9 · нотация</span> как нарисовать «кто где стоит»</h2>
+    <p>Всё, что разобрано выше, рано или поздно надо изобразить. Для этого есть <b>компонентная диаграмма</b> — структурная диаграмма UML: она показывает компоненты системы и их зависимости. Шесть элементов покрывают почти любую схему; ниже — как они пишутся в PlantUML.</p>
     <div class="table-wrap">
       <table class="db">
         <thead><tr><th>Элемент</th><th>Что означает</th><th>PlantUML</th></tr></thead>
         <tbody>
           <tr><td><b>Компонент</b></td><td>Строительный блок: сервис, модуль, приложение</td><td><code>[Payment Service]</code> либо <code>component [Web Service]</code></td></tr>
-          <tr><td><b>Актор</b></td><td>Внешний участник: человек либо чужая система, которая инициирует процесс</td><td><code>actor "Пользователь" as User</code></td></tr>
+          <tr><td><b>Актор</b></td><td>Внешний участник: человек либо чужая система, которая начинает процесс</td><td><code>actor "Пользователь" as User</code></td></tr>
           <tr><td><b>Интерфейс</b></td><td>Точка взаимодействия: API, пользовательский интерфейс</td><td><code>() "Web API" as API</code></td></tr>
           <tr><td><b>База данных</b></td><td>Хранилище со своей иконкой-цилиндром</td><td><code>database "Основная БД" as MainDB</code></td></tr>
           <tr><td><b>Очередь</b></td><td>Брокер сообщений — асинхронный обмен между сервисами</td><td><code>queue "Заказы" as OrderQueue</code></td></tr>
@@ -11948,35 +12173,41 @@ Content-Type: application/json
         </tbody>
       </table>
     </div>
-    <pre class="json">package "Микросервисы" {
+    <pre class="json">actor "Анна" as U
+() "API Gateway" as GW
+[BFF мобильного] as BFF
+
+package "Микросервисы (в сетке)" {
   [Сервис заказов]
+  [Сервис доставки]
   [Сервис платежей]
 }
 queue "order-events" as OE
 database "orders" as ODB
 
-actor "Пользователь" as U
-() "API Gateway" as GW
-
 U --&gt; GW
-GW --&gt; [Сервис заказов]
+GW --&gt; BFF
+BFF --&gt; [Сервис заказов]
+BFF --&gt; [Сервис доставки]
+BFF --&gt; [Сервис платежей]
 [Сервис заказов] --&gt; ODB
 [Сервис заказов] --&gt; OE
 OE --&gt; [Сервис платежей]</pre>
     <div class="note good"><b>Проще говоря.</b> Прямоугольник — <b>кто делает</b>. Цилиндр — <b>где лежит</b>. Очередь — <b>через что передаётся</b>. Кружок — <b>где точка входа</b>. Человечек — <b>кто начал</b>. Рамка — <b>что считаем одним целым</b>.</div>
-    <div class="note warn"><b>Две ошибки, которые сразу видно на схеме.</b> Первая: очередь нарисована стрелкой «сервис → сервис», а брокера нет вовсе — тогда по схеме не отличить синхронный вызов от асинхронного, а это разные системы. Вторая: у трёх сервисов одна база на схеме, но в тексте написано «база на сервис» — схема честнее текста, верить надо ей.</div>
+    <div class="note warn"><b>Две ошибки, которые сразу видно на схеме.</b> Первая: очередь нарисована стрелкой «сервис → сервис», а брокера нет вовсе. Тогда по схеме не отличить синхронный вызов от асинхронного, а это разные системы. Вторая: у трёх сервисов одна база на схеме, но в тексте написано «база на сервис». Схема честнее текста, верить надо ей.</div>
     <div class="note"><b>Где отрабатывать саму нотацию.</b> Здесь показано ровно столько, чтобы изобразить шлюз, сервисы и брокер. Компонентная диаграмма среди прочих нотаций — ERD, BPMN, UML, DFD — разбирается в отдельном тренажёре нотаций.</div>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">интерактив</span> кто за что отвечает</h2>
-    <p>Разложите обязанности по слоям. Разбор объясняет, почему именно там, — и что ломается, если положить не туда.</p>
+  <!-- ═════════ ГЛАВА 10 ═════════ -->
+  <div class="card gwx-ch" id="gwx-ch10">
+    <h2><span class="tag">глава 10 · проверьте себя</span> кто за что отвечает</h2>
+    <p>Разложите обязанности по слоям. Разбор объясняет, почему именно там и что ломается, если положить не туда.</p>
     <p style="color:var(--muted);font-size:13.5px">Разложено <b id="gw-score">0</b> из <span id="gw-total">0</span>.</p>
     <div id="gw-sort"></div>
   </div>
 
   <div class="card">
-    <h2><span class="tag">задание</span> шлюзы и посредники</h2>
+    <h2><span class="tag">глава 10 · задачи</span> шлюзы и посредники</h2>
     <p>Решено <b id="gwq-score">0</b> из <span id="gwq-total">0</span>.</p>
     <div id="gwq-tasks"></div>
   </div>
@@ -12163,6 +12394,7 @@ OE --&gt; [Сервис платежей]</pre>
 
   const BOXES = ['браузер','DNS','L4','TLS','шлюз','BFF','сервис'];
   const out = document.getElementById('ed-out');
+  if(!out) return;
   const lab = document.getElementById('ed-step');
   let i = -1;
 
@@ -12393,6 +12625,494 @@ OE --&gt; [Сервис платежей]</pre>
     '<pre class="json" style="font-size:12px;margin:0 0 10px">' + esc(x.art) + '</pre>' +
     '<div class="note" style="margin:0 0 10px">' + x.more + '</div>' +
     '<div class="note warn" style="margin:0">' + x.trap + '</div></div>');
+})();
+</script>
+
+<script>
+/* ═══ 18.x Повествование: карта, сквозной пример, хаос, BFF, сетка, сравнение ═══ */
+(function(){
+  const $id = s => document.getElementById(s);
+  if(!$id('gwx-map')) return;
+
+  /* ---------- карта раздела ---------- */
+  $id('gwx-map').addEventListener('click', e => {
+    const b = e.target.closest('button[data-ch]'); if(!b) return;
+    const t = $id(b.dataset.ch);
+    if(t) t.scrollIntoView({behavior:'smooth', block:'start'});
+  });
+
+  /* ---------- общая схема: Анна → балансировщик → шлюз → BFF → сервисы ---------- */
+  function nd(n, ic, b, s){
+    return '<div class="gwx-nd" data-n="' + n + '">' + (ic ? '<span class="gwx-ic">' + ic + '</span>' : '') +
+      '<b>' + b + '</b>' + (s ? '<small>' + s + '</small>' : '') + '</div>';
+  }
+  function pod(p, main, sc){
+    return '<div class="gwx-pod" data-pod="' + p + '">' + main +
+      '<div class="gwx-nd gwx-sc" data-n="' + sc + '">sidecar</div></div>';
+  }
+  function buildDia(host){
+    if(!host) return null;
+    host.innerHTML =
+      '<div class="gwx-zone"><span class="ns">снаружи → внутрь · север — юг</span><span class="ew">внутри · восток — запад · сетка</span></div>' +
+      '<div class="gwx-canvas">' +
+        '<div class="gwx-col">' + nd('anna', '📱', 'Анна', 'мобильное приложение') + '</div>' +
+        '<div class="gwx-arr" data-a="a1">→</div>' +
+        '<div class="gwx-col">' + nd('lb', '⚖', 'Балансировщик', '3 копии шлюза') + '</div>' +
+        '<div class="gwx-arr" data-a="a2">→</div>' +
+        '<div class="gwx-col">' + nd('gw', '🛎', 'Шлюз', 'api.shop.ru') + '</div>' +
+        '<div class="gwx-arr" data-a="a3">→</div>' +
+        '<div class="gwx-col">' + pod('bff', nd('bff', '🧑‍💼', 'BFF', 'мобильного'), 'scb') + '</div>' +
+        '<div class="gwx-arr" data-a="a4">⇉</div>' +
+        '<div class="gwx-col">' +
+          pod('o', nd('o', '', 'Заказы', 'orders'), 'sco') +
+          pod('d', nd('d', '', 'Доставка', 'delivery'), 'scd') +
+          pod('p', nd('p', '', 'Платежи', 'payments'), 'scp') +
+        '</div>' +
+      '</div>';
+    return host;
+  }
+  function paintDia(host, st){
+    if(!host) return;
+    const has = (a, x) => !!a && a.indexOf(x) >= 0;
+    host.querySelectorAll('.gwx-nd').forEach(el => {
+      const n = el.dataset.n;
+      el.classList.toggle('on',  has(st.on, n));
+      el.classList.toggle('lit', has(st.lit, n) && !has(st.on, n));
+      el.classList.toggle('bad', has(st.bad, n));
+      el.classList.toggle('off', has(st.off, n));
+      el.classList.toggle('dim', !!st.keep && !has(st.keep, n));
+    });
+    host.querySelectorAll('.gwx-arr').forEach(el => el.classList.toggle('on', has(st.arr, el.dataset.a)));
+  }
+
+  /* ---------- глава 1: сквозной пример ---------- */
+  (function(){
+    const host = buildDia($id('gwx-flow-dia'));
+    const out = $id('gwx-flow-out'), lab = $id('gwx-flow-lab');
+    if(!host || !out) return;
+    const S = [
+      {who:'📱 Анна · телефон', on:['anna'], arr:[], t:'Анна нажимает «Заказ №77»',
+       d:'Приложение отправляет один запрос на один адрес. Про шлюз, BFF и сервисы оно не знает ничего. В запросе лежит <b>токен</b> — подписанный «пропуск», который Анна получила при входе в приложение. В нём записано, кто она и до какого времени пропуск действует.',
+       data:"GET https://api.shop.ru/mobile/orders/77\nAuthorization: Bearer eyJhbGciOi…   ← токен-пропуск\nUser-Agent: ShopApp/5.1 (iOS 18)\nAccept: application/json",
+       why:'Один адрес на всю систему. Значит, внутри можно что угодно переставлять, не выпуская новую версию приложения.'},
+      {who:'⚖ Балансировщик', on:['lb'], arr:['a1'], t:'Балансировщик: к какой копии шлюза',
+       d:'Шлюз работает в трёх одинаковых копиях. Балансировщик выбирает живую и наименее занятую. Внутрь запроса он не заглядывает: для него это поток зашифрованных байтов от одного адреса к другому.',
+       data:"откуда:  92.113.44.7:51204  (телефон Анны)\nкуда:    api.shop.ru:443\n\n▓▓▓ зашифровано — содержимое не видно ▓▓▓\n\nшлюз-1: 41 соединение\nшлюз-2: 17 соединений   ◄ выбран, меньше всех занят\nшлюз-3: не ответил на проверку живости ✕",
+       why:'Если одна копия шлюза упадёт, Анна этого не заметит: балансировщик просто перестанет туда слать.'},
+      {who:'🛎 Шлюз', on:['gw'], arr:['a2'], t:'Шлюз: снять конверт и проверить пропуск',
+       d:'Сначала шлюз снимает шифрование <b>TLS</b> (Transport Layer Security — то самое «https» с замочком). Теперь запрос виден целиком. Затем шлюз проверяет токен: подпись сходится, срок не истёк, выдан нашим сервером входа. Из токена он узнаёт: это пользователь <code class="inl">cus-3</code>, то есть Анна. Это называется <b>аутентификация</b> — ответ на вопрос «кто ты».',
+       data:"токен разобран:\n{\n  \"sub\":   \"cus-3\",          ← это Анна\n  \"roles\": [\"customer\"],\n  \"exp\":   1790524800,       ← срок не истёк ✓\n  \"iss\":   \"auth.shop.ru\"    ← выдан нами, подпись верна ✓\n}\n\nбыл бы поддельный или просроченный →\nHTTP 401, дальше запрос не идёт",
+       why:'Проверка делается один раз на входе. Ни один сервис внутри не тратит на неё время и не может забыть её сделать.'},
+      {who:'🛎 Шлюз', on:['gw'], arr:[], t:'Шлюз: лимит и служебные заголовки',
+       d:'Шлюз смотрит, сколько запросов Анна сделала за минуту: 12 из 100 разрешённых, всё в порядке. Потом вырезает опасные заголовки, которые мог прислать кто угодно, и добавляет свои: кто это и какой у запроса номер. Этот номер, <code class="inl">X-Request-Id</code>, поедет через все сервисы и попадёт во все журналы.',
+       data:"лимит:  cus-3 → 12 из 100 в минуту ✓\n\nУБРАНО (пришло снаружи, верить нельзя):\n  ✕ X-User-Id: admin     ← вдруг кто-то подсунул\n\nДОБАВЛЕНО шлюзом:\n  + X-User-Id:    cus-3\n  + X-Request-Id: 8f21a4c0   ← сквозной номер запроса",
+       why:'Без вырезания любой мог бы прислать «X-User-Id: admin» и представиться кем угодно. Без сквозного номера разбор аварии превращается в гадание.'},
+      {who:'🛎 Шлюз', on:['gw'], arr:['a3'], t:'Шлюз: куда направить',
+       d:'По началу пути <code class="inl">/mobile/</code> шлюз понимает: это мобильное приложение, значит, запрос идёт к BFF мобильного. Приставку он снимает.',
+       data:"правило:  /mobile/**  →  bff-mobile\n\nбыло:  GET /mobile/orders/77\nстало: GET /orders/77\n       X-User-Id: cus-3\n       X-Request-Id: 8f21a4c0",
+       why:'Шлюз знает только маршруты. Что показать на экране мобильного, его не касается.'},
+      {who:'🧑‍💼 BFF мобильного', on:['bff','scb'], arr:[], t:'BFF: какие данные нужны экрану',
+       d:'Запрос сначала принимает sidecar — прокси рядом с BFF — и отдаёт его BFF по локальному адресу. BFF знает экран заказа в мобильном приложении: нужны товары, срок доставки и статус оплаты. Он отправляет три вызова <b>одновременно</b>, а не по очереди.',
+       data:"BFF вызывает сервисы по именам, без адресов:\n  → http://orders/orders/77\n  → http://delivery/deliveries?order=77\n  → http://payments/payments?order=77\n\nв коде BFF нет ни таймаутов, ни повторов,\nни шифрования — это сделает sidecar",
+       why:'По внутренней сети три вызова занимают миллисекунды. С телефона в метро это были бы три похода по медленной сети.'},
+      {who:'📦 Сетка · sidecar', on:['scb','sco','scd','scp'], arr:['a4'], t:'Сетка: курьеры везут три конверта',
+       d:'Sidecar BFF сам шифрует каждое соединение по <b>mTLS</b> (взаимный TLS: сертификат предъявляют <b>обе</b> стороны, поэтому Заказы точно знают, что их вызывает BFF, а не кто-то чужой). Сам выбирает живую копию каждого сервиса и ставит таймаут 300 мс. Номер запроса передаёт дальше.',
+       data:"sidecar BFF → sidecar Заказов\n  mTLS: «я bff-mobile» ↔ «я orders» ✓\n  таймаут: 300 мс, повторов: до 2\n  X-Request-Id: 8f21a4c0    ← протащен дальше\n\nто же самое для Доставки и Платежей",
+       why:'Все эти правила записаны в одном месте и одинаковы для всех сервисов, на каком бы языке их ни написали.'},
+      {who:'🏢 Сервис заказов', on:['o','sco'], arr:[], t:'Заказы: своя работа и своя проверка',
+       d:'Сервис заказов получает чистый запрос: кто пользователь, уже известно. Но одну проверку он делает сам: <b>принадлежит ли заказ №77 именно Анне</b>. Это знает только он, потому что база заказов у него. Это <b>авторизация</b> — ответ на вопрос «можно ли тебе именно это».',
+       data:"SELECT … FROM orders WHERE id = 77\n  owner = cus-3  ==  X-User-Id cus-3  ✓\n\nHTTP 200  (12 мс)\n{ \"id\": 77, \"items\": [...], \"total\": 4200,\n  \"status\": \"PAID\", … ещё 36 полей }",
+       why:'Шлюз отвечает на вопрос «кто это», а сервис — на вопрос «можно ли ему именно это». Шлюз не может ответить за сервис, не залезая в чужую базу.'},
+      {who:'📦 Сетка · sidecar', on:['scd','d'], bad:['d'], arr:[], t:'Доставка задумалась — курьер повторил',
+       d:'Одна копия сервиса доставки не ответила за 300 мс. Sidecar не ждёт вечно: обрывает вызов и пробует другую копию. Со второй попытки ответ пришёл. BFF об этой заминке даже не узнал.',
+       data:"попытка 1 → delivery-2 … 300 мс, нет ответа ✕\nпопытка 2 → delivery-1 …  18 мс, 200 OK ✓\n{ \"eta\": \"2026-09-29\" }\n\nв журнал сетки записано:\n  delivery-2 отвечает медленно",
+       why:'Повторять можно только безопасные операции. Прочитать срок доставки дважды не страшно, а списать деньги дважды — очень. Поэтому для платежей повторы настраивают отдельно и осторожно.'},
+      {who:'🏢 Сервис платежей', on:['p','scp'], arr:[], t:'Платежи ответили',
+       d:'Платежи вернули статус оплаты. Все три ответа у BFF.',
+       data:"HTTP 200  (9 мс)\n{ \"order\": 77, \"state\": \"CAPTURED\",\n  \"method\": \"card *4417\" }",
+       why:'Вызовы шли одновременно, поэтому общее время — самый долгий из них (около 320 мс из-за повтора), а не сумма всех трёх.'},
+      {who:'🧑‍💼 BFF мобильного', on:['bff'], arr:[], t:'BFF: собрать экран',
+       d:'Из сорока полей заказа BFF берёт нужные, добавляет срок доставки и статус оплаты и превращает коды в готовые строки для экрана.',
+       data:"{\n  \"title\":    \"Заказ №77\",\n  \"items\":    [\"Кроссовки\", \"Носки ×2\"],\n  \"total\":    \"4 200 ₽\",\n  \"delivery\": \"Привезём 29 сентября\",\n  \"payment\":  \"Оплачено картой *4417\"\n}",
+       why:'Если бы Доставка не ответила совсем, BFF показал бы экран без срока доставки, а не ошибку на весь экран. Такое решение может принять только тот, кто знает экран.'},
+      {who:'🛎 Шлюз → 📱 Анна', on:['gw','anna'], arr:['a1','a2','a3'], t:'Ответ летит Анне',
+       d:'Ответ идёт обратно тем же путём. Шлюз оставляет в ответе номер запроса и следит, чтобы ошибки, если они будут, пришли в едином формате. Анна видит экран заказа: одна загрузка, около 400 мс, даже с заминкой в доставке.',
+       data:"HTTP/1.1 200 OK\nX-Request-Id: 8f21a4c0\nContent-Length: 312      ← 312 байт вместо 19 КБ\n\n{ \"title\": \"Заказ №77\", … }",
+       why:'Если Анна пожалуется в поддержку, по номеру 8f21a4c0 найдётся весь путь её запроса через все сервисы.'},
+    ];
+    let i = 0, timer = null, done = false;
+    Progress.register('gwx-flow', 1, 'Сквозной пример: Анна и заказ');
+
+    function paint(){
+      const st = S[i];
+      const lit = [];
+      for(let k = 0; k < i; k++) (S[k].on || []).forEach(x => lit.push(x));
+      paintDia(host, {on:st.on, lit:lit, bad:st.bad, arr:st.arr});
+      lab.textContent = 'шаг ' + (i + 1) + ' из ' + S.length;
+      out.innerHTML =
+        '<div class="gwx-say">' +
+          '<div class="skout" style="margin:0"><span class="gwx-who">' + st.who + '</span>' +
+            '<h4>Шаг ' + (i + 1) + '. ' + st.t + '</h4>' +
+            '<div style="font-size:13.5px;color:var(--muted)">' + st.d + '</div>' +
+            '<div class="note good" style="margin:10px 0 0"><b>Почему так:</b> ' + st.why + '</div>' +
+          '</div>' +
+          '<div><div class="gwx-lbl">данные на этом шаге</div><pre class="json">' + esc(st.data) + '</pre></div>' +
+        '</div>' +
+        (i === S.length - 1 ?
+          '<div class="note good" style="margin-top:12px"><b>Итог: кто что сделал.</b><div class="lgrid" style="display:grid;grid-template-columns:150px 1fr;gap:5px 12px;margin-top:8px">' +
+            '<b>⚖ балансировщик</b><div>выбрал живую копию шлюза — и всё</div>' +
+            '<b>🛎 шлюз</b><div>снял TLS, узнал Анну по токену, проверил лимит, дал номер запроса, направил в BFF</div>' +
+            '<b>🧑‍💼 BFF</b><div>понял, что нужно экрану, опросил три сервиса разом и собрал короткий ответ</div>' +
+            '<b>📦 сетка</b><div>зашифровала внутренние вызовы, выбрала копии, повторила вызов к медленной Доставке</div>' +
+            '<b>🏢 сервисы</b><div>проверили право Анны на свой заказ и отдали свои данные</div>' +
+          '</div></div>' +
+          '<div class="note">Дальше разберём, <b>откуда</b> взялся каждый из них: начнём с самого начала, когда не было никого.</div>' : '');
+      if(i === S.length - 1 && !done){ done = true; Progress.report('gwx-flow', 1); }
+    }
+    function stop(){ if(timer){ clearInterval(timer); timer = null; } $id('gwx-flow-play').textContent = '▶ Прогнать'; }
+    $id('gwx-flow-next').addEventListener('click', () => { stop(); if(i < S.length - 1){ i++; paint(); } });
+    $id('gwx-flow-prev').addEventListener('click', () => { stop(); if(i > 0){ i--; paint(); } });
+    $id('gwx-flow-reset').addEventListener('click', () => { stop(); i = 0; paint(); });
+    $id('gwx-flow-play').addEventListener('click', e => {
+      if(timer){ stop(); return; }
+      if(i >= S.length - 1) i = 0;
+      e.currentTarget.textContent = '⏸ Пауза';
+      paint();
+      timer = setInterval(() => {
+        if(i >= S.length - 1 || !host.isConnected){ stop(); return; }
+        i++; paint();
+        if(i >= S.length - 1) stop();
+      }, 2600);
+    });
+    paint();
+  })();
+
+  /* ---------- глава 2: кассы и распорядитель ---------- */
+  (function(){
+    const box = $id('gwx-lb-k'), m = $id('gwx-lb-msg');
+    if(!box) return;
+    let K, rr, guest, down;
+    function reset(){ K = [[], [], []]; rr = 0; guest = 0; down = false; $id('gwx-lb-break').textContent = '💥 Касса №2 сломалась'; draw(); msg(m, '', 'Три одинаковые кассы, у входа распорядитель. Нажмите «Пришли 6 гостей».'); }
+    function draw(){
+      box.innerHTML = K.map((q, k) =>
+        '<div class="gwx-kassa' + (down && k === 1 ? ' down' : '') + '"><h4><span>Касса №' + (k + 1) + '</span>' +
+        '<span style="font:600 11px var(--mono);color:' + (down && k === 1 ? 'var(--danger)' : 'var(--ok)') + '">' + (down && k === 1 ? 'не отвечает' : 'работает') + '</span></h4>' +
+        '<div class="cells" style="margin-top:4px">' + (q.length ? q.map(g => '<span class="cell">' + g + '</span>').join('') : '<span style="color:var(--faint);font-size:12px">пусто</span>') + '</div></div>').join('');
+    }
+    $id('gwx-lb-go').addEventListener('click', () => {
+      const went = [];
+      for(let n = 0; n < 6; n++){
+        let k = rr % 3; rr++;
+        if(down && k === 1){ k = rr % 3; rr++; }
+        guest++; K[k].push('гость ' + guest); went.push(guest + '→№' + (k + 1));
+        if(K[k].length > 6) K[k].shift();
+      }
+      draw();
+      msg(m, down ? 'warn' : 'ok', down
+        ? 'Распорядитель спросил каждую кассу «ты жива?», касса №2 не ответила — и он её пропускает. Гости даже не узнали о поломке. (' + went.join(', ') + ')'
+        : 'Распорядитель раздал гостей по кругу: 1 → 2 → 3 → 1… Он не спрашивал, кто они и зачем пришли. (' + went.join(', ') + ')');
+    });
+    $id('gwx-lb-break').addEventListener('click', e => {
+      down = !down;
+      e.currentTarget.textContent = down ? '🔧 Починить кассу №2' : '💥 Касса №2 сломалась';
+      draw();
+      msg(m, down ? 'err' : 'ok', down
+        ? 'Касса №2 сломалась. Запустите гостей ещё раз и посмотрите, куда их направят.'
+        : 'Касса №2 снова отвечает на проверку живости, и распорядитель опять направляет гостей и к ней.');
+    });
+    $id('gwx-lb-reset').addEventListener('click', reset);
+    reset();
+  })();
+
+  /* ---------- глава 3: хаос прямых подключений ---------- */
+  (function(){
+    const pick = $id('gwx-chaos-pick'), cl = $id('gwx-chaos-cl'), mt = $id('gwx-chaos-m'), m = $id('gwx-chaos-msg');
+    if(!pick) return;
+    const ALL = [['Заказы','orders'],['Каталог','catalog'],['Платежи','payments'],['Склад','stock'],['Доставка','delivery'],['Отзывы','reviews'],['Профиль','profile'],['Скидки','promo']];
+    let n = 1;
+    const seen = new Set();
+    Progress.register('gwx-chaos', 4, 'Хаос без шлюза');
+    function draw(){
+      [...pick.children].forEach(b => b.classList.toggle('on', +b.dataset.n === n));
+      const addr = n === 1 ? ['shop.ru'] : ALL.slice(0, n).map(x => x[1] + '.shop.ru');
+      cl.innerHTML = [['📱 Мобильное приложение'],['💻 Сайт'],['🤝 Партнёры']].map(c =>
+        '<div class="gwx-cl"><h4>' + c[0] + ' знает ' + addr.length + ' ' + (addr.length === 1 ? 'адрес' : addr.length < 5 ? 'адреса' : 'адресов') + '</h4>' +
+        '<div class="cells" style="margin-top:2px">' + addr.map(a => '<span class="cell' + (n === 8 ? ' warn' : '') + '">' + a + '</span>').join('') + '</div></div>').join('');
+      const cls = n === 1 ? 'good' : n === 3 ? 'wq' : 'bad';
+      mt.innerHTML = [
+        ['прямых связей клиент → сервис', 3 * n],
+        ['копий проверки токена', n],
+        ['копий ограничения частоты', n],
+        ['публичных сертификатов TLS', n],
+      ].map(x => '<span class="meter ' + cls + '">' + x[0] + ': <b>' + x[1] + '</b></span>').join('');
+      msg(m, '', n === 1
+        ? 'Один сервер — один адрес. Проверка пропуска, лимиты и сертификат живут в одном месте.'
+        : 'Каждый клиент знает ' + n + ' адресов, и каждая из ' + n + ' команд сама пишет проверку токена, лимиты и следит за своим сертификатом. Устройте неприятность — посмотрите, чем это кончится.');
+    }
+    const INC = {
+      rename: () => n === 1
+        ? ['ok', 'В одном сервере переименование модуля — внутреннее дело. Клиенты знают только shop.ru и ничего не заметили.']
+        : ['err', 'Команда разделила «Каталог» на два сервиса и переехала на новый адрес. Сайт обновили за день. Мобильное приложение — нет: половина людей не обновляет его месяцами, и у них пустой экран каталога. Партнёрам разослали письма, трое не прочитали.'],
+      forgot: () => n === 1
+        ? ['ok', 'Проверка пропуска написана один раз, на входе в программу. Забыть её в новом модуле невозможно: она срабатывает раньше.']
+        : ['err', 'Команда «' + (n === 8 ? 'Отзывы' : 'Платежи') + '» спешила к релизу и не подключила проверку токена. Любой читает и пишет без входа. Остальные ' + (n - 1) + ' сервисов проверяют, но система защищена ровно настолько, насколько защищено самое слабое звено.'],
+      loop: () => n === 1
+        ? ['ok', 'Партнёр зациклился и шлёт 500 запросов в секунду. Лимит стоит на входе в единственный сервер: лишнее отбивается сразу.']
+        : ['err', 'Партнёр зациклился: 500 запросов в секунду. Лимит есть только в ' + Math.ceil(n / 2) + ' сервисах из ' + n + ', и везде разный: где-то 100 в минуту, где-то 1000 в секунду. Остальные честно обрабатывают весь поток, база заказов не выдерживает — и тормозит у всех, включая Анну.'],
+      cert: () => n === 1
+        ? ['ok', 'Сертификат один, его продлевают по одному напоминанию в календаре. Забыть трудно.']
+        : ['err', 'Публичных сертификатов ' + n + ', у каждой команды свой календарь. У «Платежей» сертификат истёк в субботу ночью. Приложение не может открыть защищённое соединение, оплата не проходит до понедельника.'],
+    };
+    pick.addEventListener('click', e => { const b = e.target.closest('button[data-n]'); if(!b) return; n = +b.dataset.n; draw(); });
+    $id('gwx-chaos-inc').addEventListener('click', e => {
+      const b = e.target.closest('button[data-e]'); if(!b) return;
+      const r = INC[b.dataset.e]();
+      msg(m, r[0], r[1]);
+      if(n > 1){ seen.add(b.dataset.e); Progress.report('gwx-chaos', seen.size); }
+    });
+    draw();
+  })();
+
+  /* ---------- глава 5: BFF под разных клиентов ---------- */
+  (function(){
+    const clBar = $id('gwx-bff-cl'), mdBar = $id('gwx-bff-mode');
+    if(!clBar) return;
+    let c = 'mob', md = 0;
+    const RAW = "три ответа сервисов, всем клиентам одинаковые:\n\n/orders/77 → 14 КБ\n{ \"id\": 77, \"customerId\": \"cus-3\",\n  \"items\": [ { \"sku\": \"SN-44-W\", \"qty\": 1,\n     \"price\": 3600, \"warehouseId\": 12,\n     \"supplierId\": 8841, \"costPrice\": 2100, … } ],\n  \"statusCode\": 4, \"createdAt\": \"…\",\n  … ещё 34 поля, из них половина внутренние }\n\n/deliveries?order=77 → 3 КБ\n/payments?order=77  → 2 КБ";
+    const C = {
+      mob: {n:'мобильное', net:'мобильная сеть', t0:'≈ 210 мс, три похода по мобильной сети', t1:'≈ 70 мс', kb:'0,3 КБ',
+        res:"{\n  \"title\":    \"Заказ №77\",\n  \"items\":    [\"Кроссовки\", \"Носки ×2\"],\n  \"total\":    \"4 200 ₽\",\n  \"delivery\": \"Привезём 29 сентября\",\n  \"payment\":  \"Оплачено картой *4417\"\n}",
+        bad:'Телефон в метро делает три запроса и тянет 19 КБ, из которых экрану нужны 300 байт. Склейка экрана написана трижды: в iOS, Android и вебе.',
+        good:'Один запрос, готовый экран, 300 байт. Когда дизайнеры переделают экран, команда мобильного поменяет свой BFF и никого не будет ждать.'},
+      web: {n:'веб', net:'домашний интернет', t0:'≈ 90 мс, три запроса из браузера', t1:'≈ 45 мс', kb:'4 КБ',
+        res:"{\n  \"number\": \"77\",\n  \"createdAt\": \"25 сентября, 14:03\",\n  \"items\": [\n    { \"name\": \"Кроссовки\", \"size\": 44, \"image\": \"…/sn44.webp\",\n      \"price\": \"3 600 ₽\", \"canReturn\": true },\n    { \"name\": \"Носки\", \"qty\": 2, \"price\": \"600 ₽\" } ],\n  \"timeline\": [\"Оформлен\", \"Оплачен\", \"Собран\"],\n  \"delivery\": { \"date\": \"29 сентября\", \"slots\": [\"10–14\", \"14–18\"],\n                \"address\": \"ул. Лесная, 5\" },\n  \"payment\":  { \"text\": \"Карта *4417\", \"receiptUrl\": \"…\" }\n}",
+        bad:'Сайт получает то же, что и телефон, и тоже склеивает сам. Внутренние поля вроде себестоимости уходят в браузер — их видно в инструментах разработчика.',
+        good:'Подробная «папка»: история статусов, картинки, окна доставки. Больше полей, чем у мобильного, — и это нормально, у каждого свой BFF.'},
+      prt: {n:'партнёр', net:'сервер партнёра', t0:'≈ 60 мс, но партнёр знает внутренние адреса', t1:'≈ 40 мс', kb:'0,4 КБ',
+        res:"// контракт v1 — не меняется годами\n{\n  \"orderId\": \"77\",\n  \"state\": \"PAID\",\n  \"amount\": { \"value\": 4200, \"currency\": \"RUB\" },\n  \"deliveryDate\": \"2026-09-29\"\n}\n\n// никаких «Привезём 29 сентября»:\n// машине нужны коды и даты, а не текст",
+        bad:'Партнёр завязан на внутренние поля. Команда заказов переименует statusCode — и интеграция у партнёра сломается в пятницу вечером.',
+        good:'Строгий стабильный контракт. Внутри можно резать и переименовывать сервисы: BFF партнёров переводит новое в старое.'},
+      watch: {n:'часы', net:'Bluetooth через телефон', t0:'≈ 900 мс и заметный расход батареи', t1:'≈ 120 мс', kb:'60 байт',
+        res:"{ \"line\": \"№77 · привезём 29.09\" }",
+        bad:'Часы тянут 19 КБ через телефон по Bluetooth, чтобы показать одну строчку. Батарея тает, экран ждёт почти секунду.',
+        good:'Одна строчка — ровно то, что помещается на циферблат.'},
+    };
+    function draw(){
+      [...clBar.children].forEach(b => b.classList.toggle('on', b.dataset.c === c));
+      [...mdBar.children].forEach(b => b.classList.toggle('on', +b.dataset.m === md));
+      const x = C[c];
+      $id('gwx-bff-m').innerHTML = md === 0
+        ? '<span class="meter bad">запросов с устройства: <b>3</b></span><span class="meter bad">по сети: <b>19 КБ</b></span><span class="meter wq">время: <b>' + x.t0 + '</b></span>'
+        : '<span class="meter good">запросов с устройства: <b>1</b></span><span class="meter good">по сети: <b>' + x.kb + '</b></span><span class="meter good">время: <b>' + x.t1 + '</b></span>';
+      $id('gwx-bff-l1').textContent = md === 0 ? 'что отправляет клиент (' + x.net + ')' : 'что отправляет клиент';
+      $id('gwx-bff-req').textContent = md === 0
+        ? "GET orders.shop.ru/orders/77\nGET delivery.shop.ru/deliveries?order=77\nGET payments.shop.ru/payments?order=77\n\nпотом склеить ответы самому,\nв коде приложения"
+        : "GET api.shop.ru/" + ({mob:'mobile', web:'web', prt:'partner/v1', watch:'watch'})[c] + "/orders/77\n\n(шлюз направит в BFF «" + x.n + "»,\n BFF сам опросит три сервиса\n по быстрой внутренней сети)";
+      $id('gwx-bff-l2').textContent = md === 0 ? 'что получает клиент' : 'что возвращает BFF «' + x.n + '»';
+      $id('gwx-bff-res').textContent = md === 0 ? RAW : x.res;
+      const note = $id('gwx-bff-note');
+      note.className = 'note ' + (md === 0 ? 'bad' : 'good');
+      note.innerHTML = (md === 0 ? '<b>Проблема.</b> ' + x.bad : '<b>С BFF.</b> ' + x.good);
+    }
+    clBar.addEventListener('click', e => { const b = e.target.closest('button[data-c]'); if(b){ c = b.dataset.c; draw(); } });
+    mdBar.addEventListener('click', e => { const b = e.target.closest('button[data-m]'); if(b){ md = +b.dataset.m; draw(); } });
+    draw();
+  })();
+
+  /* ---------- глава 6: сетка ---------- */
+  (function(){
+    const bar = $id('gwx-mesh-mode'), tbl = $id('gwx-mesh-tbl'), log = $id('gwx-mesh-log'), cfg = $id('gwx-mesh-cfg');
+    if(!bar) return;
+    let md = 0;
+    const tried = new Set();
+    Progress.register('gwx-mesh', 2, 'Сетка: медленная Доставка');
+    const ROWS = [
+      ['BFF', 'Kotlin', ['800 мс', ''], ['2, с паузой', ''], ['нет', 'gwx-bad'], ['передаёт', '']],
+      ['Заказы', 'Java', ['2 с', 'gwx-warn'], ['3, с паузой', ''], ['нет', 'gwx-bad'], ['передаёт', '']],
+      ['Платежи', 'Python', ['30 с', 'gwx-bad'], ['5, без паузы', 'gwx-bad'], ['свой сертификат, руками', 'gwx-warn'], ['передаёт', '']],
+      ['Доставка', 'Go', ['не задан', 'gwx-bad'], ['нет', 'gwx-warn'], ['нет', 'gwx-bad'], ['теряет', 'gwx-bad']],
+      ['Отзывы', 'Node.js', ['1 с', ''], ['1', ''], ['нет', 'gwx-bad'], ['теряет', 'gwx-bad']],
+    ];
+    const MESH = [['300 мс на попытку', 'gwx-ok'], ['2, с растущей паузой', 'gwx-ok'], ['mTLS, сертификаты выдаёт сетка', 'gwx-ok'], ['передаёт sidecar', 'gwx-ok']];
+    const CODE0 = "// Заказы, Java\nclient.timeout(Duration.ofSeconds(2)).retry(3);\n\n# Платежи, Python\nfor i in range(5):                       # без паузы!\n    r = requests.get(url, timeout=30)\n\n// Доставка, Go\nresp, err := http.Get(url)               // таймаут забыли\n\n// Отзывы, Node.js\nfetch(url, { signal: AbortSignal.timeout(1000) })\n// заголовок X-Request-Id дальше не передан";
+    const CODE1 = "# одно правило на всех, кто вызывает Доставку\n# (Istio; в коде сервисов — ни строчки)\nkind: VirtualService\nspec:\n  hosts: [delivery]\n  http:\n  - route: [{ destination: { host: delivery } }]\n    timeout: 1s\n    retries: { attempts: 2, perTryTimeout: 300ms }\n---\nkind: DestinationRule\nspec:\n  host: delivery\n  trafficPolicy:\n    tls: { mode: ISTIO_MUTUAL }   # mTLS включается сам\n    outlierDetection:              # размыкание цепи:\n      consecutive5xxErrors: 5      # 5 ошибок подряд —\n      baseEjectionTime: 30s        # копию выключить на 30 с";
+    const SIM = [
+      [
+        ['fail', 'Доставка начала отвечать за 5 секунд вместо 20 мс.'],
+        ['comp', 'BFF (Kotlin) ждёт 800 мс, повторяет дважды — экран заказа у Анны грузится 2,4 секунды.'],
+        ['fail', 'Заказы (Java) ждут по 2 с и повторяют 3 раза. Потоки заняты ожиданием, очередь растёт, тормозят даже запросы, которым Доставка не нужна.'],
+        ['fail', 'Платежи (Python) повторяют 5 раз без паузы с таймаутом 30 с. Это «шторм повторов»: больная Доставка получает в пять раз больше запросов и окончательно ложится.'],
+        ['fail', 'Доставка (Go) не передаёт номер запроса, трассировка рвётся. Дежурный видит «где-то медленно», но не видит где.'],
+        ['comp', '<b>Итог:</b> одна медленная Доставка утащила за собой Заказы и Платежи. Каждый сервис повёл себя по-своему, чинить придётся в четырёх кодовых базах на четырёх языках.'],
+      ],
+      [
+        ['fail', 'Доставка начала отвечать за 5 секунд вместо 20 мс.'],
+        ['done', 'Все sidecar ждут не дольше 300 мс на попытку и делают максимум 2 повтора с растущей паузой. Никто не висит по 30 секунд.'],
+        ['done', 'После 5 ошибок подряд sidecar-ы выключают медленные копии Доставки на 30 секунд (размыкание цепи). Новые вызовы сразу получают отказ — и Доставка может отдышаться.'],
+        ['done', 'BFF показывает Анне экран без срока доставки: «срок уточняется». Заказы и Платежи здоровы.'],
+        ['done', 'Трассировка целая: на карте вызовов сразу видна красная Доставка.'],
+        ['comp', '<b>Итог:</b> поведение одинаковое для всех и меняется одной настройкой без выпуска сервисов. Но решение «что показать, если Доставка молчит» всё равно принимает BFF: сетка умеет только оборвать вызов.'],
+      ],
+    ];
+    function draw(){
+      [...bar.children].forEach(b => b.classList.toggle('on', +b.dataset.m === md));
+      tbl.innerHTML = '<div class="table-wrap" style="margin-top:10px"><table class="db gwx-tbl"><thead><tr><th>Сервис · язык</th><th>Сколько ждёт ответа</th><th>Повторы</th><th>Шифрование внутри</th><th>Номер запроса дальше</th></tr></thead><tbody>' +
+        ROWS.map(r => '<tr><td><b>' + r[0] + '</b> · ' + r[1] + (md ? ' <span class="cell" style="padding:1px 6px;font-size:10.5px">+ sidecar</span>' : '') + '</td>' +
+          (md ? MESH : r.slice(2)).map(c => '<td class="' + c[1] + '">' + c[0] + '</td>').join('') + '</tr>').join('') +
+        '</tbody></table></div>';
+      cfg.innerHTML = '<div class="gwx-lbl" style="margin-top:12px">' + (md ? 'где это настроено: одно правило для всех' : 'где это настроено: в коде каждого сервиса') + '</div>' +
+        '<pre class="json" style="font-size:12px;margin:0">' + esc(md ? CODE1 : CODE0) + '</pre>';
+      log.innerHTML = '';
+    }
+    $id('gwx-mesh-slow').addEventListener('click', () => {
+      log.innerHTML = SIM[md].map((s, k) => '<div class="step ' + s[0] + '"><span class="si">' + (k + 1) + '</span><div>' + s[1] + '</div></div>').join('');
+      tried.add(md); Progress.report('gwx-mesh', tried.size);
+    });
+    $id('gwx-mesh-reset').addEventListener('click', () => { log.innerHTML = ''; });
+    bar.addEventListener('click', e => { const b = e.target.closest('button[data-m]'); if(b){ md = +b.dataset.m; draw(); } });
+    draw();
+  })();
+
+  /* ---------- глава 7: кто есть кто ---------- */
+  (function(){
+    const bar = $id('gwx-who-pick'), host = buildDia($id('gwx-who-dia'));
+    if(!bar || !host) return;
+    const card = $id('gwx-who-card'), list = $id('gwx-who-steps');
+    const NM = {lb:'⚖ балансировщик', gw:'🛎 шлюз', bff:'🧑‍💼 BFF', mesh:'📦 сетка', svc:'🏢 сервис'};
+    const ST = [
+      ['lb',   'Выбрать живую копию шлюза',                                         ['lb']],
+      ['gw',   'Снять TLS, проверить токен Анны',                                   ['gw']],
+      ['gw',   'Проверить лимит, вырезать чужие заголовки, выдать X-Request-Id',     ['gw']],
+      ['gw',   'Направить /mobile/** в BFF мобильного',                              ['gw']],
+      ['bff',  'Решить, какие данные нужны экрану, вызвать три сервиса разом',       ['bff']],
+      ['mesh', 'Зашифровать вызовы (mTLS), выбрать живые копии, поставить таймауты', ['scb','sco','scd','scp']],
+      ['mesh', 'Повторить вызов к медленной Доставке, записать метрики',             ['scb','scd']],
+      ['svc',  'Проверить, что заказ №77 принадлежит Анне, отдать свои данные',      ['o','d','p']],
+      ['bff',  'Собрать 6 полей; если Доставка молчит — экран без срока',            ['bff']],
+      ['gw',   'Отдать ответ в едином формате с номером запроса',                    ['gw']],
+    ];
+    const R = {
+      all: {t:'Все вместе', where:'Каждый стоит на своём месте и делает только своё.', tr:'—', an:'Бизнес-центр целиком.', no:'Никто не делает чужую работу.'},
+      lb:  {t:'⚖ Балансировщик', where:'Перед любой группой одинаковых копий: перед копиями шлюза, а внутри — перед копиями сервиса (в сетке эту работу делает sidecar).', tr:'любой: и север — юг, и восток — запад', an:'Вращающиеся двери и распорядитель очереди к одинаковым кассам.', no:'Разбираться, кто пришёл и что ему можно.'},
+      gw:  {t:'🛎 Шлюз', where:'На границе системы. Единственная дверь снаружи.', tr:'север — юг: снаружи внутрь', an:'Ресепшен в холле: пропуск, этаж, «не все сразу».', no:'Бизнес-логика, сборка экранов, походы в базы сервисов.'},
+      bff: {t:'🧑‍💼 BFF', where:'За шлюзом. По одному на тип клиента: мобильный, веб, партнёрский.', tr:'север — юг, уже после шлюза', an:'Личный помощник: мобильному выжимку, вебу папку.', no:'Хранить данные и решать доменные вопросы (скидки, правила заказа).'},
+      mesh:{t:'📦 Сетка', where:'Рядом с каждым экземпляром каждого сервиса (sidecar) плюс центр управления.', tr:'восток — запад: между сервисами', an:'Курьер у каждого офиса: запечатать, повторить, записать.', no:'Решать, можно ли повторять операцию, и что показать при отказе.'},
+      svc: {t:'🏢 Сам сервис', where:'В центре. Ради него всё и строится.', tr:'—', an:'Офис, который делает свою работу.', no:'Проверять токены, держать публичный сертификат, писать свои повторы — это уже сделали за него.'},
+    };
+    function show(w){
+      [...bar.children].forEach(b => b.classList.toggle('on', b.dataset.w === w));
+      const keep = w === 'all' ? null : [].concat(...ST.filter(s => s[0] === w).map(s => s[2]));
+      paintDia(host, {on: keep || [], keep: keep});
+      const r = R[w];
+      card.innerHTML = '<div class="skout" style="margin-top:12px"><h4>' + r.t + '</h4><div class="lgrid">' +
+        '<b>где стоит</b><div>' + r.where + '</div>' +
+        '<b>трафик</b><div>' + r.tr + '</div>' +
+        '<b>из жизни</b><div>' + r.an + '</div>' +
+        '<b>не должен</b><div>' + r.no + '</div></div></div>';
+      list.innerHTML = ST.map((s, k) =>
+        '<div class="step' + (w !== 'all' && s[0] === w ? ' now' : '') + (w !== 'all' && s[0] !== w ? ' gwx-dim' : '') + '"><span class="si">' + (k + 1) + '</span>' +
+        '<div style="flex:1">' + s[1] + '</div><span class="gwx-own">' + NM[s[0]] + '</span></div>').join('');
+    }
+    bar.addEventListener('click', e => { const b = e.target.closest('button[data-w]'); if(b) show(b.dataset.w); });
+    show('all');
+
+    renderCmp('gwx-cmp', ['', '⚖ Балансировщик', '🛎 Шлюз', '🧑‍💼 BFF', '📦 Сетка'], [
+      {cells:['<b>Где стоит</b>', 'перед любой группой одинаковых копий', 'на границе системы, одна дверь снаружи', 'за шлюзом, по одному на тип клиента', 'рядом с каждым сервисом + центр управления'],
+       why:'Балансировщик — самый «переносной»: его ставят везде, где копий больше одной. Шлюз — строго на границе. BFF — между шлюзом и сервисами. Сетка — везде внутри, по прокси на каждый экземпляр.'},
+      {cells:['<b>Какой трафик</b>', 'любой', 'север — юг (снаружи внутрь)', 'север — юг, после шлюза', 'восток — запад (между сервисами)'],
+       why:'«Север — юг» — запросы от пользователей и партнёров в систему. «Восток — запад» — вызовы сервисов друг к другу внутри. Обычно внутреннего трафика в разы больше внешнего: один экран Анны порождает три-десять внутренних вызовов.'},
+      {cells:['<b>Смотрит внутрь запроса</b>', 'L4 — нет; L7 — адрес и заголовки', 'да: токен, путь, заголовки', 'да, и собирает новый ответ', 'да, на уровне протокола, но не на смысл'],
+       why:'Чем глубже компонент смотрит в запрос, тем больше он умеет и тем дороже обходится. L4-балансировщик видит только адреса и порты, поэтому очень быстр. Шлюз читает запрос, но не меняет его смысл. BFF строит совершенно новый ответ.'},
+      {cells:['<b>Главная работа</b>', 'раздать поток по копиям, обходить мёртвые', 'пропуск, лимиты, маршрут, единые ошибки, номер запроса', 'собрать и подогнать данные под экран', 'mTLS, таймауты, повторы, размыкание цепи, метрики'],
+       why:'Хорошая проверка: если вы описываете работу компонента, а в описании появляется слово из предметной области («скидка», «остаток на складе»), — эта работа не для посредника, а для сервиса.'},
+      {cells:['<b>Сколько штук</b>', 'по одному перед каждой группой копий', 'обычно один, в нескольких копиях', 'по одному на тип клиента', 'sidecar на каждый экземпляр'],
+       why:'Сетка — самый «многочисленный» посредник: сто экземпляров сервисов означают сто прокси. Отсюда и её цена в памяти и процессоре.'},
+      {cells:['<b>Кто владеет</b>', 'платформа', 'платформа; маршруты — команды сервисов', 'команда клиента', 'платформенная команда'],
+       why:'BFF — единственный из четырёх, которым владеет продуктовая команда клиента. Остальные — инфраструктура, и ею занимаются те, кто отвечает за платформу.'},
+      {cells:['<b>Из жизни</b>', 'вращающиеся двери, распорядитель очереди', 'ресепшен в холле', 'личный помощник под тип гостя', 'курьер у каждого офиса'],
+       why:'Все четыре — службы одного бизнес-центра. Двери не проверяют пропуска, ресепшен не носит бумаги по офисам, помощник не выдаёт пропуска, курьер не решает, что написать в письме.'},
+      {cells:['<b>Чего НЕ должен</b>', 'разбирать смысл запросов', 'бизнес-логика, сборка экранов, походы в базы', 'хранить данные, решать доменные вопросы', 'решать, можно ли повторять операцию'],
+       why:'Самая частая болезнь — «удобно дописать тут». Логика в шлюзе делает его монолитом на входе. Логика в BFF размазывает правила по клиентам. Повторы неидемпотентных операций в сетке списывают деньги дважды.'},
+      {cells:['<b>Примеры</b>', 'nginx, HAProxy, облачные ALB и NLB', 'Kong, Spring Cloud Gateway, Apigee', 'обычный сервис на Node.js или Kotlin, GraphQL-сервер', 'Istio, Linkerd, Consul'],
+       why:'Границы между продуктами размыты: nginx умеет быть и балансировщиком, и простым шлюзом, а Envoy — и шлюзом, и sidecar-ом сетки. Важно не название продукта, а роль, которую он играет в вашей системе.'},
+      {cells:['<b>Цена</b>', 'доли миллисекунды', '+1–5 мс, риск «монолита на входе»', '+1 прыжок, дублирование между BFF', '+1–3 мс на вызов, вдвое больше контейнеров'],
+       why:'Каждый слой — это задержка, ещё одна вещь, которая может сломаться, и чьё-то дежурство. Поэтому слой добавляют, когда проблема, которую он решает, уже болит, а не «на вырост».'},
+    ]);
+  })();
+
+  /* ---------- глава 8: что будет, если убрать ---------- */
+  (function(){
+    const sw = $id('gwx-off-sw'), host = buildDia($id('gwx-off-dia'));
+    if(!sw || !host) return;
+    const off = new Set(), ever = new Set();
+    Progress.register('gwx-off', 4, 'Что будет, если убрать посредника');
+    const NODES = {lb:['lb'], gw:['gw'], bff:['bff'], mesh:['scb','sco','scd','scp']};
+    const BAD = {
+      lb:  ['Шлюз живёт в одной копии: она упала — упало всё.', 'Выкатка новой версии шлюза означает простой: переключить поток некуда.'],
+      gw:  ['Клиенты знают внутренние адреса: любая перестановка ломает старые версии приложения.', 'Проверка токена и лимиты копируются в каждый сервис или BFF, и где-то их забудут.', 'Нет одного места для единого формата ошибок и сквозного номера запроса.', 'Каждому публичному адресу нужен свой сертификат TLS.'],
+      bff: ['Телефон делает три запроса по медленной сети вместо одного.', 'Склейка экрана дублируется в iOS, Android и вебе.', 'Сервисы отдают всем по 40 полей, мобильный трафик растёт.', 'Появляется соблазн собирать экраны прямо в шлюзе, и он начинает знать про всех клиентов.'],
+      mesh:['Таймауты, повторы и шифрование — в коде каждого сервиса, у каждого по-своему.', 'Внутри трафик без шифрования: тот, кто попал внутрь, может подделать X-User-Id.', 'Трассировка рвётся на сервисе, который забыл передать номер запроса.', 'Чтобы поменять правило повторов, нужно выпустить все сервисы.'],
+    };
+    const GOOD = {
+      lb:  ['Минус один узел. Для маленькой системы с одной копией это нормально.'],
+      gw:  ['Минус прыжок: 1–5 мс на запрос.', 'Нет риска «монолита на входе», который правят все команды.'],
+      bff: ['Минус сервис, конвейер сборки и дежурство.', 'Нет дублирования между несколькими BFF. При одном клиенте BFF и правда не нужен.'],
+      mesh:['Вдвое меньше контейнеров и памяти.', 'Минус 1–3 мс на каждом внутреннем вызове.', 'Нет аварий вида «сервис здоров, а трафик не идёт». На 5–10 сервисах на одном языке общая библиотека дешевле.'],
+    };
+    function li(a){ return a.length ? '<ul style="margin:4px 0 0;padding-left:18px">' + a.map(x => '<li style="margin:4px 0;font-size:13px">' + x + '</li>').join('') + '</ul>' : ''; }
+    function draw(){
+      [...sw.children].forEach(b => b.classList.toggle('off', off.has(b.dataset.k)));
+      const offNodes = [].concat(...[...off].map(k => NODES[k]));
+      paintDia(host, {off: offNodes, lit: ['anna','lb','gw','bff','scb','o','sco','d','scd','p','scp'].filter(n => offNodes.indexOf(n) < 0)});
+      const gw = !off.has('gw'), bff = !off.has('bff'), mesh = !off.has('mesh'), lb = !off.has('lb');
+      const ms = (lb ? 0.3 : 0) + (gw ? 3 : 0) + (bff ? 2 : 0) + (mesh ? 2 : 0);
+      $id('gwx-off-m').innerHTML = [
+        [gw ? 'good' : 'bad', 'проверок токена', gw ? '1, на входе' : (bff ? 'в каждом BFF' : 'в каждом из 8 сервисов')],
+        [bff ? 'good' : 'bad', 'запросов с телефона на экран', bff ? '1' : '3'],
+        [mesh ? 'good' : 'bad', 'где настроены повторы', mesh ? '1 правило' : 'в 5 кодовых базах'],
+        [lb ? 'good' : 'bad', 'запас по копиям шлюза', lb ? 'любая из 3' : 'нет'],
+        ['wq', 'служебная задержка', '≈ ' + String(ms).replace('.', ',') + ' мс'],
+      ].map(x => '<span class="meter ' + x[0] + '">' + x[1] + ': <b>' + x[2] + '</b></span>').join('');
+      const bad = [], good = [];
+      off.forEach(k => { BAD[k].forEach(x => bad.push(x)); GOOD[k].forEach(x => good.push(x)); });
+      $id('gwx-off-bad').innerHTML = bad.length ? li(bad) : '<p class="bs" style="margin:4px 0 0">Всё включено: каждый делает свою работу. Выключите кого-нибудь.</p>';
+      $id('gwx-off-good').innerHTML = good.length ? li(good) : '<p class="bs" style="margin:4px 0 0">Пока ничего: вы платите за все четыре слоя — задержкой, железом и дежурствами.</p>';
+      $id('gwx-off-score').textContent = ever.size;
+    }
+    sw.addEventListener('click', e => {
+      const b = e.target.closest('button[data-k]'); if(!b) return;
+      const k = b.dataset.k;
+      if(off.has(k)) off.delete(k); else { off.add(k); ever.add(k); Progress.report('gwx-off', ever.size); }
+      draw();
+    });
+    draw();
+
+    /* что нужно именно вам */
+    const need = {s:1, c:1, l:1};
+    const bars = {s:$id('gwx-need-s'), c:$id('gwx-need-c'), l:$id('gwx-need-l')};
+    const nout = $id('gwx-need-out');
+    function rec(){
+      Object.keys(bars).forEach(k => [...bars[k].children].forEach(b => b.classList.toggle('on', +b.dataset.v === need[k])));
+      const R = [];
+      R.push(['done', '⚖ Балансировщик', 'нужен, как только копий больше одной. То есть почти всегда: даже монолит обычно запускают в двух копиях.']);
+      R.push(need.s === 1 && need.c === 1
+        ? ['', '🛎 Шлюз', 'можно без отдельного шлюза. Проверку токена и лимиты делает сам монолит или L7-балансировщик перед ним.']
+        : ['done', '🛎 Шлюз', 'нужен: сервисов или клиентов уже несколько, и общая работа на входе должна делаться один раз.']);
+      R.push(need.c === 2
+        ? ['done', '🧑‍💼 BFF', 'нужен: по одному на тип клиента, владеет команда этого клиента.']
+        : ['', '🧑‍💼 BFF', 'не нужен: при одном клиенте его роль играет обычный API.']);
+      R.push(need.s === 3
+        ? ['done', '📦 Сетка', 'оправдана — если есть команда, которая будет её обслуживать и чинить ночью.']
+        : need.s === 2 && need.l === 2
+          ? ['comp', '📦 Сетка', 'подумайте: разные языки — довод «за», но на 5–15 сервисах сетка дорога. Сначала попробуйте общие настройки платформы и библиотеку для каждого языка.']
+          : ['', '📦 Сетка', 'не нужна: хватит общей библиотеки с таймаутами, повторами и передачей номера запроса.']);
+      nout.innerHTML = '<div class="steps">' + R.map(r => '<div class="step ' + r[0] + '"><span class="si">' + (r[0] === 'done' ? '✓' : r[0] === 'comp' ? '?' : '–') + '</span><div><b>' + r[1] + '</b> — ' + r[2] + '</div></div>').join('') + '</div>';
+    }
+    Object.keys(bars).forEach(k => bars[k].addEventListener('click', e => {
+      const b = e.target.closest('button[data-v]'); if(!b) return; need[k] = +b.dataset.v; rec();
+    }));
+    rec();
+  })();
 })();
 </script>
 <!-- ==================== 17. БАЛАНСИРОВЩИКИ ==================== -->
