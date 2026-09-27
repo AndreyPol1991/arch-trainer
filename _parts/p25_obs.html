@@ -2,40 +2,295 @@
 <section class="panel" id="obs" data-accent="ms" role="tabpanel">
   <p class="lead"><b>Наблюдаемость — это способность ответить на вопрос, который вы заранее не придумали.</b> Мониторинг отвечает «работает или нет». Наблюдаемость отвечает «почему вот у этих клиентов со вторника тормозит оформление». От неё зависит, займёт разбор пятнадцать минут или три дня.</p>
 
-  <div class="card">
-    <h2><span class="tag">зачем это</span> зачем нужна наблюдаемость</h2>
+  <style>
+    .obx-ch{scroll-margin-top:170px}
+    .obx-map{display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:8px; margin-top:12px}
+    .obx-map button{appearance:none; display:flex; gap:10px; align-items:flex-start; text-align:left; border:1px solid var(--line); background:var(--surface-2); color:var(--ink); font:inherit; font-size:13px; padding:9px 11px; border-radius:9px; cursor:pointer}
+    .obx-map button:hover{border-color:var(--accent)}
+    .obx-map .obx-n{flex:none; width:24px; height:24px; border-radius:50%; background:var(--accent); color:var(--surface); font:700 12px var(--mono); display:grid; place-items:center}
+    .obx-map .obx-mt{font-weight:620; display:block}
+    .obx-map .obx-ms{font-size:12px; color:var(--muted); display:block; margin-top:1px}
+    .obx-up{appearance:none; border:0; background:none; color:var(--faint); font:600 11.5px var(--mono); cursor:pointer; padding:0; margin-left:auto}
+    .obx-up:hover{color:var(--accent)}
+
+    .obx-an{display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:10px; margin-top:12px}
+    .obx-an .box{border-top:3px solid var(--accent)}
+    .obx-an .obx-ai{font-size:22px; line-height:1}
+    .obx-big{font:700 14px var(--sans); margin:6px 0 4px}
+
+    .obx-chips{display:flex; gap:6px; flex-wrap:wrap; margin-top:12px}
+    .obx-chip{appearance:none; border:1px solid var(--line); background:var(--surface-2); color:var(--faint); font:600 11.5px var(--mono); padding:6px 10px; border-radius:20px; cursor:pointer}
+    .obx-chip.done{color:var(--ink); border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
+    .obx-chip.on{background:var(--accent); border-color:var(--accent); color:var(--surface)}
+
+    .obx-sch-wrap{overflow-x:auto; border:1px solid var(--line); border-radius:12px; background:var(--surface-2); padding:14px 12px; margin-top:12px}
+    .obx-sch{display:grid; grid-template-columns:minmax(92px,1fr) 24px minmax(92px,1fr) 24px minmax(92px,1fr) 24px minmax(104px,1fr) 24px minmax(92px,1fr); grid-template-rows:auto 24px auto; min-width:620px; align-items:center}
+    .obx-nd{border:1.5px solid var(--line); border-radius:10px; background:var(--surface); padding:8px 8px; text-align:center; opacity:.45; transition:all .2s}
+    .obx-nd.on{opacity:1; border-color:var(--accent); box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 18%,transparent)}
+    .obx-nd.bad{opacity:1; border-color:var(--danger); background:color-mix(in srgb,var(--danger) 10%,var(--surface))}
+    .obx-nd.good{opacity:1; border-color:var(--ok); background:color-mix(in srgb,var(--ok) 10%,var(--surface))}
+    .obx-ndi{font-size:18px; line-height:1.1}
+    .obx-ndn{font:650 12.5px var(--sans); margin-top:2px}
+    .obx-nds{font:500 10px var(--mono); color:var(--faint)}
+    .obx-ndv{font:700 11.5px var(--mono); margin-top:4px; min-height:15px; color:var(--muted)}
+    .obx-nd.bad .obx-ndv{color:var(--danger)}
+    .obx-nd.good .obx-ndv{color:var(--ok)}
+    .obx-nd.on .obx-ndv{color:var(--accent)}
+    .obx-ar{text-align:center; color:var(--faint); font:700 14px var(--mono)}
+
+    .obx-pane{border:1px solid var(--line); border-left:3px solid var(--accent); border-radius:10px; background:var(--surface-2); padding:13px 15px; margin-top:11px}
+    .obx-pane h4{margin:0 0 8px; font-size:13.5px}
+    .obx-pane.bad{border-left-color:var(--danger)}
+    .obx-pane.good{border-left-color:var(--ok)}
+    .obx-bubble{background:var(--surface); border:1px solid var(--line); border-radius:12px 12px 12px 3px; padding:9px 12px; font-size:13.5px; max-width:60ch; margin:6px 0}
+    .obx-bubble.me{border-radius:12px 12px 3px 12px; margin-left:auto; border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
+    .obx-bubble .obx-who{display:block; font:600 11px var(--mono); color:var(--faint); margin-bottom:2px}
+
+    .obx-sp{width:100%; max-width:560px; height:auto; display:block; margin:4px 0 6px}
+    .obx-sp text{font:500 9px var(--mono); fill:var(--faint)}
+    .obx-sp .obx-sp-ax{stroke:var(--line); stroke-width:1}
+    .obx-sp .obx-sp-thr{stroke:var(--warn); stroke-width:1.2; stroke-dasharray:4 4}
+    .obx-sp .obx-sp-rel{stroke:var(--nt); stroke-width:1.4; stroke-dasharray:2 3}
+    .obx-sp .obx-sp-fix{stroke:var(--ok); stroke-width:1.4; stroke-dasharray:2 3}
+    .obx-sp .obx-sp-ln{fill:none; stroke:var(--danger); stroke-width:2.4; stroke-linejoin:round}
+    .obx-sp .obx-sp-dot{fill:var(--danger)}
+    .obx-sp .obx-sp-lb{fill:var(--nt); font-weight:700}
+    .obx-sp .obx-sp-lbf{fill:var(--ok); font-weight:700}
+    .obx-sp .obx-sp-lbt{fill:var(--warn); font-weight:700}
+
+    .obx-wf-wrap{overflow-x:auto; border:1px solid var(--line); border-radius:10px; background:var(--surface-2); padding:10px 12px; margin-top:10px}
+    .obx-wf{min-width:560px}
+    .obx-wr,.obx-wax{display:grid; grid-template-columns:220px 1fr 74px; gap:8px; align-items:center}
+    .obx-wr{padding:3px 4px; border-radius:6px}
+    .obx-wf.click .obx-wr{cursor:pointer}
+    .obx-wf.click .obx-wr:hover{background:var(--surface-3)}
+    .obx-wr.on{background:color-mix(in srgb,var(--accent) 14%,transparent)}
+    .obx-wn{font:500 11.5px var(--mono); color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+    .obx-wn i{font-style:normal; color:var(--faint)}
+    .obx-wt{position:relative; height:14px; background:var(--surface); border-radius:4px}
+    .obx-wb{position:absolute; top:0; height:100%; border-radius:4px; min-width:3px}
+    .obx-wd{font:600 11.5px var(--mono); text-align:right; color:var(--muted); font-variant-numeric:tabular-nums}
+    .obx-wr.bad .obx-wd{color:var(--danger)}
+    .obx-wax{font:500 10px var(--mono); color:var(--faint); padding:0 4px 4px}
+    .obx-wax > span:nth-child(2){display:flex; justify-content:space-between}
+
+    pre.json.obx-log{max-height:340px; font-size:11.5px; white-space:pre}
+    .obx-lw{color:var(--warn)}
+    .obx-le{color:var(--danger)}
+    .obx-lh{background:color-mix(in srgb,var(--accent) 14%,transparent)}
+
+    .obx-pcg{display:grid; grid-template-columns:repeat(20,1fr); gap:3px; max-width:440px; margin-top:12px}
+    .obx-pcg span{aspect-ratio:1; border-radius:3px; background:color-mix(in srgb,var(--ok) 70%,var(--surface))}
+    .obx-pcg span.s{background:var(--danger)}
+
+    .obx-eb-bar{position:relative; height:20px; border-radius:10px; background:var(--surface-3); overflow:hidden; margin-top:14px}
+    .obx-eb-fill{height:100%; width:0; background:var(--ok); transition:width .2s}
+    .obx-eb-fill.warn{background:var(--warn)}
+    .obx-eb-fill.bad{background:var(--danger)}
+    .obx-eb-mk{position:absolute; top:-2px; bottom:-2px; width:2px; background:var(--ink)}
+    .obx-eb-leg{display:flex; justify-content:space-between; gap:8px; font:500 11px var(--mono); color:var(--faint); margin-top:4px; flex-wrap:wrap}
+
+    @media (max-width:600px){
+      .obx-map{grid-template-columns:1fr}
+      .obx-pcg{gap:2px}
+    }
+  </style>
+
+  <div class="card obx-ch" id="obx-c0">
+    <h2><span class="tag">карта раздела</span> о чём эта история</h2>
+    <p>Раздел — это одна история. Сначала поймём, что такое наблюдаемость. Потом вместе расследуем настоящую жалобу клиента от первого сообщения до причины. А затем по очереди разберём каждый инструмент, который нам помог. Нажмите на главу, чтобы перейти к ней.</p>
+    <div class="obx-map" id="obx-map">
+      <button data-ch="1"><span class="obx-n">1</span><span><span class="obx-mt">Что это и зачем</span><span class="obx-ms">определение и приборная панель</span></span></button>
+      <button data-ch="2"><span class="obx-n">2</span><span><span class="obx-mt">История Анны</span><span class="obx-ms">расследуем «оплата висит 10 секунд»</span></span></button>
+      <button data-ch="3"><span class="obx-n">3</span><span><span class="obx-mt">Три инструмента</span><span class="obx-ms">журнал, приборы, трек-номер</span></span></button>
+      <button data-ch="4"><span class="obx-n">4</span><span><span class="obx-mt">Логи вблизи</span><span class="obx-ms">почему JSON, а не строки</span></span></button>
+      <button data-ch="5"><span class="obx-n">5</span><span><span class="obx-mt">Метрики вблизи</span><span class="obx-ms">RED, USE и почему среднее врёт</span></span></button>
+      <button data-ch="6"><span class="obx-n">6</span><span><span class="obx-mt">Трассы вблизи</span><span class="obx-ms">спаны, водопад, узкое место</span></span></button>
+      <button data-ch="7"><span class="obx-n">7</span><span><span class="obx-mt">Алерты</span><span class="obx-ms">пожарная сигнализация без ложных тревог</span></span></button>
+      <button data-ch="8"><span class="obx-n">8</span><span><span class="obx-mt">SLO и бюджет ошибок</span><span class="obx-ms">«доставим за 30 минут в 95 % случаев»</span></span></button>
+      <button data-ch="9"><span class="obx-n">9</span><span><span class="obx-mt">Инструменты стека</span><span class="obx-ms">OpenTelemetry, Prometheus, Grafana…</span></span></button>
+      <button data-ch="10"><span class="obx-n">10</span><span><span class="obx-mt">Проверь себя</span><span class="obx-ms">задания по разделу</span></span></button>
+    </div>
+  </div>
+
+  <!-- ═════ ГЛАВА 1 ═════ -->
+  <div class="card obx-ch" id="obx-c1">
+    <h2><span class="tag">глава 1 · что это</span> наблюдаемость в двух фразах <button class="obx-up" data-up="1">↑ к карте</button></h2>
+    <div class="note"><b>Определение.</b> Наблюдаемость — это свойство системы: по тому, что она сама о себе сообщает снаружи, можно понять, что происходит у неё внутри. Не заходя на серверы и не добавляя срочно новый код.</div>
+    <p>Представьте машину. <b>Мониторинг</b> — это лампочка «check engine»: горит или не горит. Она заранее знает один вопрос — «всё ли в порядке?». <b>Наблюдаемость</b> — это диагностический разъём, куда механик подключает сканер и видит всё: температуру, обороты, ошибки каждого датчика, историю за последний час. С ним можно ответить на вопрос, которого на заводе никто не предусмотрел.</p>
+    <div class="grid2">
+      <div class="box">
+        <div class="obx-big">🚦 Мониторинг</div>
+        <p class="bs"><b>Вопросы известны заранее:</b> жив ли сервис? Не кончился ли диск? Больше ли ошибок, чем обычно?</p>
+        <p class="bs" style="margin:0">Отвечает «да / нет». Нужен всегда, но на вопрос «почему» не отвечает.</p>
+      </div>
+      <div class="box">
+        <div class="obx-big">🔬 Наблюдаемость</div>
+        <p class="bs"><b>Вопрос появился только сейчас:</b> почему медленно только у тех, кто платит картой, и только после 19:30?</p>
+        <p class="bs" style="margin:0">Отвечает «где, у кого и почему». Мониторинг — её часть, а не замена.</p>
+      </div>
+    </div>
+    <div class="note good"><b>Зачем это на практике.</b> В распределённой системе один запрос проходит через пять–десять сервисов. Когда он тормозит, каждый сервис по отдельности «работает нормально». Без наблюдаемости разбор превращается в обход кабинетов: «у нас всё хорошо, спросите соседей». С ней — в последовательность из четырёх шагов, которую мы сейчас пройдём.</div>
+    <h3>Что будет, если этим не заниматься</h3>
     <div id="why-obs"></div>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">основа</span> три источника и что каждый отвечает</h2>
-    <div class="grid3">
-      <div class="box">
-        <h4>Логи — «что случилось»</h4>
-        <p class="bs">Подробности конкретного события. Обязательно <b>структурированные</b> (JSON с полями), а не строки: по строкам нельзя искать и агрегировать.</p>
-        <p class="bs"><b>Цена:</b> объём. Логировать всё подряд на высокой нагрузке дороже, чем кажется, — нужны уровни и выборка.</p>
-      </div>
-      <div class="box">
-        <h4>Метрики — «сколько и как часто»</h4>
-        <p class="bs">Числа во времени: частота, задержка, ошибки, загрузка. Дёшевы, агрегируемы, хранятся долго. По ним строятся алерты и графики.</p>
-        <p class="bs"><b>Ограничение:</b> не отвечают «почему» и плохо переносят высокую кардинальность (метрика в разрезе клиента взорвёт хранилище).</p>
-      </div>
-      <div class="box">
-        <h4>Трассировка — «где время»</h4>
-        <p class="bs">Путь одного запроса через все сервисы с длительностью каждого шага. Единственное, что отвечает на вопрос «почему запрос шёл 3 секунды».</p>
-        <p class="bs"><b>Условие работы:</b> контекст протаскивается через <b>все</b> вызовы. Один сервис, который его не передаёт, разрывает трассу пополам.</p>
-      </div>
+  <!-- ═════ ГЛАВА 2 ═════ -->
+  <div class="card obx-ch" id="obx-c2">
+    <h2><span class="tag">глава 2 · история</span> «оплата висит 10 секунд»: расследуем от и до <button class="obx-up" data-up="1">↑ к карте</button></h2>
+    <p>Вечер пятницы, пик заказов. Интернет-магазин собран из сервисов: шлюз принимает запросы, «Заказы» оформляют покупку, «Антифрод» проверяет, не мошенник ли покупатель, «Оплата» списывает деньги через банк. Клиентка <b>Анна</b> нажимает «Оплатить» — и ждёт.</p>
+    <p>Жмите «Дальше». На схеме подсвечивается то, на что мы сейчас смотрим, а ниже — те данные, которые видит дежурный инженер. <b>Красным</b> — подозрение, <b>зелёным</b> — снятое подозрение.</p>
+    <div class="obx-chips" id="obx-inv-chips"></div>
+    <div class="obx-sch-wrap"><div class="obx-sch" id="obx-inv-sch"></div></div>
+    <div class="skbar">
+      <button class="ghost" id="obx-inv-prev">← Назад</button>
+      <button class="act" id="obx-inv-next">Дальше →</button>
+      <span class="skstep" id="obx-inv-lab"></span>
     </div>
-    <div class="note"><b>Связующее звено — сквозной идентификатор.</b> <code class="inl">trace_id</code> рождается на входе (в шлюзе) и попадает в каждую строку лога, в каждую метрику-исключение и в каждый участок трассы. Тогда путь такой: алерт → метрика показала рост ошибок → трасса показала, какой сервис виноват → логи с тем же trace_id показали, что именно произошло. Без общего идентификатора это три несвязанные системы.</div>
+    <div id="obx-inv"></div>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">сначала разберёмся</span> что такое трасса, спан и «узкое место»</h2>
-    <p>Слово «трасса» звучит мутно, а вещь простая. Разберём её по частям, прежде чем что-то искать.</p>
+  <!-- ═════ ГЛАВА 3 ═════ -->
+  <div class="card obx-ch" id="obx-c3">
+    <h2><span class="tag">глава 3 · три инструмента</span> журнал, приборы и трек-номер <button class="obx-up" data-up="1">↑ к карте</button></h2>
+    <p>В истории Анны мы использовали три разных источника данных. Их называют «тремя столпами наблюдаемости». Каждый отвечает на свой вопрос, и ни один не заменяет другой. Вот что это такое — сначала по-житейски.</p>
+    <div class="obx-an">
+      <div class="box">
+        <div class="obx-ai">📜</div>
+        <div class="obx-big">Логи — бортовой журнал</div>
+        <p class="bs"><b>Что это:</b> записи о событиях. Одна строка — одно событие: «в 19:47:12 оплата заказа 7731 начала ждать соединение».</p>
+        <p class="bs" style="margin:0"><b>Как в жизни:</b> капитан записывает в журнал всё, что случилось в рейсе. Прочитав журнал, можно восстановить, что именно произошло и в каком порядке.</p>
+      </div>
+      <div class="box">
+        <div class="obx-ai">📊</div>
+        <div class="obx-big">Метрики — приборная панель</div>
+        <p class="bs"><b>Что это:</b> числа, которые снимают каждые несколько секунд: сколько запросов в секунду, какая доля ошибок, сколько длится ответ.</p>
+        <p class="bs" style="margin:0"><b>Как в жизни:</b> спидометр и датчик температуры. Не рассказывают историю поездки, но сразу видно: едем быстро и мотор перегрелся.</p>
+      </div>
+      <div class="box">
+        <div class="obx-ai">🧵</div>
+        <div class="obx-big">Трассы — трек-номер посылки</div>
+        <p class="bs"><b>Что это:</b> путь одного запроса через все сервисы с отметкой, сколько он пробыл в каждом.</p>
+        <p class="bs" style="margin:0"><b>Как в жизни:</b> по трек-номеру видно: «принята 12:01 → сортировка 12:40 → <b>таможня 3 дня</b> → доставлена». Сразу ясно, где застряло.</p>
+      </div>
+    </div>
+
+    <h3>Один и тот же сбой глазами трёх инструментов</h3>
+    <p>Переключайте вкладки. Это всё тот же вечер Анны — просто увиденный через разные «окна».</p>
+    <div class="seg" id="obx-lens-pick"></div>
+    <div id="obx-lens-out"></div>
+
+    <h3>Сравнение рядом</h3>
+    <p>Нажмите на строку таблицы — раскроется пояснение.</p>
+    <div id="obx-cmp"></div>
+
+    <div class="note"><b>Связующая нить — сквозной идентификатор.</b> <code class="inl">trace_id</code> рождается на входе (в шлюзе) и попадает в каждую строку лога, в каждый участок трассы и в пометки к метрикам. В истории Анны именно он привёл нас от трассы к нужным строкам логов. Путь всегда один: алерт → метрика показала рост → трасса показала, какой участок виноват → логи с тем же <code class="inl">trace_id</code> показали, что именно случилось. Без общего идентификатора это три несвязанные системы.</div>
+
+    <h3>Задание: какой инструмент ответит</h3>
+    <p>Разложите вопросы по инструментам. Решено <b id="obx-srt-score">0</b> из <span id="obx-srt-total">0</span>.</p>
+    <div id="obx-srt"></div>
+  </div>
+
+  <!-- ═════ ГЛАВА 4 ═════ -->
+  <div class="card obx-ch" id="obx-c4">
+    <h2><span class="tag">глава 4 · логи</span> бортовой журнал, по которому можно искать <button class="obx-up" data-up="1">↑ к карте</button></h2>
+    <p><b>Лог</b> — это запись о событии: когда, где, что случилось и с какими данными. Логи пишут все сервисы одновременно, и в общем хранилище они перемешаны, как голоса в толпе. Поэтому главное свойство хорошего лога — <b>по нему можно искать</b>.</p>
+    <div class="grid2">
+      <div class="box">
+        <h4>Строка — как запись от руки</h4>
+        <pre class="json" style="font-size:11.5px">19:47:12 WARN payments: pool exhausted (10/10)</pre>
+        <p class="bs" style="margin:8px 0 0">Человеку понятно. Машине — нет: где тут сервис, где число, к какому запросу это относится? Искать можно только по кусочку текста.</p>
+      </div>
+      <div class="box">
+        <h4>Структурированный лог — как анкета</h4>
+        <pre class="json" style="font-size:11.5px">{"level":"WARN","service":"payments",
+ "trace_id":"4bf92f35","msg":"pool exhausted",
+ "active":10,"max":10,"pending":184}</pre>
+        <p class="bs" style="margin:8px 0 0">Каждое поле подписано. Можно отфильтровать, посчитать, сгруппировать и найти все записи одного запроса.</p>
+      </div>
+    </div>
+
+    <h3>Попробуйте сами: найдите записи Анны</h3>
+    <p>Перед вами поток логов за 10 секунд. Задача — оставить только то, что относится к запросу Анны (<code class="inl">4bf92f35</code>). Попробуйте в режиме строк, потом в режиме JSON.</p>
+    <div class="seg" id="obx-lg-fmt">
+      <button data-f="txt">📝 Строки</button>
+      <button data-f="json" class="on">🧾 JSON</button>
+    </div>
+    <div class="seg" id="obx-lg-lvl">
+      <button data-l="all" class="on">все уровни</button>
+      <button data-l="warn">WARN и хуже</button>
+      <button data-l="err">только ERROR</button>
+    </div>
+    <div class="form-row" style="margin-top:0">
+      <button class="ghost" id="obx-lg-tr">🔎 Только trace_id 4bf92f35</button>
+      <button class="ghost" id="obx-lg-rs">⟲ Сбросить</button>
+    </div>
+    <div class="meters"><span class="meter">Показано строк: <b id="obx-lg-n">—</b></span></div>
+    <pre class="json obx-log" id="obx-lg-out" style="margin-top:10px"></pre>
+    <div class="console" id="obx-lg-msg"></div>
+
+    <h3>Уровни логов: как не утонуть</h3>
+    <div class="table-wrap">
+      <table class="db">
+        <thead><tr><th>Уровень</th><th>Когда писать</th><th>Пример</th></tr></thead>
+        <tbody>
+          <tr><td><b>ERROR</b></td><td>Операция не удалась, и пользователь это почувствует</td><td>«списание не прошло: таймаут 15 с»</td></tr>
+          <tr><td><b>WARN</b></td><td>Что-то пошло не по плану, но выкрутились</td><td>«пул соединений исчерпан, ждём»</td></tr>
+          <tr><td><b>INFO</b></td><td>Важные шаги бизнес-процесса</td><td>«заказ оплачен»</td></tr>
+          <tr><td><b>DEBUG</b></td><td>Подробности для разработчика. В бою обычно выключены</td><td>«тело ответа банка: …»</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="note warn"><b>Три правила логов.</b> Первое: только структурированный формат (JSON с полями), иначе по нему нельзя искать и считать. Второе: в каждой строке — <code class="inl">trace_id</code>. Третье: <b>никогда</b> не пишите в логи пароли, токены, номера карт и персональные данные. Логи читают многие, хранятся они долго, и утечка из логов — классика.</div>
+    <div class="note"><b>Цена логов — объём.</b> Логировать всё подряд на большой нагрузке дороже, чем кажется: хранилище логов бывает дороже самих сервисов. Поэтому используют уровни, выборку для частых событий и короткий срок хранения — обычно недели, а не месяцы.</div>
+  </div>
+
+  <!-- ═════ ГЛАВА 5 ═════ -->
+  <div class="card obx-ch" id="obx-c5">
+    <h2><span class="tag">глава 5 · метрики</span> приборная панель: что мерить и как не обмануться <button class="obx-up" data-up="1">↑ к карте</button></h2>
+    <p><b>Метрика</b> — это число, которое снимают регулярно, например раз в 15 секунд: «сейчас 70 оплат в секунду». Из таких чисел получается график. Метрики дешёвые: одно число вместо тысяч строк логов. Поэтому их хранят месяцами и именно на них вешают алерты.</p>
+
+    <h3>Что мерить: три готовых набора</h3>
+    <div class="grid3">
+      <div class="box">
+        <h4>RED — для сервисов</h4>
+        <p class="bs"><b>R</b>ate — запросов в секунду.<br><b>E</b>rrors — доля ошибочных.<br><b>D</b>uration — сколько длится ответ (перцентили).</p>
+        <p class="bs">Три метрики на каждый сервис и на каждую важную ручку. Этого хватает, чтобы заметить почти любую проблему. В истории Анны именно RED-таблица показала, что красное — у оплаты.</p>
+      </div>
+      <div class="box">
+        <h4>USE — для ресурсов</h4>
+        <p class="bs"><b>U</b>tilization — насколько занят.<br><b>S</b>aturation — сколько ждёт в очереди.<br><b>E</b>rrors — отказы ресурса.</p>
+        <p class="bs">Для процессора, памяти, диска, пулов соединений. Насыщение важнее загрузки: 100 % загрузки без очереди — это нормально. Пул Анны был как раз <b>насыщен</b>: 10 из 10 занято и 184 в очереди.</p>
+      </div>
+      <div class="box">
+        <h4>Четыре золотых сигнала</h4>
+        <p class="bs">Задержка, трафик, ошибки, насыщение. Объединение двух предыдущих наборов — то, что Google рекомендует как минимум для любой системы.</p>
+      </div>
+    </div>
+
+    <h3>Интерактив: почему среднее врёт</h3>
+    <p>Ниже 100 запросов. Зелёные отвечают за 0,1–0,2 секунды, красные — за 5–7 секунд. Двигайте ползунок и следите: среднее почти не меняется, а людям уже плохо. <b>Перцентиль</b> (например, p99) — это время, быстрее которого ответили 99 % запросов. Он показывает хвост, который среднее прячет.</p>
+    <div class="slider-row"><label for="obx-pc-sl">Доля медленных запросов</label><input type="range" id="obx-pc-sl" min="0" max="20" value="3"><span class="sv" id="obx-pc-v">3 %</span></div>
+    <div class="obx-pcg" id="obx-pc-grid"></div>
+    <div class="meters">
+      <span class="meter" id="obx-pc-m1">Среднее: <b>—</b></span>
+      <span class="meter" id="obx-pc-m2">p50 (медиана): <b>—</b></span>
+      <span class="meter" id="obx-pc-m3">p95: <b>—</b></span>
+      <span class="meter" id="obx-pc-m4">p99: <b>—</b></span>
+    </div>
+    <div class="console" id="obx-pc-msg"></div>
+    <div class="note warn"><b>И ещё одна ловушка: p99 нельзя усреднять между узлами.</b> Среднее из перцентилей не является перцентилем. Узел с 10 запросами и узел с миллионом дадут «средний p99», не имеющий отношения к жизни. Правильно так: собирать гистограммы (сколько запросов попало в каждую корзину по времени) и считать перцентиль по их сумме.</div>
+    <div class="note"><b>Ограничение метрик — кардинальность.</b> Так называют число разных значений у метки. Метка «сервис» — десяток значений, это нормально. Метка «id клиента» — миллионы, и хранилище метрик взорвётся. Поэтому метрики отвечают «сколько и когда», а «у кого именно» — это уже к логам и трассам.</div>
+  </div>
+
+  <!-- ═════ ГЛАВА 6 ═════ -->
+  <div class="card obx-ch" id="obx-c6">
+    <h2><span class="tag">глава 6 · трассы</span> что такое трасса, спан и «узкое место» <button class="obx-up" data-up="1">↑ к карте</button></h2>
+    <p>Слово «трасса» звучит мутно, а вещь простая. В истории Анны именно трасса за один взгляд показала, куда ушли 10 секунд. Разберём её по частям.</p>
 
     <div class="note good"><b>Житейски: чек из автосервиса.</b> Машину чинили 4 часа. В чеке построчно: диагностика — 20 минут, снять колесо — 10, <b>ждали деталь со склада — 3 часа</b>, поставить — 15, проверка — 15. Пока у вас только итог «4 часа», разговаривать не о чем. Как только есть построчный чек — сразу видно, где ушло время и с кем об этом говорить.</div>
 
-    <h3 style="margin:18px 0 6px;font-size:14px">Три слова, и всё станет понятно</h3>
+    <h3>Три слова, и всё станет понятно</h3>
     <div class="grid3">
       <div class="box">
         <h4>Спан (span)</h4>
@@ -51,7 +306,12 @@
       </div>
     </div>
 
-    <h3 style="margin:18px 0 6px;font-size:14px">Как трасса собирается — по шагам</h3>
+    <h3>Интерактив: трасса Анны, спан за спаном</h3>
+    <p>Это настоящий «водопад» — так выглядит трасса в Jaeger или Grafana Tempo. Каждая полоса — спан, её длина — время, отступ — вложенность. <b>Нажимайте на строки</b>: увидите, что записано внутри спана. Найдите, где ушло время.</p>
+    <div class="obx-wf-wrap"><div class="obx-wf click" id="obx-wf"></div></div>
+    <div id="obx-wf-det"></div>
+
+    <h3>Как трасса собирается — по шагам</h3>
     <p>Жмите «Дальше»: видно, откуда берётся каждая строчка чека и что их связывает.</p>
     <div class="skbar">
       <button class="ghost" id="tb-prev">← Назад</button>
@@ -59,65 +319,24 @@
       <span class="skstep" id="tb-lab"></span>
     </div>
     <div id="tb-out"></div>
-  </div>
 
-  <div class="card">
-    <h2><span class="tag">инструменты</span> кто за что отвечает в настоящем стеке</h2>
-    <p>Названий много, и они звучат как взаимозаменяемые. Это не так: у каждого своя работа. Нажмите — что делает, когда нужен и чем заменяется.</p>
-    <div class="seg" id="tool-pick"></div>
-    <div id="tool-out"></div>
-  </div>
-
-  <div class="card">
-    <h2><span class="tag">интерактив</span> найдите узкое место по трассе</h2>
-    <p>Запрос шёл долго. Перед вами трасса — каждый прямоугольник это участок (span), длина пропорциональна времени. Выберите сценарий и нажмите на участок, который считаете причиной.</p>
+    <h3>Тренировка: найдите узкое место сами</h3>
+    <p>Три новых случая. Каждый прямоугольник — участок (спан), длина пропорциональна времени. Выберите случай и нажмите на участок, который считаете причиной.</p>
     <div class="seg" id="tr-case">
       <button class="on" data-c="0">Случай 1</button>
       <button data-c="1">Случай 2</button>
       <button data-c="2">Случай 3</button>
     </div>
-    <div id="tr-wf" style="border:1px solid var(--line);border-radius:10px;padding:14px;background:var(--surface-2);margin-top:12px"></div>
+    <div class="obx-wf-wrap" style="padding:0"><div id="tr-wf" style="border-radius:10px;padding:14px;background:var(--surface-2);min-width:480px"></div></div>
     <div class="console" id="tr-msg">Выберите участок, который вы бы чинили первым.</div>
+    <div class="note"><b>Все трассы хранить дорого.</b> Поэтому сохраняют выборку — обычно 1–10 % запросов. Но настраивают так, чтобы <b>все ошибочные и все медленные</b> сохранялись целиком: именно такие, как у Анны, и нужны при разборе.</div>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">метрики</span> что мерить: RED, USE и четыре золотых сигнала</h2>
-    <div class="grid3">
-      <div class="box">
-        <h4>RED — для сервисов</h4>
-        <p class="bs"><b>R</b>ate — запросов в секунду.<br><b>E</b>rrors — доля ошибочных.<br><b>D</b>uration — распределение задержки (перцентили).</p>
-        <p class="bs">Три метрики на каждый сервис и на каждую важную ручку. Этого достаточно, чтобы заметить почти любую проблему.</p>
-      </div>
-      <div class="box">
-        <h4>USE — для ресурсов</h4>
-        <p class="bs"><b>U</b>tilization — насколько занят.<br><b>S</b>aturation — сколько ждёт в очереди.<br><b>E</b>rrors — отказы ресурса.</p>
-        <p class="bs">Для процессора, памяти, диска, пулов соединений. Насыщение важнее загрузки: 100 % загрузки без очереди — это нормально.</p>
-      </div>
-      <div class="box">
-        <h4>Четыре золотых сигнала</h4>
-        <p class="bs">Задержка, трафик, ошибки, насыщение. Объединение двух предыдущих наборов — то, что Google рекомендует как минимум для любой системы.</p>
-      </div>
-    </div>
-    <div class="note good"><b>Проще говоря.</b> Логи — это «что произошло», как записи в журнале дежурств. Метрики — «сколько и как часто», как показания счётчика. Трасса — «где именно застряло», как отметки на посылке: принята в 12:01, уехала в 12:40, приехала в 18:00. Без трассы на вопрос «почему долго» ответить нельзя вообще.</div>
-    <div class="note warn"><b>Задержку меряют перцентилями, а не средним.</b> Среднее в 200 мс прекрасно уживается с тем, что каждый двадцатый пользователь ждёт 6 секунд. И ещё: <b>p99 нельзя усреднять между узлами</b> — среднее из перцентилей не является перцентилем. Собирайте гистограммы и считайте перцентиль по объединённым данным.</div>
-  </div>
-
-  <div class="card">
-    <h2><span class="tag">интерактив</span> бюджет ошибок</h2>
-    <p>SLO — это обещание, которое вы даёте пользователям, а <b>бюджет ошибок</b> — разрешённое отклонение от него. Пока бюджет не израсходован, можно рисковать и катить быстро; кончился — все силы на надёжность. Посчитайте свой.</p>
-    <div class="slider-row"><label for="sl-slo">Цель доступности (SLO)</label><input type="range" id="sl-slo" min="9000" max="99995" value="9990"><span class="sv" id="sl-slo-v">99,90 %</span></div>
-    <div class="slider-row"><label for="sl-rps">Запросов в месяц, млн</label><input type="range" id="sl-rps" min="1" max="500" value="50"><span class="sv" id="sl-rps-v">50 млн</span></div>
-    <div class="slider-row"><label for="sl-used">Бюджет израсходован на</label><input type="range" id="sl-used" min="0" max="150" value="40"><span class="sv" id="sl-used-v">40 %</span></div>
-    <div class="meters">
-      <span class="meter">Допустимый простой в месяц: <b id="sl-down">—</b></span>
-      <span class="meter">Допустимо неудачных запросов: <b id="sl-fail">—</b></span>
-      <span class="meter wq">Осталось бюджета: <b id="sl-left">—</b></span>
-    </div>
-    <div class="console" id="sl-msg"></div>
-  </div>
-
-  <div class="card">
-    <h2><span class="tag">алерты</span> на симптомы, а не на причины</h2>
+  <!-- ═════ ГЛАВА 7 ═════ -->
+  <div class="card obx-ch" id="obx-c7">
+    <h2><span class="tag">глава 7 · алерты</span> пожарная сигнализация, которой верят <button class="obx-up" data-up="1">↑ к карте</button></h2>
+    <p><b>Алерт</b> (оповещение) — это правило над метриками: «если условие держится N минут — позвать человека». В истории Анны алерт разбудил дежурного за восемь минут до её жалобы.</p>
+    <div class="note good"><b>Житейски: пожарная сигнализация.</b> Хорошая сигнализация срабатывает на дым — то есть на то, что уже опасно людям. Плохая сигнализация звенит каждый раз, когда кто-то жарит котлеты. Через неделю её отключают, и в день настоящего пожара она молчит. С алертами ровно так же: <b>звенеть на симптомы, которые чувствуют пользователи, а не на всё подряд</b>.</div>
     <div class="grid2">
       <div class="box down">
         <h4>Плохие алерты</h4>
@@ -139,10 +358,68 @@
       </div>
     </div>
     <div class="note"><b>Проверка качества алерта:</b> если на него можно не реагировать — его не должно быть. Алерт, требующий действия, идёт дежурному; всё остальное идёт на дашборд и разбирается в рабочее время. Смешивание этих двух категорий — главная причина «усталости от алертов», при которой пропускают настоящую аварию.</div>
+    <h3>Задание: будить, на дашборд или удалить?</h3>
+    <p>Вы — дежурный. Решите судьбу каждого правила. Решено <b id="obx-al-score">0</b> из <span id="obx-al-total">0</span>.</p>
+    <div id="obx-al"></div>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">задание</span> наблюдаемость</h2>
+  <!-- ═════ ГЛАВА 8 ═════ -->
+  <div class="card obx-ch" id="obx-c8">
+    <h2><span class="tag">глава 8 · SLO</span> обещание и бюджет ошибок <button class="obx-up" data-up="1">↑ к карте</button></h2>
+    <p>Анна ждала 10 секунд. Это плохо? А 2 секунды? А если такое случается с одним заказом из тысячи? Чтобы не спорить «на ощущениях», команда заранее записывает <b>обещание</b> в цифрах.</p>
+    <div class="note good"><b>Житейски: пиццерия.</b> Пиццерия обещает: «доставим за 30 минут в 95 % случаев». Не «всегда» — это нереально: пробки, снег, курьер заболел. Из 20 пицц одна может опоздать, и обещание всё равно выполнено. Эта одна разрешённая пицца из двадцати и есть <b>бюджет ошибок</b>.</div>
+    <div class="cells" aria-label="20 заказов: 19 вовремя, 1 опоздал">
+      <span class="cell ok">🍕</span><span class="cell ok">🍕</span><span class="cell ok">🍕</span><span class="cell ok">🍕</span><span class="cell ok">🍕</span><span class="cell ok">🍕</span><span class="cell ok">🍕</span><span class="cell ok">🍕</span><span class="cell ok">🍕</span><span class="cell ok">🍕</span><span class="cell ok">🍕</span><span class="cell ok">🍕</span><span class="cell ok">🍕</span><span class="cell ok">🍕</span><span class="cell ok">🍕</span><span class="cell ok">🍕</span><span class="cell ok">🍕</span><span class="cell ok">🍕</span><span class="cell ok">🍕</span><span class="cell warn">⏰ 41 мин</span>
+    </div>
+
+    <h3>Три похожих слова: SLI, SLO, SLA</h3>
+    <p>Их постоянно путают. Нажмите на строку, чтобы раскрыть пояснение.</p>
+    <div id="obx-sla"></div>
+
+    <h3>Интерактив: бюджет ошибок и решение «катить или нет»</h3>
+    <p>Выберите обещание (SLO) и крутите долю ошибок. Считаем, что доля ошибок держалась такой весь месяц, а в день приходит 1 млн запросов. Чёрная риска на полосе — сколько бюджета «нормально» потратить к сегодняшнему дню.</p>
+    <div class="seg" id="obx-eb-slo">
+      <button data-s="0.99">SLO 99 %</button>
+      <button data-s="0.995">99,5 %</button>
+      <button data-s="0.999" class="on">99,9 %</button>
+      <button data-s="0.9995">99,95 %</button>
+    </div>
+    <div class="slider-row"><label for="obx-eb-err">Доля неудачных запросов</label><input type="range" id="obx-eb-err" min="0" max="150" value="5"><span class="sv" id="obx-eb-err-v">0,05 %</span></div>
+    <div class="slider-row"><label for="obx-eb-day">Какой сегодня день месяца</label><input type="range" id="obx-eb-day" min="1" max="30" value="12"><span class="sv" id="obx-eb-day-v">12</span></div>
+    <div class="obx-eb-bar"><div class="obx-eb-fill" id="obx-eb-fill"></div><div class="obx-eb-mk" id="obx-eb-mk"></div></div>
+    <div class="obx-eb-leg"><span>0 % бюджета</span><span>▮ норма к сегодняшнему дню</span><span>100 %</span></div>
+    <div class="meters">
+      <span class="meter">Бюджет на месяц: <b id="obx-eb-all">—</b></span>
+      <span class="meter" id="obx-eb-usedm">Потрачено: <b id="obx-eb-used">—</b></span>
+      <span class="meter" id="obx-eb-burnm">Скорость сгорания: <b id="obx-eb-burn">—</b></span>
+    </div>
+    <div class="console" id="obx-eb-msg"></div>
+    <div class="note"><b>Скорость сгорания</b> (burn rate) — во сколько раз быстрее нормы вы тратите бюджет. «1×» — ровно к концу месяца потратите всё. «14×» — как было у Анны в пятницу вечером: при таком темпе месячный бюджет кончается за два дня. Именно на скорость сгорания и настраивают лучшие алерты.</div>
+
+    <h3>Посчитайте в минутах и запросах</h3>
+    <p>SLO — это обещание, а <b>бюджет ошибок</b> — разрешённое отклонение от него. Пока бюджет не израсходован, можно рисковать и катить быстро; кончился — все силы на надёжность. Посчитайте свой.</p>
+    <div class="slider-row"><label for="sl-slo">Цель доступности (SLO)</label><input type="range" id="sl-slo" min="9000" max="99995" value="9990"><span class="sv" id="sl-slo-v">99,90 %</span></div>
+    <div class="slider-row"><label for="sl-rps">Запросов в месяц, млн</label><input type="range" id="sl-rps" min="1" max="500" value="50"><span class="sv" id="sl-rps-v">50 млн</span></div>
+    <div class="slider-row"><label for="sl-used">Бюджет израсходован на</label><input type="range" id="sl-used" min="0" max="150" value="40"><span class="sv" id="sl-used-v">40 %</span></div>
+    <div class="meters">
+      <span class="meter">Допустимый простой в месяц: <b id="sl-down">—</b></span>
+      <span class="meter">Допустимо неудачных запросов: <b id="sl-fail">—</b></span>
+      <span class="meter wq">Осталось бюджета: <b id="sl-left">—</b></span>
+    </div>
+    <div class="console" id="sl-msg"></div>
+  </div>
+
+  <!-- ═════ ГЛАВА 9 ═════ -->
+  <div class="card obx-ch" id="obx-c9">
+    <h2><span class="tag">глава 9 · инструменты</span> кто за что отвечает в настоящем стеке <button class="obx-up" data-up="1">↑ к карте</button></h2>
+    <p>В истории Анны дежурный пользовался несколькими программами: одна прислала алерт, вторая нарисовала дашборд, третья показала трассу, четвёртая нашла логи. Названий много, и они звучат как взаимозаменяемые. Это не так: у каждого своя работа. Нажмите — что делает, когда нужен и чем заменяется.</p>
+    <div class="seg" id="tool-pick"></div>
+    <div id="tool-out"></div>
+  </div>
+
+  <!-- ═════ ГЛАВА 10 ═════ -->
+  <div class="card obx-ch" id="obx-c10">
+    <h2><span class="tag">глава 10 · проверь себя</span> наблюдаемость <button class="obx-up" data-up="1">↑ к карте</button></h2>
     <p>Решено <b id="obq-score">0</b> из <span id="obq-total">0</span>.</p>
     <div id="obq-tasks"></div>
   </div>
@@ -362,5 +639,490 @@
     '<pre class="json" style="font-size:12px;margin:0 0 10px">' + esc(x.art) + '</pre>' +
     '<div class="lgrid"><b>когда нужен</b><div>' + x.when + '</div></div>' +
     '<div class="note good" style="margin-top:10px">' + x.note + '</div></div>');
+})();
+</script>
+
+<script>
+/* ═══ 25.x Наблюдаемость: повествование, история Анны, новые интерактивы ═══ */
+(function(){
+  const sec = document.getElementById('obs'); if(!sec) return;
+  const $o = id => document.getElementById(id);
+  const nf = n => Math.round(n).toLocaleString('ru-RU');
+  const dec = (n, d) => n.toFixed(d).replace('.', ',');
+
+  /* ── карта раздела ── */
+  const map = $o('obx-map');
+  if(map){
+    map.addEventListener('click', e => {
+      const b = e.target.closest('button[data-ch]'); if(!b) return;
+      const t = $o('obx-c' + b.dataset.ch);
+      if(t) t.scrollIntoView({behavior:'smooth', block:'start'});
+    });
+    sec.addEventListener('click', e => {
+      const b = e.target.closest('button[data-up]'); if(!b) return;
+      map.closest('.card').scrollIntoView({behavior:'smooth', block:'start'});
+    });
+  }
+
+  /* ── общие данные: трасса Анны ── */
+  const TR = {id:'4bf92f3577b34da6', total:10140, spans:[
+    {id:'s1', p:null, svc:'gateway', n:'POST /api/checkout/pay', st:0, d:10140, lvl:0,
+     a:{'http.method':'POST','http.route':'/api/checkout/pay','http.status_code':200,'user.id':'u-anna-2291'},
+     note:'Верхний спан — всё, что видела Анна: 10,1 секунды от нажатия до ответа. Сам по себе он говорит только «долго». Смотрим, из чего он состоит.'},
+    {id:'s2', p:'s1', svc:'orders', n:'checkout', st:6, d:10126, lvl:1,
+     a:{'order.id':'ord-7731','order.amount':2490,'service.version':'5.1.0'},
+     note:'«Заказы» почти всё время ждут вложенные вызовы. Своей работы у них — единицы миллисекунд. Виноват кто-то внутри.'},
+    {id:'s3', p:'s2', svc:'orders', n:'cart.get', st:12, d:18, lvl:2,
+     a:{'db.system':'postgresql','db.rows':3},
+     note:'18 мс — быстро. Не трогаем.'},
+    {id:'s4', p:'s2', svc:'antifraud', n:'antifraud.check', st:32, d:45, lvl:2,
+     a:{'risk.score':0.04,'decision':'allow'},
+     note:'Антифрод ответил за 45 мс и пропустил Анну. Подозрение с него снято.'},
+    {id:'s5', p:'s2', svc:'payments', n:'payments.charge', st:80, d:10045, lvl:2, hot:true,
+     a:{'payment.method':'card','service.version':'2.8.0'},
+     note:'Вот куда ушло время: 99 % всего запроса. Но «оплата медленная» — ещё не ответ. Обратите внимание на версию 2.8.0 и провалитесь внутрь.'},
+    {id:'s6', p:'s5', svc:'payments', n:'SELECT card_token', st:84, d:8, lvl:3,
+     a:{'db.statement':'SELECT token FROM cards WHERE user_id = $1','db.rows':1},
+     note:'8 мс. Не он.'},
+    {id:'s7', p:'s5', svc:'payments', n:'pool.acquire bank-http', st:94, d:9800, lvl:3, bad:true,
+     a:{'pool.name':'bank-http','pool.max':10,'pool.active':10,'pool.pending':184,'wait.ms':9800},
+     note:'<b>Узкое место найдено.</b> 9 800 мс запрос просто стоял в очереди за свободным соединением к банку. Все 10 соединений заняты, ещё 184 запроса ждут. Сам банк тут ни при чём — это наша очередь внутри оплаты.'},
+    {id:'s8', p:'s5', svc:'payments', n:'bank.authorize', st:9896, d:210, lvl:3,
+     a:{'http.url':'https://bank.example/v1/authorize','http.status_code':200,'peer.service':'bank'},
+     note:'Банк ответил за 210 мс — как обычно. Если бы мы смотрели только на метрику «время ответа банка», решили бы, что всё в порядке.'},
+    {id:'s9', p:'s5', svc:'payments', n:'INSERT payment', st:10108, d:12, lvl:3,
+     a:{'db.system':'postgresql','db.rows':1},
+     note:'12 мс, норма.'},
+  ]};
+  const SVC_COL = {gateway:'var(--nt)', orders:'var(--ms)', antifraud:'var(--dt)', payments:'var(--mn)'};
+
+  function waterfall(clickable, selId){
+    const T = TR.total;
+    const ax = '<div class="obx-wax"><span>спан</span><span><span>0</span><span>2,5 с</span><span>5 с</span><span>7,5 с</span><span>10 с</span></span><span style="text-align:right">время</span></div>';
+    return ax +
+      TR.spans.map(s => {
+        const l = s.st / T * 100, w = Math.max(0.5, s.d / T * 100);
+        const col = s.bad ? 'var(--danger)' : SVC_COL[s.svc];
+        return '<div class="obx-wr' + (s.bad ? ' bad' : '') + (s.id === selId ? ' on' : '') + '" data-s="' + s.id + '"' + (clickable ? ' role="button" tabindex="0"' : '') + '>' +
+          '<div class="obx-wn" style="padding-left:' + (s.lvl * 12) + 'px">' + (s.lvl ? '<i>└ </i>' : '') + esc(s.n) + ' <i>' + esc(s.svc) + '</i></div>' +
+          '<div class="obx-wt"><div class="obx-wb" style="left:' + l + '%;width:' + w + '%;background:' + col + '"></div></div>' +
+          '<div class="obx-wd">' + nf(s.d) + ' мс</div></div>';
+      }).join('');
+  }
+
+  /* ── мини-график p99 оплаты ── */
+  const P99 = [0.6,0.6,0.7,6.8,9.6,9.8,9.9,9.7,1.2,0.6,0.6];
+  const TIMES = ['19:20','19:25','19:30','19:35','19:40','19:45','19:50','19:55','20:00','20:05','20:10'];
+  function spark(upto, fix){
+    const W = 320, H = 130, x0 = 34, x1 = 310, y0 = 108, yTop = 12;
+    const X = i => x0 + i * (x1 - x0) / (P99.length - 1);
+    const Y = v => y0 - v / 10 * (y0 - yTop);
+    const pts = P99.slice(0, upto).map((v, i) => X(i).toFixed(1) + ',' + Y(v).toFixed(1)).join(' ');
+    const xRel = X(2) + (X(3) - X(2)) * 0.8, xFix = X(7) + (X(8) - X(7)) * 0.6;
+    let s = '<svg class="obx-sp" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="p99 задержки оплаты по времени">';
+    s += '<line class="obx-sp-ax" x1="' + x0 + '" y1="' + y0 + '" x2="' + x1 + '" y2="' + y0 + '"/>';
+    s += '<line class="obx-sp-ax" x1="' + x0 + '" y1="' + yTop + '" x2="' + x0 + '" y2="' + y0 + '"/>';
+    [0, 5, 10].forEach(v => { s += '<text x="' + (x0 - 5) + '" y="' + (Y(v) + 3) + '" text-anchor="end">' + v + ' с</text>'; });
+    [0, 3, 6, 10].forEach(i => { s += '<text x="' + X(i) + '" y="' + (y0 + 13) + '" text-anchor="middle">' + TIMES[i] + '</text>'; });
+    s += '<line class="obx-sp-thr" x1="' + x0 + '" y1="' + Y(2) + '" x2="' + x1 + '" y2="' + Y(2) + '"/>';
+    s += '<text class="obx-sp-lbt" x="' + (x1) + '" y="' + (Y(2) - 4) + '" text-anchor="end">порог алерта 2 с</text>';
+    s += '<line class="obx-sp-rel" x1="' + xRel + '" y1="' + yTop + '" x2="' + xRel + '" y2="' + y0 + '"/>';
+    s += '<text class="obx-sp-lb" x="' + (xRel - 3) + '" y="' + (yTop + 8) + '" text-anchor="end">релиз 2.8.0</text>';
+    if(fix){
+      s += '<line class="obx-sp-fix" x1="' + xFix + '" y1="' + yTop + '" x2="' + xFix + '" y2="' + y0 + '"/>';
+      s += '<text class="obx-sp-lbf" x="' + (xFix + 3) + '" y="' + (yTop + 8) + '">откат</text>';
+    }
+    s += '<polyline class="obx-sp-ln" points="' + pts + '"/>';
+    P99.slice(0, upto).forEach((v, i) => { s += '<circle class="obx-sp-dot" cx="' + X(i) + '" cy="' + Y(v) + '" r="2.2"/>'; });
+    return s + '</svg>';
+  }
+
+  /* ═════ ГЛАВА 2: расследование ═════ */
+  (function(){
+    const out = $o('obx-inv'), sch = $o('obx-inv-sch'); if(!out || !sch) return;
+    const NODES = [
+      {id:'anna', ic:'👩', n:'Анна', s:'браузер', c:1, r:1},
+      {id:'gw',   ic:'🚪', n:'Шлюз', s:'gateway', c:3, r:1},
+      {id:'ord',  ic:'🧾', n:'Заказы', s:'orders', c:5, r:1},
+      {id:'pay',  ic:'💳', n:'Оплата', s:'payments', c:7, r:1},
+      {id:'bank', ic:'🏦', n:'Банк', s:'внешний API', c:9, r:1},
+      {id:'af',   ic:'🛡', n:'Антифрод', s:'antifraud', c:5, r:3},
+      {id:'pool', ic:'🔌', n:'Пул соединений', s:'внутри оплаты', c:7, r:3},
+    ];
+    const AR = [[2,1,'→'],[4,1,'→'],[6,1,'→'],[8,1,'→'],[5,2,'↓'],[7,2,'↓'],[8,3,'↗']];
+    sch.innerHTML =
+      NODES.map(nd => '<div class="obx-nd" data-n="' + nd.id + '" style="grid-column:' + nd.c + ';grid-row:' + nd.r + '">' +
+        '<div class="obx-ndi">' + nd.ic + '</div><div class="obx-ndn">' + esc(nd.n) + '</div>' +
+        '<div class="obx-nds">' + esc(nd.s) + '</div><div class="obx-ndv"></div></div>').join('') +
+      AR.map(a => '<div class="obx-ar" style="grid-column:' + a[0] + ';grid-row:' + a[1] + '">' + a[2] + '</div>').join('');
+
+    const LOGS_ANNA = [
+      '{"ts":"19:34:05.210","level":"INFO","service":"payments","msg":"service started","version":"2.8.0","bank.pool.max":10}',
+      '  … 13 минут спустя, поиск: trace_id = "4bf92f35…" …',
+      '{"ts":"19:47:12.084","level":"INFO","service":"payments","trace_id":"4bf92f35","msg":"charge started","order":"ord-7731","amount":2490}',
+      '{"ts":"19:47:12.094","level":"WARN","service":"payments","trace_id":"4bf92f35","msg":"http pool exhausted, waiting","pool":"bank-http","active":10,"max":10,"pending":184}',
+      '{"ts":"19:47:21.894","level":"INFO","service":"payments","trace_id":"4bf92f35","msg":"connection acquired","waited_ms":9800}',
+      '{"ts":"19:47:22.106","level":"INFO","service":"payments","trace_id":"4bf92f35","msg":"bank authorize ok","bank_ms":210,"status":200}',
+      '{"ts":"19:47:22.132","level":"INFO","service":"orders","trace_id":"4bf92f35","msg":"order paid","order":"ord-7731"}',
+    ];
+
+    const STEPS = [
+      {chip:'📣 Жалоба', t:'Шаг 1. Анна пишет в поддержку', on:['anna'], v:{anna:'⏳ 10 с'},
+       d:'<b>Что мы знаем? Почти ничего.</b> «Висит» — это симптом глазами человека. Без наблюдаемости поддержка ответит «у нас всё работает, попробуйте позже», и на этом всё. Но у нас есть три зацепки: <b>время</b> (19:47), <b>действие</b> (оплата) и <b>код запроса</b> внизу страницы. Этот код — начало <code class="inl">trace_id</code>, сквозного номера запроса. Запомните его.',
+       pane:() => '<div class="obx-pane"><h4>📩 Чат поддержки, пятница, 19:48</h4>' +
+         '<div class="obx-bubble"><span class="obx-who">Анна</span>Нажала «Оплатить» — и крутилка секунд десять. Потом всё-таки написало «Оплачено». Вчера было мгновенно. Деньги точно списались один раз?</div>' +
+         '<div class="obx-bubble"><span class="obx-who">Анна · скриншот</span>…внизу страницы мелко: <code class="inl">код запроса 4bf92f35</code></div>' +
+         '<div class="obx-bubble me"><span class="obx-who">Поддержка</span>Спасибо! Передали инженерам, они уже разбираются.</div></div>'},
+      {chip:'🔔 Алерт', t:'Шаг 2. Алерт уже звенел — раньше Анны', bad:['gw'], v:{gw:'p99 9,6 с'},
+       d:'<b>Алерт — это пожарная сигнализация.</b> Он говорит «где-то дым» и будит дежурного, но не говорит, что горит. Хорошая новость: дежурный Олег узнал о проблеме <b>в 19:40, за восемь минут до жалобы Анны</b>. Обратите внимание, на что настроен алерт: на <b>симптом</b>, который чувствуют пользователи (медленная оплата), а не на загрузку процессора.',
+       pane:() => '<div class="obx-pane bad"><h4>🔔 Сообщение дежурному, 19:40</h4><pre class="json" style="font-size:12px">' + esc(
+         'FIRING  PaymentLatencyHigh                 с 19:40\n' +
+         '  где:       шлюз → POST /api/checkout/pay\n' +
+         '  условие:   p99 задержки > 2 с, держится 5 минут\n' +
+         '  сейчас:    p99 = 9,6 с   (обычно 0,6 с)\n' +
+         '  ошибки:    2,4 %         (обычно 0,1 %)\n' +
+         '  SLO:       бюджет ошибок сгорает в 14 раз быстрее нормы\n' +
+         '  кому:      дежурный команды «Оплата» → звонок\n' +
+         '  что делать: runbook/payments-latency') + '</pre></div>'},
+      {chip:'📊 Метрики', t:'Шаг 3. Дашборд: когда началось и где красное', bad:['gw','ord','pay'], good:['af','bank'],
+       v:{gw:'p99 9,9 с', ord:'p99 9,9 с', pay:'p99 9,8 с', af:'p99 50 мс', bank:'p99 230 мс'},
+       d:'<b>Метрики — это приборная панель.</b> Олег открывает дашборд и за минуту видит три вещи. <b>Когда:</b> задержка взлетела в 19:35, а синяя линия прямо перед этим — выкатка оплаты версии 2.8.0. <b>Где:</b> красное у шлюза, заказов и оплаты, а антифрод и сам банк в норме. <b>Загадка:</b> оплата тормозит, а банк отвечает быстро. И в оплату приходит 70 запросов в секунду, а в банк уходит только 48. Куда деваются остальные? Метрики говорят «где и когда», но не «почему».',
+       pane:() => '<div class="obx-pane"><h4>📊 Дашборд «Оплата», p99 задержки</h4>' + spark(8, false) +
+         '<div class="table-wrap" style="margin-top:6px"><table class="db"><thead><tr><th>Сервис</th><th>Rate, в сек</th><th>Errors</th><th>Duration p99</th></tr></thead><tbody>' +
+         '<tr><td>шлюз</td><td>72</td><td class="no">2,4 %</td><td class="no">9,9 с</td></tr>' +
+         '<tr><td>заказы</td><td>71</td><td class="no">2,4 %</td><td class="no">9,9 с</td></tr>' +
+         '<tr><td>антифрод</td><td>71</td><td class="yes">0 %</td><td class="yes">50 мс</td></tr>' +
+         '<tr><td>оплата</td><td><b>70</b></td><td class="no">2,4 %</td><td class="no">9,8 с</td></tr>' +
+         '<tr><td>оплата → банк</td><td class="may"><b>48</b></td><td class="yes">0 %</td><td class="yes">230 мс</td></tr>' +
+         '</tbody></table></div></div>'},
+      {chip:'🧵 Трасса', t:'Шаг 4. Трасса запроса Анны', on:['anna'], bad:['pay','pool'], good:['af','bank'],
+       v:{anna:'10 140 мс', gw:'10 140 мс', ord:'10 126 мс', af:'45 мс', pay:'10 045 мс', pool:'⏳ 9 800 мс', bank:'210 мс'},
+       d:'<b>Трасса — это трек-номер посылки.</b> Олег вставляет код Анны <code class="inl">4bf92f35</code> в поиск трасс и видит весь путь её запроса. Самая длинная полоса — не банк и не база, а <b>ожидание соединения к банку</b>: 9 800 из 10 140 мс. Банк ответил за 210 мс, как всегда. Запрос почти 10 секунд стоял в очереди внутри нашей же оплаты. Подробнее по каждому спану — в главе 6, там эту трассу можно потрогать.',
+       pane:() => '<div class="obx-pane"><h4>🧵 Трасса 4bf92f3577b34da6</h4><div class="obx-wf-wrap" style="margin-top:0"><div class="obx-wf">' + waterfall(false, 's7') + '</div></div></div>'},
+      {chip:'📜 Логи', t:'Шаг 5. Логи по тому же trace_id', on:['pay'], bad:['pool'],
+       v:{pay:'очередь 184', pool:'10 из 10 занято'},
+       d:'<b>Логи — это бортовой журнал.</b> Трасса сказала <b>где</b>, логи говорят <b>что именно</b>. По тому же <code class="inl">trace_id</code> находятся все записи запроса Анны во всех сервисах сразу. В них прямым текстом: пул <code class="inl">bank-http</code> рассчитан на 10 соединений, все заняты, в очереди 184 запроса. А самая первая строка — запись о старте оплаты 2.8.0 в 19:34 — показывает <code class="inl">bank.pool.max: 10</code>. Раньше там было 50.',
+       pane:() => '<div class="obx-pane"><h4>📜 Поиск в логах</h4><pre class="json obx-log">' +
+         LOGS_ANNA.map((l, i) => i === 0 || l.indexOf('WARN') >= 0 ? '<span class="obx-lw">' + esc(l) + '</span>' : esc(l)).join('\n') + '</pre></div>'},
+      {chip:'🧩 Причина', t:'Шаг 6. Причина: одна цифра в настройках', bad:['pool'], v:{pool:'max 50 → 10'},
+       d:'<b>Причина найдена.</b> При переносе настроек в релизе 2.8.0 число соединений к банку случайно уменьшили с 50 до 10. Посчитаем. Один вызов банка занимает 0,21 секунды, значит одно соединение пропускает около 5 оплат в секунду. Десять соединений — около 48 в секунду. А в пятничный пик приходит 70. Лишние 22 оплаты каждую секунду встают в очередь, и очередь растёт. Вот откуда «48 в банк при 70 входящих» на дашборде.',
+       pane:() => '<div class="obx-pane bad"><h4>🧩 Что изменилось в релизе</h4><pre class="json" style="font-size:12px">' + esc(
+         '  payments  v2.7.3  →  v2.8.0      (выкачен в 19:34)\n\n' +
+         '  - bank.pool.max: 50\n' +
+         '  + bank.pool.max: 10      ← опечатка при переносе настроек\n\n' +
+         '  пропускная способность пула:\n' +
+         '    1 соединение  = 1 / 0,21 с ≈ 4,8 оплаты в секунду\n' +
+         '    10 соединений ≈ 48 в секунду   (было 50 → ≈ 238)\n' +
+         '    приходит в пик   70 в секунду\n' +
+         '    → каждую секунду +22 запроса в очередь') + '</pre></div>'},
+      {chip:'🛠 Починка', t:'Шаг 7. Откат и проверка', good:['anna','gw','ord','pay','pool','af','bank'],
+       v:{anna:'✓ 0,6 с', gw:'p99 0,6 с', ord:'p99 0,6 с', pay:'p99 0,5 с', pool:'14 из 50', af:'50 мс', bank:'210 мс'},
+       d:'<b>В 19:58 Олег откатывает оплату на 2.7.3.</b> Чинить ночью «вперёд» не нужно — сначала вернуть как было. Через пять минут график падает обратно к 0,6 секунды, алерт сам закрывается. Проверка тоже идёт через наблюдаемость: не «вроде стало лучше», а «p99 снова 0,6 с, очередь в пуле пуста». Анне поддержка отвечает: «Деньги списаны один раз, задержка была на нашей стороне, уже исправили».',
+       pane:() => '<div class="obx-pane good"><h4>📊 Тот же график после отката</h4>' + spark(11, true) + '</div>'},
+      {chip:'🏁 Итог', t:'Шаг 8. Итог: цепочка из четырёх звеньев', good:['anna','gw','ord','pay','pool','af','bank'],
+       v:{anna:'✓', gw:'✓', ord:'✓', pay:'✓', pool:'✓', af:'✓', bank:'✓'},
+       d:'<b>От алерта до исправления — 18 минут.</b> Без наблюдаемости это был бы вечер обхода команд: «у банка спросили? у антифрода? давайте добавим логов и выкатим ещё раз». Запомните порядок: <b>алерт → метрики → трасса → логи → причина</b>. Каждый инструмент отвечает на свой вопрос, и вместе их держит один сквозной номер запроса. Дальше разберём каждое звено по отдельности.',
+       ok:true,
+       pane:() => '<div class="table-wrap"><table class="db"><thead><tr><th>Звено</th><th>Житейски</th><th>Какой вопрос закрыл</th><th>Ответ в истории Анны</th></tr></thead><tbody>' +
+         '<tr><td><b>🔔 Алерт</b></td><td>пожарная сигнализация</td><td>Есть ли проблема прямо сейчас?</td><td>Да, с 19:40 оплата медленная</td></tr>' +
+         '<tr><td><b>📊 Метрики</b></td><td>приборная панель</td><td>Когда началось и где?</td><td>В 19:35, после релиза, в оплате; банк в норме</td></tr>' +
+         '<tr><td><b>🧵 Трасса</b></td><td>трек-номер посылки</td><td>Где именно ушло время?</td><td>9,8 с — ожидание соединения к банку</td></tr>' +
+         '<tr><td><b>📜 Логи</b></td><td>бортовой журнал</td><td>Что именно случилось?</td><td>Пул на 10 соединений, 184 в очереди, так с релиза 2.8.0</td></tr>' +
+         '</tbody></table></div>' +
+         '<div class="note warn"><b>И что поменяли, чтобы не повторилось.</b> Добавили метрику насыщения пула на дашборд оплаты (это USE из главы 5). Проверку настроек в конвейер сборки: изменение <code class="inl">pool.max</code> больше чем вдвое требует подтверждения. И выкатку сначала на 5 % пользователей: такой релиз сломал бы оплату только у каждого двадцатого и откатился бы сам.</div>'},
+    ];
+
+    const chips = $o('obx-inv-chips');
+    chips.innerHTML = STEPS.map((s, i) => '<button class="obx-chip" data-i="' + i + '">' + (i + 1) + ' · ' + s.chip + '</button>').join('');
+    const nodes = [...sch.querySelectorAll('.obx-nd')];
+    let cur = 0;
+    function paint(){
+      const st = STEPS[cur];
+      nodes.forEach(n => {
+        const id = n.dataset.n;
+        n.classList.toggle('on', (st.on || []).includes(id));
+        n.classList.toggle('bad', (st.bad || []).includes(id));
+        n.classList.toggle('good', (st.good || []).includes(id));
+        n.querySelector('.obx-ndv').textContent = (st.v && st.v[id]) || '';
+      });
+      [...chips.children].forEach((c, i) => { c.classList.toggle('on', i === cur); c.classList.toggle('done', i < cur); });
+      $o('obx-inv-lab').textContent = 'шаг ' + (cur + 1) + ' из ' + STEPS.length;
+      out.innerHTML = '<div class="skout" style="margin-top:12px"><h4>' + st.t + '</h4>' +
+        '<div class="note' + (st.ok ? ' good' : '') + '" style="margin:0">' + st.d + '</div></div>' + st.pane();
+      if(cur === STEPS.length - 1) Progress.report('obx-inv', 1);
+    }
+    $o('obx-inv-next').addEventListener('click', () => { if(cur < STEPS.length - 1){ cur++; paint(); } });
+    $o('obx-inv-prev').addEventListener('click', () => { if(cur > 0){ cur--; paint(); } });
+    chips.addEventListener('click', e => { const b = e.target.closest('button[data-i]'); if(b){ cur = +b.dataset.i; paint(); } });
+    paint();
+    Progress.register('obx-inv', 1, 'Наблюдаемость: история Анны');
+  })();
+
+  /* ═════ ГЛАВА 3: три взгляда + сравнение + сортировка ═════ */
+  if($o('obx-lens-pick')){
+    dbSegment('obx-lens', [
+      {n:'📜 Логи', life:'бортовой журнал',
+       art:'{"ts":"19:47:12.094","level":"WARN","service":"payments",\n "trace_id":"4bf92f35","msg":"http pool exhausted, waiting",\n "pool":"bank-http","active":10,"max":10,"pending":184}\n\n… и ещё 41 000 таких же строк за полчаса',
+       yes:'<b>Что именно</b> случилось с конкретным запросом: какой пул, сколько занято, сколько ждёт, какая версия.',
+       no:'Насколько это массово и когда началось. Из 41 000 строк картину целиком не увидишь — их надо ещё сгруппировать.'},
+      {n:'📊 Метрики', life:'приборная панель',
+       art:'p99 оплаты, секунды\n\n 10 ┤          ●──●──●──●\n    │         ╱\n  5 ┤        ╱\n    │       ╱\n  2 ┤┄┄┄┄┄┄╱┄┄┄┄┄┄┄┄┄┄┄┄┄┄  порог\n  0 ┤●──●──●\n    └──────┬───────────────\n       19:34 релиз',
+       yes:'<b>Сколько, когда и где:</b> началось в 19:35, затронуло всех, кто платит, красное у оплаты, банк в норме.',
+       no:'Почему. И у кого конкретно: метрика не знает про Анну, она знает про «70 оплат в секунду».'},
+      {n:'🧵 Трасса', life:'трек-номер посылки',
+       art:'трасса 4bf92f35, всего 10 140 мс\n\n шлюз                ▉▉▉▉▉▉▉▉▉▉▉▉▉▉▉▉ 10 140\n  └ заказы           ▉▉▉▉▉▉▉▉▉▉▉▉▉▉▉▉ 10 126\n     ├ антифрод      ▏ 45\n     └ оплата        ▉▉▉▉▉▉▉▉▉▉▉▉▉▉▉▉ 10 045\n        ├ ждём пул   ▉▉▉▉▉▉▉▉▉▉▉▉▉▉▉  9 800  ◄──\n        └ банк                      ▏ 210',
+       yes:'<b>Где именно</b> ушло время в одном конкретном запросе, через все сервисы сразу.',
+       no:'Массово ли это (нужны метрики) и что сказал код в этот момент (нужны логи).'},
+    ], x =>
+      '<div class="skout" style="margin-top:11px"><h4>' + x.n + ' — ' + x.life + '</h4>' +
+      '<pre class="json" style="font-size:11.5px;margin:0 0 10px">' + esc(x.art) + '</pre>' +
+      '<div class="lgrid"><b>отвечает</b><div>' + x.yes + '</div><b>не отвечает</b><div>' + x.no + '</div></div></div>');
+  }
+
+  renderCmp('obx-cmp', ['', '📜 Логи', '📊 Метрики', '🧵 Трассы'], [
+    {cells:['<b>Житейски</b>', 'бортовой журнал', 'приборная панель', 'трек-номер посылки'],
+     why:'Журнал хранит историю событий, панель показывает текущие числа, трек-номер — путь одной вещи через много точек. Три разных взгляда на одну реальность.'},
+    {cells:['<b>Главный вопрос</b>', 'что случилось?', 'сколько и когда?', 'где ушло время?'],
+     why:'Если вопрос начинается со «сколько», «как часто», «растёт ли» — это метрики. Если «где тормозит этот запрос» — трасса. Если «что именно произошло и с какими данными» — логи.'},
+    {cells:['<b>Единица</b>', 'событие (строка)', 'число во времени', 'один запрос (дерево спанов)'],
+     why:'Лог — одна запись. Метрика — точка на графике, в которой уже сложены тысячи запросов. Трасса — дерево из спанов одного запроса.'},
+    {cells:['<b>Цена</b>', 'дорого: объём', 'дёшево', 'средне: берут выборку'],
+     why:'Метрика — одно число раз в 15 секунд, сколько бы запросов ни было. Логи растут вместе с нагрузкой. Трассы тоже, поэтому сохраняют 1–10 % обычных и все медленные и ошибочные.'},
+    {cells:['<b>Сколько хранят</b>', 'дни–недели', 'месяцы–годы', 'дни'],
+     why:'Долго хранят то, что дёшево и нужно для сравнений «как было в прошлом году». Подробности нужны в основном для свежих разборов.'},
+    {cells:['<b>Слабое место</b>', 'не видно картину целиком', 'не говорят «почему» и «у кого»', 'рвутся, если один сервис не передал trace_id'],
+     why:'Поэтому и нужны все три: каждый закрывает слепое пятно соседа. А сшивает их сквозной trace_id.'},
+  ]);
+
+  renderSort('obx-srt', [
+    {t:'Сколько оплат в секунду было вчера в 19:00?', bucket:'met', why:'Вопрос «сколько» за прошлый период — ровно для метрик. Логи за вчера, возможно, уже удалены, да и считать строки долго.'},
+    {t:'Почему заказ ord-7731 шёл 10 секунд — где ушло время?', bucket:'tr', why:'«Где ушло время в конкретном запросе» — вопрос для трассы. Метрика знает только общий p99, а логи каждого сервиса правдивы по отдельности.'},
+    {t:'С каким текстом ошибки упал платёж клиента Бориса?', bucket:'log', why:'Содержание конкретного события — это логи. Ищем по id клиента или по trace_id.'},
+    {t:'Растёт ли доля ошибок последние 15 минут?', bucket:'met', why:'Тенденция во времени — метрика. На ней же висит алерт.'},
+    {t:'Какой из пяти сервисов тормозит конкретный запрос?', bucket:'tr', why:'Трасса показывает все сервисы запроса на одной картинке с длительностями.'},
+    {t:'Какие поля пришли в запросе, который не прошёл проверку?', bucket:'log', why:'Подробности данных — в структурированных логах (без персональных данных, конечно).'},
+    {t:'Стал ли p99 хуже после вчерашнего релиза?', bucket:'met', why:'Сравнение «до и после» по всем запросам — метрики с отметкой релиза на графике.'},
+  ], [
+    {id:'log', n:'📜 Логи'}, {id:'met', n:'📊 Метрики'}, {id:'tr', n:'🧵 Трасса'},
+  ], 'obx-srt-score', 'obx-srt-total');
+  if($o('obx-srt')) Progress.register('obx-srt-score', 7, 'Наблюдаемость: какой инструмент');
+
+  /* ═════ ГЛАВА 4: логи ═════ */
+  (function(){
+    const outEl = $o('obx-lg-out'); if(!outEl) return;
+    const L = [
+      ['19:47:11.902','INFO','catalog','7e10c2aa','GET /products ok',{ms:41}],
+      ['19:47:12.070','INFO','gateway','4bf92f35','request in',{route:'/api/checkout/pay'}],
+      ['19:47:12.084','INFO','payments','4bf92f35','charge started',{order:'ord-7731',amount:2490}],
+      ['19:47:12.094','WARN','payments','4bf92f35','http pool exhausted, waiting',{pool:'bank-http',active:10,max:10,pending:184}],
+      ['19:47:12.310','INFO','orders','9a1c77e0','checkout started',{order:'ord-7732'}],
+      ['19:47:12.515','WARN','payments','9a1c77e0','http pool exhausted, waiting',{pool:'bank-http',active:10,max:10,pending:185}],
+      ['19:47:13.020','ERROR','notify','5c0f9d41','sms provider 503, retry 1/3',{provider:'smsc'}],
+      ['19:47:14.200','INFO','catalog','e2b4f610','GET /products ok',{ms:38}],
+      ['19:47:17.480','ERROR','payments','1f6e0b93','charge timeout',{waited_ms:15000,pool:'bank-http'}],
+      ['19:47:19.004','INFO','notify','5c0f9d41','sms sent on retry 2',{}],
+      ['19:47:21.894','INFO','payments','4bf92f35','connection acquired',{waited_ms:9800}],
+      ['19:47:22.106','INFO','payments','4bf92f35','bank authorize ok',{bank_ms:210,status:200}],
+      ['19:47:22.132','INFO','orders','4bf92f35','order paid',{order:'ord-7731'}],
+      ['19:47:22.140','INFO','gateway','4bf92f35','response out',{status:200,ms:10140}],
+    ];
+    const RANK = {DEBUG:0, INFO:1, WARN:2, ERROR:3};
+    const st = {fmt:'json', lvl:'all', tr:false};
+    function line(r){
+      if(st.fmt === 'txt'){
+        const extra = Object.keys(r[5]).map(k => r[5][k]).join(' ');
+        return r[0].slice(0, 8) + ' ' + r[1] + ' ' + r[2] + ': ' + r[4] + (extra ? ' (' + extra + ')' : '');
+      }
+      const o = Object.assign({ts:r[0], level:r[1], service:r[2], trace_id:r[3], msg:r[4]}, r[5]);
+      return JSON.stringify(o);
+    }
+    function draw(){
+      const min = st.lvl === 'err' ? 3 : st.lvl === 'warn' ? 2 : 0;
+      let rows = L.filter(r => RANK[r[1]] >= min);
+      const trOn = st.tr && st.fmt === 'json';
+      if(trOn) rows = rows.filter(r => r[3] === '4bf92f35');
+      outEl.innerHTML = rows.length ? rows.map(r => {
+        const cls = r[1] === 'ERROR' ? 'obx-le' : r[1] === 'WARN' ? 'obx-lw' : '';
+        return '<span class="' + cls + (trOn ? ' obx-lh' : '') + '">' + esc(line(r)) + '</span>';
+      }).join('\n') : '<span class="obx-lw">(пусто: под фильтр ничего не попало)</span>';
+      $o('obx-lg-n').textContent = rows.length + ' из ' + L.length;
+      const m = $o('obx-lg-msg');
+      if(st.tr && st.fmt === 'txt')
+        msg(m, 'err', '<b>Искать нечем.</b> В строках нет поля trace_id: разработчик просто не вписал его в текст. Можно поискать по «ord-7731», но тогда вы найдёте записи оплаты и заказов, а шлюз, который не знает номер заказа, пропадёт. Переключитесь на JSON и нажмите фильтр ещё раз.');
+      else if(trOn){
+        msg(m, 'ok', '<b>Вот он, весь путь Анны: 7 строк из 14</b>, из трёх разных сервисов, в правильном порядке. Видно, что 9,8 секунды ушли между «pool exhausted» и «connection acquired». Один фильтр по полю — и никакого сопоставления времени вручную. В реальном хранилище это запрос вида <code class="inl">{trace_id="4bf92f35"}</code>.');
+        Progress.report('obx-lg', 1);
+      }
+      else if(st.lvl !== 'all')
+        msg(m, 'warn', 'Фильтр по уровню убирает шум, но заметьте: <b>запрос Анны почти весь на уровне INFO</b>. Её строки выпали, и осталось чужое: СМС-провайдер, таймаут другого клиента. Уровень помогает найти аварии, а найти конкретный запрос помогает только trace_id.');
+      else
+        msg(m, '', 'Сейчас перемешаны записи пяти сервисов и пяти разных запросов. Попробуйте найти, какие строки относятся к Анне.');
+    }
+    function segBind(id, key, attr){
+      const bar = $o(id);
+      bar.addEventListener('click', e => {
+        const b = e.target.closest('button'); if(!b) return;
+        st[key] = b.dataset[attr];
+        [...bar.children].forEach(x => x.classList.toggle('on', x === b));
+        draw();
+      });
+    }
+    segBind('obx-lg-fmt', 'fmt', 'f');
+    segBind('obx-lg-lvl', 'lvl', 'l');
+    const trB = $o('obx-lg-tr');
+    trB.addEventListener('click', () => { st.tr = !st.tr; trB.classList.toggle('on', st.tr); draw(); });
+    $o('obx-lg-rs').addEventListener('click', () => {
+      st.fmt = 'json'; st.lvl = 'all'; st.tr = false; trB.classList.remove('on');
+      [...$o('obx-lg-fmt').children].forEach(x => x.classList.toggle('on', x.dataset.f === 'json'));
+      [...$o('obx-lg-lvl').children].forEach(x => x.classList.toggle('on', x.dataset.l === 'all'));
+      draw();
+    });
+    draw();
+    Progress.register('obx-lg', 1, 'Наблюдаемость: поиск в логах');
+  })();
+
+  /* ═════ ГЛАВА 5: перцентили ═════ */
+  (function(){
+    const sl = $o('obx-pc-sl'); if(!sl) return;
+    const grid = $o('obx-pc-grid');
+    grid.innerHTML = Array.from({length:100}, () => '<span></span>').join('');
+    const cells = [...grid.children];
+    const ms = v => v >= 1000 ? dec(v / 1000, 1) + ' с' : Math.round(v) + ' мс';
+    function upd(){
+      const k = +sl.value;
+      $o('obx-pc-v').textContent = k + ' %';
+      const vals = [];
+      for(let i = 0; i < 100; i++){
+        const slow = (i * 7) % 100 < k;
+        vals.push(slow ? 5000 + ((i * 13) % 10) * 200 : 90 + ((i * 37) % 100) * 1.2);
+        cells[i].classList.toggle('s', slow);
+      }
+      const srt = vals.slice().sort((a, b) => a - b);
+      const pc = q => srt[Math.ceil(q * 100) - 1];
+      const mean = vals.reduce((s, v) => s + v, 0) / 100;
+      const set = (id, lab, v, bad) => { const m = $o(id); m.className = 'meter' + (bad ? ' bad' : ' good'); m.innerHTML = lab + ': <b>' + ms(v) + '</b>'; };
+      set('obx-pc-m1', 'Среднее', mean, mean > 1000);
+      set('obx-pc-m2', 'p50 (медиана)', pc(0.5), pc(0.5) > 1000);
+      set('obx-pc-m3', 'p95', pc(0.95), pc(0.95) > 1000);
+      set('obx-pc-m4', 'p99', pc(0.99), pc(0.99) > 1000);
+      let t, kind;
+      if(k === 0){ kind = 'ok'; t = 'Все запросы быстрые, и все показатели сходятся. Так бывает только на тестовом стенде.'; }
+      else if(mean < 1000){ kind = 'warn'; t = '<b>Среднее — ' + ms(mean) + ', выглядит прилично.</b> А ' + k + ' человек из 100 ждут больше 5 секунд. Если пользователь за вечер делает 20 запросов, почти каждый хотя бы раз попадёт в хвост. <b>p99 = ' + ms(pc(0.99)) + '</b> честно показывает, что хвост есть.'; }
+      else { kind = 'err'; t = 'Теперь и среднее выросло до ' + ms(mean) + ' — но заметьте, как поздно: медленных уже ' + k + ' %. Медиана при этом всё ещё ' + ms(pc(0.5)) + ' и уверяет, что «типичному пользователю хорошо». Смотрите на p95 и p99.'; }
+      msg($o('obx-pc-msg'), kind, t);
+    }
+    sl.addEventListener('input', () => { upd(); Progress.report('obx-pc', 1); });
+    upd();
+    Progress.register('obx-pc', 1, 'Наблюдаемость: перцентили');
+  })();
+
+  /* ═════ ГЛАВА 6: водопад трассы с деталями ═════ */
+  (function(){
+    const wf = $o('obx-wf'), det = $o('obx-wf-det'); if(!wf || !det) return;
+    let sel = null;
+    function show(id){
+      sel = id;
+      wf.innerHTML = waterfall(true, sel);
+      const s = TR.spans.find(x => x.id === id);
+      if(!s){ msg(det, '', 'Нажмите на любую строку водопада — покажу, что записано в спане.'); return; }
+      const par = s.p ? TR.spans.find(x => x.id === s.p) : null;
+      const share = Math.round(s.d / TR.total * 100);
+      det.className = '';
+      det.innerHTML = '<div class="skout" style="margin-top:11px' + (s.bad ? ';border-left-color:var(--danger)' : '') + '"><h4>' + esc(s.n) + '</h4>' +
+        '<div class="lgrid">' +
+          '<b>сервис</b><div>' + esc(s.svc) + '</div>' +
+          '<b>родитель</b><div>' + (par ? esc(par.n) + ' <span style="color:var(--faint)">(' + par.id + ')</span>' : 'нет — это корень трассы') + '</div>' +
+          '<b>начало</b><div>+' + nf(s.st) + ' мс от старта запроса</div>' +
+          '<b>длительность</b><div>' + nf(s.d) + ' мс · ' + share + ' % всего запроса</div>' +
+          '<b>trace_id</b><div><code class="inl">' + TR.id + '</code></div>' +
+        '</div>' +
+        '<div style="font:600 10.5px var(--mono);color:var(--faint);text-transform:uppercase;margin:10px 0 4px">атрибуты (пометки) спана</div>' +
+        '<pre class="json" style="font-size:11.5px">' + esc(JSON.stringify(s.a, null, 2)) + '</pre>' +
+        '<div class="note' + (s.bad ? ' good' : s.hot ? ' warn' : '') + '" style="margin-top:10px">' + s.note + '</div></div>';
+      if(s.bad) Progress.report('obx-wf', 1);
+    }
+    wf.addEventListener('click', e => { const r = e.target.closest('[data-s]'); if(r) show(r.dataset.s); });
+    wf.addEventListener('keydown', e => {
+      if(e.key !== 'Enter' && e.key !== ' ') return;
+      const r = e.target.closest('[data-s]'); if(r){ e.preventDefault(); show(r.dataset.s); }
+    });
+    wf.innerHTML = waterfall(true, null);
+    det.className = 'console';
+    msg(det, '', 'Нажмите на любую строку водопада — покажу, что записано в спане. Подсказка: ищите не сервис, а самую длинную строчку на самом глубоком уровне.');
+    Progress.register('obx-wf', 1, 'Наблюдаемость: трасса Анны');
+  })();
+
+  /* ═════ ГЛАВА 7: сортировка алертов ═════ */
+  renderSort('obx-al', [
+    {t:'Доля успешных оплат ниже 99 % пять минут подряд', bucket:'page', why:'Симптом, который прямо сейчас чувствуют люди и бизнес. Понятно, кому плохо и почему нельзя ждать до утра.'},
+    {t:'Загрузка процессора на узле выше 85 %', bucket:'dash', why:'Это причина, а не симптом. Сервис может отлично работать и при 95 %. Полезно на дашборде при разборе, но будить из-за этого нельзя.'},
+    {t:'Бюджет ошибок оплаты сгорает в 14 раз быстрее нормы', bucket:'page', why:'Лучший вид алерта: привязан к обещанию пользователям. При таком темпе месячный бюджет кончится за два дня — это срочно.'},
+    {t:'Под перезапустился после обновления', bucket:'del', why:'Штатное поведение: так работает самовосстановление и выкатка. На такое правило никто не отреагирует, а значит, его не должно быть.'},
+    {t:'Пул соединений к банку занят на 100 %, в очереди больше 50 запросов', bucket:'dash', why:'Ценный сигнал причины — ровно он помог бы Анне быстрее. Но будить стоит по симптому (медленные оплаты), а этот график держат рядом на дашборде и ссылаются на него из текста алерта.'},
+    {t:'В логах встретилось слово ERROR', bucket:'del', why:'Их сотни в день, и большинство безобидны. Такой алерт приучает игнорировать все алерты.'},
+    {t:'Самое старое сообщение в очереди заказов ждёт больше 10 минут', bucket:'page', why:'Очередь встала: заказы копятся и не обрабатываются. Пользователь пока не видит ошибки, но скоро увидит. Будить.'},
+    {t:'Диск сервера логов заполнен на 70 % и растёт на 1 % в день', bucket:'dash', why:'До беды месяц. Это задача на рабочее время, а не звонок в три ночи.'},
+  ], [
+    {id:'page', n:'🚨 Будить дежурного'}, {id:'dash', n:'📊 На дашборд, днём'}, {id:'del', n:'🗑 Удалить'},
+  ], 'obx-al-score', 'obx-al-total');
+  if($o('obx-al')) Progress.register('obx-al-score', 8, 'Наблюдаемость: какие алерты нужны');
+
+  /* ═════ ГЛАВА 8: SLI/SLO/SLA + бюджет ═════ */
+  renderCmp('obx-sla', ['', 'SLI — что меряем', 'SLO — что обещаем себе', 'SLA — что обещаем по договору'], [
+    {cells:['<b>Одной фразой</b>', 'показатель', 'цель по показателю', 'договор с последствиями'],
+     why:'<b>SLI</b> (service level indicator) — измеряемое число. <b>SLO</b> (service level objective) — цель, которую команда ставит себе по этому числу. <b>SLA</b> (service level agreement) — обещание клиенту в договоре, за нарушение которого платят.'},
+    {cells:['<b>В пиццерии</b>', 'доля пицц, доставленных за 30 минут', '95 % за месяц', 'опоздали чаще — пицца бесплатно'],
+     why:'Индикатор можно посчитать по чекам. Цель — внутренний ориентир кухни. Договор — то, что написано на коробке, и за него пиццерия платит деньгами.'},
+    {cells:['<b>В оплате Анны</b>', 'доля оплат, прошедших без ошибки быстрее 2 с', '99,5 % за 30 дней', 'магазину банк обещает 99,9 %, иначе штраф'],
+     why:'Обратите внимание: SLI считает <b>запросы, а не минуты</b> и включает скорость. Оплата Анны прошла успешно, но за 10 секунд — по такому SLI она считается неудачной. Это честно: для Анны это и была неудача.'},
+    {cells:['<b>Если не выполнили</b>', '—', 'заморозка рискованных релизов, силы на надёжность', 'штраф, скидка, возврат денег'],
+     why:'SLO всегда строже SLA. Иначе вы узнаёте о проблеме в момент, когда уже платите штраф. Запас между ними — время отреагировать.'},
+  ]);
+
+  (function(){
+    const errS = $o('obx-eb-err'); if(!errS) return;
+    const dayS = $o('obx-eb-day'), bar = $o('obx-eb-slo');
+    let slo = 0.999;
+    function upd(){
+      const e = +errS.value / 10000, day = +dayS.value;
+      $o('obx-eb-err-v').textContent = dec(e * 100, 2) + ' %';
+      $o('obx-eb-day-v').textContent = day;
+      const budget = 1 - slo;
+      const burn = e / budget;
+      const spent = burn * day / 30;
+      const allowed = budget * 30e6, used = e * 1e6 * day;
+      const fill = $o('obx-eb-fill');
+      fill.style.width = Math.min(100, spent * 100) + '%';
+      fill.className = 'obx-eb-fill' + (spent >= 1 ? ' bad' : burn > 1 ? ' warn' : '');
+      $o('obx-eb-mk').style.left = 'calc(' + (day / 30 * 100) + '% - 1px)';
+      $o('obx-eb-all').textContent = nf(allowed) + ' ошибок';
+      $o('obx-eb-used').textContent = nf(used) + ' (' + Math.round(spent * 100) + ' %)';
+      $o('obx-eb-usedm').className = 'meter' + (spent >= 1 ? ' bad' : burn > 1 ? ' wq' : ' good');
+      $o('obx-eb-burn').textContent = '×' + dec(burn, burn < 10 ? 1 : 0);
+      $o('obx-eb-burnm').className = 'meter' + (burn > 1 ? ' bad' : ' good');
+      let k, t;
+      if(spent >= 1){
+        const dEnd = Math.max(1, Math.floor(30 / burn));
+        k = 'err'; t = '<b>Не выкатывать новые функции.</b> Бюджет кончился примерно на ' + dEnd + '-й день: обещание пользователям уже нарушено. По договорённости, принятой заранее, релизы функций замораживаются. Катим только исправления надёжности, пока доля ошибок не вернётся в норму.';
+      } else if(burn > 1){
+        const dEnd = Math.floor(30 / burn);
+        k = 'warn'; t = '<b>Катить только исправления.</b> Бюджета осталось ' + Math.round((1 - spent) * 100) + ' %, но тратите вы его в ' + dec(burn, 1) + ' раза быстрее нормы. При таком темпе он кончится на ' + dEnd + '-й день месяца. Сейчас лучший момент найти причину ошибок, а рискованные релизы отложить или катить на маленькую долю пользователей.';
+      } else if(burn > 0.3){
+        k = 'ok'; t = '<b>Можно выкатывать.</b> Бюджет тратится медленнее нормы: к концу месяца уйдёт около ' + Math.round(burn * 100) + ' %. Обычный режим работы.';
+      } else {
+        k = 'ok'; t = '<b>Выкатывайте смело — и даже рискуйте.</b> К концу месяца уйдёт лишь ' + Math.round(burn * 100) + ' % бюджета. Неистраченный бюджет — не повод для гордости: возможно, вы слишком осторожны и медленно поставляете. Можно провести учения по отказам или попробовать что-то новое.';
+      }
+      msg($o('obx-eb-msg'), k, t + ' <span style="opacity:.8">При SLO ' + String(+(slo * 100).toFixed(2)).replace('.', ',') + ' % из 30 млн запросов в месяц можно ошибиться на ' + nf(allowed) + '.</span>');
+    }
+    bar.addEventListener('click', ev => {
+      const b = ev.target.closest('button[data-s]'); if(!b) return;
+      slo = +b.dataset.s;
+      [...bar.children].forEach(x => x.classList.toggle('on', x === b));
+      upd(); Progress.report('obx-eb', 1);
+    });
+    [errS, dayS].forEach(s => s.addEventListener('input', () => { upd(); Progress.report('obx-eb', 1); }));
+    upd();
+    Progress.register('obx-eb', 1, 'Наблюдаемость: катить или нет');
+  })();
 })();
 </script>

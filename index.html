@@ -17407,18 +17407,235 @@ renderFlow('msf-flow', {
 <section class="panel" id="release" data-accent="ms" role="tabpanel">
   <p class="lead"><b>Как выкатывать — это архитектурное решение, а не дело эксплуатации.</b> От него зависит, сколько людей увидит поломку и можно ли откатиться. И оно ставит жёсткое требование к коду: <b>две версии обязаны работать одновременно</b>. Они всегда работают одновременно — хотя бы минуту.</p>
 
-  <div class="card">
-    <h2><span class="tag">зачем это</span> зачем нужны безопасные релизы</h2>
+  <style>
+    .rlx-map{display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:12px}
+    @media (max-width:760px){.rlx-map{grid-template-columns:1fr}}
+    .rlx-map button{appearance:none; text-align:left; border:1px solid var(--line); background:var(--surface-2); color:var(--ink); border-radius:9px; padding:9px 11px; cursor:pointer; font:inherit; font-size:13.5px; font-weight:600; display:flex; gap:10px; align-items:flex-start}
+    .rlx-map button:hover{border-color:var(--accent)}
+    .rlx-map .rlx-mn{flex:none; font:700 12px var(--mono); color:var(--accent); margin-top:2px}
+    .rlx-map small{display:block; font-weight:400; color:var(--muted); font-size:12px; margin-top:2px}
+    .rlx-terms{display:grid; grid-template-columns:190px 1fr; gap:8px 14px; font-size:13.5px; margin-top:12px}
+    .rlx-terms b{color:var(--ink)}
+    .rlx-terms div{color:var(--muted)}
+    @media (max-width:640px){.rlx-terms{grid-template-columns:1fr; gap:2px} .rlx-terms div{margin-bottom:8px}}
+    .rlx-scroll{overflow-x:auto; margin-top:12px; padding-bottom:4px}
+    .rlx-sch{min-width:680px; display:grid; grid-template-columns:112px 26px 132px 26px 180px 26px 1fr; gap:10px 0; align-items:center}
+    .rlx-n{border:1px solid var(--line); border-radius:10px; background:var(--surface-2); padding:8px 10px; font:600 12.5px/1.3 var(--sans); color:var(--ink); transition:border-color .2s, box-shadow .2s, background .2s, opacity .2s}
+    .rlx-n .rlx-ns{display:block; font:500 11px/1.35 var(--mono); color:var(--faint); margin-top:3px}
+    .rlx-n.rlx-on{border-color:var(--accent); background:var(--surface); box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent)}
+    .rlx-n.rlx-on.rlx-bad{border-color:var(--danger); box-shadow:0 0 0 3px color-mix(in srgb, var(--danger) 25%, transparent)}
+    .rlx-n.rlx-dim{opacity:.45}
+    .rlx-col{display:flex; flex-direction:column; gap:6px}
+    .rlx-pod{display:flex; justify-content:space-between; align-items:center; gap:6px}
+    .rlx-b{font:700 11px var(--mono); padding:2px 7px; border-radius:10px; border:1px solid var(--line); color:var(--faint); white-space:nowrap}
+    .rlx-b.old{color:var(--nt); border-color:color-mix(in srgb, var(--nt) 55%, var(--line))}
+    .rlx-b.new{color:var(--ms); border-color:color-mix(in srgb, var(--ms) 55%, var(--line))}
+    .rlx-b.warm, .rlx-b.drain{color:var(--warn); border-color:color-mix(in srgb, var(--warn) 55%, var(--line))}
+    .rlx-b.dead{color:var(--danger); border-color:var(--danger); background:var(--danger-bg)}
+    .rlx-arr{text-align:center; color:var(--faint); font:700 15px var(--mono); transition:color .2s}
+    .rlx-arr.rlx-go{color:var(--accent)}
+    .rlx-top{grid-column:1 / 4}
+    .rlx-top2{grid-column:5 / 8}
+    .rlx-wrow{display:flex; align-items:center; gap:10px; margin-top:12px; font:600 12px var(--mono); color:var(--muted); flex-wrap:wrap}
+    .rlx-wbar{flex:1; min-width:160px; display:flex; height:11px; border-radius:6px; overflow:hidden; background:var(--surface-3)}
+    .rlx-wbar span{display:block; height:100%; transition:width .35s ease}
+    .rlx-wbar .o{background:var(--nt)} .rlx-wbar .n{background:var(--ms)}
+    .rlx-clock{font:700 22px var(--mono); color:var(--accent); font-variant-numeric:tabular-nums}
+    .rlx-fbody{display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:12px; align-items:start}
+    @media (max-width:820px){.rlx-fbody{grid-template-columns:1fr}}
+    .rlx-ft{font-size:14px; color:var(--muted)}
+    .rlx-ft h4{margin:2px 0 6px; font-size:15px; color:var(--ink)}
+    .rlx-ft b{color:var(--ink)}
+    .rlx-dots{display:flex; gap:4px; flex-wrap:wrap; margin-top:10px}
+    .rlx-dots i{width:18px; height:5px; border-radius:3px; background:var(--surface-3)}
+    .rlx-dots i.on{background:var(--accent)}
+    .rlx-dots i.bad{background:var(--danger)}
+    .rlx-frames{display:flex; flex-direction:column; gap:6px; margin-top:8px}
+    .rlx-frame{display:flex; align-items:center; gap:6px; flex-wrap:wrap; font:500 12px var(--mono); color:var(--muted)}
+    .rlx-frame .rlx-fl{width:74px; flex:none; color:var(--faint)}
+    .rlx-life{font-size:14px; color:var(--ink); background:var(--ok-bg); border:1px solid color-mix(in srgb, var(--ok) 35%, var(--line)); border-radius:10px; padding:11px 13px; margin-top:10px}
+    .rlx-facts{display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:10px}
+    @media (max-width:820px){.rlx-facts{grid-template-columns:1fr 1fr}}
+    @media (max-width:420px){.rlx-facts{grid-template-columns:1fr}}
+    .rlx-facts .box{font-size:13px; color:var(--muted)}
+    .rlx-facts .box h4{font:700 11px var(--mono); color:var(--faint); text-transform:uppercase; letter-spacing:.03em; margin:0 0 4px}
+    .rlx-ugrid{display:grid; grid-template-columns:repeat(20,1fr); gap:3px; margin-top:10px; max-width:520px}
+    .rlx-u{aspect-ratio:1; border-radius:3px; background:var(--surface-3)}
+    .rlx-u.v1{background:color-mix(in srgb, var(--nt) 55%, var(--surface-3))}
+    .rlx-u.v2{background:var(--ms)}
+    .rlx-u.bug{background:var(--danger)}
+    .rlx-u.down{background:transparent; border:1px dashed var(--faint)}
+    .rlx-leg{display:flex; gap:12px; flex-wrap:wrap; font-size:12px; color:var(--muted); margin-top:8px}
+    .rlx-leg span{display:inline-flex; align-items:center; gap:5px}
+    .rlx-leg i{width:11px; height:11px; border-radius:3px; display:inline-block}
+    .rlx-tl{display:grid; grid-template-columns:repeat(12,1fr); gap:4px; margin-top:12px; max-width:520px}
+    .rlx-tc{height:64px; display:flex; flex-direction:column-reverse; border-radius:4px; overflow:hidden; background:var(--surface-2); border:1px solid var(--line)}
+    .rlx-tc span{display:block; width:100%}
+    .rlx-tc .v1{background:color-mix(in srgb, var(--nt) 55%, var(--surface-3))}
+    .rlx-tc .v2{background:var(--ms)} .rlx-tc .bug{background:var(--danger)}
+    .rlx-tc .down{background:repeating-linear-gradient(45deg, var(--surface-3) 0 4px, transparent 4px 8px)}
+    .rlx-tc.rlx-rb{border-color:var(--warn)}
+    .rlx-tlab{display:grid; grid-template-columns:repeat(12,1fr); gap:4px; max-width:520px; font:500 10px var(--mono); color:var(--faint); text-align:center; margin-top:3px}
+    .rlx-simgrid{display:grid; grid-template-columns:minmax(0,1.1fr) minmax(0,1fr); gap:16px; align-items:start}
+    @media (max-width:860px){.rlx-simgrid{grid-template-columns:1fr}}
+    .rlx-io{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:10px}
+    @media (max-width:760px){.rlx-io{grid-template-columns:1fr}}
+    .rlx-io .box h4{font-size:13px}
+    .rlx-users{display:grid; grid-template-columns:repeat(6,1fr); gap:5px; margin-top:10px}
+    @media (max-width:560px){.rlx-users{grid-template-columns:repeat(3,1fr)}}
+    .rlx-usr{border:1px solid var(--line); border-radius:8px; padding:6px 7px; font:600 11.5px/1.3 var(--sans); background:var(--surface-2); color:var(--muted)}
+    .rlx-usr small{display:block; font:500 10.5px var(--mono); color:var(--faint)}
+    .rlx-usr.on{border-color:var(--ms); background:color-mix(in srgb, var(--ms) 12%, var(--surface)); color:var(--ink)}
+    .rlx-usr.on small{color:var(--ms)}
+    .rlx-big{font:700 26px var(--mono); color:var(--accent); font-variant-numeric:tabular-nums}
+    .rlx-q{display:grid; grid-template-columns:1fr auto; gap:6px 12px; align-items:center; font-size:13.5px; margin-top:10px}
+    .rlx-q .seg{margin:0}
+    .rlx-q .seg button{padding:5px 11px}
+    @media (max-width:640px){.rlx-q{grid-template-columns:1fr} .rlx-q .seg{margin-bottom:8px}}
+    .rlx-mt td.rlx-nul{color:var(--faint); font-style:italic}
+    .rlx-mt td.rlx-hot{background:color-mix(in srgb, var(--warn) 16%, transparent)}
+    .rlx-mt th.rlx-newc{color:var(--ms)}
+    .rlx-mt th.rlx-gone{color:var(--danger); text-decoration:line-through}
+  </style>
+
+  <div class="card" id="rlx-ch0">
+    <h2><span class="tag">карта раздела</span> история одной выкатки — от и до</h2>
+    <p>Раздел — это одна история. Сначала разберёмся, что такое выкатка и почему она пугает. Потом пройдём настоящую выкатку минута за минутой. Затем сравним шесть способов и прогоним их через симулятор с багом. В конце — три вещи, которые ломают любую стратегию: две версии рядом, база данных и флаги. Нажмите на главу, чтобы перейти к ней.</p>
+    <div class="rlx-map" id="rlx-map">
+      <button data-rlx-go="rlx-ch1"><span class="rlx-mn">01</span><span>Что такое выкатка<small>определения и ресторан, который меняет меню</small></span></button>
+      <button data-rlx-go="rlx-ch2"><span class="rlx-mn">02</span><span>14:00, Анна платит<small>сквозной пример по шагам</small></span></button>
+      <button data-rlx-go="rlx-ch3"><span class="rlx-mn">03</span><span>Шесть способов выкатить<small>на что похоже, когда брать, чем платишь</small></span></button>
+      <button data-rlx-go="rlx-ch4"><span class="rlx-mn">04</span><span>Симулятор: в новой версии баг<small>сколько людей заметят и как быстро откат</small></span></button>
+      <button data-rlx-go="rlx-ch5"><span class="rlx-mn">05</span><span>Канарейка вблизи<small>пороги, этапы, статистика</small></span></button>
+      <button data-rlx-go="rlx-ch6"><span class="rlx-mn">06</span><span>Две версии рядом: правило N−1<small>какие изменения ломают соседа</small></span></button>
+      <button data-rlx-go="rlx-ch7"><span class="rlx-mn">07</span><span>База: код откатывается, схема — нет<small>параллельная замена колонки</small></span></button>
+      <button data-rlx-go="rlx-ch8"><span class="rlx-mn">08</span><span>Флаги: выкатить ≠ включить<small>пульт и его цена</small></span></button>
+      <button data-rlx-go="rlx-ch9"><span class="rlx-mn">09</span><span>Как выбрать и проверить себя<small>подбор стратегии и задания</small></span></button>
+    </div>
+  </div>
+
+  <!-- ===== ГЛАВА 1 ===== -->
+  <div class="card" id="rlx-ch1">
+    <h2><span class="tag">глава 1 · что это</span> выкатка: новая версия у живых людей</h2>
+    <p><b>Выкатка</b> (деплой, от англ. deploy) — это замена работающей программы на новую версию, пока ею пользуются люди. Не «собрать», не «протестировать», а именно заменить — на серверах, под нагрузкой, без остановки магазина.</p>
+    <div class="rlx-life"><b>Как в жизни.</b> Ресторан меняет меню. Можно закрыться на ночь и утром открыться с новым — но если гостям не понравится, придётся снова закрываться. Можно сначала дать новое меню одному столику и посмотреть на лица. Можно открыть второй такой же зал с новым меню и пересаживать туда гостей. А можно приготовить новое блюдо заранее и держать его на кухне, не показывая в меню. Это и есть способы выкатки. Мы вернёмся к ресторану в главе 3.</div>
+    <h3>Слова, без которых дальше не обойтись</h3>
+    <div class="rlx-terms">
+      <b>Версия</b><div>Конкретная сборка программы с номером: 2.3, 2.4. Две разные версии — это два разных набора кода.</div>
+      <b>Узел</b><div>Одна запущенная копия программы. Сервис оплаты обычно работает на нескольких узлах сразу, чтобы выдержать нагрузку и пережить падение одного. В Kubernetes узел сервиса называют «подом».</div>
+      <b>Балансировщик</b><div>Регулировщик перед узлами. Получает запрос и решает, какому узлу его отдать. На нём держатся почти все хитрые стратегии выкатки.</div>
+      <b>Откат</b><div>Возврат к старой версии, если новая плохая. Главный вопрос любой стратегии — сколько он занимает: секунды, минуты или «никак».</div>
+      <b>Радиус поражения</b><div>Сколько пользователей увидят ошибку, если она есть. Всех? Двадцатую часть? Никого?</div>
+      <b>Деплой и релиз</b><div>Часто их путают. <b>Деплой</b> — код оказался на серверах. <b>Релиз</b> — пользователи получили функцию. С флагами (глава 8) это два разных момента: код лежит в проде неделю, а включается в пятницу.</div>
+    </div>
+    <h3>Почему выкатка пугает</h3>
+    <div class="grid3">
+      <div class="box"><h4>1. Тесты не видят всего</h4><p class="bs">Ошибки, которые проявляются только на настоящих данных, настоящих картах и под настоящей нагрузкой, тесты не поймают. Их увидят люди. Вопрос только в том, сколько людей.</p></div>
+      <div class="box"><h4>2. Две версии живут вместе</h4><p class="bs">Пока меняют узлы, часть работает на старой версии, часть — на новой. С одной базой, с одними очередями. Если версии не понимают друг друга — будут «плавающие» ошибки.</p></div>
+      <div class="box"><h4>3. База не откатывается</h4><p class="bs">Код вернуть можно за минуту. А удалённую колонку не вернёшь. Одна неосторожная миграция превращает быстрый откат в ночь восстановления из бэкапа.</p></div>
+    </div>
+    <div class="note good"><b>Одна мысль на весь раздел.</b> Нельзя сделать так, чтобы ошибок не было. Можно сделать так, чтобы ошибку увидели <b>немногие</b> и чтобы откат занимал <b>секунды</b>. Всё, что дальше, — способы этого добиться.</div>
+    <h3 style="margin-top:20px">Зачем нужны безопасные релизы</h3>
     <div id="why-release"></div>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">стратегии</span> шесть способов выкатить</h2>
+  <!-- ===== ГЛАВА 2 ===== -->
+  <div class="card" id="rlx-ch2">
+    <h2><span class="tag">глава 2 · сквозной пример</span> 14:00: команда выкатывает оплату, а Анна в это время платит</h2>
+    <p>Ситуация. Интернет-магазин, сервис оплаты. В 14:00 команда начинает выкатывать версию <b>2.4</b> вместо <b>2.3</b>. Выкатка канареечная: сначала 5 % пользователей, потом больше. В 14:02 Анна покупает наушники за 1 990 ₽. Пройдите по шагам и смотрите, какие узлы на схеме работают и что между ними ходит. Сначала выберите, как всё сложится.</p>
+    <div class="seg" id="rlx-f-scn">
+      <button class="on" data-s="good">✓ Версия 2.4 здорова</button>
+      <button data-s="bug">✕ В версии 2.4 баг</button>
+    </div>
+    <div class="rlx-scroll">
+      <div class="rlx-sch" id="rlx-f-sch">
+        <div class="rlx-n rlx-top" id="rlx-f-ci">⚙ Конвейер CI/CD<span class="rlx-ns" id="rlx-f-ci-s">ждёт</span></div>
+        <div></div>
+        <div class="rlx-n rlx-top2" id="rlx-f-mon">📈 Мониторинг<span class="rlx-ns" id="rlx-f-mon-s">ошибки 0,3 %</span></div>
+
+        <div class="rlx-n" id="rlx-f-user">👩 Анна<span class="rlx-ns" id="rlx-f-user-s">выбирает товар</span></div>
+        <div class="rlx-arr" id="rlx-f-a1">→</div>
+        <div class="rlx-n" id="rlx-f-lb">⚖ Балансировщик<span class="rlx-ns" id="rlx-f-lb-s">100 % → 2.3</span></div>
+        <div class="rlx-arr" id="rlx-f-a2">→</div>
+        <div class="rlx-col">
+          <div class="rlx-n rlx-pod" id="rlx-f-p1"><span>pay-1</span><span class="rlx-b" id="rlx-f-p1-b">2.3</span></div>
+          <div class="rlx-n rlx-pod" id="rlx-f-p2"><span>pay-2</span><span class="rlx-b" id="rlx-f-p2-b">2.3</span></div>
+          <div class="rlx-n rlx-pod" id="rlx-f-p3"><span>pay-3</span><span class="rlx-b" id="rlx-f-p3-b">2.3</span></div>
+          <div class="rlx-n rlx-pod" id="rlx-f-p4"><span>pay-4</span><span class="rlx-b" id="rlx-f-p4-b">—</span></div>
+        </div>
+        <div class="rlx-arr" id="rlx-f-a3">→</div>
+        <div class="rlx-col">
+          <div class="rlx-n" id="rlx-f-db">🗄 База платежей<span class="rlx-ns" id="rlx-f-db-s">таблица payments</span></div>
+          <div class="rlx-n" id="rlx-f-bus">📨 Шина событий<span class="rlx-ns" id="rlx-f-bus-s">payment.events</span></div>
+          <div class="rlx-n" id="rlx-f-rcp">🧾 Сервис чеков<span class="rlx-ns" id="rlx-f-rcp-s">старый, год без изменений</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="rlx-wrow"><span class="rlx-clock" id="rlx-f-clock">13:55</span><span>трафик:</span><div class="rlx-wbar"><span class="o" id="rlx-f-wo" style="width:100%"></span><span class="n" id="rlx-f-wn" style="width:0%"></span></div><span id="rlx-f-wl">2.3 — 100 % · 2.4 — 0 %</span></div>
+    <div class="rlx-dots" id="rlx-f-dots"></div>
+    <div class="rlx-fbody">
+      <div class="rlx-ft" id="rlx-f-text"></div>
+      <pre class="json" id="rlx-f-data"></pre>
+    </div>
+    <div class="skbar">
+      <button class="ghost" id="rlx-f-prev">← Назад</button>
+      <button class="act" id="rlx-f-next">Дальше →</button>
+      <button class="ghost" id="rlx-f-reset">⟲ С начала</button>
+      <span class="skstep" id="rlx-f-lab">шаг 1 из 12</span>
+    </div>
+    <div class="console" id="rlx-f-msg">Нажмите «Дальше». Потом переключитесь на сценарий с багом и пройдите ещё раз — развилка начинается с шага 7.</div>
+  </div>
+
+  <!-- ===== ГЛАВА 3 ===== -->
+  <div class="card" id="rlx-ch3">
+    <h2><span class="tag">глава 3 · способы</span> шесть способов выкатить — ресторан меняет меню</h2>
+    <p>В примере с Анной была канарейка. Но это один способ из шести. Все они отвечают на два вопроса: <b>сколько людей увидят ошибку</b> и <b>как быстро её можно убрать</b>. Выберите способ — увидите, на что он похож в жизни, как по шагам меняются узлы и чем за него платят.</p>
+    <div class="seg" id="rlx-st-pick"></div>
+    <div id="rlx-st-out"></div>
+    <h3>Всё вместе в одной таблице</h3>
+    <p style="font-size:13px;color:var(--muted);margin:0">Нажмите на строку — раскроется подробное объяснение.</p>
     <div id="rel-table"></div>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">симулятор</span> канареечная выкатка</h2>
+  <!-- ===== ГЛАВА 4 ===== -->
+  <div class="card" id="rlx-ch4">
+    <h2><span class="tag">глава 4 · симулятор</span> в новой версии баг — кто его заметит?</h2>
+    <p>Слова «радиус поражения» и «скорость отката» лучше один раз увидеть. Здесь 12 минут выкатки, каждую минуту приходят 100 покупателей. Каждый квадратик — один покупатель. В новой версии спрятана ошибка: часть запросов к ней падает. Выберите стратегию, задайте, насколько плоха новая версия, и запустите. Потом попробуйте другую стратегию <b>с тем же багом</b> — результаты соберутся в таблицу.</p>
+    <div class="seg" id="rlx-s-pick"></div>
+    <div class="slider-row"><label for="rlx-s-bug">Сколько запросов к новой версии падает</label><input type="range" id="rlx-s-bug" min="0" max="40" value="12"><span class="sv" id="rlx-s-bug-v">12 %</span></div>
+    <div class="note" id="rlx-s-rule" style="margin-top:6px"></div>
+    <div class="form-row">
+      <button class="act" id="rlx-s-step">▶ Следующая минута</button>
+      <button class="ghost" id="rlx-s-run">⏵ Прокрутить всё</button>
+      <button class="ghost" id="rlx-s-reset">⟲ Сначала</button>
+    </div>
+    <div class="rlx-simgrid">
+      <div>
+        <div style="font:600 12px var(--mono);color:var(--faint);margin-top:14px" id="rlx-s-now">минута 0 из 12</div>
+        <div class="rlx-ugrid" id="rlx-s-grid"></div>
+        <div class="rlx-leg">
+          <span><i style="background:color-mix(in srgb, var(--nt) 55%, var(--surface-3))"></i>старая версия</span>
+          <span><i style="background:var(--ms)"></i>новая, всё хорошо</span>
+          <span><i style="background:var(--danger)"></i>новая, ошибка</span>
+          <span><i style="border:1px dashed var(--faint)"></i>сервис недоступен</span>
+        </div>
+        <div class="rlx-tl" id="rlx-s-tl"></div>
+        <div class="rlx-tlab" id="rlx-s-tlab"></div>
+      </div>
+      <div>
+        <div class="meters" id="rlx-s-m"></div>
+        <div class="console" id="rlx-s-msg">Выберите стратегию и нажмите «Следующая минута».</div>
+        <div class="steps" id="rlx-s-log" style="max-height:300px;overflow:auto"></div>
+      </div>
+    </div>
+    <div id="rlx-s-res"></div>
+    <div class="note warn" style="margin-top:14px"><b>Что стоит заметить.</b> Big bang и blue-green бьют по всем сразу, но blue-green откатывается мгновенно. Rolling откатывается так же медленно, как катился. Канарейка и флаг ограничивают удар маленькой долей и откатываются автоматом. Теневой запуск не задевает никого — но и новую версию никто так и не получил: это проверка, а не выкатка.</div>
+  </div>
+
+  <!-- ===== ГЛАВА 5 ===== -->
+  <div class="card" id="rlx-ch5">
+    <h2><span class="tag">глава 5 · канарейка вблизи</span> этапы, порог и почему нельзя спешить</h2>
+    <p>Название — из шахт. Шахтёры брали с собой канарейку: она чувствительнее к газу и замолкала раньше, чем люди начинали задыхаться. Здесь канарейка — маленькая доля трафика на новой версии. Если «замолчала» — уводим всех обратно.</p>
     <p>Новая версия выкатывается на растущую долю трафика. Метрики сравниваются со старой; при превышении порога — автоматический откат. Задайте качество новой версии и пройдите выкатку по шагам.</p>
     <div class="slider-row"><label for="cn-bug">Доля ошибок в новой версии</label><input type="range" id="cn-bug" min="0" max="120" value="25"><span class="sv" id="cn-bug-v">2,5 %</span></div>
     <div class="slider-row"><label for="cn-th">Порог автоотката</label><input type="range" id="cn-th" min="5" max="100" value="20"><span class="sv" id="cn-th-v">2,0 %</span></div>
@@ -17437,38 +17654,83 @@ renderFlow('msf-flow', {
     </div>
     <div class="console" id="cn-msg">Начните выкатку. Первый этап — 1 % трафика.</div>
     <div class="steps" id="cn-log"></div>
-  </div>
-
-  <div class="card">
-    <h2><span class="tag">база</span> изменение схемы без простоя: параллельная замена</h2>
-    <p>Главная ловушка любой выкатки: <b>код откатывается за минуту, схема базы — нет</b>. Поэтому миграции делают так, чтобы старая и новая версии кода работали с одной схемой одновременно. Пример: разбить <code class="inl">name</code> на <code class="inl">first_name</code> и <code class="inl">last_name</code>.</p>
-    <div class="steps">
-      <div class="step done"><div class="si">1</div><div><b>Добавить новые колонки.</b> <code class="inl">ALTER TABLE ADD COLUMN first_name, last_name</code> — nullable, без значения по умолчанию.<span class="sx">Совместимо: старый код их не видит и не ломается. Обязательно nullable — иначе на большой таблице ALTER заблокирует её надолго.</span></div></div>
-      <div class="step done"><div class="si">2</div><div><b>Выкатить код, который пишет в обе.</b> Читает пока из старой.<span class="sx">Теперь новые записи заполнены везде. Откат безопасен: старый код читает старую колонку, которая по-прежнему заполняется.</span></div></div>
-      <div class="step done"><div class="si">3</div><div><b>Заполнить старые строки фоном.</b> Порциями, с паузами, чтобы не положить базу.<span class="sx">Не одним UPDATE на 50 миллионов строк: это блокировки, раздувание журнала и репликационное отставание на часы.</span></div></div>
-      <div class="step done"><div class="si">4</div><div><b>Выкатить код, который читает из новых.</b> Пишет по-прежнему в обе.<span class="sx">Точка проверки: если что-то не так, откат на предыдущую версию всё ещё работает.</span></div></div>
-      <div class="step done"><div class="si">5</div><div><b>Перестать писать в старую.</b><span class="sx">С этого момента откат на самую первую версию уже невозможен — старая колонка начала отставать. Это осознанная точка невозврата.</span></div></div>
-      <div class="step comp"><div class="si">6</div><div><b>Удалить старую колонку.</b><span class="sx">Спустя дни или недели, когда уверенность появилась. Шаг, который откладывают навсегда, — поставьте задачу с датой ещё на шаге 1.</span></div></div>
+    <h3>Три правила хорошей канарейки</h3>
+    <div class="grid3">
+      <div class="box"><h4>Сравнивать с соседом, а не с идеалом</h4><p class="bs">Метрики канарейки сравнивают со старыми узлами <b>в ту же минуту</b>. Если банк сейчас тормозит у всех, это не вина новой версии. Сравнение «со вчера» даст ложные откаты.</p></div>
+      <div class="box"><h4>Держать этап долго</h4><p class="bs">На 1 % трафика редкая ошибка проявится через минуты, утечка памяти — через часы. Этап короче, чем нужно метрикам, — это big bang с красивым названием.</p></div>
+      <div class="box"><h4>Трафик должен быть настоящим</h4><p class="bs">Если на канарейку попадают только роботы или только сотрудники, вы проверили не то. Нужна честная случайная доля покупателей — с липкостью, чтобы человек не прыгал между версиями.</p></div>
     </div>
-    <div class="note bad"><b>Что нельзя делать никогда:</b> переименовать колонку одной миграцией, удалить колонку в том же релизе, где перестали ею пользоваться, добавить <code class="inl">NOT NULL</code> без значения по умолчанию на большой таблице, поменять тип колонки «на месте». Каждое из этих действий делает откат невозможным, а часть ещё и блокирует таблицу на время, которого никто не ожидал.</div>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">правило</span> совместимость N−1</h2>
-    <p>В любой момент выкатки в системе живут две версии: <b>старая и новая работают одновременно</b> — на разных узлах, с одной базой, с одними очередями. Отсюда требования, которые действуют всегда, независимо от стратегии:</p>
+  <!-- ===== ГЛАВА 6 ===== -->
+  <div class="card" id="rlx-ch6">
+    <h2><span class="tag">глава 6 · две версии рядом</span> правило N−1: новая версия и старая обязаны понимать друг друга</h2>
+    <p><b>N−1</b> — это «текущая версия и предыдущая». Правило простое: код версии N обязан нормально работать рядом с версией N−1. В любой момент выкатки в системе живут две версии: <b>старая и новая работают одновременно</b> — на разных узлах, с одной базой, с одними очередями. Помните сервис чеков из главы 2? Он пережил выкатку только потому, что был мягким читателем.</p>
+    <div class="rlx-life"><b>Как в жизни.</b> В офисе половина сотрудников уже перешла на новые бланки заявлений, половина ещё пишет на старых. Бухгалтерия обязана принимать оба. Если в новом бланке появилась лишняя графа — ничего страшного, её можно не читать. А если графу «сумма» переименовали в «итого», старая бухгалтерия просто не найдёт сумму.</div>
+    <p>Отсюда требования, которые действуют всегда, независимо от стратегии:</p>
     <ul>
       <li>Новая версия читает данные, записанные старой, и наоборот.</li>
       <li>Новая версия обрабатывает сообщения, отправленные старой, и наоборот.</li>
       <li>Новый код работает со старой схемой (она ещё не мигрирована на части узлов).</li>
       <li>Старый код не падает на данных, где появились новые поля, — <b>неизвестные поля игнорируются, а не вызывают ошибку</b>.</li>
     </ul>
+    <h3>Попробуйте: какое изменение переживёт соседство?</h3>
+    <p>Выберите, что изменили в сообщении об оплате, и как читает сообщения старый сервис: <b>мягко</b> (незнакомое пропускает) или <b>строго</b> (всё незнакомое — ошибка).</p>
+    <div class="seg" id="rlx-n1-case"></div>
+    <div class="seg" id="rlx-n1-rd">
+      <button class="on" data-r="soft">Старый читатель: мягкий</button>
+      <button data-r="strict">Старый читатель: строгий</button>
+    </div>
+    <div id="rlx-n1-out"></div>
     <div class="note good"><b>Проще говоря.</b> Во время выкатки в системе одновременно работают две версии — старая и новая. Не «иногда», а всегда, хотя бы минуту. Значит, они обязаны понимать данные друг друга. Это главное требование к коду, и его чаще всего забывают.</div>
     <div class="note warn"><b>Последний пункт — самый забываемый.</b> Строгая валидация «запрещено всё, что не описано в схеме» кажется правильной и делает выкатку невозможной: новая версия добавила поле, старые узлы начали отвергать сообщения. Правило Постела здесь работает: <b>к тому, что принимаешь, относись мягко; к тому, что отправляешь, — строго</b>.</div>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">флаги</span> переключатели функциональности</h2>
-    <div class="grid2">
+  <!-- ===== ГЛАВА 7 ===== -->
+  <div class="card" id="rlx-ch7">
+    <h2><span class="tag">глава 7 · база данных</span> изменение схемы без простоя: параллельная замена</h2>
+    <p>Главная ловушка любой выкатки: <b>код откатывается за минуту, схема базы — нет</b>. Поэтому миграции делают так, чтобы старая и новая версии кода работали с одной схемой одновременно. В главе 2 колонку <code class="inl">method_details</code> добавили за день до выкатки кода — это и был первый шаг такого приёма. Разберём полный пример: разбить <code class="inl">name</code> на <code class="inl">first_name</code> и <code class="inl">last_name</code>.</p>
+    <div class="rlx-life"><b>Как в жизни.</b> Переезд без закрытия магазина. Сначала открываете новый склад рядом со старым. Какое-то время товар кладёте в оба. Потом перевозите остатки. Потом продавцы берут товар уже только с нового склада. И лишь когда всё спокойно — закрываете старый. На любом шаге, кроме последних, можно передумать.</div>
+    <p>Пройдите по шагам. Смотрите на таблицу, на то, какой код сейчас работает, и на главный индикатор — <b>можно ли ещё откатиться на самую первую версию</b>.</p>
+    <div class="rlx-scroll"><div id="rlx-mig-tab" style="min-width:520px"></div></div>
+    <div class="meters" id="rlx-mig-m"></div>
+    <div class="steps" id="rlx-mig-steps" style="margin-top:12px"></div>
+    <div class="skbar">
+      <button class="ghost" id="rlx-mig-prev">← Назад</button>
+      <button class="act" id="rlx-mig-next">Дальше →</button>
+      <span class="skstep" id="rlx-mig-lab">шаг 0 из 6</span>
+    </div>
+    <div class="note bad"><b>Что нельзя делать никогда:</b> переименовать колонку одной миграцией, удалить колонку в том же релизе, где перестали ею пользоваться, добавить <code class="inl">NOT NULL</code> без значения по умолчанию на большой таблице, поменять тип колонки «на месте». Каждое из этих действий делает откат невозможным, а часть ещё и блокирует таблицу на время, которого никто не ожидал.</div>
+  </div>
+
+  <!-- ===== ГЛАВА 8 ===== -->
+  <div class="card" id="rlx-ch8">
+    <h2><span class="tag">глава 8 · флаги</span> переключатели функциональности: выкатить ≠ включить</h2>
+    <p><b>Флаг функциональности</b> (feature flag) — это <code class="inl">if</code> в коде, условие которого хранится снаружи, в настройках. Код новой функции уже на серверах, но работает старая ветка. Включить новую можно без выкатки: поменять настройку.</p>
+    <div class="rlx-life"><b>Как в жизни.</b> Новое блюдо уже готовят на кухне, но в меню его нет. Сначала его предлагают своим — официантам. Потом постоянным гостям. Потом печатают в меню для всех. Если гости жалуются — блюдо молча убирают из меню. Кухню при этом никто не перестраивал.</div>
+    <p>Попробуйте сами. Новая страница оплаты уже выкатана на все узлы. Решите, кому её показать.</p>
+    <div class="rlx-io">
+      <div class="box">
+        <h4>Пульт флага <code class="inl">new-checkout</code></h4>
+        <div class="seg" id="rlx-fl-on">
+          <button class="on" data-v="0">Выключен</button>
+          <button data-v="1">Включён</button>
+        </div>
+        <div class="seg" id="rlx-fl-aud">
+          <button class="on" data-a="all">Все</button>
+          <button data-a="staff">Только сотрудники</button>
+          <button data-a="msk">Только Москва</button>
+        </div>
+        <div class="slider-row"><label for="rlx-fl-pct">Доля из выбранных</label><input type="range" id="rlx-fl-pct" min="0" max="100" step="5" value="25"><span class="sv" id="rlx-fl-pct-v">25 %</span></div>
+        <pre class="json" id="rlx-fl-code" style="margin-top:8px"></pre>
+      </div>
+      <div class="box">
+        <h4>24 покупателя прямо сейчас</h4>
+        <div class="rlx-users" id="rlx-fl-users"></div>
+        <div class="console" id="rlx-fl-msg">Флаг выключен: код новой оплаты лежит на серверах, но никто его не видит.</div>
+      </div>
+    </div>
+    <div class="grid2" style="margin-top:16px">
       <div class="box">
         <h4>Что дают</h4>
         <ul style="margin:0">
@@ -17488,7 +17750,24 @@ renderFlow('msf-flow', {
         </ul>
       </div>
     </div>
+    <h3>Посчитайте цену: сколько состояний у системы</h3>
+    <div class="slider-row"><label for="rlx-fl-n">Флагов в системе</label><input type="range" id="rlx-fl-n" min="1" max="40" value="10"><span class="sv" id="rlx-fl-n-v">10</span></div>
+    <div class="meters" id="rlx-fl-comb"></div>
     <div class="note"><b>Дисциплина, которая делает флаги полезными:</b> у каждого флага есть владелец и <b>дата смерти</b>. Релизные флаги (для постепенного включения) живут дни-недели и удаляются сразу после полного включения. Операционные (аварийное отключение тяжёлой функции) живут долго и это нормально. Флаг без даты смерти и без владельца — технический долг с первого дня.</div>
+  </div>
+
+  <!-- ===== ГЛАВА 9 ===== -->
+  <div class="card" id="rlx-ch9">
+    <h2><span class="tag">глава 9 · как выбрать</span> подбор стратегии за пять вопросов</h2>
+    <p>Стратегии не соревнуются — их комбинируют. Типичная зрелая команда катит код маленькими порциями через канарейку, а новые функции включает флагами. Ответьте на вопросы про свою ситуацию.</p>
+    <div class="rlx-q" id="rlx-ch-q"></div>
+    <div class="console" id="rlx-ch-out"></div>
+  </div>
+
+  <div class="card">
+    <h2><span class="tag">задание</span> какую стратегию взять?</h2>
+    <p>Для каждой ситуации выберите подходящий способ выкатки. Решено <b id="rlx-sort-score">0</b> из <span id="rlx-sort-total">0</span>.</p>
+    <div id="rlx-sort"></div>
   </div>
 
   <div class="card">
@@ -17504,7 +17783,526 @@ renderFlow('msf-flow', {
 </section>
 
 <script>
+/* ---------- карта раздела ---------- */
 (function(){
+  const map = document.getElementById('rlx-map');
+  if(!map) return;
+  map.addEventListener('click', e => {
+    const b = e.target.closest('button[data-rlx-go]'); if(!b) return;
+    const t = document.getElementById(b.dataset.rlxGo);
+    if(t && t.scrollIntoView) t.scrollIntoView({behavior:'smooth', block:'start'});
+  });
+})();
+
+/* ---------- глава 2: сквозной пример ---------- */
+(function(){
+  const root = document.getElementById('rlx-f-sch');
+  if(!root) return;
+  const el = id => document.getElementById(id);
+  const NODES = ['ci','mon','user','lb','p1','p2','p3','p4','db','bus','rcp'];
+  const BADGE = {old:'2.3', new:'2.4', warm:'2.4 · прогрев', drain:'2.3 · дорабатывает', dead:'2.4 · откачен', off:'—'};
+  const BASE = {ci:'ждёт', mon:'ошибки 0,3 %', user:'выбирает товар', db:'таблица payments', bus:'payment.events', rcp:'старый, год без изменений'};
+
+  const COMMON = [
+    {c:'13:55', t:'Исходная точка: всё на старой версии', on:[], pods:['old','old','old','off'], w:0,
+     d:'Сервис оплаты работает на трёх узлах, все — версия 2.3. Перед ними стоит <b>балансировщик</b>: он раздаёт входящие запросы по узлам. Сзади — база платежей и шина событий, из которой сервис чеков узнаёт об оплатах. Команда собирается выкатить версию 2.4: в ней новый способ хранить данные о карте.',
+     data:'payments 2.3.0 × 3 узла\nбалансировщик: 100 % → 2.3\nошибок:  0,3 %   (фон: истёкшие карты,\n                  нехватка денег)\np99 задержка: 380 мс'},
+    {c:'14:00:00', t:'Конвейер собрал новую версию', on:['ci'], pods:['old','old','old','off'], w:0, s:{ci:'payments:2.4.0 собран'},
+     d:'<b>Конвейер</b> (CI/CD) — автомат, который из кода собирает <b>образ</b> (готовую к запуску упаковку программы со всем, что ей нужно) и прогоняет тесты. Тесты зелёные. Важная деталь: изменение базы — новую колонку — выкатили <b>вчера, отдельно</b>. Сегодня едет только код. Почему так — в главе 7.',
+     data:'образ:     payments:2.4.0\nтесты:     1 284 пройдено, 0 упало\nмиграция:  выкачена вчера\n  ALTER TABLE payments\n    ADD COLUMN method_details jsonb NULL;\nстратегия: canary 5 % → 25 % → 50 % → 100 %'},
+    {c:'14:00:30', t:'Поднимается канарейка — четвёртый узел с версией 2.4', on:['ci','p4'], pods:['old','old','old','warm'], w:0, s:{ci:'запускает pay-4'},
+     d:'Старые узлы не трогают. Рядом запускают один новый. Это и есть <b>канарейка</b>: на неё пойдёт маленькая доля трафика, и по ней поймём, здорова ли новая версия. Пока узел прогревается (подключается к базе, загружает настройки), он отвечает на <b>проверку готовности</b> «ещё нет». Балансировщик не шлёт ему ни одного запроса.',
+     data:'GET /health/ready → 503  «прогреваюсь»\nGET /health/ready → 503\nGET /health/ready → 200  «готов»\n\n# проверка готовности (readiness) —\n# вопрос балансировщика:\n# «можно ли тебе слать запросы?»'},
+    {c:'14:01:00', t:'Балансировщик отдаёт канарейке 5 %', on:['lb','p4'], arr:['a2'], pods:['old','old','old','new'], w:5, s:{ci:'готово'},
+     d:'Теперь каждый двадцатый пользователь попадает на новую версию. Не каждый двадцатый <i>запрос</i>, а именно пользователь. Номер пользователя превращается в число от 0 до 99 (это называют хешем), и если оно меньше 5 — все его запросы идут на 2.4. Это <b>липкость</b>: человек не прыгает между версиями посреди оплаты.',
+     data:'маршрут /payments:\n  2.3 (pay-1, pay-2, pay-3)  вес 95\n  2.4 (pay-4)                вес  5\n\nправило: bucket = hash(user_id) % 100\n         bucket < 5  → 2.4'},
+    {c:'14:02:10', t:'Анна нажимает «Оплатить 1 990 ₽»', on:['user','lb'], arr:['a1'], pods:['old','old','old','new'], w:5, s:{user:'жмёт «Оплатить»'},
+     d:'Анна покупает наушники. Браузер отправляет запрос на оплату. Внутри — <b>ключ идемпотентности</b>: случайная строка, одна на одну попытку покупки. Если запрос повторится (Анна нажала дважды или моргнула связь), сервер по ключу поймёт, что это та же оплата, и не спишет деньги второй раз. Во время выкатки это особенно важно — дальше увидите почему.',
+     data:'POST /payments\nIdempotency-Key: 7f3c-a1e9\n{\n  "userId":   "u-42",\n  "orderId":  "ord-5531",\n  "amount":   1990,\n  "currency": "RUB",\n  "card":     "•••• 4417"\n}'},
+    {c:'14:02:10', t:'Балансировщик выбирает узел: Анна попала в канарейку', on:['lb','p4'], arr:['a2'], pods:['old','old','old','new'], w:5, s:{user:'ждёт ответа'},
+     d:'hash("u-42") % 100 = 3. Три меньше пяти — запрос уходит на pay-4, версию 2.4. Анна об этом не знает и знать не должна. Для неё это обычная оплата.',
+     data:'hash("u-42") % 100 = 3\n3 < 5  → pay-4 (2.4.0)\n\nв логах запроса: x-version: 2.4.0'},
+  ];
+  const GOOD = [
+    {c:'14:02:11', t:'Версия 2.4 пишет платёж в базу', on:['p4','db'], arr:['a3'], pods:['old','old','old','new'], w:5, s:{user:'ждёт ответа', db:'INSERT от 2.4'},
+     d:'Новая версия заполняет новую колонку <code class="inl">method_details</code>. Колонка уже есть — её добавили вчера, пустой и необязательной. Старые узлы про неё не знают и пишут строки без неё. <b>Одна база, две версии кода — и обеим хорошо.</b> Если бы колонку добавляли сегодня вместе с кодом, упали бы то новые узлы, то старые — смотря что успело раньше.',
+     data:"INSERT INTO payments\n  (id, order_id, amount, status,\n   method_details)\nVALUES\n  ('p-981', 'ord-5531', 1990, 'PAID',\n   '{\"bank\":\"Т-Банк\",\"type\":\"debit\"}');\n\n-- строки от 2.3: method_details = NULL"},
+    {c:'14:02:11', t:'Событие об оплате уходит в шину, а сервис чеков — старый', on:['p4','bus','rcp'], arr:['a3'], pods:['old','old','old','new'], w:5, s:{user:'ждёт ответа', bus:'PaymentCompleted', rcp:'пропустил новое поле'},
+     d:'Версия 2.4 публикует событие «оплата прошла» с новым полем <code class="inl">methodDetails</code>. Сервис чеков написан год назад и про это поле не знает. Он <b>мягкий читатель</b>: берёт нужные поля, незнакомые пропускает. Чек напечатан. Будь он строгим («всё незнакомое — ошибка»), каждое событие от канарейки падало бы в очередь ошибок. Подробно — в главе 6.',
+     data:'{\n  "type":      "PaymentCompleted",\n  "paymentId": "p-981",\n  "amount":    1990,\n  "currency":  "RUB",\n  "methodDetails": { "bank": "Т-Банк" }  ← новое\n}\n\nсервис чеков: берёт amount, currency;\n              methodDetails пропускает'},
+    {c:'14:02:12', t:'Анна видит «Оплачено»', on:['user'], arr:['a1'], pods:['old','old','old','new'], w:5, s:{user:'✓ оплачено'}, k:'ok',
+     d:'Весь путь занял 1,2 секунды — как обычно. Анна ушла довольная. Она была одной из первых, кто заплатил через новую версию, и ничего не заметила. <b>Хорошая выкатка — та, которую пользователь не увидел.</b>',
+     data:'HTTP/1.1 201 Created\n{ "paymentId": "p-981", "status": "PAID" }'},
+    {c:'14:12:00', t:'Мониторинг сравнивает канарейку со старой версией', on:['mon','p4','p1'], pods:['old','old','old','new'], w:5, s:{mon:'2.4 ≈ 2.3 → дальше', user:'—'}, k:'ok',
+     d:'Десять минут канарейка работала на 5 % трафика. <b>Мониторинг</b> — система, которая собирает метрики (числа о работе: долю ошибок, задержку, память), — сравнивает её не «с идеалом», а со старыми узлами <b>в то же самое время</b>. Так отсекается шум: если сейчас все платежи медленные из-за банка, это не вина новой версии. Разница в пределах порога — автомат переводит выкатку на следующий этап.',
+     data:'                2.3 (база)  2.4 (канарейка)\nзапросов          11 400        600\nошибок            0,31 %        0,33 %\np99 задержка      380 мс        395 мс\nпамять на узел    410 МБ        420 МБ\n\nпорог: ошибки ≤ база + 1 %,\n       p99 ≤ база × 1,2\nрешение: ✓ дальше, 25 %'},
+    {c:'14:30:00', t:'Старый узел выключается аккуратно — чужая оплата не рвётся', on:['lb','p1'], pods:['drain','new','new','new'], w:75, s:{lb:'pay-1 выведен', mon:'этапы 25 %, 50 % ✓', user:'—'},
+     d:'Этапы 25 % и 50 % прошли так же спокойно. Теперь старые узлы заменяют новыми по одному. Pay-1 выводят из работы, а на нём в этот момент идёт оплата Бориса. Узел получает сигнал «заканчивай» (SIGTERM) и делает три вещи: говорит балансировщику «новых не шли», <b>дорабатывает</b> уже взятые запросы и только потом выключается. Это называют <b>плавной остановкой</b> (graceful shutdown). Без неё Борис получил бы обрыв связи и не знал бы, прошла ли оплата.',
+     data:'14:30:00  pay-1 ← SIGTERM\n14:30:00  pay-1: /health/ready → 503\n          балансировщик убрал pay-1\n14:30:01  pay-1: в работе 3 запроса\n          (один из них — Борис)\n14:30:02  pay-1: 0 запросов → выключаюсь\n\nлимит ожидания: 30 с,\nпотом узел выключат силой'},
+    {c:'14:45:00', t:'Готово: весь трафик на версии 2.4', on:['lb','p2','p3','p4'], pods:['off','new','new','new'], w:100, s:{lb:'100 % → 2.4', mon:'всё в норме', user:'—'}, k:'ok', end:true,
+     d:'Сорок пять минут вместо одной секунды «всё сразу». Зато если бы в 2.4 была ошибка, её увидели бы 5 % людей, а не все (переключите сценарий и проверьте). Образ 2.3 никто не удаляет: откат — та же выкатка в обратную сторону, пара минут. А через неделю, когда 2.4 себя покажет, можно чистить: удалять старый код и ненужные колонки.',
+     data:'payments 2.4.0 × 3 узла\nбалансировщик: 100 % → 2.4\nобраз 2.3.0 хранится → откат ≈ 2 мин\n\nитого: 0 пострадавших,\n       45 минут выкатки'},
+  ];
+  const BUG = [
+    {c:'14:02:11', t:'В версии 2.4 ошибка — Анна видит «Не удалось оплатить»', on:['p4','user'], bad:['p4'], arr:['a1'], pods:['old','old','old','new'], w:5, s:{user:'✕ «попробуйте ещё раз»'}, k:'err',
+     d:'Для карт одного банка новая версия читает <code class="inl">method_details</code>, не находит там нужного поля — и программа падает до того, как обратиться к банку. Деньги не списаны. Анна видит «Не удалось оплатить, попробуйте ещё раз». Тесты этого не поймали: у тестовых карт поле было всегда.',
+     data:'pay-4 (2.4.0):\n  NullPointerException\n  at FeeCalculator.forBank(…)\n\nHTTP/1.1 500 Internal Server Error\n{ "error": "internal", "retryable": true }'},
+    {c:'14:03:00', t:'Мониторинг видит разницу и запускает автоматический откат', on:['mon','p4'], bad:['mon','p4'], pods:['old','old','old','new'], w:5, s:{mon:'✕ порог превышен', user:'думает'}, k:'err',
+     d:'Хватило минуты: у канарейки ошибок в 13 раз больше, чем у старых узлов. Порог «база + 1 %» превышен. Никто не будит дежурного и не собирает созвон — решение заранее записано в правилах выкатки и выполняется автоматом.',
+     data:'                2.3 (база)  2.4 (канарейка)\nзапросов          1 140          60\nошибок            0,31 %        4,1 %\n\nпорог: ≤ 1,31 %  → ✕ превышен\nрешение: ОТКАТ, вес канарейки → 0'},
+    {c:'14:03:05', t:'Балансировщик отдаёт канарейке 0 %', on:['lb','p4'], bad:['p4'], pods:['old','old','old','dead'], w:0, s:{lb:'100 % → 2.3', mon:'откат выполнен', user:'думает'}, k:'warn',
+     d:'Откат канарейки — это не пересборка и не новая выкатка. Это одна цифра в правилах балансировщика: вес 5 → 0. Через секунды все запросы снова идут на 2.3. Узел pay-4 гасят, его логи сохраняют для разбора.',
+     data:'маршрут /payments:\n  2.3  вес 100\n  2.4  вес   0   (узел выключен)\n\nвремя отката: 5 секунд'},
+    {c:'14:03:40', t:'Анна жмёт «Попробовать ещё раз» — и платёж проходит', on:['user','lb','p1','db'], arr:['a1','a2','a3'], pods:['old','old','old','dead'], w:0, s:{user:'✓ оплачено', db:'проверка ключа'}, k:'ok',
+     d:'Браузер отправляет <b>тот же ключ идемпотентности</b>. Канарейки больше нет, запрос попадает на старый узел pay-1. Сервер проверяет ключ: завершённой попытки с ним нет — значит, можно проводить. Если бы первая попытка успела списать деньги, сервер по ключу вернул бы тот же результат, а не списал второй раз. Вот зачем ключ нужен именно при выкатках: повторы случаются как раз тогда, когда что-то пошло не так.',
+     data:"POST /payments\nIdempotency-Key: 7f3c-a1e9   ← тот же\n→ pay-1 (2.3.0)\n\nSELECT … FROM idempotency\n WHERE key = '7f3c-a1e9'\n  → завершённой попытки нет → проводим\n\nHTTP/1.1 201 Created\n{ \"status\": \"PAID\" }"},
+    {c:'14:10:00', t:'Итог: ошибку увидели двое-трое, а не полсотни', on:['mon'], pods:['old','old','old','off'], w:0, s:{mon:'разбор ошибки', user:'—'}, k:'warn', end:true,
+     d:'За минуту до отката через канарейку прошло около 60 оплат, упали две-три. Если бы 2.4 выкатили сразу на все узлы, за ту же минуту ошибку увидели бы около 50 человек из 1 200 — и дальше ещё по 50 каждую минуту, пока дежурный разбирается. Канарейка не ловит все баги. Её задача — <b>сделать так, чтобы пропущенный тестами баг стоил дёшево</b>. Команда исправит ошибку и выкатит 2.4.1 тем же путём.',
+     data:'пострадало:     2–3 оплаты из 60\n                (все повторились успешно)\nбез канарейки:  ≈ 50 из 1 200 за минуту\n                + минуты на ручной откат\nденьги:         дважды не списаны —\n                ключ идемпотентности'},
+  ];
+  let scn = 'good', i = 0;
+  const seen = {good:false, bug:false};
+  const list = () => COMMON.concat(scn === 'good' ? GOOD : BUG);
+  function paint(){
+    const L = list(), s = L[i];
+    NODES.forEach(n => {
+      const node = el('rlx-f-' + n);
+      node.classList.toggle('rlx-on', s.on.includes(n));
+      node.classList.toggle('rlx-bad', !!(s.bad && s.bad.includes(n)));
+      const sub = el('rlx-f-' + n + '-s');
+      if(sub) sub.textContent = (s.s && s.s[n]) || BASE[n] || '';
+    });
+    el('rlx-f-lb-s').textContent = (s.s && s.s.lb) || (s.w ? (100 - s.w) + ' % → 2.3 · ' + s.w + ' % → 2.4' : '100 % → 2.3');
+    ['p1','p2','p3','p4'].forEach((p, k) => {
+      const st = s.pods[k], b = el('rlx-f-' + p + '-b');
+      b.className = 'rlx-b ' + st; b.textContent = BADGE[st];
+      el('rlx-f-' + p).classList.toggle('rlx-dim', st === 'off');
+    });
+    ['a1','a2','a3'].forEach(a => el('rlx-f-' + a).classList.toggle('rlx-go', !!(s.arr && s.arr.includes(a))));
+    el('rlx-f-clock').textContent = s.c;
+    el('rlx-f-wo').style.width = (100 - s.w) + '%';
+    el('rlx-f-wn').style.width = s.w + '%';
+    el('rlx-f-wl').textContent = '2.3 — ' + (100 - s.w) + ' % · 2.4 — ' + s.w + ' %';
+    el('rlx-f-dots').innerHTML = L.map((x, k) => '<i class="' + (k <= i ? (x.k === 'err' && k >= 6 ? 'bad' : 'on') : '') + '"></i>').join('');
+    el('rlx-f-text').innerHTML = '<h4>' + s.t + '</h4>' + s.d;
+    el('rlx-f-data').textContent = s.data;
+    el('rlx-f-lab').textContent = 'шаг ' + (i + 1) + ' из ' + L.length;
+    if(s.end){
+      seen[scn] = true;
+      if(seen.good && seen.bug){
+        msg(el('rlx-f-msg'), 'ok', 'Оба сценария пройдены. Заметьте: схема выкатки одна и та же, а исход зависит от того, насколько быстро система <b>видит</b> проблему и насколько дёшево её <b>убрать</b>. Дальше сравним шесть способов по этим двум вопросам.');
+        Progress.report('rlx-flow', 1);
+      } else {
+        msg(el('rlx-f-msg'), s.k === 'ok' ? 'ok' : 'warn', 'Сценарий пройден. Теперь переключитесь на ' + (seen.good ? '«В версии 2.4 баг»' : '«Версия 2.4 здорова»') + ' и сравните — развилка на шаге 7.');
+      }
+    } else if(i === 6 && scn === 'bug'){
+      msg(el('rlx-f-msg'), 'err', 'Развилка: с этого шага история пошла по плохому пути. Смотрите, что будет дальше и сколько людей это заденет.');
+    } else {
+      msg(el('rlx-f-msg'), '', 'Смотрите на схему: подсвечены узлы, которые работают на этом шаге. Справа — что именно между ними передаётся.');
+    }
+  }
+  el('rlx-f-next').addEventListener('click', () => { if(i < list().length - 1) i++; paint(); });
+  el('rlx-f-prev').addEventListener('click', () => { if(i > 0) i--; paint(); });
+  el('rlx-f-reset').addEventListener('click', () => { i = 0; paint(); });
+  el('rlx-f-scn').addEventListener('click', e => {
+    const b = e.target.closest('button[data-s]'); if(!b) return;
+    scn = b.dataset.s;
+    [...el('rlx-f-scn').children].forEach(x => x.classList.toggle('on', x === b));
+    if(i > list().length - 1) i = list().length - 1;
+    if(i > 5) i = 5;
+    paint();
+  });
+  paint();
+  msg(el('rlx-f-msg'), '', 'Нажмите «Дальше». Потом переключитесь на сценарий с багом и пройдите ещё раз — развилка начинается с шага 7.');
+  Progress.register('rlx-flow', 1, 'Выкатка: сквозной пример');
+})();
+
+/* ---------- глава 3: шесть способов ---------- */
+(function(){
+  const pick = document.getElementById('rlx-st-pick');
+  if(!pick) return;
+  const out = document.getElementById('rlx-st-out');
+  const b = (v, k) => '<span class="rlx-b ' + k + '">' + v + '</span>';
+  const O = b('2.3','old'), N = b('2.4','new'), X = b('закрыто','dead'), W = b('2.4 прогрев','warm');
+  const S = [
+    {n:'Big bang', life:'Ресторан закрывается на вечер, ночью меняет всё меню и утром открывается с новым. Если новое меню провалилось — снова закрываться и печатать старое.',
+     def:'Остановили всё, поставили новую версию, запустили. Все пользователи переходят на новую версию одновременно.',
+     fr:[['до',O+O+O],['выкатка',X+X+X],['после',N+N+N]],
+     r:'<span class="no">все и сразу</span>', back:'долгий: снова остановка', cost:'запланированный простой; релизы редкие и крупные', when:'внутренняя система с ночным окном; несовместимая миграция данных, которую иначе не провести'},
+    {n:'Rolling', life:'Официанты по очереди получают новое меню: сначала первый, потом второй, потом третий. Какое-то время гости у разных официантов видят разные меню.',
+     def:'Узлы обновляются по одному: погасили старый — подняли новый. Простоя нет, но какое-то время работают обе версии.',
+     fr:[['шаг 1',N+O+O],['шаг 2',N+N+O],['шаг 3',N+N+N]],
+     r:'<span class="may">доля узлов</span>', back:'обратная прокатка, минуты', cost:'обе версии обязаны работать вместе (глава 6); откат не мгновенный', when:'по умолчанию, особенно в Kubernetes, для обычных небольших изменений'},
+    {n:'Blue-green', life:'Два одинаковых зала. В синем кормят по старому меню, в зелёном накрыли новое. Метрдотель одним жестом направляет гостей в зелёный. Не понравилось — обратно в синий. Но кухня и склад у залов общие — это база данных.',
+     def:'Поднимаем полную копию системы с новой версией и переключаем на неё весь трафик разом. Старая копия стоит рядом наготове.',
+     fr:[['до','синий: '+O+O+O],['готовим','синий: '+O+O+O+' · зелёный: '+W],['щёлк','зелёный: '+N+N+N+' · синий ждёт']],
+     r:'<span class="may">все, но на короткое время</span>', back:'<span class="yes">мгновенный: переключить обратно</span>', cost:'двойные ресурсы; общая база обязана подходить обеим версиям', when:'нужен мгновенный откат, ресурсы позволяют, схема совместима'},
+    {n:'Canary', life:'Дегустация. Новое блюдо сначала подают одному столику из двадцати и смотрят на лица. Понравилось — пяти столикам, потом половине зала, потом всем.',
+     def:'Новая версия получает растущую долю трафика: 1 % → 5 % → 25 % → 100 %. На каждом этапе метрики сравнивают со старой версией. Хуже порога — автоматический откат.',
+     fr:[['5 %',O+O+O+N+' ← каждый 20-й'],['50 %',O+O+N+N],['100 %',N+N+N+N]],
+     r:'<span class="yes">малая доля</span>', back:'<span class="yes">быстрый, автоматический</span>', cost:'нужны метрики по версиям, автоматика и умный балансировщик', when:'рискованные изменения: оплата, новая логика расчётов, большие обновления'},
+    {n:'Теневой запуск', life:'Повар готовит новое блюдо параллельно по каждому заказу, но гостю несут старое. Новое пробует шеф и сравнивает. Гость ничего не замечает. Но нельзя «в тени» вызвать гостю такси — это уже настоящее действие.',
+     def:'Копия настоящего трафика идёт и в новую версию, но её ответы выбрасываются и только сравниваются со старыми. Его ещё называют shadow или dark launch (иногда dark launch называют и выкатку за выключенным флагом).',
+     fr:[['запрос',O+' → ответ пользователю'],['копия',N+' → ответ в сравнение'],['итог','расхождения в отчёт']],
+     r:'<span class="yes">нулевой</span>', back:'не нужен', cost:'двойная нагрузка; побочные эффекты (письма, списания) надо отключать', when:'большое переписывание, проверка скорости на настоящей нагрузке'},
+    {n:'Флаги', life:'Блюдо уже готово на кухне, но в меню скрыто. Сначала его предлагают своим, потом постоянным гостям, потом всем. Жалобы — молча убрали из меню.',
+     def:'Код выкатан на все узлы, но новая функция выключена. Её включают отдельно — по проценту, сегменту, конкретным клиентам.',
+     fr:[['деплой',N+N+N+' флаг выкл'],['включили',N+N+N+' флаг: 10 %'],['релиз',N+N+N+' флаг: все']],
+     r:'<span class="yes">кому включили</span>', back:'<span class="yes">мгновенный: выключить флаг</span>', cost:'сочетания флагов растут как 2ⁿ; неудалённые флаги — долг', when:'включение к дате или для сегмента; долгая разработка без долгих веток'},
+  ];
+  pick.innerHTML = S.map((s, k) => '<button' + (k === 0 ? ' class="on"' : '') + ' data-i="' + k + '">' + s.n + '</button>').join('');
+  function show(k){
+    const s = S[k];
+    [...pick.children].forEach((x, j) => x.classList.toggle('on', j === k));
+    out.innerHTML =
+      '<div class="rlx-life"><b>На что похоже.</b> ' + s.life + '</div>' +
+      '<p style="font-size:14px;color:var(--muted);margin:10px 0 0"><b style="color:var(--ink)">Что это.</b> ' + s.def + '</p>' +
+      '<div class="rlx-frames">' + s.fr.map(f => '<div class="rlx-frame"><span class="rlx-fl">' + f[0] + '</span>' + f[1] + '</div>').join('') + '</div>' +
+      '<div class="rlx-facts">' +
+        '<div class="box"><h4>кого заденет ошибка</h4>' + s.r + '</div>' +
+        '<div class="box"><h4>откат</h4>' + s.back + '</div>' +
+        '<div class="box"><h4>чем платишь</h4>' + s.cost + '</div>' +
+        '<div class="box"><h4>когда брать</h4>' + s.when + '</div>' +
+      '</div>';
+  }
+  pick.addEventListener('click', e => { const x = e.target.closest('button[data-i]'); if(x) show(+x.dataset.i); });
+  show(0);
+})();
+
+/* ---------- глава 4: симулятор с багом ---------- */
+(function(){
+  const grid = document.getElementById('rlx-s-grid');
+  if(!grid) return;
+  const el = id => document.getElementById(id);
+  const T = 12;
+  const STR = {
+    bang:  {n:'Big bang', auto:false, res:1,
+            rule:'Минуты 1–2 — сервис закрыт на обновление, потом все сразу на новой версии. Ошибки ловит общий алерт (порог 2 % от всех запросов), дежурному нужна минута, чтобы среагировать. Откат — снова закрыться на 2 минуты.',
+            plan:t => t < 2 ? {down:1, v2:0} : {v2:1}, back:k => k < 2 ? {down:1, v2:0} : {v2:0}},
+    roll:  {n:'Rolling', auto:false, res:1.25,
+            rule:'Четыре узла меняются по одному в минуту: 25 % → 50 % → 75 % → 100 %. Ошибки ловит общий алерт (2 %), минута на реакцию. Откат — такая же прокатка назад, по узлу в минуту.',
+            plan:t => ({v2:Math.min(1, (t + 1) * .25)}), back:(k, from) => ({v2:Math.max(0, from - (k + 1) * .25)})},
+    bg:    {n:'Blue-green', auto:false, res:2,
+            rule:'Две минуты поднимается зелёная копия (пользователи на синей), потом весь трафик разом переключают. Общий алерт (2 %), минута на реакцию. Откат — переключить обратно, мгновенно.',
+            plan:t => ({v2:t < 2 ? 0 : 1}), back:() => ({v2:0})},
+    can:   {n:'Canary', auto:true, res:1.1,
+            rule:'5 % две минуты, 25 % две минуты, 50 % две минуты, потом 100 %. После каждой минуты автомат сравнивает ошибки канарейки со старой версией. Хуже на 1 % — откат со следующей минуты.',
+            plan:t => ({v2:t < 2 ? .05 : t < 4 ? .25 : t < 6 ? .5 : 1}), back:() => ({v2:0})},
+    flag:  {n:'Флаг', auto:true, res:1,
+            rule:'Код уже на всех узлах, флаг выключен. Минута 2 — включаем 10 % пользователей, минута 4 — 50 %, минута 6 — всем. Автомат сравнивает тех, кому включили, с остальными. Откат — выключить флаг.',
+            plan:t => ({v2:t < 1 ? 0 : t < 3 ? .1 : t < 5 ? .5 : 1}), back:() => ({v2:0})},
+    shadow:{n:'Теневой запуск', auto:true, res:2, mirror:true,
+            rule:'Все пользователи на старой версии. Копия каждого запроса идёт в новую, её ответ только сравнивается. Расхождения видны сразу — но пользователи новую версию так и не получают.',
+            plan:() => ({v2:0, mirror:1}), back:() => ({v2:0, mirror:0})},
+  };
+  const KEYS = Object.keys(STR);
+  let cur = 'can', S, timer = null;
+  const results = {};
+  const done = new Set();
+  function rng(seed){ return function(){ seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  function fresh(){
+    S = {t:0, rbAt:null, rbFrom:0, detectAt:null, backAt:null, hurt:0, down:0, mirrorErr:0, cols:[], cells:[], log:[], rnd:rng(20260927), v2now:0, finished:false};
+  }
+  const p = () => +el('rlx-s-bug').value / 100;
+  function state(t){
+    const st = STR[cur];
+    return (S.rbAt !== null && t >= S.rbAt) ? st.back(t - S.rbAt, S.rbFrom) : st.plan(t);
+  }
+  function tick(){
+    if(S.finished) return;
+    const st = STR[cur], t = S.t, s = state(t), P = p();
+    const cnt = {v1:0, v2:0, bug:0, down:0}; let mErr = 0;
+    const cells = [];
+    const share = Math.round((s.v2 || 0) * 100);
+    for(let u = 0; u < 100; u++){
+      const r = S.rnd();
+      let c;
+      if(s.down) c = 'down';
+      else if(u < share) c = r < P ? 'bug' : 'v2';
+      else c = 'v1';
+      if(s.mirror && r < P) mErr++;
+      cnt[c]++; cells.push(c);
+    }
+    S.cells = cells; S.cols.push({cnt, rb: S.rbAt !== null && t >= S.rbAt});
+    S.hurt += cnt.bug; S.down += cnt.down; S.mirrorErr += mErr; S.v2now = s.down ? 0 : share;
+    let line = 'Минута ' + (t + 1) + ': ' + (s.down ? '<b>сервис недоступен</b> — 100 человек не смогли заплатить.' : 'на новой версии ' + share + ' %. ');
+    if(!s.down && share) line += cnt.bug ? 'Ошибку увидели <b>' + cnt.bug + '</b>.' : 'Ошибок нет.';
+    if(s.mirror) line += 'Теневая копия: расхождений ' + mErr + ' из 100, пользователи их не видят.';
+    let kind = cnt.bug || cnt.down ? 'fail' : 'done';
+    if(S.rbAt === null && P > 0){
+      if(st.auto){
+        const cohort = s.mirror ? 100 : cnt.v2 + cnt.bug, errs = s.mirror ? mErr : cnt.bug;
+        if(cohort > 0 && errs >= 2 && errs / cohort > .01){
+          S.detectAt = t; S.rbAt = t + 1; S.rbFrom = s.v2 || 0;
+          line += ' <b>Автомат: у новой версии ' + Math.round(errs / cohort * 100) + ' % ошибок против фона — откат.</b>'; kind = 'comp';
+        }
+      } else if(!s.down && cnt.bug / 100 > .02){
+        S.detectAt = t; S.rbAt = t + 2; S.rbFrom = (st.plan(t + 1).v2) || 0;
+        line += ' <b>Сработал общий алерт. Дежурный открывает графики — откат начнётся через минуту.</b>'; kind = 'comp';
+      }
+    }
+    if(S.rbAt !== null && t >= S.rbAt && S.backAt === null && !s.down && !share){
+      S.backAt = t; line += st.mirror ? ' <b>Теневую копию выключили — чинить можно спокойно, никто не пострадал.</b>' : ' <b>Откат завершён: все на старой версии.</b>'; kind = 'done';
+    }
+    S.log.unshift({k:kind, i:t + 1, t:line});
+    S.t++;
+    if(S.t >= T) finish();
+    paint();
+  }
+  function finish(){
+    S.finished = true; clearInterval(timer); timer = null;
+    const st = STR[cur];
+    results[cur] = {hurt:S.hurt, down:S.down, det:S.detectAt, back:S.backAt, res:st.res, P:p(), got: S.v2now, mirror:S.mirrorErr};
+    const was = done.size;
+    done.add(cur);
+    Progress.report('rlx-sim', Math.min(3, done.size));
+    const P = p();
+    let m;
+    if(P === 0) m = 'Бага нет — и все стратегии выглядят одинаково хорошо. Разница проявится, только когда что-то пойдёт не так. Поставьте ошибку побольше.';
+    else if(cur === 'shadow') m = 'Никто из пользователей не пострадал: теневая версия отвечала «в стол». Но и новую версию никто не получил — теперь её всё равно придётся выкатывать одним из других способов.';
+    else m = st.n + ': ошибку увидели <b>' + S.hurt + '</b> человек' + (S.down ? ', ещё <b>' + S.down + '</b> упёрлись в закрытый сервис' : '') + '. ' + (done.size < 3 ? 'Теперь выберите другую стратегию с тем же багом и сравните.' : 'Сравните строки в таблице ниже.');
+    msg(el('rlx-s-msg'), P === 0 || cur === 'shadow' ? 'ok' : (S.hurt + S.down > 150 ? 'err' : 'warn'), m);
+    if(was < 3 && done.size === 3) confetti(16);
+    paintRes();
+  }
+  function paintRes(){
+    const keys = KEYS.filter(k => results[k]);
+    if(!keys.length){ el('rlx-s-res').innerHTML = ''; return; }
+    const mm = v => v === null || v === undefined ? '—' : 'минута ' + (v + 1);
+    el('rlx-s-res').innerHTML = '<h3>Сравнение прогонов</h3><div class="table-wrap"><table class="db"><thead><tr><th>Стратегия</th><th>Баг</th><th>Увидели ошибку</th><th>Не смогли зайти</th><th>Заметили</th><th>Откатились</th><th>Ресурсы</th></tr></thead><tbody>' +
+      keys.map(k => { const r = results[k]; return '<tr><td><b>' + STR[k].n + '</b></td><td class="c">' + Math.round(r.P * 100) + ' %</td><td class="c"><span class="' + (r.hurt > 100 ? 'no' : r.hurt > 20 ? 'may' : 'yes') + '">' + r.hurt + '</span></td><td class="c">' + (r.down ? '<span class="no">' + r.down + '</span>' : '0') + '</td><td class="c">' + mm(r.det) + '</td><td class="c">' + (r.det === null ? '—' : mm(r.back)) + '</td><td class="c">×' + String(r.res).replace('.', ',') + '</td></tr>'; }).join('') +
+      '</tbody></table></div>';
+  }
+  function paint(){
+    const cells = S.cells.length ? S.cells : Array(100).fill('v1');
+    grid.innerHTML = cells.map(c => '<i class="rlx-u ' + c + '"></i>').join('');
+    el('rlx-s-now').textContent = 'минута ' + S.t + ' из ' + T + (S.t ? ' · показаны покупатели минуты ' + S.t : ' · до начала выкатки');
+    el('rlx-s-tl').innerHTML = Array.from({length:T}, (_, k) => {
+      const c = S.cols[k]; if(!c) return '<div class="rlx-tc"></div>';
+      return '<div class="rlx-tc' + (c.rb ? ' rlx-rb' : '') + '">' + ['v1','v2','bug','down'].map(x => c.cnt[x] ? '<span class="' + x + '" style="height:' + c.cnt[x] + '%"></span>' : '').join('') + '</div>';
+    }).join('');
+    el('rlx-s-tlab').innerHTML = Array.from({length:T}, (_, k) => '<span>' + (k + 1) + '</span>').join('');
+    const st = STR[cur];
+    el('rlx-s-m').innerHTML =
+      '<span class="meter">на новой: <b>' + S.v2now + ' %</b></span>' +
+      '<span class="meter bad">увидели ошибку: <b>' + S.hurt + '</b></span>' +
+      '<span class="meter bad">не смогли зайти: <b>' + S.down + '</b></span>' +
+      '<span class="meter wq">заметили: <b>' + (S.detectAt === null ? '—' : 'мин. ' + (S.detectAt + 1)) + '</b></span>' +
+      '<span class="meter good">откатились: <b>' + (S.backAt === null ? '—' : 'мин. ' + (S.backAt + 1)) + '</b></span>' +
+      '<span class="meter">ресурсы: <b>×' + String(st.res).replace('.', ',') + '</b></span>';
+    el('rlx-s-log').innerHTML = S.log.map(l => '<div class="step ' + l.k + '"><div class="si">' + l.i + '</div><div>' + l.t + '</div></div>').join('');
+  }
+  function reset(silent){
+    clearInterval(timer); timer = null; fresh(); paint();
+    el('rlx-s-rule').innerHTML = '<b>Как работает «' + STR[cur].n + '» в этом симуляторе.</b> ' + STR[cur].rule;
+    if(!silent) msg(el('rlx-s-msg'), '', 'Готово к запуску. Нажмите «Следующая минута» или «Прокрутить всё».');
+  }
+  el('rlx-s-pick').innerHTML = KEYS.map(k => '<button' + (k === cur ? ' class="on"' : '') + ' data-k="' + k + '">' + STR[k].n + '</button>').join('');
+  el('rlx-s-pick').addEventListener('click', e => {
+    const b = e.target.closest('button[data-k]'); if(!b) return;
+    cur = b.dataset.k;
+    [...el('rlx-s-pick').children].forEach(x => x.classList.toggle('on', x === b));
+    reset();
+  });
+  el('rlx-s-bug').addEventListener('input', e => { el('rlx-s-bug-v').textContent = e.target.value + ' %'; if(S.t) reset(); });
+  el('rlx-s-step').addEventListener('click', () => { if(S.finished) reset(true); tick(); if(!S.finished) msg(el('rlx-s-msg'), '', 'Минута ' + S.t + ' из ' + T + '. Смотрите на квадратики и на столбик внизу.'); });
+  el('rlx-s-run').addEventListener('click', () => {
+    if(S.finished) reset(true);
+    clearInterval(timer);
+    timer = setInterval(() => { if(S.finished || !document.body.contains(grid)){ clearInterval(timer); timer = null; return; } tick(); }, 380);
+  });
+  el('rlx-s-reset').addEventListener('click', () => reset());
+  reset();
+  Progress.register('rlx-sim', 3, 'Симулятор выкатки с багом');
+})();
+
+/* ---------- глава 6: N−1 ---------- */
+(function(){
+  const caseBar = document.getElementById('rlx-n1-case');
+  if(!caseBar) return;
+  const out = document.getElementById('rlx-n1-out'), rdBar = document.getElementById('rlx-n1-rd');
+  const C = [
+    {n:'Добавить поле', dir:'2.4 → старый сервис чеков',
+     m:'{\n  "paymentId": "p-981",\n  "amount":    1990,\n  "currency":  "RUB",\n  "methodDetails": { "bank": "Т-Банк" }\n}',
+     soft:['ok','Старый сервис нашёл <code class="inl">amount</code> и <code class="inl">currency</code>, незнакомое <code class="inl">methodDetails</code> пропустил. Чек напечатан.'],
+     strict:['err','Строгая проверка: «неизвестное поле methodDetails — отклонить». Каждое сообщение от новой версии уходит в очередь ошибок. Чеков нет, пока выкатка не закончится и сервис чеков не обновят.'],
+     fix:'Добавлять поля можно всегда — если читатели мягкие. Это самое безопасное изменение контракта.'},
+    {n:'Переименовать поле', dir:'2.4 → старый сервис чеков',
+     m:'{\n  "paymentId": "p-981",\n  "sum":       1990,   ← было amount\n  "currency":  "RUB"\n}',
+     soft:['err','Старый код ищет <code class="inl">amount</code> — его нет. Чек на 0 ₽ или падение. Мягкость не спасает: нужное поле пропало.'],
+     strict:['err','Строгий читатель отвергнет сообщение сразу: нет обязательного <code class="inl">amount</code>, есть незнакомое <code class="inl">sum</code>.'],
+     fix:'Переименование — это три выкатки: добавить новое поле и слать оба; перевести читателей на новое; перестать слать старое. Та же параллельная замена, что и в базе (глава 7).'},
+    {n:'Удалить поле', dir:'2.4 → старый сервис чеков',
+     m:'{\n  "paymentId": "p-981",\n  "amount":    1990\n                       ← currency убрали\n}',
+     soft:['err','Старый код ждёт <code class="inl">currency</code>, получает пусто. Печатает чек без валюты или падает. Для него поле было обязательным.'],
+     strict:['err','Не прошло проверку: отсутствует обязательное поле <code class="inl">currency</code>.'],
+     fix:'Сначала выкатить читателей, которым поле не нужно. Только потом перестать его слать. Порядок важнее самого изменения.'},
+    {n:'Новое обязательное поле', dir:'старый узел 2.3 → новый 2.4',
+     m:'{\n  "paymentId": "p-982",\n  "amount":    500,\n  "currency":  "RUB"\n}\n// 2.4 требует methodDetails,\n// а старые узлы его не шлют',
+     soft:['err','Направление обратное: теперь старый узел шлёт сообщение новому. Версия 2.4 требует <code class="inl">methodDetails</code> и отвергает всё от старых узлов — а они ещё полчаса будут работать.'],
+     strict:['err','То же самое: проблема не в старом читателе, а в новом. Он требует то, чего старые отправители не умеют.'],
+     fix:'Новое поле сначала делают необязательным со значением по умолчанию. Обязательным — только когда старых отправителей не осталось.'},
+    {n:'Сменить тип поля', dir:'2.4 → старый сервис чеков',
+     m:'{\n  "paymentId": "p-981",\n  "amount":    "1990.00",   ← было число\n  "currency":  "RUB"\n}',
+     soft:['err','Старый код ждёт число, получает строку. В одних языках — падение, в других — «19901» вместо суммы. Хуже всего второе: ошибка тихая.'],
+     strict:['err','Не прошло проверку: <code class="inl">amount</code> должен быть числом.'],
+     fix:'Новый тип — новое поле (например, <code class="inl">amountMinor: 199000</code> в копейках). Старое оставить, пока есть старые читатели.'},
+    {n:'Новое значение в списке', dir:'2.4 → старый сервис чеков',
+     m:'{\n  "paymentId": "p-981",\n  "status":    "PARTIALLY_REFUNDED"  ← новое\n}',
+     soft:['warn','Поле знакомое, значение — нет. Если в старом коде есть ветка «иначе», он покажет «неизвестный статус». Если нет — упадёт или молча посчитает платёж новым.'],
+     strict:['err','Не прошло проверку: значение не входит в список допустимых.'],
+     fix:'Сначала научить все версии спокойно обрабатывать неизвестные значения. Новые значения — только после этого.'},
+  ];
+  let ci = 0, rd = 'soft';
+  const seen = new Set();
+  caseBar.innerHTML = C.map((c, k) => '<button' + (k === 0 ? ' class="on"' : '') + ' data-i="' + k + '">' + c.n + '</button>').join('');
+  function paint(){
+    const c = C[ci], r = c[rd];
+    [...caseBar.children].forEach((x, k) => x.classList.toggle('on', k === ci));
+    [...rdBar.children].forEach(x => x.classList.toggle('on', x.dataset.r === rd));
+    out.innerHTML = '<div class="rlx-io"><div class="box"><h4>Сообщение: ' + c.dir + '</h4><pre class="json">' + esc(c.m) + '</pre></div>' +
+      '<div class="box"><h4>Что происходит</h4><div class="console ' + r[0] + '" style="margin-top:6px"><span class="ic">' + (r[0] === 'ok' ? '✓' : r[0] === 'warn' ? '⚠' : '✕') + '</span><span>' + r[1] + '</span></div>' +
+      '<div class="note good" style="margin-top:10px"><b>Как правильно.</b> ' + c.fix + '</div></div></div>';
+    seen.add(ci);
+    if(seen.size >= 4) Progress.report('rlx-n1', 1);
+  }
+  caseBar.addEventListener('click', e => { const b = e.target.closest('button[data-i]'); if(b){ ci = +b.dataset.i; paint(); } });
+  rdBar.addEventListener('click', e => { const b = e.target.closest('button[data-r]'); if(b){ rd = b.dataset.r; paint(); } });
+  paint();
+  Progress.register('rlx-n1', 1, 'Совместимость N−1');
+})();
+
+/* ---------- глава 7: параллельная замена колонки ---------- */
+(function(){
+  const tab = document.getElementById('rlx-mig-tab');
+  if(!tab) return;
+  const el = id => document.getElementById(id);
+  const R = [[1,'Анна Смирнова','Анна','Смирнова'],[2,'Борис Петров','Борис','Петров'],[3,'Вера Ким','Вера','Ким'],[4,'Глеб Орлов','Глеб','Орлов']];
+  // f: 'name' — только name; 'nul' — новые пустые; 'both' — всё заполнено; 'noname' — name пуст; 'drop' — name удалён
+  const ST = [
+    {t:'Исходное состояние.', sx:'Одна колонка <code class="inl">name</code>. Работает версия кода v1: читает и пишет <code class="inl">name</code>.', code:'v1: читает name, пишет name', cols:'old', rows:[['name'],['name']], back:'да'},
+    {t:'Добавить новые колонки.', sx:'<code class="inl">ALTER TABLE ADD COLUMN first_name, last_name</code> — nullable, без значения по умолчанию. Совместимо: старый код их не видит и не ломается. Обязательно nullable — иначе на большой таблице ALTER заблокирует её надолго.', code:'v1: читает name, пишет name', cols:'both', rows:[['name','nul'],['name','nul']], back:'да'},
+    {t:'Выкатить код, который пишет в обе.', sx:'Читает пока из старой. Теперь новые записи заполнены везде. Откат безопасен: старый код читает старую колонку, которая по-прежнему заполняется. Смотрите на строку Веры — она создана новым кодом.', code:'v2: читает name, пишет name + first/last', cols:'both', rows:[['name','nul'],['name','nul'],['all','new']], back:'да'},
+    {t:'Заполнить старые строки фоном.', sx:'Порциями, с паузами, чтобы не положить базу. Не одним UPDATE на 50 миллионов строк: это блокировки, раздувание журнала и отставание реплик на часы.', code:'v2 + фоновая задача: по 1 000 строк раз в секунду', cols:'both', rows:[['all','hot'],['all','hot'],['all']], back:'да'},
+    {t:'Выкатить код, который читает из новых.', sx:'Пишет по-прежнему в обе. Точка проверки: если что-то не так, откат на предыдущую версию всё ещё работает.', code:'v3: читает first/last, пишет name + first/last', cols:'both', rows:[['all'],['all'],['all']], back:'да'},
+    {t:'Перестать писать в старую.', sx:'С этого момента откат на самую первую версию уже невозможен — старая колонка начала отставать. Смотрите на строку Глеба: у неё <code class="inl">name</code> пуст, и v1 показал бы вместо имени пустоту. Это осознанная точка невозврата.', code:'v4: читает first/last, пишет только first/last', cols:'both', rows:[['all'],['all'],['all'],['noname','new']], back:'нет'},
+    {t:'Удалить старую колонку.', sx:'Спустя дни или недели, когда уверенность появилась. Шаг, который откладывают навсегда, — поставьте задачу с датой ещё на шаге 1.', code:'v4: читает и пишет только first/last', cols:'drop', rows:[['drop'],['drop'],['drop'],['drop']], back:'нет'},
+  ];
+  let i = 0;
+  function paint(){
+    const s = ST[i];
+    const showOld = s.cols !== 'drop', showNew = s.cols !== 'old';
+    let h = '<div class="table-wrap"><table class="db rlx-mt"><thead><tr><th>id</th>';
+    if(showOld) h += '<th' + (i >= 5 ? ' class="rlx-gone"' : '') + '>name</th>';
+    if(showNew) h += '<th class="rlx-newc">first_name</th><th class="rlx-newc">last_name</th>';
+    h += '</tr></thead><tbody>';
+    s.rows.forEach((r, k) => {
+      const d = R[k], f = r[0], hot = r.includes('hot') || r.includes('new');
+      const cls = hot ? ' class="rlx-hot"' : '';
+      h += '<tr><td>' + d[0] + '</td>';
+      if(showOld) h += f === 'noname' ? '<td class="rlx-nul rlx-hot">NULL</td>' : '<td>' + d[1] + '</td>';
+      if(showNew){
+        if(f === 'nul' || f === 'name') h += '<td class="rlx-nul">NULL</td><td class="rlx-nul">NULL</td>';
+        else h += '<td' + cls + '>' + d[2] + '</td><td' + cls + '>' + d[3] + '</td>';
+      }
+      h += '</tr>';
+    });
+    tab.innerHTML = h + '</tbody></table></div>';
+    el('rlx-mig-m').innerHTML =
+      '<span class="meter">работает код: <b>' + s.code + '</b></span>' +
+      '<span class="meter ' + (s.back === 'да' ? 'good' : 'bad') + '">откат на v1: <b>' + (s.back === 'да' ? 'возможен' : 'невозможен') + '</b></span>';
+    el('rlx-mig-steps').innerHTML = '<div class="step ' + (i === 0 ? 'now' : i >= 5 ? 'comp' : 'done') + '"><div class="si">' + i + '</div><div><b>' + s.t + '</b><span class="sx">' + s.sx + '</span></div></div>';
+    el('rlx-mig-lab').textContent = 'шаг ' + i + ' из ' + (ST.length - 1);
+    if(i === ST.length - 1) Progress.report('rlx-mig', 1);
+  }
+  el('rlx-mig-next').addEventListener('click', () => { if(i < ST.length - 1) i++; paint(); });
+  el('rlx-mig-prev').addEventListener('click', () => { if(i > 0) i--; paint(); });
+  paint();
+  Progress.register('rlx-mig', 1, 'Миграция без простоя');
+})();
+
+/* ---------- глава 8: флаги ---------- */
+(function(){
+  const users = document.getElementById('rlx-fl-users');
+  if(!users) return;
+  const el = id => document.getElementById(id);
+  const NAMES = ['Ира','Олег','Лена','Анна','Борис','Вера','Глеб','Дина','Егор','Жанна','Зоя','Игорь','Карина','Лев','Мира','Нина','Остап','Пётр','Рита','Семён','Таня','Ульяна','Фёдор','Юля'];
+  const CITY = ['Москва','Казань','Москва','Пермь','Москва','Омск','Тула','Москва','Сочи','Москва','Тверь','Москва'];
+  const U = NAMES.map((n, k) => ({n, staff:k < 3, city:CITY[k % CITY.length], b:(k * 37 + 11) % 100}));
+  let on = false, aud = 'all', wasOn = false;
+  function paint(){
+    const pct = +el('rlx-fl-pct').value;
+    el('rlx-fl-pct-v').textContent = pct + ' %';
+    [...el('rlx-fl-on').children].forEach(b => b.classList.toggle('on', (b.dataset.v === '1') === on));
+    [...el('rlx-fl-aud').children].forEach(b => b.classList.toggle('on', b.dataset.a === aud));
+    const inAud = u => aud === 'all' || (aud === 'staff' && u.staff) || (aud === 'msk' && u.city === 'Москва');
+    let n = 0;
+    users.innerHTML = U.map(u => { const y = on && inAud(u) && u.b < pct; if(y) n++;
+      return '<div class="rlx-usr' + (y ? ' on' : '') + '">' + u.n + (u.staff ? ' 🪪' : '') + '<small>' + u.city + ' · ' + (y ? 'новая' : 'старая') + '</small></div>'; }).join('');
+    el('rlx-fl-code').textContent =
+      '// настройка флага (меняется без выкатки)\n' +
+      '{ "flag": "new-checkout",\n  "enabled": ' + on + ',\n  "audience": "' + (aud === 'all' ? 'все' : aud === 'staff' ? 'сотрудники' : 'город = Москва') + '",\n  "percent": ' + pct + ' }\n\n' +
+      '// в коде страницы оплаты\n' +
+      'if (flags.isOn("new-checkout", user))\n  renderNewCheckout();\nelse\n  renderOldCheckout();';
+    if(on && n) wasOn = true;
+    const m = el('rlx-fl-msg');
+    if(!on && wasOn){
+      msg(m, 'ok', 'Флаг выключен — и все ' + U.length + ' человек мгновенно вернулись на старую оплату. Ни сборки, ни выкатки, ни ожидания. Это и есть главный козырь флагов: <b>откат за секунду</b>.');
+      Progress.report('rlx-flag', 1);
+    } else if(!on) msg(m, '', 'Флаг выключен: код новой оплаты лежит на серверах, но никто его не видит. Включите флаг.');
+    else if(!n) msg(m, 'warn', 'Флаг включён, но условиям не подходит никто. Прибавьте долю или смените аудиторию.');
+    else msg(m, 'ok', 'Новую оплату видят <b>' + n + '</b> из ' + U.length + '. Остальные — старую. Код у всех один и тот же. Теперь представьте, что пошли жалобы, и выключите флаг.');
+  }
+  el('rlx-fl-on').addEventListener('click', e => { const b = e.target.closest('button[data-v]'); if(b){ on = b.dataset.v === '1'; paint(); } });
+  el('rlx-fl-aud').addEventListener('click', e => { const b = e.target.closest('button[data-a]'); if(b){ aud = b.dataset.a; paint(); } });
+  el('rlx-fl-pct').addEventListener('input', paint);
+  function comb(){
+    const n = +el('rlx-fl-n').value;
+    el('rlx-fl-n-v').textContent = n;
+    const c = Math.pow(2, n);
+    el('rlx-fl-comb').innerHTML =
+      '<span class="meter bad">сочетаний: <b>' + c.toLocaleString('ru-RU') + '</b></span>' +
+      '<span class="meter good">обычно тестируют: <b>2–3</b></span>' +
+      '<span class="meter wq">если проверять по одному в секунду: <b>' + (c < 3600 ? Math.ceil(c / 60) + ' мин' : c < 86400 * 365 ? Math.round(c / 3600).toLocaleString('ru-RU') + ' ч' : Math.round(c / 86400 / 365).toLocaleString('ru-RU') + ' лет') + '</b></span>';
+  }
+  el('rlx-fl-n').addEventListener('input', comb);
+  paint(); comb();
+  Progress.register('rlx-flag', 1, 'Флаг функциональности');
+})();
+
+/* ---------- глава 9: подбор стратегии ---------- */
+(function(){
+  const root = document.getElementById('rlx-ch-q');
+  if(!root) return;
+  const Q = [
+    {k:'stop', t:'Можно остановить систему на время релиза (ночное окно, внутренние пользователи)?'},
+    {k:'risk', t:'Изменение рискованное: деньги, расчёты, новая логика?'},
+    {k:'mon',  t:'Есть метрики по версиям и автоматика, которая умеет их сравнивать?'},
+    {k:'res',  t:'Хватает ресурсов поднять вторую полную копию системы?'},
+    {k:'biz',  t:'Бизнесу нужно включить функцию к дате или только части клиентов?'},
+  ];
+  const A = {stop:0, risk:1, mon:1, res:0, biz:0};
+  root.innerHTML = Q.map(q => '<span>' + q.t + '</span><div class="seg" data-k="' + q.k + '"><button data-v="1">да</button><button data-v="0">нет</button></div>').join('');
+  function paint(){
+    [...root.querySelectorAll('.seg')].forEach(s => [...s.children].forEach(b => b.classList.toggle('on', +b.dataset.v === A[s.dataset.k])));
+    const rec = [];
+    if(A.stop && !A.risk) rec.push('<b>Big bang допустим.</b> Раз простой разрешён и риск невысок, самый простой способ — нормальный выбор. Но проверьте, что откат тоже укладывается в окно.');
+    else if(A.risk && A.mon) rec.push('<b>Канарейка.</b> Рискованное изменение плюс метрики и автоматика — ровно её случай: ошибку увидит малая доля, откат автоматический.');
+    else if(A.risk && A.res) rec.push('<b>Blue-green.</b> Автоматики сравнения нет, зато есть ресурсы: мгновенный откат переключением. Проверьте совместимость схемы базы с обеими версиями.');
+    else if(A.risk) rec.push('<b>Rolling, но медленно и с ручными паузами.</b> Для рискованного изменения без метрик это слабое место — стоит вложиться в мониторинг по версиям.');
+    else if(A.res && !A.mon) rec.push('<b>Rolling или blue-green.</b> Изменение обычное — хватит прокатки. Если нужен мгновенный откат — blue-green.');
+    else rec.push('<b>Rolling.</b> Обычное изменение, простой недопустим — прокатка по узлам по умолчанию. Главное условие — совместимость версий (глава 6).');
+    if(A.biz) rec.push('<b>Плюс флаг функциональности.</b> Выкатите код заранее выключенным, а включайте к дате или по сегментам. Не забудьте дату удаления флага.');
+    if(A.risk && !A.mon) rec.push('<b>Подумайте о теневом запуске</b> для самой рискованной части — он проверяет новую версию на настоящем трафике, никого не задевая.');
+    msg(document.getElementById('rlx-ch-out'), 'ok', rec.join('<br>'));
+  }
+  root.addEventListener('click', e => { const b = e.target.closest('button[data-v]'); if(!b) return; A[b.closest('.seg').dataset.k] = +b.dataset.v; paint(); });
+  paint();
+})();
+
+/* ---------- таблица, канарейка, задания (исходные) ---------- */
+(function(){
+  if(!document.getElementById('rel-table')) return;
   renderCmp('rel-table',
     ['Стратегия','Как','Радиус поражения','Откат'],
     [
@@ -17575,6 +18373,27 @@ renderFlow('msf-flow', {
   paint();
   Progress.register('cn-play', 1, 'Канарейка');
 
+  renderSort('rlx-sort', [
+    {t:'Внутренняя бухгалтерская система, работает с 9 до 18. Миграция данных несовместима со старой версией.', bucket:'bang',
+     why:'Простой ночью никому не мешает, а несовместимую миграцию при двух живых версиях не провести. Редкий случай, когда big bang — честный выбор.'},
+    {t:'Stateless-сервис в Kubernetes, небольшое изменение, старая и новая версии совместимы.', bucket:'roll',
+     why:'Обычная прокатка по узлам: без простоя, без двойных ресурсов. Совместимость версий уже обеспечена — больше ничего не нужно.'},
+    {t:'Поисковый движок переписан с нуля. Нужно проверить скорость и качество на настоящей нагрузке, ничего не показывая пользователям.', bucket:'shadow',
+     why:'Ключевое — «ничего не показывая». Теневой запуск отдаёт новой версии копию трафика и только сравнивает ответы. Поиск ничего не пишет, так что побочных эффектов нет.'},
+    {t:'Новый расчёт комиссии в сервисе оплаты. Есть метрики по версиям и автоматический откат.', bucket:'can',
+     why:'Деньги и новая логика — высокий риск. Метрики по версиям есть — значит, канарейка покажет проблему на малой доле и откатится сама.'},
+    {t:'Маркетинг хочет включить новую корзину в пятницу в 10:00 и только для Москвы.', bucket:'flag',
+     why:'Момент включения диктует бизнес, а не выкатка. Код выкатывают заранее за выключенным флагом, в пятницу включают для сегмента «Москва».'},
+    {t:'Нужны мгновенное переключение и такой же мгновенный откат. Ресурсов хватает, схема базы подходит обеим версиям.', bucket:'bg',
+     why:'Мгновенно туда и обратно — это переключение между двумя полными копиями. Двойные ресурсы есть, общая база совместима — условия blue-green выполнены.'},
+    {t:'Команда пишет большую функцию три месяца и не хочет держать отдельную ветку всё это время.', bucket:'flag',
+     why:'Незаконченный код живёт в главной ветке и выкатывается вместе со всем остальным, но выключен флагом. Когда функция готова — включают.'},
+  ], [
+    {id:'bang', n:'Big bang'}, {id:'roll', n:'Rolling'}, {id:'bg', n:'Blue-green'},
+    {id:'can', n:'Canary'}, {id:'shadow', n:'Теневой запуск'}, {id:'flag', n:'Флаг'},
+  ], 'rlx-sort-score', 'rlx-sort-total');
+  Progress.register('rlx-sort-score', 7, 'Выбор стратегии выкатки');
+
   renderTasks('rlq-tasks', [
     {q:'Что обязательно требуется для rolling-выкатки?',
      opts:[
@@ -17616,8 +18435,24 @@ renderFlow('msf-flow', {
        {t:'Надо начинать с 10 %'},
      ],
      why:'Смысл канарейки — увидеть проблему до того, как её увидят все. На 1 % трафика редкая ошибка проявится через минуты, а утечка памяти или деградация под нагрузкой — через десятки минут. Выкатка за две минуты означает, что вы доедете до 100 % раньше, чем появится сигнал, и получите обычный big bang с красивым названием. Этапы держат минуты и часы, а для рискованных изменений — сутки.'},
+    {q:'Во время выкатки Анна нажала «Оплатить», получила ошибку и нажала ещё раз. Что защищает её от двойного списания?',
+     opts:[
+       {t:'Канарейка'},
+       {t:'Ключ идемпотентности: повтор с тем же ключом сервер распознаёт как ту же оплату', ok:true},
+       {t:'Балансировщик'},
+       {t:'Плавная остановка узла'},
+     ],
+     why:'Повторы случаются как раз тогда, когда что-то пошло не так: упал узел, откатили версию, оборвалась связь. Ключ идемпотентности — одна строка на одну попытку покупки. Сервер хранит, что по этому ключу уже сделано, и на повтор возвращает тот же результат, а не списывает второй раз. Стратегия выкатки решает, <i>сколько</i> людей увидят ошибку; ключ — чтобы ошибка не стоила им денег.'},
+    {q:'Узел со старой версией выводят из работы, а на нём идут оплаты. Как сделать, чтобы они не оборвались?',
+     opts:[
+       {t:'Выключить узел сразу — клиенты повторят'},
+       {t:'Плавная остановка: перестать принимать новые запросы, доработать начатые, потом выключиться', ok:true},
+       {t:'Перезапустить узел с новой версией'},
+       {t:'Увеличить таймаут на клиенте'},
+     ],
+     why:'По сигналу SIGTERM узел отвечает на проверку готовности «не готов», балансировщик перестаёт слать ему запросы, а начатые запросы узел дорабатывает. Только потом он выключается. Без этого каждая выкатка рвёт соединения тем, кому не повезло, и они не знают, прошла ли оплата. У плавной остановки всегда есть лимит (например, 30 секунд), после которого узел выключают силой.'},
   ], 'rlq-score', 'rlq-total');
-  Progress.register('rlq-score', 5, 'Релизы');
+  Progress.register('rlq-score', 7, 'Релизы');
 })();
 </script>
 <!-- ==================== 22. РЕФАКТОРИНГ ЛЕГАСИ ==================== -->
@@ -18505,40 +19340,295 @@ bonus = parseInt(c.BAL, 10) / 100;                <span class="cm">// копей
 <section class="panel" id="obs" data-accent="ms" role="tabpanel">
   <p class="lead"><b>Наблюдаемость — это способность ответить на вопрос, который вы заранее не придумали.</b> Мониторинг отвечает «работает или нет». Наблюдаемость отвечает «почему вот у этих клиентов со вторника тормозит оформление». От неё зависит, займёт разбор пятнадцать минут или три дня.</p>
 
-  <div class="card">
-    <h2><span class="tag">зачем это</span> зачем нужна наблюдаемость</h2>
+  <style>
+    .obx-ch{scroll-margin-top:170px}
+    .obx-map{display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:8px; margin-top:12px}
+    .obx-map button{appearance:none; display:flex; gap:10px; align-items:flex-start; text-align:left; border:1px solid var(--line); background:var(--surface-2); color:var(--ink); font:inherit; font-size:13px; padding:9px 11px; border-radius:9px; cursor:pointer}
+    .obx-map button:hover{border-color:var(--accent)}
+    .obx-map .obx-n{flex:none; width:24px; height:24px; border-radius:50%; background:var(--accent); color:var(--surface); font:700 12px var(--mono); display:grid; place-items:center}
+    .obx-map .obx-mt{font-weight:620; display:block}
+    .obx-map .obx-ms{font-size:12px; color:var(--muted); display:block; margin-top:1px}
+    .obx-up{appearance:none; border:0; background:none; color:var(--faint); font:600 11.5px var(--mono); cursor:pointer; padding:0; margin-left:auto}
+    .obx-up:hover{color:var(--accent)}
+
+    .obx-an{display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:10px; margin-top:12px}
+    .obx-an .box{border-top:3px solid var(--accent)}
+    .obx-an .obx-ai{font-size:22px; line-height:1}
+    .obx-big{font:700 14px var(--sans); margin:6px 0 4px}
+
+    .obx-chips{display:flex; gap:6px; flex-wrap:wrap; margin-top:12px}
+    .obx-chip{appearance:none; border:1px solid var(--line); background:var(--surface-2); color:var(--faint); font:600 11.5px var(--mono); padding:6px 10px; border-radius:20px; cursor:pointer}
+    .obx-chip.done{color:var(--ink); border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
+    .obx-chip.on{background:var(--accent); border-color:var(--accent); color:var(--surface)}
+
+    .obx-sch-wrap{overflow-x:auto; border:1px solid var(--line); border-radius:12px; background:var(--surface-2); padding:14px 12px; margin-top:12px}
+    .obx-sch{display:grid; grid-template-columns:minmax(92px,1fr) 24px minmax(92px,1fr) 24px minmax(92px,1fr) 24px minmax(104px,1fr) 24px minmax(92px,1fr); grid-template-rows:auto 24px auto; min-width:620px; align-items:center}
+    .obx-nd{border:1.5px solid var(--line); border-radius:10px; background:var(--surface); padding:8px 8px; text-align:center; opacity:.45; transition:all .2s}
+    .obx-nd.on{opacity:1; border-color:var(--accent); box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 18%,transparent)}
+    .obx-nd.bad{opacity:1; border-color:var(--danger); background:color-mix(in srgb,var(--danger) 10%,var(--surface))}
+    .obx-nd.good{opacity:1; border-color:var(--ok); background:color-mix(in srgb,var(--ok) 10%,var(--surface))}
+    .obx-ndi{font-size:18px; line-height:1.1}
+    .obx-ndn{font:650 12.5px var(--sans); margin-top:2px}
+    .obx-nds{font:500 10px var(--mono); color:var(--faint)}
+    .obx-ndv{font:700 11.5px var(--mono); margin-top:4px; min-height:15px; color:var(--muted)}
+    .obx-nd.bad .obx-ndv{color:var(--danger)}
+    .obx-nd.good .obx-ndv{color:var(--ok)}
+    .obx-nd.on .obx-ndv{color:var(--accent)}
+    .obx-ar{text-align:center; color:var(--faint); font:700 14px var(--mono)}
+
+    .obx-pane{border:1px solid var(--line); border-left:3px solid var(--accent); border-radius:10px; background:var(--surface-2); padding:13px 15px; margin-top:11px}
+    .obx-pane h4{margin:0 0 8px; font-size:13.5px}
+    .obx-pane.bad{border-left-color:var(--danger)}
+    .obx-pane.good{border-left-color:var(--ok)}
+    .obx-bubble{background:var(--surface); border:1px solid var(--line); border-radius:12px 12px 12px 3px; padding:9px 12px; font-size:13.5px; max-width:60ch; margin:6px 0}
+    .obx-bubble.me{border-radius:12px 12px 3px 12px; margin-left:auto; border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
+    .obx-bubble .obx-who{display:block; font:600 11px var(--mono); color:var(--faint); margin-bottom:2px}
+
+    .obx-sp{width:100%; max-width:560px; height:auto; display:block; margin:4px 0 6px}
+    .obx-sp text{font:500 9px var(--mono); fill:var(--faint)}
+    .obx-sp .obx-sp-ax{stroke:var(--line); stroke-width:1}
+    .obx-sp .obx-sp-thr{stroke:var(--warn); stroke-width:1.2; stroke-dasharray:4 4}
+    .obx-sp .obx-sp-rel{stroke:var(--nt); stroke-width:1.4; stroke-dasharray:2 3}
+    .obx-sp .obx-sp-fix{stroke:var(--ok); stroke-width:1.4; stroke-dasharray:2 3}
+    .obx-sp .obx-sp-ln{fill:none; stroke:var(--danger); stroke-width:2.4; stroke-linejoin:round}
+    .obx-sp .obx-sp-dot{fill:var(--danger)}
+    .obx-sp .obx-sp-lb{fill:var(--nt); font-weight:700}
+    .obx-sp .obx-sp-lbf{fill:var(--ok); font-weight:700}
+    .obx-sp .obx-sp-lbt{fill:var(--warn); font-weight:700}
+
+    .obx-wf-wrap{overflow-x:auto; border:1px solid var(--line); border-radius:10px; background:var(--surface-2); padding:10px 12px; margin-top:10px}
+    .obx-wf{min-width:560px}
+    .obx-wr,.obx-wax{display:grid; grid-template-columns:220px 1fr 74px; gap:8px; align-items:center}
+    .obx-wr{padding:3px 4px; border-radius:6px}
+    .obx-wf.click .obx-wr{cursor:pointer}
+    .obx-wf.click .obx-wr:hover{background:var(--surface-3)}
+    .obx-wr.on{background:color-mix(in srgb,var(--accent) 14%,transparent)}
+    .obx-wn{font:500 11.5px var(--mono); color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+    .obx-wn i{font-style:normal; color:var(--faint)}
+    .obx-wt{position:relative; height:14px; background:var(--surface); border-radius:4px}
+    .obx-wb{position:absolute; top:0; height:100%; border-radius:4px; min-width:3px}
+    .obx-wd{font:600 11.5px var(--mono); text-align:right; color:var(--muted); font-variant-numeric:tabular-nums}
+    .obx-wr.bad .obx-wd{color:var(--danger)}
+    .obx-wax{font:500 10px var(--mono); color:var(--faint); padding:0 4px 4px}
+    .obx-wax > span:nth-child(2){display:flex; justify-content:space-between}
+
+    pre.json.obx-log{max-height:340px; font-size:11.5px; white-space:pre}
+    .obx-lw{color:var(--warn)}
+    .obx-le{color:var(--danger)}
+    .obx-lh{background:color-mix(in srgb,var(--accent) 14%,transparent)}
+
+    .obx-pcg{display:grid; grid-template-columns:repeat(20,1fr); gap:3px; max-width:440px; margin-top:12px}
+    .obx-pcg span{aspect-ratio:1; border-radius:3px; background:color-mix(in srgb,var(--ok) 70%,var(--surface))}
+    .obx-pcg span.s{background:var(--danger)}
+
+    .obx-eb-bar{position:relative; height:20px; border-radius:10px; background:var(--surface-3); overflow:hidden; margin-top:14px}
+    .obx-eb-fill{height:100%; width:0; background:var(--ok); transition:width .2s}
+    .obx-eb-fill.warn{background:var(--warn)}
+    .obx-eb-fill.bad{background:var(--danger)}
+    .obx-eb-mk{position:absolute; top:-2px; bottom:-2px; width:2px; background:var(--ink)}
+    .obx-eb-leg{display:flex; justify-content:space-between; gap:8px; font:500 11px var(--mono); color:var(--faint); margin-top:4px; flex-wrap:wrap}
+
+    @media (max-width:600px){
+      .obx-map{grid-template-columns:1fr}
+      .obx-pcg{gap:2px}
+    }
+  </style>
+
+  <div class="card obx-ch" id="obx-c0">
+    <h2><span class="tag">карта раздела</span> о чём эта история</h2>
+    <p>Раздел — это одна история. Сначала поймём, что такое наблюдаемость. Потом вместе расследуем настоящую жалобу клиента от первого сообщения до причины. А затем по очереди разберём каждый инструмент, который нам помог. Нажмите на главу, чтобы перейти к ней.</p>
+    <div class="obx-map" id="obx-map">
+      <button data-ch="1"><span class="obx-n">1</span><span><span class="obx-mt">Что это и зачем</span><span class="obx-ms">определение и приборная панель</span></span></button>
+      <button data-ch="2"><span class="obx-n">2</span><span><span class="obx-mt">История Анны</span><span class="obx-ms">расследуем «оплата висит 10 секунд»</span></span></button>
+      <button data-ch="3"><span class="obx-n">3</span><span><span class="obx-mt">Три инструмента</span><span class="obx-ms">журнал, приборы, трек-номер</span></span></button>
+      <button data-ch="4"><span class="obx-n">4</span><span><span class="obx-mt">Логи вблизи</span><span class="obx-ms">почему JSON, а не строки</span></span></button>
+      <button data-ch="5"><span class="obx-n">5</span><span><span class="obx-mt">Метрики вблизи</span><span class="obx-ms">RED, USE и почему среднее врёт</span></span></button>
+      <button data-ch="6"><span class="obx-n">6</span><span><span class="obx-mt">Трассы вблизи</span><span class="obx-ms">спаны, водопад, узкое место</span></span></button>
+      <button data-ch="7"><span class="obx-n">7</span><span><span class="obx-mt">Алерты</span><span class="obx-ms">пожарная сигнализация без ложных тревог</span></span></button>
+      <button data-ch="8"><span class="obx-n">8</span><span><span class="obx-mt">SLO и бюджет ошибок</span><span class="obx-ms">«доставим за 30 минут в 95 % случаев»</span></span></button>
+      <button data-ch="9"><span class="obx-n">9</span><span><span class="obx-mt">Инструменты стека</span><span class="obx-ms">OpenTelemetry, Prometheus, Grafana…</span></span></button>
+      <button data-ch="10"><span class="obx-n">10</span><span><span class="obx-mt">Проверь себя</span><span class="obx-ms">задания по разделу</span></span></button>
+    </div>
+  </div>
+
+  <!-- ═════ ГЛАВА 1 ═════ -->
+  <div class="card obx-ch" id="obx-c1">
+    <h2><span class="tag">глава 1 · что это</span> наблюдаемость в двух фразах <button class="obx-up" data-up="1">↑ к карте</button></h2>
+    <div class="note"><b>Определение.</b> Наблюдаемость — это свойство системы: по тому, что она сама о себе сообщает снаружи, можно понять, что происходит у неё внутри. Не заходя на серверы и не добавляя срочно новый код.</div>
+    <p>Представьте машину. <b>Мониторинг</b> — это лампочка «check engine»: горит или не горит. Она заранее знает один вопрос — «всё ли в порядке?». <b>Наблюдаемость</b> — это диагностический разъём, куда механик подключает сканер и видит всё: температуру, обороты, ошибки каждого датчика, историю за последний час. С ним можно ответить на вопрос, которого на заводе никто не предусмотрел.</p>
+    <div class="grid2">
+      <div class="box">
+        <div class="obx-big">🚦 Мониторинг</div>
+        <p class="bs"><b>Вопросы известны заранее:</b> жив ли сервис? Не кончился ли диск? Больше ли ошибок, чем обычно?</p>
+        <p class="bs" style="margin:0">Отвечает «да / нет». Нужен всегда, но на вопрос «почему» не отвечает.</p>
+      </div>
+      <div class="box">
+        <div class="obx-big">🔬 Наблюдаемость</div>
+        <p class="bs"><b>Вопрос появился только сейчас:</b> почему медленно только у тех, кто платит картой, и только после 19:30?</p>
+        <p class="bs" style="margin:0">Отвечает «где, у кого и почему». Мониторинг — её часть, а не замена.</p>
+      </div>
+    </div>
+    <div class="note good"><b>Зачем это на практике.</b> В распределённой системе один запрос проходит через пять–десять сервисов. Когда он тормозит, каждый сервис по отдельности «работает нормально». Без наблюдаемости разбор превращается в обход кабинетов: «у нас всё хорошо, спросите соседей». С ней — в последовательность из четырёх шагов, которую мы сейчас пройдём.</div>
+    <h3>Что будет, если этим не заниматься</h3>
     <div id="why-obs"></div>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">основа</span> три источника и что каждый отвечает</h2>
-    <div class="grid3">
-      <div class="box">
-        <h4>Логи — «что случилось»</h4>
-        <p class="bs">Подробности конкретного события. Обязательно <b>структурированные</b> (JSON с полями), а не строки: по строкам нельзя искать и агрегировать.</p>
-        <p class="bs"><b>Цена:</b> объём. Логировать всё подряд на высокой нагрузке дороже, чем кажется, — нужны уровни и выборка.</p>
-      </div>
-      <div class="box">
-        <h4>Метрики — «сколько и как часто»</h4>
-        <p class="bs">Числа во времени: частота, задержка, ошибки, загрузка. Дёшевы, агрегируемы, хранятся долго. По ним строятся алерты и графики.</p>
-        <p class="bs"><b>Ограничение:</b> не отвечают «почему» и плохо переносят высокую кардинальность (метрика в разрезе клиента взорвёт хранилище).</p>
-      </div>
-      <div class="box">
-        <h4>Трассировка — «где время»</h4>
-        <p class="bs">Путь одного запроса через все сервисы с длительностью каждого шага. Единственное, что отвечает на вопрос «почему запрос шёл 3 секунды».</p>
-        <p class="bs"><b>Условие работы:</b> контекст протаскивается через <b>все</b> вызовы. Один сервис, который его не передаёт, разрывает трассу пополам.</p>
-      </div>
+  <!-- ═════ ГЛАВА 2 ═════ -->
+  <div class="card obx-ch" id="obx-c2">
+    <h2><span class="tag">глава 2 · история</span> «оплата висит 10 секунд»: расследуем от и до <button class="obx-up" data-up="1">↑ к карте</button></h2>
+    <p>Вечер пятницы, пик заказов. Интернет-магазин собран из сервисов: шлюз принимает запросы, «Заказы» оформляют покупку, «Антифрод» проверяет, не мошенник ли покупатель, «Оплата» списывает деньги через банк. Клиентка <b>Анна</b> нажимает «Оплатить» — и ждёт.</p>
+    <p>Жмите «Дальше». На схеме подсвечивается то, на что мы сейчас смотрим, а ниже — те данные, которые видит дежурный инженер. <b>Красным</b> — подозрение, <b>зелёным</b> — снятое подозрение.</p>
+    <div class="obx-chips" id="obx-inv-chips"></div>
+    <div class="obx-sch-wrap"><div class="obx-sch" id="obx-inv-sch"></div></div>
+    <div class="skbar">
+      <button class="ghost" id="obx-inv-prev">← Назад</button>
+      <button class="act" id="obx-inv-next">Дальше →</button>
+      <span class="skstep" id="obx-inv-lab"></span>
     </div>
-    <div class="note"><b>Связующее звено — сквозной идентификатор.</b> <code class="inl">trace_id</code> рождается на входе (в шлюзе) и попадает в каждую строку лога, в каждую метрику-исключение и в каждый участок трассы. Тогда путь такой: алерт → метрика показала рост ошибок → трасса показала, какой сервис виноват → логи с тем же trace_id показали, что именно произошло. Без общего идентификатора это три несвязанные системы.</div>
+    <div id="obx-inv"></div>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">сначала разберёмся</span> что такое трасса, спан и «узкое место»</h2>
-    <p>Слово «трасса» звучит мутно, а вещь простая. Разберём её по частям, прежде чем что-то искать.</p>
+  <!-- ═════ ГЛАВА 3 ═════ -->
+  <div class="card obx-ch" id="obx-c3">
+    <h2><span class="tag">глава 3 · три инструмента</span> журнал, приборы и трек-номер <button class="obx-up" data-up="1">↑ к карте</button></h2>
+    <p>В истории Анны мы использовали три разных источника данных. Их называют «тремя столпами наблюдаемости». Каждый отвечает на свой вопрос, и ни один не заменяет другой. Вот что это такое — сначала по-житейски.</p>
+    <div class="obx-an">
+      <div class="box">
+        <div class="obx-ai">📜</div>
+        <div class="obx-big">Логи — бортовой журнал</div>
+        <p class="bs"><b>Что это:</b> записи о событиях. Одна строка — одно событие: «в 19:47:12 оплата заказа 7731 начала ждать соединение».</p>
+        <p class="bs" style="margin:0"><b>Как в жизни:</b> капитан записывает в журнал всё, что случилось в рейсе. Прочитав журнал, можно восстановить, что именно произошло и в каком порядке.</p>
+      </div>
+      <div class="box">
+        <div class="obx-ai">📊</div>
+        <div class="obx-big">Метрики — приборная панель</div>
+        <p class="bs"><b>Что это:</b> числа, которые снимают каждые несколько секунд: сколько запросов в секунду, какая доля ошибок, сколько длится ответ.</p>
+        <p class="bs" style="margin:0"><b>Как в жизни:</b> спидометр и датчик температуры. Не рассказывают историю поездки, но сразу видно: едем быстро и мотор перегрелся.</p>
+      </div>
+      <div class="box">
+        <div class="obx-ai">🧵</div>
+        <div class="obx-big">Трассы — трек-номер посылки</div>
+        <p class="bs"><b>Что это:</b> путь одного запроса через все сервисы с отметкой, сколько он пробыл в каждом.</p>
+        <p class="bs" style="margin:0"><b>Как в жизни:</b> по трек-номеру видно: «принята 12:01 → сортировка 12:40 → <b>таможня 3 дня</b> → доставлена». Сразу ясно, где застряло.</p>
+      </div>
+    </div>
+
+    <h3>Один и тот же сбой глазами трёх инструментов</h3>
+    <p>Переключайте вкладки. Это всё тот же вечер Анны — просто увиденный через разные «окна».</p>
+    <div class="seg" id="obx-lens-pick"></div>
+    <div id="obx-lens-out"></div>
+
+    <h3>Сравнение рядом</h3>
+    <p>Нажмите на строку таблицы — раскроется пояснение.</p>
+    <div id="obx-cmp"></div>
+
+    <div class="note"><b>Связующая нить — сквозной идентификатор.</b> <code class="inl">trace_id</code> рождается на входе (в шлюзе) и попадает в каждую строку лога, в каждый участок трассы и в пометки к метрикам. В истории Анны именно он привёл нас от трассы к нужным строкам логов. Путь всегда один: алерт → метрика показала рост → трасса показала, какой участок виноват → логи с тем же <code class="inl">trace_id</code> показали, что именно случилось. Без общего идентификатора это три несвязанные системы.</div>
+
+    <h3>Задание: какой инструмент ответит</h3>
+    <p>Разложите вопросы по инструментам. Решено <b id="obx-srt-score">0</b> из <span id="obx-srt-total">0</span>.</p>
+    <div id="obx-srt"></div>
+  </div>
+
+  <!-- ═════ ГЛАВА 4 ═════ -->
+  <div class="card obx-ch" id="obx-c4">
+    <h2><span class="tag">глава 4 · логи</span> бортовой журнал, по которому можно искать <button class="obx-up" data-up="1">↑ к карте</button></h2>
+    <p><b>Лог</b> — это запись о событии: когда, где, что случилось и с какими данными. Логи пишут все сервисы одновременно, и в общем хранилище они перемешаны, как голоса в толпе. Поэтому главное свойство хорошего лога — <b>по нему можно искать</b>.</p>
+    <div class="grid2">
+      <div class="box">
+        <h4>Строка — как запись от руки</h4>
+        <pre class="json" style="font-size:11.5px">19:47:12 WARN payments: pool exhausted (10/10)</pre>
+        <p class="bs" style="margin:8px 0 0">Человеку понятно. Машине — нет: где тут сервис, где число, к какому запросу это относится? Искать можно только по кусочку текста.</p>
+      </div>
+      <div class="box">
+        <h4>Структурированный лог — как анкета</h4>
+        <pre class="json" style="font-size:11.5px">{"level":"WARN","service":"payments",
+ "trace_id":"4bf92f35","msg":"pool exhausted",
+ "active":10,"max":10,"pending":184}</pre>
+        <p class="bs" style="margin:8px 0 0">Каждое поле подписано. Можно отфильтровать, посчитать, сгруппировать и найти все записи одного запроса.</p>
+      </div>
+    </div>
+
+    <h3>Попробуйте сами: найдите записи Анны</h3>
+    <p>Перед вами поток логов за 10 секунд. Задача — оставить только то, что относится к запросу Анны (<code class="inl">4bf92f35</code>). Попробуйте в режиме строк, потом в режиме JSON.</p>
+    <div class="seg" id="obx-lg-fmt">
+      <button data-f="txt">📝 Строки</button>
+      <button data-f="json" class="on">🧾 JSON</button>
+    </div>
+    <div class="seg" id="obx-lg-lvl">
+      <button data-l="all" class="on">все уровни</button>
+      <button data-l="warn">WARN и хуже</button>
+      <button data-l="err">только ERROR</button>
+    </div>
+    <div class="form-row" style="margin-top:0">
+      <button class="ghost" id="obx-lg-tr">🔎 Только trace_id 4bf92f35</button>
+      <button class="ghost" id="obx-lg-rs">⟲ Сбросить</button>
+    </div>
+    <div class="meters"><span class="meter">Показано строк: <b id="obx-lg-n">—</b></span></div>
+    <pre class="json obx-log" id="obx-lg-out" style="margin-top:10px"></pre>
+    <div class="console" id="obx-lg-msg"></div>
+
+    <h3>Уровни логов: как не утонуть</h3>
+    <div class="table-wrap">
+      <table class="db">
+        <thead><tr><th>Уровень</th><th>Когда писать</th><th>Пример</th></tr></thead>
+        <tbody>
+          <tr><td><b>ERROR</b></td><td>Операция не удалась, и пользователь это почувствует</td><td>«списание не прошло: таймаут 15 с»</td></tr>
+          <tr><td><b>WARN</b></td><td>Что-то пошло не по плану, но выкрутились</td><td>«пул соединений исчерпан, ждём»</td></tr>
+          <tr><td><b>INFO</b></td><td>Важные шаги бизнес-процесса</td><td>«заказ оплачен»</td></tr>
+          <tr><td><b>DEBUG</b></td><td>Подробности для разработчика. В бою обычно выключены</td><td>«тело ответа банка: …»</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="note warn"><b>Три правила логов.</b> Первое: только структурированный формат (JSON с полями), иначе по нему нельзя искать и считать. Второе: в каждой строке — <code class="inl">trace_id</code>. Третье: <b>никогда</b> не пишите в логи пароли, токены, номера карт и персональные данные. Логи читают многие, хранятся они долго, и утечка из логов — классика.</div>
+    <div class="note"><b>Цена логов — объём.</b> Логировать всё подряд на большой нагрузке дороже, чем кажется: хранилище логов бывает дороже самих сервисов. Поэтому используют уровни, выборку для частых событий и короткий срок хранения — обычно недели, а не месяцы.</div>
+  </div>
+
+  <!-- ═════ ГЛАВА 5 ═════ -->
+  <div class="card obx-ch" id="obx-c5">
+    <h2><span class="tag">глава 5 · метрики</span> приборная панель: что мерить и как не обмануться <button class="obx-up" data-up="1">↑ к карте</button></h2>
+    <p><b>Метрика</b> — это число, которое снимают регулярно, например раз в 15 секунд: «сейчас 70 оплат в секунду». Из таких чисел получается график. Метрики дешёвые: одно число вместо тысяч строк логов. Поэтому их хранят месяцами и именно на них вешают алерты.</p>
+
+    <h3>Что мерить: три готовых набора</h3>
+    <div class="grid3">
+      <div class="box">
+        <h4>RED — для сервисов</h4>
+        <p class="bs"><b>R</b>ate — запросов в секунду.<br><b>E</b>rrors — доля ошибочных.<br><b>D</b>uration — сколько длится ответ (перцентили).</p>
+        <p class="bs">Три метрики на каждый сервис и на каждую важную ручку. Этого хватает, чтобы заметить почти любую проблему. В истории Анны именно RED-таблица показала, что красное — у оплаты.</p>
+      </div>
+      <div class="box">
+        <h4>USE — для ресурсов</h4>
+        <p class="bs"><b>U</b>tilization — насколько занят.<br><b>S</b>aturation — сколько ждёт в очереди.<br><b>E</b>rrors — отказы ресурса.</p>
+        <p class="bs">Для процессора, памяти, диска, пулов соединений. Насыщение важнее загрузки: 100 % загрузки без очереди — это нормально. Пул Анны был как раз <b>насыщен</b>: 10 из 10 занято и 184 в очереди.</p>
+      </div>
+      <div class="box">
+        <h4>Четыре золотых сигнала</h4>
+        <p class="bs">Задержка, трафик, ошибки, насыщение. Объединение двух предыдущих наборов — то, что Google рекомендует как минимум для любой системы.</p>
+      </div>
+    </div>
+
+    <h3>Интерактив: почему среднее врёт</h3>
+    <p>Ниже 100 запросов. Зелёные отвечают за 0,1–0,2 секунды, красные — за 5–7 секунд. Двигайте ползунок и следите: среднее почти не меняется, а людям уже плохо. <b>Перцентиль</b> (например, p99) — это время, быстрее которого ответили 99 % запросов. Он показывает хвост, который среднее прячет.</p>
+    <div class="slider-row"><label for="obx-pc-sl">Доля медленных запросов</label><input type="range" id="obx-pc-sl" min="0" max="20" value="3"><span class="sv" id="obx-pc-v">3 %</span></div>
+    <div class="obx-pcg" id="obx-pc-grid"></div>
+    <div class="meters">
+      <span class="meter" id="obx-pc-m1">Среднее: <b>—</b></span>
+      <span class="meter" id="obx-pc-m2">p50 (медиана): <b>—</b></span>
+      <span class="meter" id="obx-pc-m3">p95: <b>—</b></span>
+      <span class="meter" id="obx-pc-m4">p99: <b>—</b></span>
+    </div>
+    <div class="console" id="obx-pc-msg"></div>
+    <div class="note warn"><b>И ещё одна ловушка: p99 нельзя усреднять между узлами.</b> Среднее из перцентилей не является перцентилем. Узел с 10 запросами и узел с миллионом дадут «средний p99», не имеющий отношения к жизни. Правильно так: собирать гистограммы (сколько запросов попало в каждую корзину по времени) и считать перцентиль по их сумме.</div>
+    <div class="note"><b>Ограничение метрик — кардинальность.</b> Так называют число разных значений у метки. Метка «сервис» — десяток значений, это нормально. Метка «id клиента» — миллионы, и хранилище метрик взорвётся. Поэтому метрики отвечают «сколько и когда», а «у кого именно» — это уже к логам и трассам.</div>
+  </div>
+
+  <!-- ═════ ГЛАВА 6 ═════ -->
+  <div class="card obx-ch" id="obx-c6">
+    <h2><span class="tag">глава 6 · трассы</span> что такое трасса, спан и «узкое место» <button class="obx-up" data-up="1">↑ к карте</button></h2>
+    <p>Слово «трасса» звучит мутно, а вещь простая. В истории Анны именно трасса за один взгляд показала, куда ушли 10 секунд. Разберём её по частям.</p>
 
     <div class="note good"><b>Житейски: чек из автосервиса.</b> Машину чинили 4 часа. В чеке построчно: диагностика — 20 минут, снять колесо — 10, <b>ждали деталь со склада — 3 часа</b>, поставить — 15, проверка — 15. Пока у вас только итог «4 часа», разговаривать не о чем. Как только есть построчный чек — сразу видно, где ушло время и с кем об этом говорить.</div>
 
-    <h3 style="margin:18px 0 6px;font-size:14px">Три слова, и всё станет понятно</h3>
+    <h3>Три слова, и всё станет понятно</h3>
     <div class="grid3">
       <div class="box">
         <h4>Спан (span)</h4>
@@ -18554,7 +19644,12 @@ bonus = parseInt(c.BAL, 10) / 100;                <span class="cm">// копей
       </div>
     </div>
 
-    <h3 style="margin:18px 0 6px;font-size:14px">Как трасса собирается — по шагам</h3>
+    <h3>Интерактив: трасса Анны, спан за спаном</h3>
+    <p>Это настоящий «водопад» — так выглядит трасса в Jaeger или Grafana Tempo. Каждая полоса — спан, её длина — время, отступ — вложенность. <b>Нажимайте на строки</b>: увидите, что записано внутри спана. Найдите, где ушло время.</p>
+    <div class="obx-wf-wrap"><div class="obx-wf click" id="obx-wf"></div></div>
+    <div id="obx-wf-det"></div>
+
+    <h3>Как трасса собирается — по шагам</h3>
     <p>Жмите «Дальше»: видно, откуда берётся каждая строчка чека и что их связывает.</p>
     <div class="skbar">
       <button class="ghost" id="tb-prev">← Назад</button>
@@ -18562,65 +19657,24 @@ bonus = parseInt(c.BAL, 10) / 100;                <span class="cm">// копей
       <span class="skstep" id="tb-lab"></span>
     </div>
     <div id="tb-out"></div>
-  </div>
 
-  <div class="card">
-    <h2><span class="tag">инструменты</span> кто за что отвечает в настоящем стеке</h2>
-    <p>Названий много, и они звучат как взаимозаменяемые. Это не так: у каждого своя работа. Нажмите — что делает, когда нужен и чем заменяется.</p>
-    <div class="seg" id="tool-pick"></div>
-    <div id="tool-out"></div>
-  </div>
-
-  <div class="card">
-    <h2><span class="tag">интерактив</span> найдите узкое место по трассе</h2>
-    <p>Запрос шёл долго. Перед вами трасса — каждый прямоугольник это участок (span), длина пропорциональна времени. Выберите сценарий и нажмите на участок, который считаете причиной.</p>
+    <h3>Тренировка: найдите узкое место сами</h3>
+    <p>Три новых случая. Каждый прямоугольник — участок (спан), длина пропорциональна времени. Выберите случай и нажмите на участок, который считаете причиной.</p>
     <div class="seg" id="tr-case">
       <button class="on" data-c="0">Случай 1</button>
       <button data-c="1">Случай 2</button>
       <button data-c="2">Случай 3</button>
     </div>
-    <div id="tr-wf" style="border:1px solid var(--line);border-radius:10px;padding:14px;background:var(--surface-2);margin-top:12px"></div>
+    <div class="obx-wf-wrap" style="padding:0"><div id="tr-wf" style="border-radius:10px;padding:14px;background:var(--surface-2);min-width:480px"></div></div>
     <div class="console" id="tr-msg">Выберите участок, который вы бы чинили первым.</div>
+    <div class="note"><b>Все трассы хранить дорого.</b> Поэтому сохраняют выборку — обычно 1–10 % запросов. Но настраивают так, чтобы <b>все ошибочные и все медленные</b> сохранялись целиком: именно такие, как у Анны, и нужны при разборе.</div>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">метрики</span> что мерить: RED, USE и четыре золотых сигнала</h2>
-    <div class="grid3">
-      <div class="box">
-        <h4>RED — для сервисов</h4>
-        <p class="bs"><b>R</b>ate — запросов в секунду.<br><b>E</b>rrors — доля ошибочных.<br><b>D</b>uration — распределение задержки (перцентили).</p>
-        <p class="bs">Три метрики на каждый сервис и на каждую важную ручку. Этого достаточно, чтобы заметить почти любую проблему.</p>
-      </div>
-      <div class="box">
-        <h4>USE — для ресурсов</h4>
-        <p class="bs"><b>U</b>tilization — насколько занят.<br><b>S</b>aturation — сколько ждёт в очереди.<br><b>E</b>rrors — отказы ресурса.</p>
-        <p class="bs">Для процессора, памяти, диска, пулов соединений. Насыщение важнее загрузки: 100 % загрузки без очереди — это нормально.</p>
-      </div>
-      <div class="box">
-        <h4>Четыре золотых сигнала</h4>
-        <p class="bs">Задержка, трафик, ошибки, насыщение. Объединение двух предыдущих наборов — то, что Google рекомендует как минимум для любой системы.</p>
-      </div>
-    </div>
-    <div class="note good"><b>Проще говоря.</b> Логи — это «что произошло», как записи в журнале дежурств. Метрики — «сколько и как часто», как показания счётчика. Трасса — «где именно застряло», как отметки на посылке: принята в 12:01, уехала в 12:40, приехала в 18:00. Без трассы на вопрос «почему долго» ответить нельзя вообще.</div>
-    <div class="note warn"><b>Задержку меряют перцентилями, а не средним.</b> Среднее в 200 мс прекрасно уживается с тем, что каждый двадцатый пользователь ждёт 6 секунд. И ещё: <b>p99 нельзя усреднять между узлами</b> — среднее из перцентилей не является перцентилем. Собирайте гистограммы и считайте перцентиль по объединённым данным.</div>
-  </div>
-
-  <div class="card">
-    <h2><span class="tag">интерактив</span> бюджет ошибок</h2>
-    <p>SLO — это обещание, которое вы даёте пользователям, а <b>бюджет ошибок</b> — разрешённое отклонение от него. Пока бюджет не израсходован, можно рисковать и катить быстро; кончился — все силы на надёжность. Посчитайте свой.</p>
-    <div class="slider-row"><label for="sl-slo">Цель доступности (SLO)</label><input type="range" id="sl-slo" min="9000" max="99995" value="9990"><span class="sv" id="sl-slo-v">99,90 %</span></div>
-    <div class="slider-row"><label for="sl-rps">Запросов в месяц, млн</label><input type="range" id="sl-rps" min="1" max="500" value="50"><span class="sv" id="sl-rps-v">50 млн</span></div>
-    <div class="slider-row"><label for="sl-used">Бюджет израсходован на</label><input type="range" id="sl-used" min="0" max="150" value="40"><span class="sv" id="sl-used-v">40 %</span></div>
-    <div class="meters">
-      <span class="meter">Допустимый простой в месяц: <b id="sl-down">—</b></span>
-      <span class="meter">Допустимо неудачных запросов: <b id="sl-fail">—</b></span>
-      <span class="meter wq">Осталось бюджета: <b id="sl-left">—</b></span>
-    </div>
-    <div class="console" id="sl-msg"></div>
-  </div>
-
-  <div class="card">
-    <h2><span class="tag">алерты</span> на симптомы, а не на причины</h2>
+  <!-- ═════ ГЛАВА 7 ═════ -->
+  <div class="card obx-ch" id="obx-c7">
+    <h2><span class="tag">глава 7 · алерты</span> пожарная сигнализация, которой верят <button class="obx-up" data-up="1">↑ к карте</button></h2>
+    <p><b>Алерт</b> (оповещение) — это правило над метриками: «если условие держится N минут — позвать человека». В истории Анны алерт разбудил дежурного за восемь минут до её жалобы.</p>
+    <div class="note good"><b>Житейски: пожарная сигнализация.</b> Хорошая сигнализация срабатывает на дым — то есть на то, что уже опасно людям. Плохая сигнализация звенит каждый раз, когда кто-то жарит котлеты. Через неделю её отключают, и в день настоящего пожара она молчит. С алертами ровно так же: <b>звенеть на симптомы, которые чувствуют пользователи, а не на всё подряд</b>.</div>
     <div class="grid2">
       <div class="box down">
         <h4>Плохие алерты</h4>
@@ -18642,10 +19696,68 @@ bonus = parseInt(c.BAL, 10) / 100;                <span class="cm">// копей
       </div>
     </div>
     <div class="note"><b>Проверка качества алерта:</b> если на него можно не реагировать — его не должно быть. Алерт, требующий действия, идёт дежурному; всё остальное идёт на дашборд и разбирается в рабочее время. Смешивание этих двух категорий — главная причина «усталости от алертов», при которой пропускают настоящую аварию.</div>
+    <h3>Задание: будить, на дашборд или удалить?</h3>
+    <p>Вы — дежурный. Решите судьбу каждого правила. Решено <b id="obx-al-score">0</b> из <span id="obx-al-total">0</span>.</p>
+    <div id="obx-al"></div>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">задание</span> наблюдаемость</h2>
+  <!-- ═════ ГЛАВА 8 ═════ -->
+  <div class="card obx-ch" id="obx-c8">
+    <h2><span class="tag">глава 8 · SLO</span> обещание и бюджет ошибок <button class="obx-up" data-up="1">↑ к карте</button></h2>
+    <p>Анна ждала 10 секунд. Это плохо? А 2 секунды? А если такое случается с одним заказом из тысячи? Чтобы не спорить «на ощущениях», команда заранее записывает <b>обещание</b> в цифрах.</p>
+    <div class="note good"><b>Житейски: пиццерия.</b> Пиццерия обещает: «доставим за 30 минут в 95 % случаев». Не «всегда» — это нереально: пробки, снег, курьер заболел. Из 20 пицц одна может опоздать, и обещание всё равно выполнено. Эта одна разрешённая пицца из двадцати и есть <b>бюджет ошибок</b>.</div>
+    <div class="cells" aria-label="20 заказов: 19 вовремя, 1 опоздал">
+      <span class="cell ok">🍕</span><span class="cell ok">🍕</span><span class="cell ok">🍕</span><span class="cell ok">🍕</span><span class="cell ok">🍕</span><span class="cell ok">🍕</span><span class="cell ok">🍕</span><span class="cell ok">🍕</span><span class="cell ok">🍕</span><span class="cell ok">🍕</span><span class="cell ok">🍕</span><span class="cell ok">🍕</span><span class="cell ok">🍕</span><span class="cell ok">🍕</span><span class="cell ok">🍕</span><span class="cell ok">🍕</span><span class="cell ok">🍕</span><span class="cell ok">🍕</span><span class="cell ok">🍕</span><span class="cell warn">⏰ 41 мин</span>
+    </div>
+
+    <h3>Три похожих слова: SLI, SLO, SLA</h3>
+    <p>Их постоянно путают. Нажмите на строку, чтобы раскрыть пояснение.</p>
+    <div id="obx-sla"></div>
+
+    <h3>Интерактив: бюджет ошибок и решение «катить или нет»</h3>
+    <p>Выберите обещание (SLO) и крутите долю ошибок. Считаем, что доля ошибок держалась такой весь месяц, а в день приходит 1 млн запросов. Чёрная риска на полосе — сколько бюджета «нормально» потратить к сегодняшнему дню.</p>
+    <div class="seg" id="obx-eb-slo">
+      <button data-s="0.99">SLO 99 %</button>
+      <button data-s="0.995">99,5 %</button>
+      <button data-s="0.999" class="on">99,9 %</button>
+      <button data-s="0.9995">99,95 %</button>
+    </div>
+    <div class="slider-row"><label for="obx-eb-err">Доля неудачных запросов</label><input type="range" id="obx-eb-err" min="0" max="150" value="5"><span class="sv" id="obx-eb-err-v">0,05 %</span></div>
+    <div class="slider-row"><label for="obx-eb-day">Какой сегодня день месяца</label><input type="range" id="obx-eb-day" min="1" max="30" value="12"><span class="sv" id="obx-eb-day-v">12</span></div>
+    <div class="obx-eb-bar"><div class="obx-eb-fill" id="obx-eb-fill"></div><div class="obx-eb-mk" id="obx-eb-mk"></div></div>
+    <div class="obx-eb-leg"><span>0 % бюджета</span><span>▮ норма к сегодняшнему дню</span><span>100 %</span></div>
+    <div class="meters">
+      <span class="meter">Бюджет на месяц: <b id="obx-eb-all">—</b></span>
+      <span class="meter" id="obx-eb-usedm">Потрачено: <b id="obx-eb-used">—</b></span>
+      <span class="meter" id="obx-eb-burnm">Скорость сгорания: <b id="obx-eb-burn">—</b></span>
+    </div>
+    <div class="console" id="obx-eb-msg"></div>
+    <div class="note"><b>Скорость сгорания</b> (burn rate) — во сколько раз быстрее нормы вы тратите бюджет. «1×» — ровно к концу месяца потратите всё. «14×» — как было у Анны в пятницу вечером: при таком темпе месячный бюджет кончается за два дня. Именно на скорость сгорания и настраивают лучшие алерты.</div>
+
+    <h3>Посчитайте в минутах и запросах</h3>
+    <p>SLO — это обещание, а <b>бюджет ошибок</b> — разрешённое отклонение от него. Пока бюджет не израсходован, можно рисковать и катить быстро; кончился — все силы на надёжность. Посчитайте свой.</p>
+    <div class="slider-row"><label for="sl-slo">Цель доступности (SLO)</label><input type="range" id="sl-slo" min="9000" max="99995" value="9990"><span class="sv" id="sl-slo-v">99,90 %</span></div>
+    <div class="slider-row"><label for="sl-rps">Запросов в месяц, млн</label><input type="range" id="sl-rps" min="1" max="500" value="50"><span class="sv" id="sl-rps-v">50 млн</span></div>
+    <div class="slider-row"><label for="sl-used">Бюджет израсходован на</label><input type="range" id="sl-used" min="0" max="150" value="40"><span class="sv" id="sl-used-v">40 %</span></div>
+    <div class="meters">
+      <span class="meter">Допустимый простой в месяц: <b id="sl-down">—</b></span>
+      <span class="meter">Допустимо неудачных запросов: <b id="sl-fail">—</b></span>
+      <span class="meter wq">Осталось бюджета: <b id="sl-left">—</b></span>
+    </div>
+    <div class="console" id="sl-msg"></div>
+  </div>
+
+  <!-- ═════ ГЛАВА 9 ═════ -->
+  <div class="card obx-ch" id="obx-c9">
+    <h2><span class="tag">глава 9 · инструменты</span> кто за что отвечает в настоящем стеке <button class="obx-up" data-up="1">↑ к карте</button></h2>
+    <p>В истории Анны дежурный пользовался несколькими программами: одна прислала алерт, вторая нарисовала дашборд, третья показала трассу, четвёртая нашла логи. Названий много, и они звучат как взаимозаменяемые. Это не так: у каждого своя работа. Нажмите — что делает, когда нужен и чем заменяется.</p>
+    <div class="seg" id="tool-pick"></div>
+    <div id="tool-out"></div>
+  </div>
+
+  <!-- ═════ ГЛАВА 10 ═════ -->
+  <div class="card obx-ch" id="obx-c10">
+    <h2><span class="tag">глава 10 · проверь себя</span> наблюдаемость <button class="obx-up" data-up="1">↑ к карте</button></h2>
     <p>Решено <b id="obq-score">0</b> из <span id="obq-total">0</span>.</p>
     <div id="obq-tasks"></div>
   </div>
@@ -18865,6 +19977,491 @@ bonus = parseInt(c.BAL, 10) / 100;                <span class="cm">// копей
     '<pre class="json" style="font-size:12px;margin:0 0 10px">' + esc(x.art) + '</pre>' +
     '<div class="lgrid"><b>когда нужен</b><div>' + x.when + '</div></div>' +
     '<div class="note good" style="margin-top:10px">' + x.note + '</div></div>');
+})();
+</script>
+
+<script>
+/* ═══ 25.x Наблюдаемость: повествование, история Анны, новые интерактивы ═══ */
+(function(){
+  const sec = document.getElementById('obs'); if(!sec) return;
+  const $o = id => document.getElementById(id);
+  const nf = n => Math.round(n).toLocaleString('ru-RU');
+  const dec = (n, d) => n.toFixed(d).replace('.', ',');
+
+  /* ── карта раздела ── */
+  const map = $o('obx-map');
+  if(map){
+    map.addEventListener('click', e => {
+      const b = e.target.closest('button[data-ch]'); if(!b) return;
+      const t = $o('obx-c' + b.dataset.ch);
+      if(t) t.scrollIntoView({behavior:'smooth', block:'start'});
+    });
+    sec.addEventListener('click', e => {
+      const b = e.target.closest('button[data-up]'); if(!b) return;
+      map.closest('.card').scrollIntoView({behavior:'smooth', block:'start'});
+    });
+  }
+
+  /* ── общие данные: трасса Анны ── */
+  const TR = {id:'4bf92f3577b34da6', total:10140, spans:[
+    {id:'s1', p:null, svc:'gateway', n:'POST /api/checkout/pay', st:0, d:10140, lvl:0,
+     a:{'http.method':'POST','http.route':'/api/checkout/pay','http.status_code':200,'user.id':'u-anna-2291'},
+     note:'Верхний спан — всё, что видела Анна: 10,1 секунды от нажатия до ответа. Сам по себе он говорит только «долго». Смотрим, из чего он состоит.'},
+    {id:'s2', p:'s1', svc:'orders', n:'checkout', st:6, d:10126, lvl:1,
+     a:{'order.id':'ord-7731','order.amount':2490,'service.version':'5.1.0'},
+     note:'«Заказы» почти всё время ждут вложенные вызовы. Своей работы у них — единицы миллисекунд. Виноват кто-то внутри.'},
+    {id:'s3', p:'s2', svc:'orders', n:'cart.get', st:12, d:18, lvl:2,
+     a:{'db.system':'postgresql','db.rows':3},
+     note:'18 мс — быстро. Не трогаем.'},
+    {id:'s4', p:'s2', svc:'antifraud', n:'antifraud.check', st:32, d:45, lvl:2,
+     a:{'risk.score':0.04,'decision':'allow'},
+     note:'Антифрод ответил за 45 мс и пропустил Анну. Подозрение с него снято.'},
+    {id:'s5', p:'s2', svc:'payments', n:'payments.charge', st:80, d:10045, lvl:2, hot:true,
+     a:{'payment.method':'card','service.version':'2.8.0'},
+     note:'Вот куда ушло время: 99 % всего запроса. Но «оплата медленная» — ещё не ответ. Обратите внимание на версию 2.8.0 и провалитесь внутрь.'},
+    {id:'s6', p:'s5', svc:'payments', n:'SELECT card_token', st:84, d:8, lvl:3,
+     a:{'db.statement':'SELECT token FROM cards WHERE user_id = $1','db.rows':1},
+     note:'8 мс. Не он.'},
+    {id:'s7', p:'s5', svc:'payments', n:'pool.acquire bank-http', st:94, d:9800, lvl:3, bad:true,
+     a:{'pool.name':'bank-http','pool.max':10,'pool.active':10,'pool.pending':184,'wait.ms':9800},
+     note:'<b>Узкое место найдено.</b> 9 800 мс запрос просто стоял в очереди за свободным соединением к банку. Все 10 соединений заняты, ещё 184 запроса ждут. Сам банк тут ни при чём — это наша очередь внутри оплаты.'},
+    {id:'s8', p:'s5', svc:'payments', n:'bank.authorize', st:9896, d:210, lvl:3,
+     a:{'http.url':'https://bank.example/v1/authorize','http.status_code':200,'peer.service':'bank'},
+     note:'Банк ответил за 210 мс — как обычно. Если бы мы смотрели только на метрику «время ответа банка», решили бы, что всё в порядке.'},
+    {id:'s9', p:'s5', svc:'payments', n:'INSERT payment', st:10108, d:12, lvl:3,
+     a:{'db.system':'postgresql','db.rows':1},
+     note:'12 мс, норма.'},
+  ]};
+  const SVC_COL = {gateway:'var(--nt)', orders:'var(--ms)', antifraud:'var(--dt)', payments:'var(--mn)'};
+
+  function waterfall(clickable, selId){
+    const T = TR.total;
+    const ax = '<div class="obx-wax"><span>спан</span><span><span>0</span><span>2,5 с</span><span>5 с</span><span>7,5 с</span><span>10 с</span></span><span style="text-align:right">время</span></div>';
+    return ax +
+      TR.spans.map(s => {
+        const l = s.st / T * 100, w = Math.max(0.5, s.d / T * 100);
+        const col = s.bad ? 'var(--danger)' : SVC_COL[s.svc];
+        return '<div class="obx-wr' + (s.bad ? ' bad' : '') + (s.id === selId ? ' on' : '') + '" data-s="' + s.id + '"' + (clickable ? ' role="button" tabindex="0"' : '') + '>' +
+          '<div class="obx-wn" style="padding-left:' + (s.lvl * 12) + 'px">' + (s.lvl ? '<i>└ </i>' : '') + esc(s.n) + ' <i>' + esc(s.svc) + '</i></div>' +
+          '<div class="obx-wt"><div class="obx-wb" style="left:' + l + '%;width:' + w + '%;background:' + col + '"></div></div>' +
+          '<div class="obx-wd">' + nf(s.d) + ' мс</div></div>';
+      }).join('');
+  }
+
+  /* ── мини-график p99 оплаты ── */
+  const P99 = [0.6,0.6,0.7,6.8,9.6,9.8,9.9,9.7,1.2,0.6,0.6];
+  const TIMES = ['19:20','19:25','19:30','19:35','19:40','19:45','19:50','19:55','20:00','20:05','20:10'];
+  function spark(upto, fix){
+    const W = 320, H = 130, x0 = 34, x1 = 310, y0 = 108, yTop = 12;
+    const X = i => x0 + i * (x1 - x0) / (P99.length - 1);
+    const Y = v => y0 - v / 10 * (y0 - yTop);
+    const pts = P99.slice(0, upto).map((v, i) => X(i).toFixed(1) + ',' + Y(v).toFixed(1)).join(' ');
+    const xRel = X(2) + (X(3) - X(2)) * 0.8, xFix = X(7) + (X(8) - X(7)) * 0.6;
+    let s = '<svg class="obx-sp" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="p99 задержки оплаты по времени">';
+    s += '<line class="obx-sp-ax" x1="' + x0 + '" y1="' + y0 + '" x2="' + x1 + '" y2="' + y0 + '"/>';
+    s += '<line class="obx-sp-ax" x1="' + x0 + '" y1="' + yTop + '" x2="' + x0 + '" y2="' + y0 + '"/>';
+    [0, 5, 10].forEach(v => { s += '<text x="' + (x0 - 5) + '" y="' + (Y(v) + 3) + '" text-anchor="end">' + v + ' с</text>'; });
+    [0, 3, 6, 10].forEach(i => { s += '<text x="' + X(i) + '" y="' + (y0 + 13) + '" text-anchor="middle">' + TIMES[i] + '</text>'; });
+    s += '<line class="obx-sp-thr" x1="' + x0 + '" y1="' + Y(2) + '" x2="' + x1 + '" y2="' + Y(2) + '"/>';
+    s += '<text class="obx-sp-lbt" x="' + (x1) + '" y="' + (Y(2) - 4) + '" text-anchor="end">порог алерта 2 с</text>';
+    s += '<line class="obx-sp-rel" x1="' + xRel + '" y1="' + yTop + '" x2="' + xRel + '" y2="' + y0 + '"/>';
+    s += '<text class="obx-sp-lb" x="' + (xRel - 3) + '" y="' + (yTop + 8) + '" text-anchor="end">релиз 2.8.0</text>';
+    if(fix){
+      s += '<line class="obx-sp-fix" x1="' + xFix + '" y1="' + yTop + '" x2="' + xFix + '" y2="' + y0 + '"/>';
+      s += '<text class="obx-sp-lbf" x="' + (xFix + 3) + '" y="' + (yTop + 8) + '">откат</text>';
+    }
+    s += '<polyline class="obx-sp-ln" points="' + pts + '"/>';
+    P99.slice(0, upto).forEach((v, i) => { s += '<circle class="obx-sp-dot" cx="' + X(i) + '" cy="' + Y(v) + '" r="2.2"/>'; });
+    return s + '</svg>';
+  }
+
+  /* ═════ ГЛАВА 2: расследование ═════ */
+  (function(){
+    const out = $o('obx-inv'), sch = $o('obx-inv-sch'); if(!out || !sch) return;
+    const NODES = [
+      {id:'anna', ic:'👩', n:'Анна', s:'браузер', c:1, r:1},
+      {id:'gw',   ic:'🚪', n:'Шлюз', s:'gateway', c:3, r:1},
+      {id:'ord',  ic:'🧾', n:'Заказы', s:'orders', c:5, r:1},
+      {id:'pay',  ic:'💳', n:'Оплата', s:'payments', c:7, r:1},
+      {id:'bank', ic:'🏦', n:'Банк', s:'внешний API', c:9, r:1},
+      {id:'af',   ic:'🛡', n:'Антифрод', s:'antifraud', c:5, r:3},
+      {id:'pool', ic:'🔌', n:'Пул соединений', s:'внутри оплаты', c:7, r:3},
+    ];
+    const AR = [[2,1,'→'],[4,1,'→'],[6,1,'→'],[8,1,'→'],[5,2,'↓'],[7,2,'↓'],[8,3,'↗']];
+    sch.innerHTML =
+      NODES.map(nd => '<div class="obx-nd" data-n="' + nd.id + '" style="grid-column:' + nd.c + ';grid-row:' + nd.r + '">' +
+        '<div class="obx-ndi">' + nd.ic + '</div><div class="obx-ndn">' + esc(nd.n) + '</div>' +
+        '<div class="obx-nds">' + esc(nd.s) + '</div><div class="obx-ndv"></div></div>').join('') +
+      AR.map(a => '<div class="obx-ar" style="grid-column:' + a[0] + ';grid-row:' + a[1] + '">' + a[2] + '</div>').join('');
+
+    const LOGS_ANNA = [
+      '{"ts":"19:34:05.210","level":"INFO","service":"payments","msg":"service started","version":"2.8.0","bank.pool.max":10}',
+      '  … 13 минут спустя, поиск: trace_id = "4bf92f35…" …',
+      '{"ts":"19:47:12.084","level":"INFO","service":"payments","trace_id":"4bf92f35","msg":"charge started","order":"ord-7731","amount":2490}',
+      '{"ts":"19:47:12.094","level":"WARN","service":"payments","trace_id":"4bf92f35","msg":"http pool exhausted, waiting","pool":"bank-http","active":10,"max":10,"pending":184}',
+      '{"ts":"19:47:21.894","level":"INFO","service":"payments","trace_id":"4bf92f35","msg":"connection acquired","waited_ms":9800}',
+      '{"ts":"19:47:22.106","level":"INFO","service":"payments","trace_id":"4bf92f35","msg":"bank authorize ok","bank_ms":210,"status":200}',
+      '{"ts":"19:47:22.132","level":"INFO","service":"orders","trace_id":"4bf92f35","msg":"order paid","order":"ord-7731"}',
+    ];
+
+    const STEPS = [
+      {chip:'📣 Жалоба', t:'Шаг 1. Анна пишет в поддержку', on:['anna'], v:{anna:'⏳ 10 с'},
+       d:'<b>Что мы знаем? Почти ничего.</b> «Висит» — это симптом глазами человека. Без наблюдаемости поддержка ответит «у нас всё работает, попробуйте позже», и на этом всё. Но у нас есть три зацепки: <b>время</b> (19:47), <b>действие</b> (оплата) и <b>код запроса</b> внизу страницы. Этот код — начало <code class="inl">trace_id</code>, сквозного номера запроса. Запомните его.',
+       pane:() => '<div class="obx-pane"><h4>📩 Чат поддержки, пятница, 19:48</h4>' +
+         '<div class="obx-bubble"><span class="obx-who">Анна</span>Нажала «Оплатить» — и крутилка секунд десять. Потом всё-таки написало «Оплачено». Вчера было мгновенно. Деньги точно списались один раз?</div>' +
+         '<div class="obx-bubble"><span class="obx-who">Анна · скриншот</span>…внизу страницы мелко: <code class="inl">код запроса 4bf92f35</code></div>' +
+         '<div class="obx-bubble me"><span class="obx-who">Поддержка</span>Спасибо! Передали инженерам, они уже разбираются.</div></div>'},
+      {chip:'🔔 Алерт', t:'Шаг 2. Алерт уже звенел — раньше Анны', bad:['gw'], v:{gw:'p99 9,6 с'},
+       d:'<b>Алерт — это пожарная сигнализация.</b> Он говорит «где-то дым» и будит дежурного, но не говорит, что горит. Хорошая новость: дежурный Олег узнал о проблеме <b>в 19:40, за восемь минут до жалобы Анны</b>. Обратите внимание, на что настроен алерт: на <b>симптом</b>, который чувствуют пользователи (медленная оплата), а не на загрузку процессора.',
+       pane:() => '<div class="obx-pane bad"><h4>🔔 Сообщение дежурному, 19:40</h4><pre class="json" style="font-size:12px">' + esc(
+         'FIRING  PaymentLatencyHigh                 с 19:40\n' +
+         '  где:       шлюз → POST /api/checkout/pay\n' +
+         '  условие:   p99 задержки > 2 с, держится 5 минут\n' +
+         '  сейчас:    p99 = 9,6 с   (обычно 0,6 с)\n' +
+         '  ошибки:    2,4 %         (обычно 0,1 %)\n' +
+         '  SLO:       бюджет ошибок сгорает в 14 раз быстрее нормы\n' +
+         '  кому:      дежурный команды «Оплата» → звонок\n' +
+         '  что делать: runbook/payments-latency') + '</pre></div>'},
+      {chip:'📊 Метрики', t:'Шаг 3. Дашборд: когда началось и где красное', bad:['gw','ord','pay'], good:['af','bank'],
+       v:{gw:'p99 9,9 с', ord:'p99 9,9 с', pay:'p99 9,8 с', af:'p99 50 мс', bank:'p99 230 мс'},
+       d:'<b>Метрики — это приборная панель.</b> Олег открывает дашборд и за минуту видит три вещи. <b>Когда:</b> задержка взлетела в 19:35, а синяя линия прямо перед этим — выкатка оплаты версии 2.8.0. <b>Где:</b> красное у шлюза, заказов и оплаты, а антифрод и сам банк в норме. <b>Загадка:</b> оплата тормозит, а банк отвечает быстро. И в оплату приходит 70 запросов в секунду, а в банк уходит только 48. Куда деваются остальные? Метрики говорят «где и когда», но не «почему».',
+       pane:() => '<div class="obx-pane"><h4>📊 Дашборд «Оплата», p99 задержки</h4>' + spark(8, false) +
+         '<div class="table-wrap" style="margin-top:6px"><table class="db"><thead><tr><th>Сервис</th><th>Rate, в сек</th><th>Errors</th><th>Duration p99</th></tr></thead><tbody>' +
+         '<tr><td>шлюз</td><td>72</td><td class="no">2,4 %</td><td class="no">9,9 с</td></tr>' +
+         '<tr><td>заказы</td><td>71</td><td class="no">2,4 %</td><td class="no">9,9 с</td></tr>' +
+         '<tr><td>антифрод</td><td>71</td><td class="yes">0 %</td><td class="yes">50 мс</td></tr>' +
+         '<tr><td>оплата</td><td><b>70</b></td><td class="no">2,4 %</td><td class="no">9,8 с</td></tr>' +
+         '<tr><td>оплата → банк</td><td class="may"><b>48</b></td><td class="yes">0 %</td><td class="yes">230 мс</td></tr>' +
+         '</tbody></table></div></div>'},
+      {chip:'🧵 Трасса', t:'Шаг 4. Трасса запроса Анны', on:['anna'], bad:['pay','pool'], good:['af','bank'],
+       v:{anna:'10 140 мс', gw:'10 140 мс', ord:'10 126 мс', af:'45 мс', pay:'10 045 мс', pool:'⏳ 9 800 мс', bank:'210 мс'},
+       d:'<b>Трасса — это трек-номер посылки.</b> Олег вставляет код Анны <code class="inl">4bf92f35</code> в поиск трасс и видит весь путь её запроса. Самая длинная полоса — не банк и не база, а <b>ожидание соединения к банку</b>: 9 800 из 10 140 мс. Банк ответил за 210 мс, как всегда. Запрос почти 10 секунд стоял в очереди внутри нашей же оплаты. Подробнее по каждому спану — в главе 6, там эту трассу можно потрогать.',
+       pane:() => '<div class="obx-pane"><h4>🧵 Трасса 4bf92f3577b34da6</h4><div class="obx-wf-wrap" style="margin-top:0"><div class="obx-wf">' + waterfall(false, 's7') + '</div></div></div>'},
+      {chip:'📜 Логи', t:'Шаг 5. Логи по тому же trace_id', on:['pay'], bad:['pool'],
+       v:{pay:'очередь 184', pool:'10 из 10 занято'},
+       d:'<b>Логи — это бортовой журнал.</b> Трасса сказала <b>где</b>, логи говорят <b>что именно</b>. По тому же <code class="inl">trace_id</code> находятся все записи запроса Анны во всех сервисах сразу. В них прямым текстом: пул <code class="inl">bank-http</code> рассчитан на 10 соединений, все заняты, в очереди 184 запроса. А самая первая строка — запись о старте оплаты 2.8.0 в 19:34 — показывает <code class="inl">bank.pool.max: 10</code>. Раньше там было 50.',
+       pane:() => '<div class="obx-pane"><h4>📜 Поиск в логах</h4><pre class="json obx-log">' +
+         LOGS_ANNA.map((l, i) => i === 0 || l.indexOf('WARN') >= 0 ? '<span class="obx-lw">' + esc(l) + '</span>' : esc(l)).join('\n') + '</pre></div>'},
+      {chip:'🧩 Причина', t:'Шаг 6. Причина: одна цифра в настройках', bad:['pool'], v:{pool:'max 50 → 10'},
+       d:'<b>Причина найдена.</b> При переносе настроек в релизе 2.8.0 число соединений к банку случайно уменьшили с 50 до 10. Посчитаем. Один вызов банка занимает 0,21 секунды, значит одно соединение пропускает около 5 оплат в секунду. Десять соединений — около 48 в секунду. А в пятничный пик приходит 70. Лишние 22 оплаты каждую секунду встают в очередь, и очередь растёт. Вот откуда «48 в банк при 70 входящих» на дашборде.',
+       pane:() => '<div class="obx-pane bad"><h4>🧩 Что изменилось в релизе</h4><pre class="json" style="font-size:12px">' + esc(
+         '  payments  v2.7.3  →  v2.8.0      (выкачен в 19:34)\n\n' +
+         '  - bank.pool.max: 50\n' +
+         '  + bank.pool.max: 10      ← опечатка при переносе настроек\n\n' +
+         '  пропускная способность пула:\n' +
+         '    1 соединение  = 1 / 0,21 с ≈ 4,8 оплаты в секунду\n' +
+         '    10 соединений ≈ 48 в секунду   (было 50 → ≈ 238)\n' +
+         '    приходит в пик   70 в секунду\n' +
+         '    → каждую секунду +22 запроса в очередь') + '</pre></div>'},
+      {chip:'🛠 Починка', t:'Шаг 7. Откат и проверка', good:['anna','gw','ord','pay','pool','af','bank'],
+       v:{anna:'✓ 0,6 с', gw:'p99 0,6 с', ord:'p99 0,6 с', pay:'p99 0,5 с', pool:'14 из 50', af:'50 мс', bank:'210 мс'},
+       d:'<b>В 19:58 Олег откатывает оплату на 2.7.3.</b> Чинить ночью «вперёд» не нужно — сначала вернуть как было. Через пять минут график падает обратно к 0,6 секунды, алерт сам закрывается. Проверка тоже идёт через наблюдаемость: не «вроде стало лучше», а «p99 снова 0,6 с, очередь в пуле пуста». Анне поддержка отвечает: «Деньги списаны один раз, задержка была на нашей стороне, уже исправили».',
+       pane:() => '<div class="obx-pane good"><h4>📊 Тот же график после отката</h4>' + spark(11, true) + '</div>'},
+      {chip:'🏁 Итог', t:'Шаг 8. Итог: цепочка из четырёх звеньев', good:['anna','gw','ord','pay','pool','af','bank'],
+       v:{anna:'✓', gw:'✓', ord:'✓', pay:'✓', pool:'✓', af:'✓', bank:'✓'},
+       d:'<b>От алерта до исправления — 18 минут.</b> Без наблюдаемости это был бы вечер обхода команд: «у банка спросили? у антифрода? давайте добавим логов и выкатим ещё раз». Запомните порядок: <b>алерт → метрики → трасса → логи → причина</b>. Каждый инструмент отвечает на свой вопрос, и вместе их держит один сквозной номер запроса. Дальше разберём каждое звено по отдельности.',
+       ok:true,
+       pane:() => '<div class="table-wrap"><table class="db"><thead><tr><th>Звено</th><th>Житейски</th><th>Какой вопрос закрыл</th><th>Ответ в истории Анны</th></tr></thead><tbody>' +
+         '<tr><td><b>🔔 Алерт</b></td><td>пожарная сигнализация</td><td>Есть ли проблема прямо сейчас?</td><td>Да, с 19:40 оплата медленная</td></tr>' +
+         '<tr><td><b>📊 Метрики</b></td><td>приборная панель</td><td>Когда началось и где?</td><td>В 19:35, после релиза, в оплате; банк в норме</td></tr>' +
+         '<tr><td><b>🧵 Трасса</b></td><td>трек-номер посылки</td><td>Где именно ушло время?</td><td>9,8 с — ожидание соединения к банку</td></tr>' +
+         '<tr><td><b>📜 Логи</b></td><td>бортовой журнал</td><td>Что именно случилось?</td><td>Пул на 10 соединений, 184 в очереди, так с релиза 2.8.0</td></tr>' +
+         '</tbody></table></div>' +
+         '<div class="note warn"><b>И что поменяли, чтобы не повторилось.</b> Добавили метрику насыщения пула на дашборд оплаты (это USE из главы 5). Проверку настроек в конвейер сборки: изменение <code class="inl">pool.max</code> больше чем вдвое требует подтверждения. И выкатку сначала на 5 % пользователей: такой релиз сломал бы оплату только у каждого двадцатого и откатился бы сам.</div>'},
+    ];
+
+    const chips = $o('obx-inv-chips');
+    chips.innerHTML = STEPS.map((s, i) => '<button class="obx-chip" data-i="' + i + '">' + (i + 1) + ' · ' + s.chip + '</button>').join('');
+    const nodes = [...sch.querySelectorAll('.obx-nd')];
+    let cur = 0;
+    function paint(){
+      const st = STEPS[cur];
+      nodes.forEach(n => {
+        const id = n.dataset.n;
+        n.classList.toggle('on', (st.on || []).includes(id));
+        n.classList.toggle('bad', (st.bad || []).includes(id));
+        n.classList.toggle('good', (st.good || []).includes(id));
+        n.querySelector('.obx-ndv').textContent = (st.v && st.v[id]) || '';
+      });
+      [...chips.children].forEach((c, i) => { c.classList.toggle('on', i === cur); c.classList.toggle('done', i < cur); });
+      $o('obx-inv-lab').textContent = 'шаг ' + (cur + 1) + ' из ' + STEPS.length;
+      out.innerHTML = '<div class="skout" style="margin-top:12px"><h4>' + st.t + '</h4>' +
+        '<div class="note' + (st.ok ? ' good' : '') + '" style="margin:0">' + st.d + '</div></div>' + st.pane();
+      if(cur === STEPS.length - 1) Progress.report('obx-inv', 1);
+    }
+    $o('obx-inv-next').addEventListener('click', () => { if(cur < STEPS.length - 1){ cur++; paint(); } });
+    $o('obx-inv-prev').addEventListener('click', () => { if(cur > 0){ cur--; paint(); } });
+    chips.addEventListener('click', e => { const b = e.target.closest('button[data-i]'); if(b){ cur = +b.dataset.i; paint(); } });
+    paint();
+    Progress.register('obx-inv', 1, 'Наблюдаемость: история Анны');
+  })();
+
+  /* ═════ ГЛАВА 3: три взгляда + сравнение + сортировка ═════ */
+  if($o('obx-lens-pick')){
+    dbSegment('obx-lens', [
+      {n:'📜 Логи', life:'бортовой журнал',
+       art:'{"ts":"19:47:12.094","level":"WARN","service":"payments",\n "trace_id":"4bf92f35","msg":"http pool exhausted, waiting",\n "pool":"bank-http","active":10,"max":10,"pending":184}\n\n… и ещё 41 000 таких же строк за полчаса',
+       yes:'<b>Что именно</b> случилось с конкретным запросом: какой пул, сколько занято, сколько ждёт, какая версия.',
+       no:'Насколько это массово и когда началось. Из 41 000 строк картину целиком не увидишь — их надо ещё сгруппировать.'},
+      {n:'📊 Метрики', life:'приборная панель',
+       art:'p99 оплаты, секунды\n\n 10 ┤          ●──●──●──●\n    │         ╱\n  5 ┤        ╱\n    │       ╱\n  2 ┤┄┄┄┄┄┄╱┄┄┄┄┄┄┄┄┄┄┄┄┄┄  порог\n  0 ┤●──●──●\n    └──────┬───────────────\n       19:34 релиз',
+       yes:'<b>Сколько, когда и где:</b> началось в 19:35, затронуло всех, кто платит, красное у оплаты, банк в норме.',
+       no:'Почему. И у кого конкретно: метрика не знает про Анну, она знает про «70 оплат в секунду».'},
+      {n:'🧵 Трасса', life:'трек-номер посылки',
+       art:'трасса 4bf92f35, всего 10 140 мс\n\n шлюз                ▉▉▉▉▉▉▉▉▉▉▉▉▉▉▉▉ 10 140\n  └ заказы           ▉▉▉▉▉▉▉▉▉▉▉▉▉▉▉▉ 10 126\n     ├ антифрод      ▏ 45\n     └ оплата        ▉▉▉▉▉▉▉▉▉▉▉▉▉▉▉▉ 10 045\n        ├ ждём пул   ▉▉▉▉▉▉▉▉▉▉▉▉▉▉▉  9 800  ◄──\n        └ банк                      ▏ 210',
+       yes:'<b>Где именно</b> ушло время в одном конкретном запросе, через все сервисы сразу.',
+       no:'Массово ли это (нужны метрики) и что сказал код в этот момент (нужны логи).'},
+    ], x =>
+      '<div class="skout" style="margin-top:11px"><h4>' + x.n + ' — ' + x.life + '</h4>' +
+      '<pre class="json" style="font-size:11.5px;margin:0 0 10px">' + esc(x.art) + '</pre>' +
+      '<div class="lgrid"><b>отвечает</b><div>' + x.yes + '</div><b>не отвечает</b><div>' + x.no + '</div></div></div>');
+  }
+
+  renderCmp('obx-cmp', ['', '📜 Логи', '📊 Метрики', '🧵 Трассы'], [
+    {cells:['<b>Житейски</b>', 'бортовой журнал', 'приборная панель', 'трек-номер посылки'],
+     why:'Журнал хранит историю событий, панель показывает текущие числа, трек-номер — путь одной вещи через много точек. Три разных взгляда на одну реальность.'},
+    {cells:['<b>Главный вопрос</b>', 'что случилось?', 'сколько и когда?', 'где ушло время?'],
+     why:'Если вопрос начинается со «сколько», «как часто», «растёт ли» — это метрики. Если «где тормозит этот запрос» — трасса. Если «что именно произошло и с какими данными» — логи.'},
+    {cells:['<b>Единица</b>', 'событие (строка)', 'число во времени', 'один запрос (дерево спанов)'],
+     why:'Лог — одна запись. Метрика — точка на графике, в которой уже сложены тысячи запросов. Трасса — дерево из спанов одного запроса.'},
+    {cells:['<b>Цена</b>', 'дорого: объём', 'дёшево', 'средне: берут выборку'],
+     why:'Метрика — одно число раз в 15 секунд, сколько бы запросов ни было. Логи растут вместе с нагрузкой. Трассы тоже, поэтому сохраняют 1–10 % обычных и все медленные и ошибочные.'},
+    {cells:['<b>Сколько хранят</b>', 'дни–недели', 'месяцы–годы', 'дни'],
+     why:'Долго хранят то, что дёшево и нужно для сравнений «как было в прошлом году». Подробности нужны в основном для свежих разборов.'},
+    {cells:['<b>Слабое место</b>', 'не видно картину целиком', 'не говорят «почему» и «у кого»', 'рвутся, если один сервис не передал trace_id'],
+     why:'Поэтому и нужны все три: каждый закрывает слепое пятно соседа. А сшивает их сквозной trace_id.'},
+  ]);
+
+  renderSort('obx-srt', [
+    {t:'Сколько оплат в секунду было вчера в 19:00?', bucket:'met', why:'Вопрос «сколько» за прошлый период — ровно для метрик. Логи за вчера, возможно, уже удалены, да и считать строки долго.'},
+    {t:'Почему заказ ord-7731 шёл 10 секунд — где ушло время?', bucket:'tr', why:'«Где ушло время в конкретном запросе» — вопрос для трассы. Метрика знает только общий p99, а логи каждого сервиса правдивы по отдельности.'},
+    {t:'С каким текстом ошибки упал платёж клиента Бориса?', bucket:'log', why:'Содержание конкретного события — это логи. Ищем по id клиента или по trace_id.'},
+    {t:'Растёт ли доля ошибок последние 15 минут?', bucket:'met', why:'Тенденция во времени — метрика. На ней же висит алерт.'},
+    {t:'Какой из пяти сервисов тормозит конкретный запрос?', bucket:'tr', why:'Трасса показывает все сервисы запроса на одной картинке с длительностями.'},
+    {t:'Какие поля пришли в запросе, который не прошёл проверку?', bucket:'log', why:'Подробности данных — в структурированных логах (без персональных данных, конечно).'},
+    {t:'Стал ли p99 хуже после вчерашнего релиза?', bucket:'met', why:'Сравнение «до и после» по всем запросам — метрики с отметкой релиза на графике.'},
+  ], [
+    {id:'log', n:'📜 Логи'}, {id:'met', n:'📊 Метрики'}, {id:'tr', n:'🧵 Трасса'},
+  ], 'obx-srt-score', 'obx-srt-total');
+  if($o('obx-srt')) Progress.register('obx-srt-score', 7, 'Наблюдаемость: какой инструмент');
+
+  /* ═════ ГЛАВА 4: логи ═════ */
+  (function(){
+    const outEl = $o('obx-lg-out'); if(!outEl) return;
+    const L = [
+      ['19:47:11.902','INFO','catalog','7e10c2aa','GET /products ok',{ms:41}],
+      ['19:47:12.070','INFO','gateway','4bf92f35','request in',{route:'/api/checkout/pay'}],
+      ['19:47:12.084','INFO','payments','4bf92f35','charge started',{order:'ord-7731',amount:2490}],
+      ['19:47:12.094','WARN','payments','4bf92f35','http pool exhausted, waiting',{pool:'bank-http',active:10,max:10,pending:184}],
+      ['19:47:12.310','INFO','orders','9a1c77e0','checkout started',{order:'ord-7732'}],
+      ['19:47:12.515','WARN','payments','9a1c77e0','http pool exhausted, waiting',{pool:'bank-http',active:10,max:10,pending:185}],
+      ['19:47:13.020','ERROR','notify','5c0f9d41','sms provider 503, retry 1/3',{provider:'smsc'}],
+      ['19:47:14.200','INFO','catalog','e2b4f610','GET /products ok',{ms:38}],
+      ['19:47:17.480','ERROR','payments','1f6e0b93','charge timeout',{waited_ms:15000,pool:'bank-http'}],
+      ['19:47:19.004','INFO','notify','5c0f9d41','sms sent on retry 2',{}],
+      ['19:47:21.894','INFO','payments','4bf92f35','connection acquired',{waited_ms:9800}],
+      ['19:47:22.106','INFO','payments','4bf92f35','bank authorize ok',{bank_ms:210,status:200}],
+      ['19:47:22.132','INFO','orders','4bf92f35','order paid',{order:'ord-7731'}],
+      ['19:47:22.140','INFO','gateway','4bf92f35','response out',{status:200,ms:10140}],
+    ];
+    const RANK = {DEBUG:0, INFO:1, WARN:2, ERROR:3};
+    const st = {fmt:'json', lvl:'all', tr:false};
+    function line(r){
+      if(st.fmt === 'txt'){
+        const extra = Object.keys(r[5]).map(k => r[5][k]).join(' ');
+        return r[0].slice(0, 8) + ' ' + r[1] + ' ' + r[2] + ': ' + r[4] + (extra ? ' (' + extra + ')' : '');
+      }
+      const o = Object.assign({ts:r[0], level:r[1], service:r[2], trace_id:r[3], msg:r[4]}, r[5]);
+      return JSON.stringify(o);
+    }
+    function draw(){
+      const min = st.lvl === 'err' ? 3 : st.lvl === 'warn' ? 2 : 0;
+      let rows = L.filter(r => RANK[r[1]] >= min);
+      const trOn = st.tr && st.fmt === 'json';
+      if(trOn) rows = rows.filter(r => r[3] === '4bf92f35');
+      outEl.innerHTML = rows.length ? rows.map(r => {
+        const cls = r[1] === 'ERROR' ? 'obx-le' : r[1] === 'WARN' ? 'obx-lw' : '';
+        return '<span class="' + cls + (trOn ? ' obx-lh' : '') + '">' + esc(line(r)) + '</span>';
+      }).join('\n') : '<span class="obx-lw">(пусто: под фильтр ничего не попало)</span>';
+      $o('obx-lg-n').textContent = rows.length + ' из ' + L.length;
+      const m = $o('obx-lg-msg');
+      if(st.tr && st.fmt === 'txt')
+        msg(m, 'err', '<b>Искать нечем.</b> В строках нет поля trace_id: разработчик просто не вписал его в текст. Можно поискать по «ord-7731», но тогда вы найдёте записи оплаты и заказов, а шлюз, который не знает номер заказа, пропадёт. Переключитесь на JSON и нажмите фильтр ещё раз.');
+      else if(trOn){
+        msg(m, 'ok', '<b>Вот он, весь путь Анны: 7 строк из 14</b>, из трёх разных сервисов, в правильном порядке. Видно, что 9,8 секунды ушли между «pool exhausted» и «connection acquired». Один фильтр по полю — и никакого сопоставления времени вручную. В реальном хранилище это запрос вида <code class="inl">{trace_id="4bf92f35"}</code>.');
+        Progress.report('obx-lg', 1);
+      }
+      else if(st.lvl !== 'all')
+        msg(m, 'warn', 'Фильтр по уровню убирает шум, но заметьте: <b>запрос Анны почти весь на уровне INFO</b>. Её строки выпали, и осталось чужое: СМС-провайдер, таймаут другого клиента. Уровень помогает найти аварии, а найти конкретный запрос помогает только trace_id.');
+      else
+        msg(m, '', 'Сейчас перемешаны записи пяти сервисов и пяти разных запросов. Попробуйте найти, какие строки относятся к Анне.');
+    }
+    function segBind(id, key, attr){
+      const bar = $o(id);
+      bar.addEventListener('click', e => {
+        const b = e.target.closest('button'); if(!b) return;
+        st[key] = b.dataset[attr];
+        [...bar.children].forEach(x => x.classList.toggle('on', x === b));
+        draw();
+      });
+    }
+    segBind('obx-lg-fmt', 'fmt', 'f');
+    segBind('obx-lg-lvl', 'lvl', 'l');
+    const trB = $o('obx-lg-tr');
+    trB.addEventListener('click', () => { st.tr = !st.tr; trB.classList.toggle('on', st.tr); draw(); });
+    $o('obx-lg-rs').addEventListener('click', () => {
+      st.fmt = 'json'; st.lvl = 'all'; st.tr = false; trB.classList.remove('on');
+      [...$o('obx-lg-fmt').children].forEach(x => x.classList.toggle('on', x.dataset.f === 'json'));
+      [...$o('obx-lg-lvl').children].forEach(x => x.classList.toggle('on', x.dataset.l === 'all'));
+      draw();
+    });
+    draw();
+    Progress.register('obx-lg', 1, 'Наблюдаемость: поиск в логах');
+  })();
+
+  /* ═════ ГЛАВА 5: перцентили ═════ */
+  (function(){
+    const sl = $o('obx-pc-sl'); if(!sl) return;
+    const grid = $o('obx-pc-grid');
+    grid.innerHTML = Array.from({length:100}, () => '<span></span>').join('');
+    const cells = [...grid.children];
+    const ms = v => v >= 1000 ? dec(v / 1000, 1) + ' с' : Math.round(v) + ' мс';
+    function upd(){
+      const k = +sl.value;
+      $o('obx-pc-v').textContent = k + ' %';
+      const vals = [];
+      for(let i = 0; i < 100; i++){
+        const slow = (i * 7) % 100 < k;
+        vals.push(slow ? 5000 + ((i * 13) % 10) * 200 : 90 + ((i * 37) % 100) * 1.2);
+        cells[i].classList.toggle('s', slow);
+      }
+      const srt = vals.slice().sort((a, b) => a - b);
+      const pc = q => srt[Math.ceil(q * 100) - 1];
+      const mean = vals.reduce((s, v) => s + v, 0) / 100;
+      const set = (id, lab, v, bad) => { const m = $o(id); m.className = 'meter' + (bad ? ' bad' : ' good'); m.innerHTML = lab + ': <b>' + ms(v) + '</b>'; };
+      set('obx-pc-m1', 'Среднее', mean, mean > 1000);
+      set('obx-pc-m2', 'p50 (медиана)', pc(0.5), pc(0.5) > 1000);
+      set('obx-pc-m3', 'p95', pc(0.95), pc(0.95) > 1000);
+      set('obx-pc-m4', 'p99', pc(0.99), pc(0.99) > 1000);
+      let t, kind;
+      if(k === 0){ kind = 'ok'; t = 'Все запросы быстрые, и все показатели сходятся. Так бывает только на тестовом стенде.'; }
+      else if(mean < 1000){ kind = 'warn'; t = '<b>Среднее — ' + ms(mean) + ', выглядит прилично.</b> А ' + k + ' человек из 100 ждут больше 5 секунд. Если пользователь за вечер делает 20 запросов, почти каждый хотя бы раз попадёт в хвост. <b>p99 = ' + ms(pc(0.99)) + '</b> честно показывает, что хвост есть.'; }
+      else { kind = 'err'; t = 'Теперь и среднее выросло до ' + ms(mean) + ' — но заметьте, как поздно: медленных уже ' + k + ' %. Медиана при этом всё ещё ' + ms(pc(0.5)) + ' и уверяет, что «типичному пользователю хорошо». Смотрите на p95 и p99.'; }
+      msg($o('obx-pc-msg'), kind, t);
+    }
+    sl.addEventListener('input', () => { upd(); Progress.report('obx-pc', 1); });
+    upd();
+    Progress.register('obx-pc', 1, 'Наблюдаемость: перцентили');
+  })();
+
+  /* ═════ ГЛАВА 6: водопад трассы с деталями ═════ */
+  (function(){
+    const wf = $o('obx-wf'), det = $o('obx-wf-det'); if(!wf || !det) return;
+    let sel = null;
+    function show(id){
+      sel = id;
+      wf.innerHTML = waterfall(true, sel);
+      const s = TR.spans.find(x => x.id === id);
+      if(!s){ msg(det, '', 'Нажмите на любую строку водопада — покажу, что записано в спане.'); return; }
+      const par = s.p ? TR.spans.find(x => x.id === s.p) : null;
+      const share = Math.round(s.d / TR.total * 100);
+      det.className = '';
+      det.innerHTML = '<div class="skout" style="margin-top:11px' + (s.bad ? ';border-left-color:var(--danger)' : '') + '"><h4>' + esc(s.n) + '</h4>' +
+        '<div class="lgrid">' +
+          '<b>сервис</b><div>' + esc(s.svc) + '</div>' +
+          '<b>родитель</b><div>' + (par ? esc(par.n) + ' <span style="color:var(--faint)">(' + par.id + ')</span>' : 'нет — это корень трассы') + '</div>' +
+          '<b>начало</b><div>+' + nf(s.st) + ' мс от старта запроса</div>' +
+          '<b>длительность</b><div>' + nf(s.d) + ' мс · ' + share + ' % всего запроса</div>' +
+          '<b>trace_id</b><div><code class="inl">' + TR.id + '</code></div>' +
+        '</div>' +
+        '<div style="font:600 10.5px var(--mono);color:var(--faint);text-transform:uppercase;margin:10px 0 4px">атрибуты (пометки) спана</div>' +
+        '<pre class="json" style="font-size:11.5px">' + esc(JSON.stringify(s.a, null, 2)) + '</pre>' +
+        '<div class="note' + (s.bad ? ' good' : s.hot ? ' warn' : '') + '" style="margin-top:10px">' + s.note + '</div></div>';
+      if(s.bad) Progress.report('obx-wf', 1);
+    }
+    wf.addEventListener('click', e => { const r = e.target.closest('[data-s]'); if(r) show(r.dataset.s); });
+    wf.addEventListener('keydown', e => {
+      if(e.key !== 'Enter' && e.key !== ' ') return;
+      const r = e.target.closest('[data-s]'); if(r){ e.preventDefault(); show(r.dataset.s); }
+    });
+    wf.innerHTML = waterfall(true, null);
+    det.className = 'console';
+    msg(det, '', 'Нажмите на любую строку водопада — покажу, что записано в спане. Подсказка: ищите не сервис, а самую длинную строчку на самом глубоком уровне.');
+    Progress.register('obx-wf', 1, 'Наблюдаемость: трасса Анны');
+  })();
+
+  /* ═════ ГЛАВА 7: сортировка алертов ═════ */
+  renderSort('obx-al', [
+    {t:'Доля успешных оплат ниже 99 % пять минут подряд', bucket:'page', why:'Симптом, который прямо сейчас чувствуют люди и бизнес. Понятно, кому плохо и почему нельзя ждать до утра.'},
+    {t:'Загрузка процессора на узле выше 85 %', bucket:'dash', why:'Это причина, а не симптом. Сервис может отлично работать и при 95 %. Полезно на дашборде при разборе, но будить из-за этого нельзя.'},
+    {t:'Бюджет ошибок оплаты сгорает в 14 раз быстрее нормы', bucket:'page', why:'Лучший вид алерта: привязан к обещанию пользователям. При таком темпе месячный бюджет кончится за два дня — это срочно.'},
+    {t:'Под перезапустился после обновления', bucket:'del', why:'Штатное поведение: так работает самовосстановление и выкатка. На такое правило никто не отреагирует, а значит, его не должно быть.'},
+    {t:'Пул соединений к банку занят на 100 %, в очереди больше 50 запросов', bucket:'dash', why:'Ценный сигнал причины — ровно он помог бы Анне быстрее. Но будить стоит по симптому (медленные оплаты), а этот график держат рядом на дашборде и ссылаются на него из текста алерта.'},
+    {t:'В логах встретилось слово ERROR', bucket:'del', why:'Их сотни в день, и большинство безобидны. Такой алерт приучает игнорировать все алерты.'},
+    {t:'Самое старое сообщение в очереди заказов ждёт больше 10 минут', bucket:'page', why:'Очередь встала: заказы копятся и не обрабатываются. Пользователь пока не видит ошибки, но скоро увидит. Будить.'},
+    {t:'Диск сервера логов заполнен на 70 % и растёт на 1 % в день', bucket:'dash', why:'До беды месяц. Это задача на рабочее время, а не звонок в три ночи.'},
+  ], [
+    {id:'page', n:'🚨 Будить дежурного'}, {id:'dash', n:'📊 На дашборд, днём'}, {id:'del', n:'🗑 Удалить'},
+  ], 'obx-al-score', 'obx-al-total');
+  if($o('obx-al')) Progress.register('obx-al-score', 8, 'Наблюдаемость: какие алерты нужны');
+
+  /* ═════ ГЛАВА 8: SLI/SLO/SLA + бюджет ═════ */
+  renderCmp('obx-sla', ['', 'SLI — что меряем', 'SLO — что обещаем себе', 'SLA — что обещаем по договору'], [
+    {cells:['<b>Одной фразой</b>', 'показатель', 'цель по показателю', 'договор с последствиями'],
+     why:'<b>SLI</b> (service level indicator) — измеряемое число. <b>SLO</b> (service level objective) — цель, которую команда ставит себе по этому числу. <b>SLA</b> (service level agreement) — обещание клиенту в договоре, за нарушение которого платят.'},
+    {cells:['<b>В пиццерии</b>', 'доля пицц, доставленных за 30 минут', '95 % за месяц', 'опоздали чаще — пицца бесплатно'],
+     why:'Индикатор можно посчитать по чекам. Цель — внутренний ориентир кухни. Договор — то, что написано на коробке, и за него пиццерия платит деньгами.'},
+    {cells:['<b>В оплате Анны</b>', 'доля оплат, прошедших без ошибки быстрее 2 с', '99,5 % за 30 дней', 'магазину банк обещает 99,9 %, иначе штраф'],
+     why:'Обратите внимание: SLI считает <b>запросы, а не минуты</b> и включает скорость. Оплата Анны прошла успешно, но за 10 секунд — по такому SLI она считается неудачной. Это честно: для Анны это и была неудача.'},
+    {cells:['<b>Если не выполнили</b>', '—', 'заморозка рискованных релизов, силы на надёжность', 'штраф, скидка, возврат денег'],
+     why:'SLO всегда строже SLA. Иначе вы узнаёте о проблеме в момент, когда уже платите штраф. Запас между ними — время отреагировать.'},
+  ]);
+
+  (function(){
+    const errS = $o('obx-eb-err'); if(!errS) return;
+    const dayS = $o('obx-eb-day'), bar = $o('obx-eb-slo');
+    let slo = 0.999;
+    function upd(){
+      const e = +errS.value / 10000, day = +dayS.value;
+      $o('obx-eb-err-v').textContent = dec(e * 100, 2) + ' %';
+      $o('obx-eb-day-v').textContent = day;
+      const budget = 1 - slo;
+      const burn = e / budget;
+      const spent = burn * day / 30;
+      const allowed = budget * 30e6, used = e * 1e6 * day;
+      const fill = $o('obx-eb-fill');
+      fill.style.width = Math.min(100, spent * 100) + '%';
+      fill.className = 'obx-eb-fill' + (spent >= 1 ? ' bad' : burn > 1 ? ' warn' : '');
+      $o('obx-eb-mk').style.left = 'calc(' + (day / 30 * 100) + '% - 1px)';
+      $o('obx-eb-all').textContent = nf(allowed) + ' ошибок';
+      $o('obx-eb-used').textContent = nf(used) + ' (' + Math.round(spent * 100) + ' %)';
+      $o('obx-eb-usedm').className = 'meter' + (spent >= 1 ? ' bad' : burn > 1 ? ' wq' : ' good');
+      $o('obx-eb-burn').textContent = '×' + dec(burn, burn < 10 ? 1 : 0);
+      $o('obx-eb-burnm').className = 'meter' + (burn > 1 ? ' bad' : ' good');
+      let k, t;
+      if(spent >= 1){
+        const dEnd = Math.max(1, Math.floor(30 / burn));
+        k = 'err'; t = '<b>Не выкатывать новые функции.</b> Бюджет кончился примерно на ' + dEnd + '-й день: обещание пользователям уже нарушено. По договорённости, принятой заранее, релизы функций замораживаются. Катим только исправления надёжности, пока доля ошибок не вернётся в норму.';
+      } else if(burn > 1){
+        const dEnd = Math.floor(30 / burn);
+        k = 'warn'; t = '<b>Катить только исправления.</b> Бюджета осталось ' + Math.round((1 - spent) * 100) + ' %, но тратите вы его в ' + dec(burn, 1) + ' раза быстрее нормы. При таком темпе он кончится на ' + dEnd + '-й день месяца. Сейчас лучший момент найти причину ошибок, а рискованные релизы отложить или катить на маленькую долю пользователей.';
+      } else if(burn > 0.3){
+        k = 'ok'; t = '<b>Можно выкатывать.</b> Бюджет тратится медленнее нормы: к концу месяца уйдёт около ' + Math.round(burn * 100) + ' %. Обычный режим работы.';
+      } else {
+        k = 'ok'; t = '<b>Выкатывайте смело — и даже рискуйте.</b> К концу месяца уйдёт лишь ' + Math.round(burn * 100) + ' % бюджета. Неистраченный бюджет — не повод для гордости: возможно, вы слишком осторожны и медленно поставляете. Можно провести учения по отказам или попробовать что-то новое.';
+      }
+      msg($o('obx-eb-msg'), k, t + ' <span style="opacity:.8">При SLO ' + String(+(slo * 100).toFixed(2)).replace('.', ',') + ' % из 30 млн запросов в месяц можно ошибиться на ' + nf(allowed) + '.</span>');
+    }
+    bar.addEventListener('click', ev => {
+      const b = ev.target.closest('button[data-s]'); if(!b) return;
+      slo = +b.dataset.s;
+      [...bar.children].forEach(x => x.classList.toggle('on', x === b));
+      upd(); Progress.report('obx-eb', 1);
+    });
+    [errS, dayS].forEach(s => s.addEventListener('input', () => { upd(); Progress.report('obx-eb', 1); }));
+    upd();
+    Progress.register('obx-eb', 1, 'Наблюдаемость: катить или нет');
+  })();
 })();
 </script>
 <!-- ==================== 24. КАТАЛОГ ПАТТЕРНОВ ==================== -->
