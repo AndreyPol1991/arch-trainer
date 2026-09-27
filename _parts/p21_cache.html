@@ -70,6 +70,76 @@
     .chx-chart{display:flex; gap:1px; align-items:flex-end; height:110px; margin-top:12px; border:1px solid var(--line); border-radius:9px; padding:8px; background:var(--surface-2)}
     .chx-chart i{flex:1; border-radius:2px 2px 0 0; min-height:1px}
     .chx-cap{font:500 11.5px var(--mono); color:var(--faint); margin:6px 0 0}
+
+    /* ── живая модель стратегий ── */
+    .chx-sx-box{border:1px solid var(--line); border-radius:12px; padding:12px 14px 14px; margin-top:12px; background:var(--surface)}
+    .chx-sx-box:focus{outline:none}
+    .chx-sx-box:focus-visible{outline:2px solid var(--accent); outline-offset:3px}
+    .chx-sx-box .seg{margin:4px 0 8px}
+    .chx-sx-box .seg button:focus-visible, .chx-sx-box button:focus-visible{outline:2px solid var(--ink); outline-offset:2px}
+    .chx-sx-lbl{font:600 10.5px var(--mono); color:var(--faint); text-transform:uppercase; letter-spacing:.04em; margin-top:4px}
+    .chx-sx-sp{display:inline-flex; margin:0 !important}
+    .chx-sx-sp button{padding:5px 9px !important; font-size:11.5px !important}
+    .chx-sx-tlrow{grid-template-columns:60px 1fr 60px}
+    .chx-sx-wrap{overflow-x:auto; border:1px solid var(--line); border-radius:12px; background:var(--surface-2); margin-top:8px}
+    .chx-sx-stage{position:relative; width:660px; height:272px; margin:0 auto}
+    .chx-sx-stage svg{position:absolute; inset:0; width:660px; height:272px}
+    .chx-sx-stage line{stroke:var(--line); stroke-width:2; stroke-dasharray:5 4; transition:stroke .2s, stroke-width .2s}
+    .chx-sx-stage line.on{stroke:var(--accent); stroke-width:3.5; stroke-dasharray:none}
+    .chx-sx-stage line.bad{stroke:var(--danger)}
+    .chx-sx-stage line.ok{stroke:var(--ok)}
+    .chx-sx-n{position:absolute; border:1.5px solid var(--line); border-radius:11px; background:var(--surface); padding:7px 10px; font-size:12px; color:var(--ink); overflow:hidden; transition:border-color .2s, box-shadow .2s, background .2s, opacity .2s}
+    .chx-sx-n .h{font:650 12.5px var(--sans); display:flex; justify-content:space-between; gap:6px}
+    .chx-sx-n .h small{font:500 10px var(--mono); color:var(--faint); align-self:center}
+    .chx-sx-n .th{font:italic 500 11.5px/1.3 var(--sans); color:var(--faint); min-height:15px; margin-top:4px}
+    .chx-sx-n.on{border-color:var(--accent); box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 20%,transparent)}
+    .chx-sx-n.on .th{color:var(--accent); font-weight:600}
+    .chx-sx-n.bad{border-color:var(--danger); box-shadow:0 0 0 4px color-mix(in srgb,var(--danger) 18%,transparent)}
+    .chx-sx-n.bad .th{color:var(--danger)}
+    .chx-sx-n.dead{background:var(--danger-bg); border-color:var(--danger); border-style:dashed}
+    .chx-sx-n.off{opacity:.35}
+    .chx-sx-kv{margin-top:5px; font:500 11px/1.45 var(--mono); border-top:1px dashed var(--line); padding-top:4px}
+    .chx-sx-kv b{font-weight:700}
+    .chx-sx-kv .chg{color:var(--ok); font-weight:700}
+    .chx-sx-kv .lost{color:var(--danger); text-decoration:line-through}
+    .chx-sx-kv .emp{color:var(--faint)}
+    .chx-sx-pk{position:absolute; left:0; top:0; transform:translate(-50%,-50%); padding:3px 9px; border-radius:12px; background:var(--accent); color:#fff; font:600 11px var(--mono); white-space:nowrap; pointer-events:none; z-index:3; box-shadow:var(--shadow)}
+    .chx-sx-pk.bad{background:var(--danger)} .chx-sx-pk.ok{background:var(--ok)} .chx-sx-pk.warn{background:var(--warn)}
+    .chx-sx-pk[hidden]{display:none}
+    .chx-sx-seqw{overflow-x:auto; border:1px solid var(--line); border-radius:12px; background:var(--surface-2); margin-top:6px; padding:10px 10px 6px}
+    .chx-sx-seq{min-width:500px; position:relative}
+    .chx-sx-sh{display:flex; margin-left:26px}
+    .chx-sx-sh div{flex:1; text-align:center; font:600 11.5px var(--sans); color:var(--muted); border:1px solid var(--line); border-radius:8px; padding:5px 3px; margin:0 4px; background:var(--surface)}
+    .chx-sx-sb{position:relative; margin:6px 0 0 26px}
+    .chx-sx-ll{position:absolute; top:0; bottom:0; border-left:1px dashed var(--line); pointer-events:none}
+    .chx-sx-r{position:relative; height:36px; cursor:pointer; border-radius:7px; transition:background .15s, opacity .2s}
+    .chx-sx-r:hover{background:color-mix(in srgb,var(--accent) 7%,transparent)}
+    .chx-sx-r.now{background:color-mix(in srgb,var(--accent) 14%,transparent)}
+    .chx-sx-r.fut{opacity:.25}
+    .chx-sx-r .n{position:absolute; left:-24px; top:10px; width:18px; height:18px; border-radius:5px; border:1px solid var(--line); background:var(--surface); display:grid; place-items:center; font:700 10px var(--mono); color:var(--faint)}
+    .chx-sx-r.now .n{background:var(--accent); border-color:var(--accent); color:#fff}
+    .chx-sx-r .ln{position:absolute; top:24px; border-top:2px solid var(--muted)}
+    .chx-sx-r .ln.back{border-top-style:dashed}
+    .chx-sx-r .ln.r::after, .chx-sx-r .ln.l::after{content:''; position:absolute; top:-6px; border-top:5px solid transparent; border-bottom:5px solid transparent}
+    .chx-sx-r .ln.r::after{right:-1px; border-left:8px solid var(--muted)}
+    .chx-sx-r .ln.l::after{left:-1px; border-right:8px solid var(--muted)}
+    .chx-sx-r .ln.self{width:30px; height:14px; top:12px; border:2px solid var(--muted); border-left:0; border-radius:0 8px 8px 0}
+    .chx-sx-r.now .ln{border-color:var(--accent)}
+    .chx-sx-r.now .ln.r::after{border-left-color:var(--accent)} .chx-sx-r.now .ln.l::after{border-right-color:var(--accent)}
+    .chx-sx-r.bad .ln{border-color:var(--danger)}
+    .chx-sx-r.bad .ln.r::after{border-left-color:var(--danger)} .chx-sx-r.bad .ln.l::after{border-right-color:var(--danger)}
+    .chx-sx-r .tx{position:absolute; top:4px; font:600 10.5px var(--mono); color:var(--muted); white-space:nowrap; transform:translateX(-50%)}
+    .chx-sx-r.now .tx{color:var(--ink)}
+    .chx-sx-r.bad .tx{color:var(--danger)}
+    .chx-sx-cmp{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:10px}
+    @media (max-width:760px){.chx-sx-cmp{grid-template-columns:1fr}}
+    .chx-sx-ev{margin-top:8px}
+    .chx-sx-ev .t{display:flex; justify-content:space-between; gap:8px; font-size:12.5px; color:var(--muted)}
+    .chx-sx-ev .t b{font:700 12px var(--mono); color:var(--ink); white-space:nowrap}
+    .chx-sx-ev .bar{height:9px; border-radius:5px; background:var(--surface-3); overflow:hidden; margin-top:3px}
+    .chx-sx-ev .bar i{display:block; height:100%; background:var(--accent)}
+    .chx-sx-ev.never .bar i{background:var(--danger)}
+    .chx-sx-ev.never .t b{color:var(--danger)}
   </style>
 
   <div class="card" id="chx-map-card">
@@ -285,10 +355,46 @@
   <!-- ─────────── глава 7 ─────────── -->
   <div class="card" id="chx-c7">
     <h2><span class="tag">глава 7 · стратегии</span> кто ходит в базу и что происходит при записи</h2>
-    <p>В главе 3 сервис сам спрашивал кеш, сам ходил в базу и сам клал результат. Это одна из пяти стратегий. <b>Стратегия кеширования</b> — это ответ на два вопроса: <b>кто идёт в базу при промахе</b> и <b>что происходит с кешем при записи</b>. Сначала сравним все пять в одной таблице, с житейскими аналогиями. Нажмите на строку — будет подробнее.</p>
+    <p>В главе 3 сервис сам спрашивал кеш, сам ходил в базу и сам клал результат. Это одна из пяти стратегий. <b>Стратегия кеширования</b> — это ответ на два вопроса: <b>кто идёт в базу при промахе</b> и <b>что происходит с кешем при записи</b>.</p>
+    <p>Ниже — живая модель. Выберите стратегию и операцию и жмите «Дальше» (или стрелки ← → на клавиатуре, когда схема в фокусе). По стрелкам летит «пакет» с запросом, в узлах видно, что лежит в кеше и в базе и о чём узел «думает». Внизу та же история в виде диаграммы последовательности: нажмите на любую её стрелку, чтобы перейти к этому шагу. Потом попробуйте всё сломать.</p>
+    <div class="chx-sx-box" id="chx-sx-box" tabindex="0" aria-label="Интерактивная схема стратегии кеширования. Стрелки влево и вправо — шаги.">
+      <div class="chx-sx-lbl">стратегия</div>
+      <div class="seg" id="chx-sx-k"></div>
+      <div class="chx-sx-lbl">операция</div>
+      <div class="seg" id="chx-sx-op"></div>
+      <div class="chx-sx-lbl">попробуйте сломать</div>
+      <div class="seg" id="chx-sx-f"></div>
+      <div class="chx-sx-wrap"><div class="chx-sx-stage" id="chx-sx-stage"></div></div>
+      <div class="skbar">
+        <button class="ghost" id="chx-sx-prev">← Назад</button>
+        <button class="act" id="chx-sx-next">Дальше →</button>
+        <button class="ghost" id="chx-sx-play">▶ Проиграть</button>
+        <button class="ghost" id="chx-sx-reset">⟲ Сначала</button>
+        <span class="seg chx-sx-sp" id="chx-sx-sp"><button data-sp="0.5">0,5×</button><button data-sp="1" class="on">1×</button><button data-sp="2">2×</button></span>
+        <span class="skstep" id="chx-sx-lab"></span>
+      </div>
+      <div class="slider-row chx-sx-tlrow"><label for="chx-sx-tl">Шаг</label><input type="range" id="chx-sx-tl" min="0" max="1" value="0"><span class="sv" id="chx-sx-tl-v">0</span></div>
+      <div class="meters" id="chx-sx-m"></div>
+      <div id="chx-sx-out"></div>
+      <div class="chx-sx-lbl" style="margin-top:14px">диаграмма последовательности · нажмите на стрелку</div>
+      <div class="chx-sx-seqw"><div class="chx-sx-seq" id="chx-sx-seq"></div></div>
+      <div id="chx-sx-sum"></div>
+    </div>
+
+    <h3>Сравните две стратегии на одной операции</h3>
+    <p>Одна и та же история, две стратегии рядом. Кто когда получил ответ, когда данные реально легли в базу и когда Анна увидела новую цену. Шкала времени логарифмическая: миллисекунды и минуты помещаются на одну полосу.</p>
+    <div class="form-row">
+      <div class="field"><label for="chx-sx-ca">стратегия А</label><select id="chx-sx-ca"></select></div>
+      <div class="field"><label for="chx-sx-cb">стратегия Б</label><select id="chx-sx-cb"></select></div>
+    </div>
+    <div class="seg" id="chx-sx-cop"><button data-op="write" class="on">🏷 Маркетолог меняет цену</button><button data-op="read">👩 Анна читает цену</button></div>
+    <div id="chx-sx-cmp"></div>
+
+    <h3>Все пять одной таблицей</h3>
+    <p>Нажмите на строку — будет подробнее.</p>
     <div id="cs-table"></div>
-    <h3>Каждая стратегия на схеме и в коде</h3>
-    <p>Выберите стратегию: увидите схему чтения, схему записи, код и то, что случится, когда откажет кеш или база.</p>
+    <h3>Каждая стратегия в коде</h3>
+    <p>Выберите стратегию: схема чтения и записи в тексте, код на Java и то, что случится, когда откажет кеш или база.</p>
     <div class="seg" id="cst-pick"></div>
     <div id="cst-out"></div>
     <h3>Разложите по стратегиям</h3>
@@ -1029,6 +1135,405 @@
      why:'Горячий ключ живёт на одном узле по определению — добавление узлов и смена алгоритма хеширования этого не меняют. Работают два приёма: локальная копия в памяти каждого приложения с очень коротким TTL (двухуровневый кеш — тогда до Redis доходит доля обращений) или размножение ключа на несколько с случайным выбором. Увеличение TTL уменьшит частоту промахов, но не снимет нагрузку на чтение.'},
   ], 'caq-score', 'caq-total');
   Progress.register('caq-score', 5, 'Кеш');
+})();
+</script>
+
+<script>
+/* ═══ 21.7b Живая модель стратегий: схема + пакет + sequence ═══ */
+(function(){
+  const el = id => document.getElementById(id);
+  const box = el('chx-sx-box'); if(!box) return;
+  const rub = v => v.toLocaleString('ru-RU') + ' ₽';
+  const reduced = () => !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+
+  const NAMES = {ca:'Cache-aside', rt:'Read-through', wt:'Write-through', wb:'Write-behind', ra:'Refresh-ahead'};
+  const KEYS = Object.keys(NAMES);
+  const OPS = {read:'👩 Анна читает цену', write:'🏷 Маркетолог меняет цену', expire:'⏳ Срок почти истёк'};
+  const FAULTS = {none:'✅ Всё работает', cache:'💥 Кеш упал', slow:'🐢 База тормозит', crash:'⚡ Кеш упал до сброса буфера'};
+  const opsFor = k => k === 'ra' ? ['read','write','expire'] : ['read','write'];
+  const faultsFor = k => k === 'wb' ? ['none','cache','slow','crash'] : ['none','cache','slow'];
+  const CLOCKS = {anna:'Анна ждала', mk:'Маркетолог ждал', anna2:'Следующее чтение', bg:'Фоновая работа'};
+
+  /* ─── генератор сценариев: стратегия × операция × поломка ─── */
+  function gen(k, op, f){
+    if(f === 'crash'){ op = 'write'; }
+    const d = f === 'slow' ? 900 : 30, down = f === 'cache';
+    const slowWhy = f === 'slow' ? ' Сейчас база тормозит: ' + d + ' мс вместо 30.' : '';
+    const init = {cache:{v:1200, ttl:'4:32'}, db:1200, q:[], dead:down, lost:false};
+    const L = [];
+    const add = (from, to, lab, o) => L.push(Object.assign({from, to, lab, ms:0, c:'anna', db:0, th:{}, kind:''}, o || {}));
+    const fin = (who, v, o) => add('app', 'app', who === 'mk' ? '→ маркетологу: «готово»' : '→ Анне: ' + (v == null ? 'ошибка 503' : rub(v)), o);
+
+    function readAside(c, v, ev){
+      add('app','cache','GET product:42',{c, ms:1, th:{app:'сначала спрошу кеш', cache:'ищу product:42…'},
+        what:'Сервис спрашивает кеш по ключу <code class="inl">product:42</code>.', why:'Спросить кеш почти бесплатно: 1 мс. Даже если там пусто, почти ничего не потеряли.'});
+      add('cache','app','MISS',{c, kind:'bad', th:{cache:'такого ключа нет', app:'пусто — пойду в базу сам'},
+        what:'Промах: ключа в кеше нет.', why:'В cache-aside кеш пассивный, как полка: он только хранит. Сходить в базу — работа приложения.'});
+      add('app','db','SELECT price … id=42',{c, ms:d, db:1, th:{app:'жду базу…', db:'читаю строку 42'},
+        what:'Сервис сам идёт в базу.', why:'Это дорогая часть пути: ' + d + ' мс.' + slowWhy});
+      add('db','app',rub(v),{c, th:{db:'нашла: ' + rub(v)}, what:'База возвращает цену.', why:'База — источник правды. Её ответ всегда свежий.'});
+      add('app','cache','SET product:42 EX 300',{c, ms:1, set:{cache:{v, ttl:'5:00'}}, th:{app:'положу в кеш для следующих', cache:'запомнил на 5 минут'},
+        what:'Сервис <b>сам</b> кладёт ответ в кеш со сроком жизни 5 минут.', why:'Кеш наполняется лениво — только тем, что реально спросили. Отсюда второе имя стратегии: «ленивая загрузка».'});
+      fin('anna', v, {c, ev, kind:'ok', what:'Анна получила ' + rub(v) + '.', why:'Первый читатель платит за промах. Следующие получат цену из кеша за 1 мс.'});
+    }
+    function readThrough(c, v, ev){
+      add('app','cache','get(42)',{c, ms:1, th:{app:'спрошу кеш — про базу я не знаю', cache:'ищу product:42…'},
+        what:'Приложение вызывает одну строку: <code class="inl">cache.get(42)</code>.', why:'Вся логика загрузки спрятана в кеше. Приложение даже не знает, что база существует.'});
+      add('cache','db','SELECT … (загрузчик)',{c, ms:d, db:1, th:{cache:'нет ключа — схожу сам', db:'читаю строку 42'},
+        what:'Промах, но в базу идёт <b>сам кеш</b> через загрузчик, описанный один раз.', why:'Если в этот момент ещё 100 запросов спросят тот же ключ, хорошая библиотека пошлёт в базу один запрос, а остальных попросит подождать.' + slowWhy});
+      add('db','cache',rub(v),{c, th:{db:'нашла: ' + rub(v)}, what:'База отвечает кешу, а не приложению.', why:'Приложение в этом разговоре не участвует.'});
+      add('cache','cache','положил себе · TTL 5:00',{c, ms:1, set:{cache:{v, ttl:'5:00'}}, th:{cache:'запомнил на 5 минут'},
+        what:'Кеш сам кладёт значение себе.', why:'Никто не может забыть положить в кеш: это делает сам кеш.'});
+      add('cache','app',rub(v),{c, th:{app:'получил. Был ли промах — не знаю'}, what:'Кеш отдаёт значение приложению.', why:'Для приложения попадание и промах выглядят одинаково, отличаются только временем.'});
+      fin('anna', v, {c, ev, kind:'ok', what:'Анна получила ' + rub(v) + '.', why:'По времени — как cache-aside. Разница в том, <b>кто</b> ходит в базу.'});
+    }
+    function hit(c, v, ev, o){
+      o = o || {};
+      add('app','cache','GET product:42',{c, ms:1, th:{app:'спрошу кеш', cache:'ключ есть'}, what:'Сервис спрашивает кеш.', why:o.why1 || 'Обычное чтение.'});
+      add('cache','app','HIT ' + rub(v),{c, kind:o.stale ? 'warn' : 'ok', th:{cache:o.cth || 'отдаю из памяти'},
+        what:'Попадание: кеш отдаёт ' + rub(v) + ' за 1 мс.', why:o.why2 || 'База не тронута.'});
+      fin('anna', v, {c, ev, kind:o.stale ? 'warn' : 'ok', what:o.what || ('Анна увидела ' + rub(v) + '.'), why:o.why3 || 'Попадание: 1 мс, ноль запросов в базу.'});
+    }
+    function downFail(c, lab, why, who){
+      add('app','cache',lab,{c, ms:2, kind:'bad', th:{app:'спрошу кеш', cache:'💥 не отвечает'},
+        what:'Кеш недоступен: соединение отклонено за 2 мс.', why:'Хороший клиент кеша падает быстро, с коротким таймаутом, а не висит секундами.'});
+      add('cache','app','✕ ошибка соединения',{c, kind:'bad', th:{app:'а в базу я ходить не умею…'}, what:'Приложение получает ошибку.', why});
+      fin(who || 'anna', null, {c, ev: who === 'mk' ? 'ack' : 'ans', kind:'bad', lab2:true,
+        what: who === 'mk' ? 'Маркетолог получил ошибку «не сохранено».' : 'Анна получила ошибку вместо цены.',
+        why:'Кеш здесь — обязательное звено пути данных. Нужен явный запасной путь (fallback) в базу, иначе падение кеша равно падению сервиса.'});
+      if(who === 'mk') L[L.length - 1].lab = '→ маркетологу: ошибка';
+    }
+    function writeInval(stale){
+      add('app','db','UPDATE price = 1500',{c:'mk', ms:d, db:1, set:{db:1500}, ev:'dbw', th:{app:'сначала база', db:'записываю 1 500 ₽'},
+        what:'Маркетолог ставит новую цену. Сервис <b>сначала</b> пишет в базу.', why:'База — источник правды. Порядок «сначала база, потом кеш» сужает окно гонки (глава 8).' + slowWhy});
+      add('db','app','OK',{c:'mk', th:{db:'готово'}, what:'База подтвердила запись.', why:'Теперь в базе 1 500 ₽, а в кеше всё ещё 1 200 ₽.'});
+      if(stale){
+        fin('mk', 0, {c:'mk', ev:'ack', kind:'ok', what:'Маркетолог получил «готово». Кеш никто не трогал.', why:'Refresh-ahead — стратегия чтения. Если при записи не удалить ключ, кеш узнает о новой цене только при следующем фоновом обновлении.'});
+        return;
+      }
+      if(down) add('app','cache','DEL product:42',{c:'mk', ms:2, kind:'bad', th:{cache:'💥 не отвечает', app:'не смог удалить ключ'},
+        what:'Удалить ключ не вышло: кеш лежит.', why:'Если кеш поднимется пустым — не страшно. Если он «моргнул» и вернулся со старыми данными, старая цена проживёт до конца TTL. Поэтому TTL ставят всегда.'});
+      else add('app','cache','DEL product:42',{c:'mk', ms:1, set:{cache:null}, th:{app:'теперь удалю ключ', cache:'удалил product:42'},
+        what:'Сервис <b>удаляет</b> ключ из кеша.', why:'Удалить, а не перезаписать: две параллельные перезаписи могут лечь в обратном порядке. После удаления следующее чтение само возьмёт свежее из базы.'});
+      fin('mk', 0, {c:'mk', ev:'ack', kind:'ok', what:'Маркетолог получил «готово».', why:'Он ждал запись в базу и удаление ключа.'});
+    }
+    function directDb(c, v, ev){
+      add('app','cache','GET product:42',{c, ms:2, kind:'bad', th:{app:'сначала спрошу кеш', cache:'💥 не отвечает'},
+        what:'Сервис спрашивает кеш, но Redis лежит: соединение отклонено за 2 мс.', why:'Хороший клиент кеша падает быстро, а не висит секундами.'});
+      add('cache','app','✕ ошибка',{c, kind:'bad', th:{app:'кеш недоступен — не беда, иду в базу'},
+        what:'Сервис получает ошибку.', why:'В cache-aside кеш — необязательный ускоритель. Приложение само умеет ходить в базу.'});
+      add('app','db','SELECT price … id=42',{c, ms:d, db:1, th:{db:'читаю строку 42'}, what:'Сервис идёт в базу напрямую.',
+        why:'Работает, но теперь <b>каждый</b> запрос идёт в базу. При 1 000 запросов в секунду база получит все 1 000 вместо 50.' + slowWhy});
+      add('db','app',rub(v),{c, th:{db:'нашла: ' + rub(v)}, what:'База возвращает цену.', why:'Данные свежие: мы прочитали источник правды.'});
+      fin('anna', v, {c, ev, kind:'ok', what:'Анна получила ' + rub(v) + '. Медленнее, но получила.', why:'Лучшее поведение при отказе кеша из всех пяти стратегий: система деградирует, но работает.'});
+    }
+
+    let intro = '';
+    if(k === 'ca'){
+      if(op === 'read'){ init.cache = null; intro = 'Кеш пустой. Анна открывает карточку, сервис сам решает, куда идти.';
+        if(down) directDb('anna', 1200, 'ans');
+        else { readAside('anna', 1200, 'ans'); hit('anna2', 1200, 'ans2', {why1:'Через минуту кто-то снова открыл карточку.', why2:'Ключ положили на прошлом шаге, срок не вышел.'}); }
+      } else { intro = 'В базе и в кеше 1 200 ₽. Маркетолог ставит 1 500 ₽, потом Анна открывает карточку.';
+        writeInval(false);
+        if(down) directDb('anna', 1500, 'fresh'); else readAside('anna', 1500, 'fresh');
+      }
+    }
+    if(k === 'rt'){
+      if(op === 'read'){ init.cache = null; intro = 'Кеш пустой. Приложение знает только кеш, путь к базе знает сам кеш.';
+        if(down) downFail('anna', 'get(42)', 'Путь к базе знает только кеш. Самому приложению идти некуда.');
+        else { readThrough('anna', 1200, 'ans'); hit('anna2', 1200, 'ans2', {why1:'Через минуту кто-то снова открыл карточку.'}); }
+      } else { intro = 'Read-through описывает только чтение. Запись здесь сделана как в cache-aside: база, потом удаление ключа.';
+        writeInval(false);
+        if(down) downFail('anna', 'get(42)', 'Путь к базе знает только кеш.'); else readThrough('anna', 1500, 'fresh');
+      }
+    }
+    if(k === 'wt'){
+      if(op === 'read'){ intro = 'При write-through всё записанное уже лежит в кеше, поэтому чтения почти всегда попадают.';
+        if(down) downFail('anna', 'GET product:42', 'Чтение идёт через кеш, запасного пути нет.');
+        else hit('anna', 1200, 'ans', {why1:'Цену когда-то записали через кеш — она там.', why2:'Промахов почти нет: запись сама наполняет кеш.'});
+      } else { intro = 'В базе и в кеше 1 200 ₽. Маркетолог ставит 1 500 ₽. Запись идёт через кеш и синхронно в базу.';
+        if(down) downFail('mk', 'PUT product:42 = 1500', 'Запись идёт через кеш. Без него записать нельзя — зато и расхождения нет.', 'mk');
+        else {
+          add('app','cache','PUT product:42 = 1500',{c:'mk', ms:1, set:{cache:{v:1500, ttl:'5:00'}}, th:{app:'пишу через кеш', cache:'принял 1 500 ₽'},
+            what:'Сервис отдаёт запись кешу.', why:'В write-through кеш стоит на пути записи.'});
+          add('cache','db','UPDATE price = 1500',{c:'mk', ms:d, db:1, set:{db:1500}, ev:'dbw', th:{cache:'пишу в базу и жду', db:'записываю 1 500 ₽'},
+            what:'Кеш <b>синхронно</b> пишет в базу и ждёт ответа.', why:'Пока база не подтвердила, «готово» никто не получит. Поэтому кеш и база не расходятся.' + (f === 'slow' ? ' <b>Но маркетолог ждёт все 900 мс:</b> write-through платит за запись задержкой обоих хранилищ.' : '')});
+          add('db','cache','OK',{c:'mk', th:{db:'готово'}, what:'База подтвердила.', why:'Теперь 1 500 ₽ и в кеше, и в базе.'});
+          add('cache','app','OK',{c:'mk', th:{app:'записано везде'}, what:'Кеш подтверждает приложению.', why:'Обе записи сделаны одним действием.'});
+          fin('mk', 0, {c:'mk', ev:'ack', kind:'ok', what:'Маркетолог получил «готово».', why:'Он ждал и кеш, и базу. Надёжно, но запись медленнее.'});
+          hit('anna', 1500, 'fresh', {why1:'Анна открывает карточку сразу после изменения.', why2:'Новая цена уже в кеше: её туда положила сама запись.', why3:'Никакого окна со старой ценой.'});
+        }
+      }
+    }
+    if(k === 'wb'){
+      if(op === 'read'){ intro = 'Чтение при write-behind простое: свежие данные лежат в кеше.';
+        if(down) downFail('anna', 'GET product:42', 'Чтение идёт через кеш. А хуже всего то, что с кешем пропал и буфер несохранённых записей.');
+        else hit('anna', 1200, 'ans', {why2:'В кеше самые свежие данные — свежее, чем в базе.'});
+      } else { intro = 'В базе и в кеше 1 200 ₽. Маркетолог ставит 1 500 ₽. Кеш отвечает сразу, в базу пишет потом, пачкой.';
+        if(down) downFail('mk', 'SET product:42 = 1500', 'Запись принимает кеш. Без него — ошибка.', 'mk');
+        else {
+          add('app','cache','SET product:42 = 1500',{c:'mk', ms:1, set:{cache:{v:1500, ttl:'—'}}, th:{app:'пишу в кеш', cache:'принял 1 500 ₽'},
+            what:'Сервис пишет только в кеш: 1 мс.', why:'Никакой базы на пути записи.'});
+          add('cache','q','в буфер: 42 → 1500',{c:'mk', set:{q:['42 → 1 500 ₽']}, th:{cache:'отложу запись в базу', q:'1 запись ждёт сброса'},
+            what:'Запись кладётся в буфер, который сбросится в базу позже.', why:'Буфер живёт в памяти кеша. Это главное место риска.'});
+          add('cache','app','ACK',{c:'mk', kind:'ok', th:{app:'кеш сказал «принято»'}, what:'Кеш сразу подтверждает запись.', why:'Подтверждение приходит <b>до</b> записи в базу. Отсюда и скорость, и риск.'});
+          fin('mk', 0, {c:'mk', ev:'ack', kind:'ok', what:'Маркетолог получил «готово» через 1 мс.', why:'Самая быстрая запись из всех пяти стратегий.'});
+          if(f === 'crash'){
+            add('cache','cache','💥 Redis упал',{c:'bg', kind:'bad', set:{dead:true, lost:true}, th:{cache:'💥 перезапуск без сохранения', q:'запись была только в памяти…'},
+              what:'Redis перезапустился без сохранения на диск. Буфер с записью «42 → 1 500 ₽» был только в памяти.', why:'Маркетологу уже сказали «готово». Обещание дано, а данных нет нигде.'});
+            add('cache','cache','♻ поднялся пустым',{c:'bg', kind:'bad', set:{dead:false, lost:false, q:[], cache:null}, th:{cache:'я пустой', q:'пусто'},
+              what:'Кеш поднялся пустым. Буфер пропал вместе с ним.', why:'В базе по-прежнему 1 200 ₽. Изменение маркетолога потеряно <b>навсегда</b>.'});
+            add('app','cache','GET product:42',{c:'anna', ms:1, th:{app:'спрошу кеш', cache:'пусто'}, what:'Анна открывает карточку.', why:'Кеш пустой после перезапуска.'});
+            add('cache','app','MISS',{c:'anna', kind:'bad', th:{app:'иду в базу'}, what:'Промах.', why:'Придётся читать базу.'});
+            add('app','db','SELECT price … id=42',{c:'anna', ms:d, db:1, th:{db:'читаю строку 42'}, what:'Сервис читает базу.', why:'А в базе старая цена.'});
+            add('db','app',rub(1200),{c:'anna', kind:'bad', th:{db:'тут 1 200 ₽'}, what:'База отдаёт 1 200 ₽.', why:'Новая цена туда так и не дошла.'});
+            fin('anna', 1200, {c:'anna', kind:'bad', what:'Анна видит <b>старую</b> цену 1 200 ₽, хотя маркетолог получил «готово».', why:'Вот почему write-behind никогда не используют для денег, заказов и остатков. Для счётчиков просмотров потеря пары секунд терпима.'});
+          } else {
+            hit('anna', 1500, 'fresh', {why1:'Анна открывает карточку, пока буфер ещё не сброшен.', why2:'Анна видит 1 500 ₽ из кеша, хотя в базе всё ещё 1 200 ₽.', why3:'Кеш свежее базы. Отчёты, построенные по базе, пока неверны.'});
+            add('q','q','⏱ прошло 5 секунд',{c:'bg', ms:5000, th:{q:'пора сбрасывать'}, what:'Раз в 5 секунд буфер сбрасывается в базу.', why:'Все 5 секунд подтверждённая запись существовала только в памяти.'});
+            add('q','db','UPDATE … пачкой',{c:'bg', ms:d, db:1, set:{db:1500, q:[]}, ev:'dbw', th:{q:'сбрасываю пачку', db:'записываю пачку'},
+              what:'Буфер пишет накопленное в базу одним запросом.', why:'Одна пачка вместо сотен отдельных запросов — огромная экономия для базы.' + (f === 'slow' ? ' База тормозит, но <b>никто из людей этого не ждёт</b>: сброс идёт в фоне.' : '')});
+            add('db','q','OK',{c:'bg', kind:'ok', th:{db:'готово'}, what:'Теперь 1 500 ₽ и в базе.', why:'Окно риска закрылось — до следующей записи.'});
+          }
+        }
+      }
+    }
+    if(k === 'ra'){
+      if(op === 'read'){ intro = 'Срок жизни записи ещё далёк от конца. Обычное попадание.';
+        if(down) downFail('anna', 'GET product:42', 'Чтение идёт через кеш, как в read-through.');
+        else hit('anna', 1200, 'ans', {why2:'До конца срока далеко, обновлять рано.'});
+      } else if(op === 'expire'){ init.cache = {v:1200, ttl:'0:40'}; init.db = 1250;
+        intro = 'Ночью цену поменял импорт: в базе 1 250 ₽, в кеше ещё 1 200 ₽, и срок записи почти вышел (осталось 40 с из 5 минут).';
+        if(down) downFail('anna', 'GET product:42', 'Чтение идёт через кеш, как в read-through.');
+        else {
+          add('app','cache','GET product:42',{c:'anna', ms:1, th:{app:'спрошу кеш', cache:'срок почти вышел!'}, what:'Анна открывает карточку.', why:'Прошло больше 75 % срока жизни записи — это порог обновления.'});
+          add('cache','app','1200 ₽ (сразу)',{c:'anna', kind:'warn', th:{cache:'отдам старое сразу, освежу в фоне'}, what:'Кеш <b>сразу</b> отдаёт текущее значение.', why:'Анна не ждёт базу ни миллисекунды. Цена чуть старая — это осознанная цена скорости.'});
+          fin('anna', 1200, {c:'anna', ev:'ans', kind:'warn', what:'Анна получила 1 200 ₽ за 1 мс.', why:'Промаха не было вовсе.'});
+          add('cache','db','SELECT … (в фоне)',{c:'bg', ms:d, db:1, th:{cache:'обновляю заранее', db:'читаю строку 42'},
+            what:'В фоне кеш сам идёт за свежим значением.', why:'Никто этого не ждёт.' + (f === 'slow' ? ' База тормозит 900 мс, но пользователи этого не замечают.' : '')});
+          add('db','cache',rub(1250),{c:'bg', th:{db:'тут 1 250 ₽'}, what:'База отдаёт свежую цену.', why:'Источник правды.'});
+          add('cache','cache','обновил · TTL 5:00',{c:'bg', ms:1, set:{cache:{v:1250, ttl:'5:00'}}, th:{cache:'свежее на 5 минут'}, what:'Запись обновлена, срок продлён.', why:'Запись ни на секунду не пропадала из кеша — значит, промаха и лавины не будет.'});
+          hit('anna2', 1250, 'fresh', {why1:'Следующий покупатель открывает карточку.', why2:'Уже новая цена.', why3:'Ни один человек не ждал похода в базу.'});
+        }
+      } else { intro = 'Refresh-ahead — стратегия чтения. Посмотрим, что будет, если при записи не удалить ключ.';
+        writeInval(true);
+        if(down) downFail('anna', 'GET product:42', 'Чтение идёт через кеш.');
+        else {
+          hit('anna', 1200, null, {stale:true, cth:'1 200 ₽, срок не вышел', why1:'Анна открывает карточку сразу после изменения.', why2:'Кеш не знает, что база изменилась.', what:'Анна видит <b>старую</b> цену 1 200 ₽.', why3:'Поэтому refresh-ahead совмещают с удалением ключа при записи.'});
+          add('cache','cache','⏱ ~4 минуты: пора освежить',{c:'bg', ms:240000, th:{cache:'прошло 75 % срока'}, what:'Прошло 75 % срока записи.', why:'Всё это время покупатели видели старую цену.'});
+          add('cache','db','SELECT … (в фоне)',{c:'bg', ms:d, db:1, th:{cache:'обновляю заранее', db:'читаю строку 42'}, what:'Фоновое обновление.', why:'Никто не ждёт.'});
+          add('db','cache',rub(1500),{c:'bg', th:{db:'тут 1 500 ₽'}, what:'Свежая цена.', why:'Источник правды.'});
+          add('cache','cache','обновил · TTL 5:00',{c:'bg', ms:1, set:{cache:{v:1500, ttl:'5:00'}}, th:{cache:'свежее'}, what:'Запись обновлена.', why:'С этого момента все видят 1 500 ₽.'});
+          hit('anna2', 1500, 'fresh', {why1:'Следующий покупатель.', why2:'Уже новая цена.'});
+        }
+      }
+    }
+    return {init, steps:L, intro, op, f};
+  }
+
+  const SUM = {
+    ca:{who:'Приложение само читает базу и само кладёт в кеш. Кеш — пассивная полка.', r:'промах: время базы; попадание: 1 мс', w:'время базы + удаление ключа', st:'низкий: ключ удаляют при записи, остаётся короткое окно гонки', loss:'нет: база — источник правды', when:'по умолчанию, почти всегда', lib:'Библиотекарь сам ходит в подвал и сам оставляет книгу на столе.'},
+    rt:{who:'В базу ходит сам кеш через загрузчик. Приложение про базу не знает.', r:'как cache-aside; одновременные промахи схлопываются', w:'не описывает запись — её делают отдельно', st:'как у выбранной стратегии записи', loss:'нет', when:'одни данные читаются из многих мест, нужен один загрузчик', lib:'Вы говорите только с помощником у стойки, в подвал ходит он.'},
+    wt:{who:'Запись идёт через кеш и синхронно в базу.', r:'почти всегда 1 мс', w:'медленнее всех: ждём и кеш, и базу', st:'минимальный', loss:'нет: «готово» только после записи в базу', when:'читают сразу после записи: профиль, настройки, корзина', lib:'Записали в ежедневник и тут же продиктовали в общий журнал.'},
+    wb:{who:'Кеш принимает запись и сам сбрасывает её в базу пачками.', r:'1 мс; видно даже то, чего ещё нет в базе', w:'быстрее всех: ~1 мс', st:'база отстаёт на интервал сброса', loss:'<b>есть</b>: падение кеша до сброса теряет подтверждённое', when:'счётчики, лайки, метрики. Никогда — деньги и заказы', lib:'Официант пишет заказы в блокнот, в кассу переносит раз в час.'},
+    ra:{who:'Кеш сам освежает горячие ключи до конца срока.', r:'всегда ~1 мс, промахов почти нет', w:'не про запись: без удаления ключа старое живёт до обновления', st:'значение всегда чуть старое', loss:'нет', when:'горячие и дорогие ключи: курсы, конфигурация, главная', lib:'Покупаете молоко сегодня, хотя старое кончится послезавтра.'},
+  };
+
+  /* ─── геометрия схемы ─── */
+  const POS = {app:{x:10, y:92, w:170, h:92}, cache:{x:238, y:8, w:200, h:118}, db:{x:478, y:128, w:172, h:118}, q:{x:238, y:188, w:200, h:76}};
+  const C = {}; Object.keys(POS).forEach(n => { const p = POS[n]; C[n] = {x:p.x + p.w / 2, y:p.y + p.h / 2}; });
+  const EDGES = [['app','cache'], ['app','db'], ['cache','db'], ['cache','q'], ['q','db']];
+  const ekey = (a, b) => [a, b].sort().join('-');
+  const ACT = {app:'⚙️ App', cache:'⚡ Cache', db:'🗄 DB', q:'📥 Буфер'};
+  const IDLE = {app:'жду запроса', cache:'храню копии', db:'храню правду', q:'коплю записи'};
+
+  const stage = el('chx-sx-stage');
+  stage.innerHTML = '<svg viewBox="0 0 660 272" aria-hidden="true">' +
+    EDGES.map(e => '<line data-e="' + ekey(e[0], e[1]) + '" x1="' + C[e[0]].x + '" y1="' + C[e[0]].y + '" x2="' + C[e[1]].x + '" y2="' + C[e[1]].y + '"></line>').join('') + '</svg>' +
+    Object.keys(POS).map(n => '<div class="chx-sx-n" id="chx-sx-n-' + n + '" style="left:' + POS[n].x + 'px;top:' + POS[n].y + 'px;width:' + POS[n].w + 'px;height:' + POS[n].h + 'px"></div>').join('') +
+    '<div class="chx-sx-pk" id="chx-sx-pk" hidden></div>';
+
+  let k = 'ca', op = 'read', f = 'none', sc = gen(k, op, f), i = 0, sp = 1, timer = null;
+  const done = new Set();
+
+  function stateAt(n){
+    const s = JSON.parse(JSON.stringify(sc.init));
+    for(let j = 0; j < n; j++){ const st = sc.steps[j]; if(st.set) Object.assign(s, JSON.parse(JSON.stringify(st.set))); }
+    return s;
+  }
+  function nodeHTML(n, s, st, prev){
+    const hasQ = k === 'wb';
+    let head = '', kv = '';
+    if(n === 'app'){ head = '⚙️ Приложение<small>сервис</small>'; kv = '<div class="chx-sx-kv">' + (sc.op === 'read' || sc.op === 'expire' ? '👩 запрос Анны' : '🏷 маркетолог: 1 500 ₽') + '</div>'; }
+    if(n === 'cache'){ head = '⚡ Кеш<small>Redis · память</small>';
+      kv = '<div class="chx-sx-kv">' + (s.dead ? '<b style="color:var(--danger)">💥 недоступен</b>' : !s.cache ? '<span class="emp">пусто</span>' :
+        'product:42 → <b' + (prev.cache && prev.cache.v !== s.cache.v || (!prev.cache && s.cache) ? ' class="chg"' : '') + '>' + rub(s.cache.v) + '</b><br><span class="emp">TTL ' + s.cache.ttl + '</span>') + '</div>'; }
+    if(n === 'db'){ head = '🗄 База<small>диск · products</small>';
+      kv = '<div class="chx-sx-kv">id <b>42</b> · price <b' + (prev.db !== s.db ? ' class="chg"' : '') + '>' + rub(s.db) + '</b></div>'; }
+    if(n === 'q'){ head = '📥 Буфер записи<small>в памяти кеша</small>';
+      kv = '<div class="chx-sx-kv">' + (s.q.length ? s.q.map(x => '<span class="' + (s.lost ? 'lost' : 'chg') + '">' + x + '</span>').join('<br>') : '<span class="emp">пусто</span>') + '</div>'; }
+    const th = st && st.th && st.th[n] ? st.th[n] : IDLE[n];
+    const node = el('chx-sx-n-' + n);
+    node.innerHTML = '<div class="h">' + head + '</div><div class="th">' + th + '</div>' + kv;
+    node.className = 'chx-sx-n' + (n === 'q' && !hasQ ? ' off' : '') + (n === 'cache' && s.dead ? ' dead' : '') +
+      (st && (st.from === n || st.to === n) ? (st.kind === 'bad' ? ' bad' : ' on') : '');
+    node.style.display = (n === 'q' && !hasQ) ? 'none' : '';
+  }
+  function fly(st, animate){
+    const pk = el('chx-sx-pk');
+    if(!st){ pk.hidden = true; return; }
+    pk.hidden = false;
+    pk.textContent = st.lab;
+    pk.className = 'chx-sx-pk' + (st.kind ? ' ' + st.kind : '');
+    const a = C[st.from], b = C[st.to];
+    pk.style.transition = 'none';
+    if(st.from === st.to){ pk.style.left = a.x + 'px'; pk.style.top = (POS[st.from].y + (st.from === 'q' ? POS.q.h + 12 : -2)) + 'px'; return; }
+    const end = {x:a.x + (b.x - a.x) * 0.72, y:a.y + (b.y - a.y) * 0.72};
+    if(!animate || reduced()){ const m = {x:(a.x + b.x) / 2, y:(a.y + b.y) / 2}; pk.style.left = m.x + 'px'; pk.style.top = m.y + 'px'; return; }
+    pk.style.left = a.x + 'px'; pk.style.top = a.y + 'px';
+    void pk.offsetWidth;
+    const dur = Math.round(700 / sp);
+    pk.style.transition = 'left ' + dur + 'ms ease-in-out, top ' + dur + 'ms ease-in-out';
+    pk.style.left = end.x + 'px'; pk.style.top = end.y + 'px';
+  }
+  function seqHTML(){
+    const actors = k === 'wb' ? ['app','cache','q','db'] : ['app','cache','db'];
+    const n = actors.length, col = a => (actors.indexOf(a) + 0.5) / n * 100;
+    return '<div class="chx-sx-sh">' + actors.map(a => '<div>' + ACT[a] + '</div>').join('') + '</div>' +
+      '<div class="chx-sx-sb">' + actors.map(a => '<div class="chx-sx-ll" style="left:' + col(a) + '%"></div>').join('') +
+      sc.steps.map((st, j) => {
+        const cls = 'chx-sx-r' + (j + 1 === i ? ' now' : j + 1 > i ? ' fut' : '') + (st.kind === 'bad' ? ' bad' : '');
+        let line, tx;
+        if(st.from === st.to){
+          line = '<div class="ln self" style="left:' + col(st.from) + '%"></div>';
+          tx = '<div class="tx" style="left:calc(' + col(st.from) + '% + 36px);transform:none">' + esc(st.lab) + '</div>';
+        } else {
+          const x1 = col(st.from), x2 = col(st.to), l = Math.min(x1, x2), w = Math.abs(x2 - x1);
+          const back = actors.indexOf(st.to) < actors.indexOf(st.from);
+          line = '<div class="ln ' + (x2 > x1 ? 'r' : 'l') + (back ? ' back' : '') + '" style="left:' + l + '%;width:' + w + '%"></div>';
+          tx = '<div class="tx" style="left:' + (l + w / 2) + '%">' + esc(st.lab) + '</div>';
+        }
+        return '<div class="' + cls + '" data-s="' + (j + 1) + '"><span class="n">' + (j + 1) + '</span>' + line + tx + '</div>';
+      }).join('') + '</div>';
+  }
+  function meters(){
+    const upto = sc.steps.slice(0, i), sum = {};
+    let db = 0;
+    upto.forEach(st => { sum[st.c] = (sum[st.c] || 0) + st.ms; db += st.db; });
+    const used = [...new Set(sc.steps.map(st => st.c))];
+    const fmt = ms => ms >= 60000 ? Math.round(ms / 60000) + ' мин' : ms >= 1000 ? (ms / 1000).toLocaleString('ru-RU') + ' с' : ms + ' мс';
+    return used.map(c => '<span class="meter' + (c === 'bg' ? '' : ' good') + '">' + CLOCKS[c] + ': <b>' + (c in sum ? fmt(sum[c]) : '—') + '</b></span>').join('') +
+      '<span class="meter bad">Походов в базу: <b>' + db + '</b></span>';
+  }
+  function paint(animate){
+    const n = sc.steps.length, st = i ? sc.steps[i - 1] : null;
+    const s = stateAt(i), prev = stateAt(Math.max(0, i - 1));
+    ['app','cache','db','q'].forEach(nn => nodeHTML(nn, s, st, i ? prev : s));
+    stage.querySelectorAll('line').forEach(ln => {
+      const on = st && st.from !== st.to && ln.dataset.e === ekey(st.from, st.to);
+      ln.setAttribute('class', on ? (st.kind === 'bad' ? 'on bad' : st.kind === 'ok' ? 'on ok' : 'on') : '');
+      ln.style.display = (k !== 'wb' && /(^|-)q(-|$)/.test(ln.dataset.e)) ? 'none' : '';
+    });
+    fly(st, animate);
+    el('chx-sx-lab').textContent = 'шаг ' + i + ' из ' + n;
+    const tl = el('chx-sx-tl'); tl.max = n; tl.value = i; el('chx-sx-tl-v').textContent = i + ' / ' + n;
+    el('chx-sx-m').innerHTML = meters();
+    el('chx-sx-out').innerHTML = !st
+      ? '<div class="skout"><h4>' + NAMES[k] + ' · ' + OPS[sc.op] + (f !== 'none' ? ' · ' + FAULTS[f] : '') + '</h4><div class="note" style="margin:0">' + sc.intro + ' Нажмите «Дальше».</div></div>'
+      : '<div class="skout"><h4>Шаг ' + i + '. <code class="inl">' + esc(st.lab) + '</code>' + (st.ms ? ' <span style="font:600 12px var(--mono);color:var(--accent)">+' + (st.ms >= 60000 ? Math.round(st.ms / 60000) + ' мин' : st.ms >= 1000 ? st.ms / 1000 + ' с' : st.ms + ' мс') + '</span>' : '') + '</h4>' +
+        '<div class="lgrid"><b>что происходит</b><div>' + st.what + '</div><b>почему так</b><div>' + st.why + '</div></div></div>';
+    el('chx-sx-seq').innerHTML = seqHTML();
+    el('chx-sx-prev').disabled = i === 0;
+    el('chx-sx-next').disabled = i === n;
+    if(i === n && n && !done.has(k)){ done.add(k); Progress.report('chx-sx', done.size); }
+  }
+  function sumHTML(){
+    const x = SUM[k];
+    el('chx-sx-sum').innerHTML = '<div class="skout" style="margin-top:14px"><h4>Итог: ' + NAMES[k] + '</h4><div class="lgrid">' +
+      '<b>кто работает</b><div>' + x.who + '</div><b>чтение</b><div>' + x.r + '</div><b>запись</b><div>' + x.w + '</div>' +
+      '<b>устаревание</b><div>' + x.st + '</div><b>потеря данных</b><div>' + x.loss + '</div><b>когда брать</b><div>' + x.when + '</div>' +
+      '<b>в библиотеке</b><div>' + x.lib + '</div></div></div>';
+  }
+  function segs(){
+    el('chx-sx-k').innerHTML = KEYS.map(x => '<button data-k="' + x + '"' + (x === k ? ' class="on"' : '') + '>' + NAMES[x] + '</button>').join('');
+    el('chx-sx-op').innerHTML = opsFor(k).map(x => '<button data-op="' + x + '"' + (x === op ? ' class="on"' : '') + '>' + OPS[x] + '</button>').join('');
+    el('chx-sx-f').innerHTML = faultsFor(k).map(x => '<button data-f="' + x + '"' + (x === f ? ' class="on"' : '') + '>' + FAULTS[x] + '</button>').join('');
+  }
+  function rebuild(){
+    stop();
+    if(!opsFor(k).includes(op)) op = 'read';
+    if(!faultsFor(k).includes(f)) f = 'none';
+    if(f === 'crash') op = 'write';
+    sc = gen(k, op, f); i = 0;
+    segs(); sumHTML(); paint(false);
+  }
+  function go(n, animate){ i = Math.max(0, Math.min(sc.steps.length, n)); paint(animate); }
+  function stop(){ if(timer){ clearTimeout(timer); timer = null; } el('chx-sx-play').textContent = '▶ Проиграть'; }
+  function panelOn(){ const p = document.getElementById('cache'); return !p || p.classList.contains('active'); }
+  function tick(){
+    timer = null;
+    if(document.hidden || !panelOn()){ stop(); return; }
+    if(i >= sc.steps.length){ stop(); return; }
+    go(i + 1, true);
+    if(i >= sc.steps.length) stop(); else timer = setTimeout(tick, Math.round(1900 / sp));
+  }
+  el('chx-sx-k').addEventListener('click', e => { const b = e.target.closest('button[data-k]'); if(!b) return; k = b.dataset.k; rebuild(); });
+  el('chx-sx-op').addEventListener('click', e => { const b = e.target.closest('button[data-op]'); if(!b) return; op = b.dataset.op; if(f === 'crash') f = 'none'; rebuild(); });
+  el('chx-sx-f').addEventListener('click', e => { const b = e.target.closest('button[data-f]'); if(!b) return; f = b.dataset.f; rebuild(); });
+  el('chx-sx-next').addEventListener('click', () => { stop(); go(i + 1, true); });
+  el('chx-sx-prev').addEventListener('click', () => { stop(); go(i - 1, false); });
+  el('chx-sx-reset').addEventListener('click', () => { stop(); go(0, false); });
+  el('chx-sx-play').addEventListener('click', () => {
+    if(timer){ stop(); return; }
+    if(i >= sc.steps.length) go(0, false);
+    el('chx-sx-play').textContent = '⏸ Пауза';
+    tick();
+  });
+  el('chx-sx-sp').addEventListener('click', e => { const b = e.target.closest('button[data-sp]'); if(!b) return; sp = +b.dataset.sp;
+    [...el('chx-sx-sp').children].forEach(x => x.classList.toggle('on', x === b)); });
+  el('chx-sx-tl').addEventListener('input', e => { stop(); go(+e.target.value, false); });
+  el('chx-sx-seq').addEventListener('click', e => { const r = e.target.closest('.chx-sx-r'); if(!r) return; stop(); go(+r.dataset.s, false); });
+  box.addEventListener('keydown', e => {
+    if(e.target && /^(INPUT|SELECT|TEXTAREA)$/.test(e.target.tagName)) return;
+    if(e.key === 'ArrowRight'){ e.preventDefault(); stop(); go(i + 1, true); }
+    if(e.key === 'ArrowLeft'){ e.preventDefault(); stop(); go(i - 1, false); }
+  });
+  document.addEventListener('visibilitychange', () => { if(document.hidden) stop(); });
+  document.addEventListener('click', e => { if(e.target.closest && e.target.closest('.tab')) stop(); });
+  Progress.register('chx-sx', 5, 'Кеш: пять стратегий вживую');
+  rebuild();
+
+  /* ─── сравнение двух стратегий ─── */
+  const sa = el('chx-sx-ca'), sb = el('chx-sx-cb');
+  const opt = v => KEYS.map(x => '<option value="' + x + '"' + (x === v ? ' selected' : '') + '>' + NAMES[x] + '</option>').join('');
+  sa.innerHTML = opt('wt'); sb.innerHTML = opt('wb');
+  let cop = 'write';
+  function times(g){
+    let t = 0; const ev = {}; let db = 0;
+    g.steps.forEach(st => { t += st.ms; db += st.db; if(st.ev && !(st.ev in ev)) ev[st.ev] = t; });
+    return {ev, db, total:t};
+  }
+  const fmtT = ms => ms == null ? 'никогда' : ms >= 60000 ? '≈ ' + Math.round(ms / 60000) + ' мин' : ms >= 1000 ? (ms / 1000).toLocaleString('ru-RU') + ' с' : ms + ' мс';
+  function cmp(){
+    const A = sa.value, B = sb.value;
+    const rows = cop === 'write'
+      ? [['ack','Маркетолог получил «готово»'], ['dbw','Новая цена реально в базе'], ['fresh','Анна видит новую цену']]
+      : [['ans','Анна получила цену'], ['ans2','Следующее чтение закончилось']];
+    const data = [A, B].map(x => ({x, g:times(gen(x, cop, 'none'))}));
+    let max = 1; data.forEach(dd => rows.forEach(r => { const v = dd.g.ev[r[0]]; if(v != null) max = Math.max(max, v); }));
+    const w = v => v == null ? 100 : Math.max(3, Math.log10(v + 1) / Math.log10(max + 1) * 100);
+    el('chx-sx-cmp').innerHTML = '<div class="chx-sx-cmp">' + data.map(dd =>
+      '<div class="box"><h4>' + NAMES[dd.x] + '</h4>' +
+      rows.map(r => { const v = dd.g.ev[r[0]]; return '<div class="chx-sx-ev' + (v == null ? ' never' : '') + '"><div class="t"><span>' + r[1] + '</span><b>' + (v == null ? (r[0] === 'ans2' ? 'нет в сценарии' : 'не описано') : 'через ' + fmtT(v)) + '</b></div><div class="bar"><i style="width:' + (v == null ? 0 : w(v)) + '%"></i></div></div>'; }).join('') +
+      '<p class="bs" style="margin:10px 0 0">Походов в базу: <b>' + dd.g.db + '</b>. Потеря данных: ' + SUM[dd.x].loss + '.</p></div>').join('') + '</div>' +
+      '<div class="note">' + (cop === 'write'
+        ? 'Главное различие стратегий записи — <b>что происходит раньше: «готово» или запись в базу</b>. Если «готово» раньше базы (write-behind), запись быстрая, но есть окно, в котором данные живут только в памяти. Если позже (write-through, cache-aside), запись медленнее, зато надёжна. Для стратегий чтения «новая цена в базе» — это запись самого приложения.'
+        : 'Для чтения всё решает, что лежит в кеше в момент запроса. Ленивые стратегии (cache-aside, read-through) платят за первый промах. Стратегии, которые наполняют кеш заранее (write-through, write-behind, refresh-ahead), отвечают за 1 мс сразу.') + '</div>';
+    [...el('chx-sx-cop').children].forEach(b => b.classList.toggle('on', b.dataset.op === cop));
+  }
+  sa.addEventListener('change', cmp); sb.addEventListener('change', cmp);
+  el('chx-sx-cop').addEventListener('click', e => { const b = e.target.closest('button[data-op]'); if(!b) return; cop = b.dataset.op; cmp(); });
+  cmp();
 })();
 </script>
 
