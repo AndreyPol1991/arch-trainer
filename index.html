@@ -25566,10 +25566,123 @@ bonus = parseInt(c.BAL, 10) / 100;                <span class="cm">// копей
 </script>
 <!-- ==================== ДЕЖУРНЫЙ ==================== -->
 <section class="panel" id="duty" data-accent="nt" role="tabpanel">
-  <p class="lead">Ночь. Вы дежурный. Приходит алерт. У вас есть симптомы и четыре кнопки — надо выбрать, что делать <b>первым</b>. Каждое решение стоит минут простоя. Задача — не набрать баллы, а <b>потерять поменьше времени</b>.</p>
+  <p class="lead"><b>Этот раздел — одна история.</b> Ночь, три часа. У Анны не проходит оплата, а у Игоря звонит телефон: он на этой неделе дежурный. Проследим эту ночь от первой ошибки до утреннего разбора, а потом вы сами сядете на место дежурного. Идите по главам по порядку: каждая опирается на предыдущую.</p>
 
-  <div class="card">
-    <h2><span class="tag">игра</span> смена дежурного — 8 инцидентов</h2>
+  <div class="card" id="dux-map-card">
+    <h2><span class="tag">карта раздела</span> куда мы идём</h2>
+    <div class="dux-map" id="dux-map">
+      <button data-jump="dux-c1"><b>1</b>Что такое дежурство</button>
+      <button data-jump="dux-c2"><b>2</b>Ночь Анны: пошагово</button>
+      <button data-jump="dux-c3"><b>3</b>Если дежурный не проснулся</button>
+      <button data-jump="dux-c4"><b>4</b>Какой алерт должен будить</button>
+      <button data-jump="dux-c5"><b>5</b>Жгут, а не операция</button>
+      <button data-jump="dux-c6"><b>6</b>Первые 15 минут: ведёте вы</button>
+      <button data-jump="dux-c7"><b>7</b>Смена из 8 инцидентов</button>
+      <button data-jump="dux-c8"><b>8</b>Утро: разбор без виноватых</button>
+      <button data-jump="dux-c9"><b>9</b>Чтобы дежурные не выгорали</button>
+      <button data-jump="dux-c10"><b>10</b>Проверьте себя</button>
+    </div>
+  </div>
+
+  <!-- ═══ Глава 1 ═══ -->
+  <div class="card" id="dux-c1">
+    <h2><span class="tag">глава 1 · определение</span> что такое дежурство и зачем оно</h2>
+    <div class="dux-def"><b>Дежурство</b> (on-call, «на связи») — это договорённость в команде: в каждый момент времени, даже ночью и в выходные, есть <b>один конкретный человек</b>, который отвечает за работающую систему. Если что-то сломалось, будят именно его, и он решает, что делать.</div>
+    <p style="margin-top:14px"><b>Житейская аналогия — дежурный врач в больнице.</b> Ночью в больнице нет всех врачей сразу, но есть один дежурный. Ему звонят, если пациенту стало плохо. Он не делает сложных операций на плановом уровне — он стабилизирует пациента и дожидается утра, когда придёт вся команда.</p>
+    <p>Прежде чем идти дальше, четыре слова. Они будут встречаться в каждой главе.</p>
+    <div class="dux-gl">
+      <div class="dux-gi"><b>Инцидент</b>Любая ситуация, когда система работает хуже, чем обещано клиентам. «Оплаты не проходят» — инцидент. «Один сервер перезагрузился, клиенты не заметили» — нет.</div>
+      <div class="dux-gi"><b>Мониторинг</b>Программа, которая каждые несколько секунд собирает цифры с сервисов: сколько запросов, сколько ошибок, как быстро отвечают. Как датчики в машине.</div>
+      <div class="dux-gi"><b>Алерт</b>Сигнал от мониторинга «нужен человек». Срабатывает, когда цифра вышла за заранее заданный порог. Как лампочка «проверь двигатель», только со звонком.</div>
+      <div class="dux-gi"><b>Пейджер</b>Сервис, который доставляет алерт нужному человеку: знает расписание дежурств и звонит тому, чья сейчас смена. Громко, даже в беззвучном режиме.</div>
+    </div>
+    <p style="margin-top:14px">Зачем всё это? Посмотрите на одну и ту же ночь в двух вариантах. В 02:58 в магазине сломались оплаты. Ночью магазин получает примерно 6 оплат в минуту, средний чек 3 200 ₽.</p>
+    <div class="seg" id="dux-cmp">
+      <button data-m="no" class="on">😴 Дежурного нет</button>
+      <button data-m="yes">📟 Дежурный есть</button>
+    </div>
+    <div id="dux-cmp-out"></div>
+  </div>
+
+  <!-- ═══ Глава 2 ═══ -->
+  <div class="card" id="dux-c2">
+    <h2><span class="tag">глава 2 · сквозной пример</span> ночь Анны: от ошибки до разбора</h2>
+    <p>Герои этой ночи. <b>Анна</b> — клиентка, покупает подарок на распродаже. <b>Игорь</b> — разработчик, на этой неделе основной дежурный. <b>Марина</b> — запасная дежурная. <b>Олег</b> — руководитель команды. Нажимайте «Дальше»: на схеме подсветится, где сейчас происходит действие, ниже — данные этого шага и объяснение, почему всё сделано именно так.</p>
+    <div class="dux-sch"><div class="dux-lanes" id="dux-lanes"></div></div>
+    <div class="dux-tl" id="dux-tl"></div>
+    <div class="meters" id="dux-met"></div>
+    <div class="form-row">
+      <button class="ghost" id="dux-prev">← Назад</button>
+      <button class="act" id="dux-next">Дальше →</button>
+      <button class="ghost" id="dux-play">▶ Проиграть сам</button>
+      <span class="skstep" id="dux-lab"></span>
+    </div>
+    <div id="dux-out"></div>
+  </div>
+
+  <!-- ═══ Глава 3 ═══ -->
+  <div class="card" id="dux-c3">
+    <h2><span class="tag">глава 3 · эскалация</span> что будет, если Игорь не проснётся</h2>
+    <p>В шаге 5 Игорь подтвердил алерт через три минуты. А если бы он крепко спал или телефон сел? Для этого есть <b>эскалация</b> — заранее записанная лестница: кому звонить, если предыдущий не ответил за отведённое время.</p>
+    <p><b>Аналогия — эстафета.</b> Если бегун не взял палочку, её не бросают на дорожку: её берёт следующий. Никто не решает это в моменте — порядок известен до старта.</p>
+    <div class="slider-row"><label for="dux-es">Игорь не отвечает</label><input type="range" id="dux-es" min="0" max="20" step="1" value="0"><span class="sv" id="dux-es-v">0 мин</span></div>
+    <div class="steps" id="dux-es-out"></div>
+    <div class="note" id="dux-es-say" style="margin-top:12px"></div>
+  </div>
+
+  <!-- ═══ Глава 4 ═══ -->
+  <div class="card" id="dux-c4">
+    <h2><span class="tag">глава 4 · хороший алерт</span> что должно будить человека ночью</h2>
+    <p>В ночи Анны алерт был правильным: он сработал на то, что <b>клиенты не могут заплатить</b>. Это называется алерт на <b>симптом</b> — на то, что чувствует пользователь. Противоположность — алерт на <b>причину</b>: «процессор загружен на 90 %». Процессор может быть загружен, а клиенты при этом довольны.</p>
+    <p><b>Аналогия — пожарная сигнализация.</b> Если она воет от каждого подгоревшего тоста, через неделю её отключат батарейкой. Так же и с алертами: если будить дежурного по пустякам, он привыкнет их игнорировать и пропустит настоящий пожар. Это называют <b>усталостью от алертов</b>.</p>
+    <p>Правило простое. Будить ночью — только если <b>клиенты страдают сейчас</b> или <b>будут страдать до утра</b>. Всё, что может подождать, — задача в трекере на утро. Всё, что не требует действий, — просто график. Разложите:</p>
+    <p>Разложено верно: <b id="dux-sort">0</b> из <span id="dux-sort-t">0</span>.</p>
+    <div id="dux-sort-root"></div>
+  </div>
+
+  <!-- ═══ Глава 5 ═══ -->
+  <div class="card" id="dux-c5">
+    <h2><span class="tag">глава 5 · главное правило</span> жгут, а не операция</h2>
+    <p>Вспомните шаг 8: Игорь не искал сломанную строку кода — он откатил версию. У дежурного два разных действия, и путать их нельзя.</p>
+    <div class="grid2">
+      <div class="box"><h4 style="margin:0 0 6px">🩹 Смягчение (mitigation)</h4><p style="margin:0;font-size:14px">Быстро убрать боль клиентов, не разбираясь в причине. Откат, выключение функции флагом, перевод трафика в другое место. Минуты. Делается ночью.</p></div>
+      <div class="box"><h4 style="margin:0 0 6px">🔧 Исправление (fix)</h4><p style="margin:0;font-size:14px">Найти настоящую причину и устранить её в коде или настройках, чтобы не повторилось. Часы или дни. Делается днём, с ревью и тестами.</p></div>
+    </div>
+    <p style="margin-top:14px"><b>Аналогия — врач скорой помощи.</b> На месте аварии он накладывает жгут и везёт в больницу. Он не делает операцию на обочине: там нет света, инструментов и второго хирурга. Операция будет утром, в операционной. Дежурный ночью — врач скорой, а не хирург.</p>
+    <div class="table-wrap"><table class="db">
+      <thead><tr><th>Вопрос</th><th>Смягчение</th><th>Исправление</th></tr></thead>
+      <tbody>
+        <tr><td>Цель</td><td>Клиенты снова могут пользоваться</td><td>Больше не повторится</td></tr>
+        <tr><td>Нужно знать причину?</td><td>Нет, достаточно знать место</td><td>Да, точно</td></tr>
+        <tr><td>Новый код?</td><td>Нет, только готовые рычаги</td><td>Да</td></tr>
+        <tr><td>Когда</td><td>Сразу, хоть в 3 ночи</td><td>Утром, после разбора</td></tr>
+        <tr><td>В ночи Анны</td><td>Откат на v2.13</td><td>Тест формата суммы, канареечная выкатка</td></tr>
+      </tbody>
+    </table></div>
+    <p style="margin-top:14px">Из этого принципа вытекают четыре правила, по которым живёт любой дежурный. Нажмите на правило, чтобы раскрыть объяснение.</p>
+    <div id="dt-rules" class="numlist"></div>
+  </div>
+
+  <!-- ═══ Глава 6 ═══ -->
+  <div class="card" id="dux-c6">
+    <h2><span class="tag">глава 6 · тренажёр развилок</span> первые 15 минут: ведёте вы</h2>
+    <p>Теперь вы на месте дежурного. Другая ночь, другая авария. Каждое решение двигает часы и ведёт по своей ветке — как в книге-игре. Справа копится журнал ваших действий: ровно то, что потом прочтут на разборе.</p>
+    <div class="meters">
+      <span class="meter wq">Время: <b id="dux-q-clock">01:40</b></span>
+      <span class="meter bad">Клиенты с ошибками: <b id="dux-q-pain">0</b> мин</span>
+      <span class="meter good">Удачных решений: <b id="dux-q-ok">0</b></span>
+    </div>
+    <div class="dux-qg">
+      <div id="dux-q-root"></div>
+      <div><div class="dux-h">📓 Журнал в канале инцидента</div><div class="dux-log" id="dux-q-log"></div></div>
+    </div>
+    <div class="form-row"><button class="ghost" id="dux-q-reset">Начать эту ночь заново</button></div>
+  </div>
+
+  <!-- ═══ Глава 7 ═══ -->
+  <div class="card" id="dux-c7">
+    <h2><span class="tag">глава 7 · игра</span> смена дежурного — 8 инцидентов</h2>
+    <p>Разминка кончилась, начинается целая смена. Восемь вызовов подряд. У вас есть симптомы и четыре кнопки — надо выбрать, что делать <b>первым</b>. Каждое решение стоит минут простоя. Задача — не набрать баллы, а <b>потерять поменьше времени</b>. Подсказка: почти везде работает правило из главы 5.</p>
     <div class="meters">
       <span class="meter bad">Простой за смену: <b id="dt-min">0</b> мин</span>
       <span class="meter good">Верных решений: <b id="dt-ok">0</b></span>
@@ -25579,10 +25692,97 @@ bonus = parseInt(c.BAL, 10) / 100;                <span class="cm">// копей
     <div class="form-row"><button class="ghost" id="dt-reset">Начать смену заново</button></div>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">памятка</span> четыре правила дежурного</h2>
-    <div id="dt-rules" class="numlist"></div>
+  <!-- ═══ Глава 8 ═══ -->
+  <div class="card" id="dux-c8">
+    <h2><span class="tag">глава 8 · постмортем</span> утро: разбор без виноватых</h2>
+    <div class="dux-def"><b>Постмортем</b> (postmortem, «разбор после») — встреча и документ после инцидента: что случилось по минутам, почему система это допустила и что изменить, чтобы не повторилось. Главное правило — <b>без поиска виноватых</b> (blameless).</div>
+    <p style="margin-top:14px"><b>Аналогия — авиация.</b> После любого происшествия лётчики честно рассказывают, что сделали не так, и их за это не увольняют. Поэтому авиация учится на каждой ошибке и стала самым безопасным транспортом. Если бы пилотов наказывали, они бы молчали, и ошибки повторялись.</p>
+    <p>Почему нельзя просто найти виноватого? Человек ошибается всегда. Вопрос в том, почему ошибка <b>дошла до клиентов</b>: где были тесты, ревью, постепенная выкатка. «Игорь, будь внимательнее» ничего не меняет в системе — завтра ошибётся кто-то другой.</p>
+    <p>Вот черновик разбора ночи Анны. Что оставить, а что вычеркнуть?</p>
+    <p>Разобрано верно: <b id="dux-pm">0</b> из <span id="dux-pm-t">0</span>.</p>
+    <div id="dux-pm-root"></div>
   </div>
+
+  <!-- ═══ Глава 9 ═══ -->
+  <div class="card" id="dux-c9">
+    <h2><span class="tag">глава 9 · здоровье команды</span> чтобы дежурные не выгорали</h2>
+    <p>Дежурство — нагрузка. Каждый ночной звонок — это сломанный сон и хуже работа на следующий день. Нагрузку делят через <b>ротацию</b>: дежурят по очереди, обычно по неделе. <b>Аналогия — график медсестёр:</b> если в отделении две медсестры, каждая работает через ночь и через месяц уходит на больничный.</p>
+    <p>Подвигайте ползунки и посмотрите, как размер команды и шум алертов меняют жизнь дежурного.</p>
+    <div class="slider-row"><label for="dux-hl-n">Людей в ротации</label><input type="range" id="dux-hl-n" min="2" max="10" step="1" value="4"><span class="sv" id="dux-hl-nv">4</span></div>
+    <div class="slider-row"><label for="dux-hl-a">Ночных звонков в неделю</label><input type="range" id="dux-hl-a" min="0" max="30" step="1" value="6"><span class="sv" id="dux-hl-av">6</span></div>
+    <div class="dux-h" style="margin-top:12px">Кто дежурит ближайшие 12 недель</div>
+    <div class="dux-cal" id="dux-hl-cal"></div>
+    <div class="meters" id="dux-hl-met"></div>
+    <div id="dux-hl-say"></div>
+  </div>
+
+  <!-- ═══ Глава 10 ═══ -->
+  <div class="card" id="dux-c10">
+    <h2><span class="tag">глава 10 · задание</span> проверьте себя</h2>
+    <p>Шесть вопросов по всей истории. Решено: <b id="dux-quiz">0</b> из <span id="dux-quiz-t">0</span>.</p>
+    <div id="dux-quiz-root"></div>
+    <div class="note good" style="margin-top:14px"><b>Коротко весь раздел.</b> Дежурный — один конкретный человек на связи. Его будит алерт на симптом, а не на причину. Он подтверждает алерт, спрашивает «что поменялось», пишет в канал инцидента и накладывает жгут: откат, флаг, перевод трафика. Исправление — утром. Разбор — без виноватых, про систему. А чтобы всё это работало годами, дежурных должно быть достаточно, а алертов — мало.</div>
+  </div>
+
+  <style>
+    .dux-map{display:flex; flex-wrap:wrap; gap:7px}
+    .dux-map button{appearance:none; border:1px solid var(--line); background:var(--surface-2); color:var(--ink); font:600 12.5px var(--sans); padding:7px 12px; border-radius:18px; cursor:pointer}
+    .dux-map button:hover{border-color:var(--accent)}
+    .dux-map button b{color:var(--accent); font-family:var(--mono); margin-right:6px}
+    .dux-def{font-size:15.5px; line-height:1.55; border:2px solid var(--accent); border-radius:12px; padding:14px 16px; background:color-mix(in srgb, var(--accent) 7%, var(--surface)); color:var(--ink)}
+    .dux-gl{display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:10px}
+    @media (max-width:900px){.dux-gl{grid-template-columns:1fr 1fr}}
+    @media (max-width:520px){.dux-gl{grid-template-columns:1fr}}
+    .dux-gi{border:1px solid var(--line); border-radius:10px; background:var(--surface-2); padding:10px 12px; font-size:13px; line-height:1.45; color:var(--muted)}
+    .dux-gi b{display:block; color:var(--ink); font-size:14px; margin-bottom:4px}
+    .dux-h{font:700 13.5px var(--sans); margin:0 0 8px; color:var(--ink)}
+    .dux-sch{overflow-x:auto; margin-top:12px; padding:6px 2px}
+    .dux-lanes{min-width:720px; display:flex; flex-direction:column; gap:10px}
+    .dux-lane{display:flex; align-items:stretch; gap:0}
+    .dux-ll{flex:none; width:96px; font:600 11px var(--mono); color:var(--faint); display:flex; align-items:center}
+    .dux-n{flex:1; border:1.5px solid var(--line); border-radius:10px; padding:8px 6px; background:var(--surface-2); font:600 12px/1.3 var(--sans); text-align:center; color:var(--ink); transition:border-color .25s, box-shadow .25s, transform .25s, background .25s}
+    .dux-n small{display:block; font:500 10.5px var(--mono); color:var(--faint); margin-top:3px}
+    .dux-n.now{border-color:var(--accent); box-shadow:0 0 0 4px color-mix(in srgb, var(--accent) 22%, transparent); transform:scale(1.04)}
+    .dux-n.bad{border-color:var(--danger); background:var(--danger-bg)}
+    .dux-n.good{border-color:var(--ok); background:var(--ok-bg)}
+    .dux-n.bad.now{box-shadow:0 0 0 4px color-mix(in srgb, var(--danger) 22%, transparent)}
+    .dux-ar{flex:none; width:26px; display:flex; align-items:center; justify-content:center; color:var(--faint); font:700 15px var(--mono)}
+    .dux-tl{display:flex; gap:4px; margin-top:12px; overflow-x:auto; padding-bottom:4px}
+    .dux-tl button{appearance:none; flex:1 0 54px; border:1px solid var(--line); border-top:4px solid var(--surface-3); background:var(--surface-2); color:var(--muted); font:600 11px var(--mono); padding:5px 2px; border-radius:6px; cursor:pointer}
+    .dux-tl button.pain{border-top-color:var(--danger)}
+    .dux-tl button.calm{border-top-color:var(--ok)}
+    .dux-tl button.now{color:var(--ink); border-color:var(--accent); border-top-width:4px; background:color-mix(in srgb, var(--accent) 10%, var(--surface))}
+    .dux-tl button.fut{opacity:.45}
+    .dux-d{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:12px; margin-top:12px}
+    @media (max-width:760px){.dux-d{grid-template-columns:1fr}}
+    .dux-d p{margin:0 0 8px; font-size:13.5px}
+    .dux-d pre.json{font-size:12px; margin:0; white-space:pre-wrap; word-break:break-word}
+    .dux-st{border:1px solid var(--line); border-left:3px solid var(--accent); border-radius:10px; padding:12px 14px; background:var(--surface-2); margin-top:12px}
+    .dux-st h4{margin:0 0 4px; font-size:15px}
+    .dux-st .dux-tm{font:700 12px var(--mono); color:var(--accent)}
+    .dux-chat{border:1px solid var(--line); border-radius:12px; background:var(--surface); padding:8px 10px; font-size:12.5px}
+    .dux-chat div{padding:4px 0; border-bottom:1px dashed var(--line)}
+    .dux-chat div:last-child{border-bottom:0}
+    .dux-chat b{font-family:var(--mono); color:var(--accent); margin-right:6px}
+    .dux-bar{display:flex; align-items:center; gap:8px; font:500 12px var(--mono); margin:3px 0}
+    .dux-bar i{display:block; height:10px; border-radius:3px; background:var(--ok)}
+    .dux-bar i.lo{background:var(--danger)}
+    .dux-bar span{flex:none; width:44px; color:var(--faint)}
+    .dux-cmpgrid{display:grid; grid-template-columns:minmax(0,1.3fr) minmax(0,1fr); gap:12px}
+    @media (max-width:760px){.dux-cmpgrid{grid-template-columns:1fr}}
+    .dux-qg{display:grid; grid-template-columns:minmax(0,1.5fr) minmax(0,1fr); gap:14px; margin-top:12px}
+    @media (max-width:820px){.dux-qg{grid-template-columns:1fr}}
+    .dux-log{border:1px solid var(--line); border-radius:10px; background:var(--surface); padding:8px 10px; font:500 12px/1.45 var(--mono); min-height:80px; max-height:340px; overflow-y:auto}
+    .dux-log div{padding:4px 0; border-bottom:1px dashed var(--line); color:var(--muted)}
+    .dux-log div:last-child{border-bottom:0}
+    .dux-log b{color:var(--ink)}
+    .dux-log .ok{color:var(--ok)} .dux-log .bad{color:var(--danger)} .dux-log .meh{color:var(--warn)}
+    .dux-cal{display:grid; grid-template-columns:repeat(12, minmax(0,1fr)); gap:4px}
+    @media (max-width:560px){.dux-cal{grid-template-columns:repeat(6, minmax(0,1fr))}}
+    .dux-cal div{border:1px solid var(--line); border-radius:7px; padding:6px 2px; text-align:center; font:600 11px var(--mono); background:var(--surface-2); color:var(--muted)}
+    .dux-cal div small{display:block; font-weight:500; color:var(--faint); font-size:10px}
+    .dux-cal div.me{border-color:var(--accent); background:color-mix(in srgb, var(--accent) 14%, var(--surface)); color:var(--ink)}
+  </style>
 
   <div class="nextbar">
     <div><b>Дальше →</b> <span class="sub">тридцать задач на всё сразу</span></div>
@@ -25743,6 +25943,412 @@ bonus = parseInt(c.BAL, 10) / 100;                <span class="cm">// копей
     {t:'Не выкатывать новый код ночью', d:'Исправление, написанное в три часа ночи без ревью и тестов, — это вторая авария, ожидающая своего часа. Ночью пользуются только тем, что уже есть: флагами, откатом, настройками. Всё остальное — утром.'},
     {t:'Записывать, что сделали и в какое время', d:'Не ради отчёта, а ради себя через двадцать минут. В аварии память работает плохо, а «я вроде перезапустил, или нет?» стоит дороже, чем строчка в чате. Заодно это готовый материал для разбора.'},
   ]);
+})();
+</script>
+
+<script>
+/* ═══ Дежурство: карта раздела ═══ */
+(function(){
+  const map = document.getElementById('dux-map');
+  if(!map) return;
+  map.addEventListener('click', e => {
+    const b = e.target.closest('button[data-jump]'); if(!b) return;
+    const t = document.getElementById(b.dataset.jump);
+    if(t) t.scrollIntoView({behavior:'smooth', block:'start'});
+  });
+})();
+
+/* ═══ Глава 1: ночь без дежурного и с дежурным ═══ */
+(function(){
+  const $ = id => document.getElementById(id);
+  if(!$('dux-cmp-out')) return;
+  const PER_MIN = 6, CHECK = 3200;
+  const V = {
+    no:{mins:427, cls:'bad', steps:[
+      ['02:58','Выкатили версию с ошибкой. Оплаты начали падать.','fail'],
+      ['03:05','Мониторинг видит падение. Но звонить некому — алерт уходит в общий чат, где все спят.','fail'],
+      ['07:30','Первые жалобы в поддержку. Поддержка не знает, кому писать.','fail'],
+      ['09:40','Пришли разработчики, прочли чат, начали разбираться.','fail'],
+      ['10:05','Откатили версию. Оплаты снова проходят.','done'],
+    ], say:'Мониторинг заметил проблему через 7 минут. Но заметить мало: нужен человек, который <b>отвечает</b> и которого можно разбудить. Семь часов клиенты уходили к конкурентам.'},
+    yes:{mins:18, cls:'good', steps:[
+      ['02:58','Выкатили версию с ошибкой. Оплаты начали падать.','fail'],
+      ['03:05','Мониторинг видит падение, пейджер звонит Игорю.','comp'],
+      ['03:08','Игорь подтвердил: «я занимаюсь».','comp'],
+      ['03:12','Игорь откатывает версию.','comp'],
+      ['03:16','Оплаты снова проходят. Разбор — утром.','done'],
+    ], say:'Та же ошибка, тот же мониторинг. Разница одна — был конкретный человек на связи. Потери в <b>24 раза меньше</b>. Именно для этого дежурство и существует.'},
+  };
+  let mode = 'no';
+  function paint(){
+    const v = V[mode], fails = v.mins * PER_MIN, money = fails * CHECK;
+    [...$('dux-cmp').children].forEach(b => b.classList.toggle('on', b.dataset.m === mode));
+    $('dux-cmp-out').innerHTML =
+      '<div class="dux-cmpgrid"><div class="steps" style="margin-top:0">' +
+      v.steps.map((s, k) => '<div class="step ' + s[2] + '"><span class="si">' + (k + 1) + '</span><span><b>' + s[0] + '</b> ' + s[1] + '</span></div>').join('') +
+      '</div><div><div class="meters" style="margin-top:0;flex-direction:column;align-items:flex-start">' +
+      '<span class="meter ' + (mode === 'no' ? 'bad' : 'good') + '">Клиенты без оплаты: <b>' + v.mins + ' мин</b></span>' +
+      '<span class="meter ' + (mode === 'no' ? 'bad' : 'good') + '">Неудачных оплат: <b>≈ ' + fails.toLocaleString('ru-RU') + '</b></span>' +
+      '<span class="meter ' + (mode === 'no' ? 'bad' : 'good') + '">Выручка под угрозой: <b>≈ ' + money.toLocaleString('ru-RU') + ' ₽</b></span>' +
+      '</div><div class="note ' + v.cls + '" style="margin-top:10px">' + v.say + '</div></div></div>';
+  }
+  $('dux-cmp').addEventListener('click', e => {
+    const b = e.target.closest('button[data-m]'); if(!b) return;
+    mode = b.dataset.m; paint();
+  });
+  paint();
+})();
+
+/* ═══ Глава 2: сквозной пример — ночь Анны ═══ */
+(function(){
+  const $ = id => document.getElementById(id);
+  if(!$('dux-lanes')) return;
+  const LANES = [
+    ['путь денег', [['anna','👩 Анна','клиентка'],['shop','🛒 Магазин','сайт'],['pay','💳 Оплата','payment-service'],['bank','🏦 Банк','шлюз платежей']]],
+    ['путь тревоги', [['mon','📈 Мониторинг','метрики'],['pager','📟 Пейджер','расписание'],['igor','👨‍💻 Игорь','дежурный'],['chat','💬 Канал','инцидента']]],
+  ];
+  const pre = a => '<pre class="json">' + esc(a.join('\n')) + '</pre>';
+  const bars = rows => rows.map(r => '<div class="dux-bar"><span>' + r[0] + '</span><i class="' + (r[1] < 90 ? 'lo' : '') + '" style="width:' + (r[1] * 0.7) + '%"></i>' + r[1] + ' %</div>').join('');
+  const chat = rows => '<div class="dux-chat">' + rows.map(r => '<div><b>' + r[0] + '</b>' + r[1] + '</div>').join('') + '</div>';
+  const S = [
+    {tm:'02:58', pain:false, t:'Тихая ночь. Выкатилась новая версия оплаты', hot:['pay'], bad:[], good:[],
+     what:'По расписанию автоматически выкатилась версия <b>v2.14</b> сервиса оплаты. Все спят. У Игоря в кармане телефон с приложением-пейджером: на этой неделе он дежурный.',
+     data:pre(['deploy   payment-service  v2.13 → v2.14','status   OK (3 из 3 узлов запущены)','time     02:58:12']),
+     why:'Выкатка «успешна» — значит, узлы запустились. Но «запустились» не равно «работают правильно». В v2.14 поменяли формат суммы для банка, и банк начал отклонять платежи. Пока этого не знает никто.'},
+    {tm:'03:02', pain:true, t:'Анна жмёт «Оплатить» и получает ошибку', hot:['anna'], bad:['anna','shop','pay','bank'], good:[],
+     what:'Анна собрала корзину на 4 990 ₽ и жмёт «Оплатить». На экране: «Что-то пошло не так». Пробует ещё раз — то же самое.',
+     data:pre(['POST /api/payments','{ "order": "A-5521", "amount": 4990 }','','← 502 Bad Gateway','{ "error": "bank_rejected",','  "detail": "invalid amount format" }']),
+     why:'Анна не пишет в поддержку в три часа ночи. Она закрывает вкладку и идёт к конкуренту. Узнавать о проблеме от клиентов — поздно и дорого. Нужна машина, которая заметит раньше людей.'},
+    {tm:'03:04', pain:true, t:'Мониторинг замечает: оплат стало меньше', hot:['mon'], bad:['pay'], good:[],
+     what:'Мониторинг каждые 15 секунд считает <b>долю успешных оплат</b>. Было 97 %, стало 61 %. Правило алерта: доля ниже 90 % <b>три минуты подряд</b>. Счётчик пошёл.',
+     data:bars([['02:56',97],['02:58',96],['03:00',63],['03:02',61],['03:04',61]]),
+     why:'Алерт смотрит на <b>симптом</b> — «клиенты не могут заплатить», а не на причину вроде «загружен процессор». Симптом всегда значит реальную боль. А три минуты ожидания защищают от ложной тревоги из-за одного случайного всплеска.'},
+    {tm:'03:05', pain:true, t:'Алерт уходит в пейджер — у Игоря звонит телефон', hot:['pager','igor'], bad:['pay'], good:[],
+     what:'Три минуты прошли. Мониторинг создаёт алерт и передаёт его в пейджер. Пейджер смотрит расписание: на этой неделе дежурит Игорь. Громкий звонок, даже в беззвучном режиме.',
+     data:pre(['{','  "alert":     "PaymentSuccessRateLow",','  "severity":  "critical",','  "value":     "61 %",','  "threshold": "< 90 % три минуты",','  "service":   "payment-service",','  "dashboard": "grafana/d/payments",','  "runbook":   "wiki/runbooks/payment-success-rate"','}']),
+     why:'В алерте уже есть всё, чтобы начать: что сломано, насколько, ссылка на графики и на <b>инструкцию</b> (runbook — пошаговый рецепт «что делать, если…»). Сонный человек не должен ничего вспоминать — только читать и делать.'},
+    {tm:'03:08', pain:true, t:'Игорь подтверждает алерт', hot:['igor','pager'], bad:['pay'], good:[],
+     what:'Игорь проснулся и нажал в приложении «Подтвердить» — по-английски <b>acknowledge</b>, коротко <b>ack</b>. Это значит: «я увидел и занимаюсь». Не нажал бы за 5 минут — пейджер позвонил бы Марине.',
+     data:pre(['эскалация: payments','  0 мин  → Игорь  (основной)','  5 мин  → Марина (запасная)',' 10 мин  → Олег   (руководитель)','','ack: Игорь, 03:08:40','→ эскалация остановлена']),
+     why:'Подтверждение нужно по двум причинам. Первая — остановить звонки, иначе разбудят ещё двоих. Вторая — все видят, кто главный. Хуже всего в аварии, когда «кто-нибудь посмотрит», и в итоге не смотрит никто. Лестницу звонков разберём в главе 3.'},
+    {tm:'03:10', pain:true, t:'Оценка: что поменялось?', hot:['igor','pay','bank'], bad:['pay','bank'], good:[],
+     what:'Игорь открывает дашборд по ссылке из алерта. Первый вопрос дежурного — не «почему», а «<b>что поменялось</b>». Ответ на экране: 12 минут назад выкатили v2.14, и сразу после этого банк начал отказывать.',
+     data:pre(['последние изменения:','  02:58  payment-service v2.13 → v2.14','','ответы банка за 10 минут:','  ok        412','  rejected  268  invalid amount format','','уровень: SEV-1 (клиенты не могут платить)']),
+     why:'Игорь присваивает <b>уровень серьёзности</b> SEV-1 — самый высокий: теряются деньги. Уровень решает, сколько людей звать и как быстро действовать. Причина почти очевидна: сломалось сразу после выкатки. Доказывать это логами ночью не нужно.'},
+    {tm:'03:11', pain:true, t:'Канал инцидента: первая запись', hot:['chat','igor'], bad:['pay'], good:[],
+     what:'Игорь открывает <b>канал инцидента</b> — отдельный чат только для этой аварии — и пишет коротко: что видно и что он собирается делать.',
+     data:chat([['03:11','SEV-1. Успешных оплат 61 %. Началось в 02:58 после выкатки payment v2.14. Откатываю на v2.13. Следующее обновление в 03:20.']]),
+     why:'Это не отчёт для начальства. Через 20 минут Игорь сам не вспомнит, что успел сделать. Утром поддержка прочтёт, что отвечать клиентам. А для разбора уже будет готовая хронология.'},
+    {tm:'03:12', pain:true, t:'Смягчение: откат одной командой', hot:['igor','pay'], bad:['pay'], good:[],
+     what:'Игорь запускает откат на прошлую версию. Он не ищет, какая строка кода виновата. Он возвращает то, что точно работало час назад.',
+     data:pre(['$ deploy rollback payment-service --to v2.13','  pay-1  v2.13  ready','  pay-2  v2.13  ready','  pay-3  v2.13  ready','rollback complete in 3m 41s']),
+     why:'Это главный приём дежурного — <b>смягчение</b> (mitigation): быстро убрать боль, не разбираясь в причине. Как жгут у врача скорой: он не лечит рану, но останавливает кровь. Откат, флаг, выключение функции — жгуты, заготовленные заранее. Подробно — в главе 5.'},
+    {tm:'03:16', pain:false, t:'Проверка: оплаты снова проходят', hot:['mon','anna'], bad:[], good:['anna','shop','pay','bank'],
+     what:'Доля успешных оплат вернулась к 96 %. Анна решила попробовать в последний раз — и видит «Заказ оплачен». Алерт закрылся сам.',
+     data:bars([['03:12',61],['03:14',78],['03:16',96]]) + pre(['PaymentSuccessRateLow: resolved 03:16:30']),
+     why:'Дежурный верит <b>метрике</b>, а не ощущению «вроде заработало». Одна удачная оплата — случайность. Доля оплат за три минуты — факт. Итог ночи: клиенты страдали 18 минут.', ok:true},
+    {tm:'03:20', pain:false, t:'Ночная часть закрыта. Игорь идёт спать', hot:['chat','igor'], bad:[], good:['anna','shop','pay','bank'],
+     what:'Игорь пишет последнюю запись: боль снята, причина пока предположительная, выкатку v2.14 он заблокировал. Разбор — утром. И ложится спать.',
+     data:chat([['03:11','SEV-1. Откатываю на v2.13…'],['03:16','Откат завершён, успешных оплат 96 %.'],['03:20','Смягчено. v2.14 заблокирована до разбора. Вероятная причина — формат суммы для банка. Разбор в 11:00.']]),
+     why:'Чинить настоящую причину ночью — плохая идея: сонный человек, нет ревью, нет второй пары глаз. Прод работает на старой версии, это безопасно. Причина никуда не денется до утра.', ok:true},
+    {tm:'11:00', pain:false, t:'Утро: разбор без поиска виноватых', hot:['chat'], bad:[], good:['anna','shop','pay','bank'],
+     what:'Команда собирается на <b>постмортем</b> — разбор инцидента. По хронологии из канала находят причину и решают, что поменять в системе.',
+     data:pre(['Постмортем: оплаты, 02:58–03:16','Влияние: 18 мин, ≈ 108 неудачных оплат','Заметили за 7 мин · Среагировали за 3 · Восстановили за 8','Причина: v2.14 слала сумму в копейках, банк ждал рубли','Что меняем:','  1. Канареечная выкатка: новая версия сначала на 5 % трафика','  2. Тест формата запросов к банку до выкатки','  3. Без автовыкаток с 00:00 до 07:00']),
+     why:'Вопрос разбора — не «кто виноват», а «<b>почему система это допустила</b>». Автор v2.14 ошибся, но тесты и выкатка пропустили ошибку к клиентам. Чинить надо их. Об этом — глава 8.', ok:true},
+  ];
+  const START = 2 * 60 + 58;
+  const toMin = tm => { const p = tm.split(':'); return +p[0] * 60 + +p[1]; };
+  let i = 0, timer = null;
+  function stop(){ if(timer){ clearInterval(timer); timer = null; } $('dux-play').textContent = '▶ Проиграть сам'; }
+  function paint(){
+    const st = S[i];
+    const hot = new Set(st.hot), bad = new Set(st.bad), good = new Set(st.good);
+    $('dux-lanes').innerHTML = LANES.map(l =>
+      '<div class="dux-lane"><div class="dux-ll">' + l[0] + '</div>' +
+      l[1].map((n, k) => (k ? '<div class="dux-ar">→</div>' : '') +
+        '<div class="dux-n' + (hot.has(n[0]) ? ' now' : '') + (bad.has(n[0]) ? ' bad' : good.has(n[0]) ? ' good' : '') + '">' + n[1] + '<small>' + n[2] + '</small></div>').join('') +
+      '</div>').join('');
+    $('dux-tl').innerHTML = S.map((s, k) =>
+      '<button data-s="' + k + '" class="' + (s.pain ? 'pain' : k ? 'calm' : '') + (k === i ? ' now' : k > i ? ' fut' : '') + '">' + s.tm + '</button>').join('');
+    const now = Math.min(toMin(st.tm), toMin('03:16'));
+    const pain = i === 0 ? 0 : Math.max(0, now - START);
+    $('dux-met').innerHTML =
+      '<span class="meter wq">Часы: <b>' + st.tm + '</b></span>' +
+      '<span class="meter ' + (st.pain ? 'bad' : 'good') + '">Клиенты без оплаты: <b>' + pain + ' мин</b></span>' +
+      '<span class="meter ' + (st.pain ? 'bad' : 'good') + '">Неудачных оплат: <b>≈ ' + pain * 6 + '</b></span>';
+    $('dux-lab').textContent = 'шаг ' + (i + 1) + ' из ' + S.length;
+    $('dux-out').innerHTML =
+      '<div class="dux-st"><span class="dux-tm">' + st.tm + '</span><h4>' + st.t + '</h4>' +
+      '<div class="dux-d"><div><div class="dux-h">Что происходит</div><p>' + st.what + '</p></div>' +
+      '<div><div class="dux-h">Данные этого шага</div>' + st.data + '</div></div>' +
+      '<div class="note' + (st.ok ? ' good' : st.pain ? ' warn' : '') + '" style="margin:10px 0 0"><b>Почему так.</b> ' + st.why + '</div></div>';
+    $('dux-prev').disabled = i === 0;
+    $('dux-next').disabled = i >= S.length - 1;
+    if(i >= S.length - 1) Progress.report('dux-night', 1);
+  }
+  $('dux-next').addEventListener('click', () => { stop(); if(i < S.length - 1){ i++; paint(); } });
+  $('dux-prev').addEventListener('click', () => { stop(); if(i > 0){ i--; paint(); } });
+  $('dux-tl').addEventListener('click', e => {
+    const b = e.target.closest('button[data-s]'); if(!b) return;
+    stop(); i = +b.dataset.s; paint();
+  });
+  $('dux-play').addEventListener('click', () => {
+    if(timer){ stop(); return; }
+    if(i >= S.length - 1) i = 0;
+    paint();
+    $('dux-play').textContent = '⏸ Пауза';
+    timer = setInterval(() => {
+      if(i >= S.length - 1){ stop(); return; }
+      i++; paint();
+      if(i >= S.length - 1) stop();
+    }, 3200);
+  });
+  Progress.register('dux-night', 1, 'Дежурство: ночь Анны');
+  paint();
+})();
+
+/* ═══ Глава 3: эскалация ═══ */
+(function(){
+  const $ = id => document.getElementById(id);
+  if(!$('dux-es')) return;
+  const L = [
+    [0, '03:05', 'Звонок Игорю, основному дежурному'],
+    [2, '03:07', 'Повторный звонок Игорю + СМС'],
+    [5, '03:10', 'Звонок Марине, запасной дежурной'],
+    [10, '03:15', 'Звонок Олегу, руководителю команды'],
+    [15, '03:20', 'Сообщение всей команде: «SEV-1 без хозяина»'],
+  ];
+  function paint(){
+    const m = +$('dux-es').value;
+    $('dux-es-v').textContent = m + ' мин';
+    const cur = L.reduce((c, s, k) => s[0] <= m ? k : c, 0);
+    $('dux-es-out').innerHTML = L.map((s, k) =>
+      '<div class="step ' + (k < cur ? 'done' : k === cur ? 'now' : '') + '"><span class="si">' + (k + 1) + '</span><span><b>' + s[1] + '</b> (через ' + s[0] + ' мин) — ' + s[2] + '</span></div>').join('');
+    const say = m === 0 ? 'Игорь ответил сразу. Лестница не понадобилась, разбудили одного человека.'
+      : m < 5 ? 'Игорю звонят повторно. Пока он не нажал «подтвердить», система считает, что его нет.'
+      : m < 10 ? 'Проснулась Марина. Она берёт инцидент себе. Для клиентов потеряно ' + m + ' минут, но авария не осталась без хозяина.'
+      : m < 15 ? 'Не ответили двое. Звонят Олегу: он найдёт, кто может помочь, и потом разберётся, почему дежурные молчат.'
+      : 'Худший случай: будят всех. Это громко и неприятно, но лучше, чем авария до утра без хозяина.';
+    const n = $('dux-es-say');
+    n.className = 'note ' + (m === 0 ? 'good' : m < 10 ? 'warn' : 'bad');
+    n.innerHTML = say + ' <b>Главное:</b> никто ничего не решает в моменте — лестница записана заранее, машина идёт по ней сама.';
+  }
+  $('dux-es').addEventListener('input', paint);
+  paint();
+})();
+
+/* ═══ Глава 4: какой алерт должен будить ═══ */
+(function(){
+  if(!document.getElementById('dux-sort-root')) return;
+  const B = [{id:'page', n:'📟 Будить ночью'}, {id:'ticket', n:'📋 Задача на утро'}, {id:'none', n:'📊 Просто график'}];
+  const items = [
+    {t:'Доля успешных оплат ниже 90 % три минуты подряд', bucket:'page', why:'Симптом, клиенты страдают прямо сейчас, теряются деньги. Ровно такой алерт разбудил Игоря.'},
+    {t:'Процессор на одном узле из двадцати загружен на 95 %', bucket:'none', why:'Это причина, а не симптом. Если ответы быстрые и ошибок нет, клиенты ничего не чувствуют. Пусть будет на графике — пригодится при расследовании.'},
+    {t:'Диск базы заполнится через 3 дня при нынешнем росте', bucket:'ticket', why:'Проблема реальная, но у вас трое суток. Будить ночью незачем — завтра днём спокойно расширите диск.'},
+    {t:'Диск базы заполнится через 2 часа', bucket:'page', why:'Та же метрика, но другой срок: до утра база встанет. Если клиенты пострадают раньше, чем команда проснётся, — будить.'},
+    {t:'Сайт не открывается из двух точек проверки из трёх', bucket:'page', why:'Внешняя проверка видит сайт глазами клиента. Две из трёх — это не случайность, а симптом.'},
+    {t:'Одна ошибка 500 за последний час', bucket:'none', why:'Одиночная ошибка — шум. Если будить из-за неё, через неделю дежурный перестанет верить алертам.'},
+    {t:'Сертификат HTTPS истекает через 14 дней', bucket:'ticket', why:'Важно, но срок большой. Задача в трекер, чтобы не забыть. Отдельно стоит завести алерт «истекает через 2 дня» уже с будильником.'},
+    {t:'Очередь платежей: задержка 40 минут и растёт', bucket:'page', why:'Платежи клиентов застряли, и становится хуже. Это симптом, и утра он не дождётся.'},
+  ];
+  renderSort('dux-sort-root', items, B, 'dux-sort', 'dux-sort-t');
+  Progress.register('dux-sort', items.length, 'Дежурство: какой алерт будит');
+})();
+
+/* ═══ Глава 6: тренажёр развилок «первые 15 минут» ═══ */
+(function(){
+  const $ = id => document.getElementById(id);
+  if(!$('dux-q-root')) return;
+  const Q = {
+    start:{t:'🚨 Суббота, 01:40. Звонит пейджер: «API: 30 % ответов с ошибкой 502»', pain:true,
+      s:['Вы — Марина, дежурная этой недели','Вы не спите, смотрите сериал','В тексте алерта есть ссылки на дашборд и инструкцию'],
+      o:[
+        {t:'Подтвердить алерт и открыть дашборд', m:2, g:'ok', to:'look', log:'ack, открыла дашборд',
+         w:'Подтверждение говорит системе: «я взяла». Звонки прекращаются, никого больше не будят. Дашборд — первое место, где виден масштаб.'},
+        {t:'Подождать пять минут: такие алерты часто закрываются сами', m:7, g:'bad', to:'late', log:'ждала, алерт не подтверждён',
+         w:'Алерт настроен на симптом и ждал три минуты перед звонком — он уже не случайный. Пока вы ждали, треть клиентов получала ошибки, а пейджер пошёл по лестнице эскалации.'},
+        {t:'Написать в общий чат: «кто-нибудь видит ошибки?»', m:6, g:'meh', to:'chat', log:'спросила в общем чате',
+         w:'Ночью в общем чате никого нет. А если бы были, получилось бы пять человек, которые смотрят в одно и то же, и непонятно, кто главный. Главная — вы.'},
+      ]},
+    late:{t:'📟 01:47. Алерт не подтверждён 5 минут — пейджер разбудил запасного, Олега', pain:true,
+      s:['Олег проснулся и тоже открыл дашборд','Ошибок уже 34 %'],
+      o:[{t:'Подтвердить и написать Олегу: «беру, спи»', m:1, g:'ok', to:'look', log:'ack, Олег свободен',
+          w:'Правильно, хоть и поздно. Один инцидент — один ведущий. Двое, которые молча чинят одно и то же, мешают друг другу.'}]},
+    chat:{t:'💬 01:46. В общем чате тишина', pain:true,
+      s:['Никто не ответил','Пейджер продолжает звонить'],
+      o:[{t:'Подтвердить алерт и открыть дашборд', m:2, g:'ok', to:'look', log:'ack, открыла дашборд',
+          w:'Вот теперь вы ведёте инцидент. Помощь звать можно и нужно — но после того, как вы взяли его на себя и поняли масштаб.'}]},
+    look:{t:'📈 Дашборд. Что вы видите', pain:true,
+      s:['Ошибки идут только из зоны B (одной из трёх площадок)','Зоны A и C отвечают нормально','Релиз кода был два дня назад','Вчера в 23:10 в зоне B меняли настройки балансировщика'],
+      o:[
+        {t:'Вывести зону B из балансировки: весь трафик на A и C', m:3, g:'ok', to:'mit', log:'зона B выведена из балансировки',
+         w:'Сломано в одном месте — отрезаем это место. Как перекрыть воду в одной квартире, а не во всём доме. Команда есть в инструкции, риск минимальный.'},
+        {t:'Откатить последний релиз кода', m:9, g:'bad', to:'look2', log:'откатила релиз — не помогло',
+         w:'Релиз был два дня назад, и всё это время работало. Правило «сломалось после выкатки» тут про другое: последней менялась <b>настройка</b>, а не код. Откат ничего не дал.'},
+        {t:'Зайти на серверы зоны B и найти ошибку в настройках', m:22, g:'bad', to:'look2', log:'искала ошибку в настройках 20 мин',
+         w:'Вы нашли её, но через 20 минут. Всё это время треть клиентов получала ошибки. Искать причину можно, когда боль уже снята.'},
+      ]},
+    look2:{t:'⏱ Ошибки всё ещё идут из зоны B', pain:true,
+      s:['Зона B по-прежнему отвечает 502','Зоны A и C в порядке'],
+      o:[{t:'Вывести зону B из балансировки', m:3, g:'ok', to:'mit', log:'зона B выведена из балансировки',
+          w:'Наконец жгут. Ошибки уходят за минуту. Этот шаг был доступен с самого начала.'}]},
+    mit:{t:'✅ Ошибок 0,4 %. Зона B без трафика', pain:false,
+      s:['Зоны A и C загружены на 78 % процессора','Сейчас ночь, трафик минимальный','Причина в зоне B не исправлена'],
+      o:[
+        {t:'Написать в канал инцидента: что сделано, во сколько, что дальше', m:2, g:'ok', to:'comm', log:'запись в канале инцидента',
+         w:'Через час вы не вспомните порядок действий. А утром команда должна понять, почему зона B выключена, не будя вас.'},
+        {t:'Раз уж причина рядом — сразу поправить настройку в зоне B', m:15, g:'bad', to:'comm', log:'правила настройку зоны B ночью',
+         w:'Это уже исправление, а не смягчение. Боль снята, спешить некуда. Ночная правка без второй пары глаз — путь ко второй аварии. В этот раз обошлось, но ушло 15 минут и много нервов.'},
+        {t:'Всё работает. Идти спать', m:0, g:'bad', to:'endBad', log:'ушла спать без записи',
+         w:'Никто не знает, что зона B выключена и почему. Об этом — в финале.'},
+      ]},
+    comm:{t:'💬 Запись в канале есть. Что ещё до сна?', pain:false,
+      s:['Утром к 10:00 трафик вырастет в 3 раза','Зона B всё ещё выключена'],
+      o:[
+        {t:'Проверить: выдержат ли A и C утренний пик без B', m:3, g:'ok', to:'cap', log:'проверила запас мощности',
+         w:'Смягчение изменило систему: теперь две зоны работают за три. Хороший дежурный спрашивает: «а до утра это продержится?»'},
+        {t:'Лечь спать: утром команда разберётся', m:0, g:'meh', to:'endMid', log:'легла спать',
+         w:'Запись есть — уже неплохо. Но вы не проверили, продержится ли ваш жгут до утра.'},
+      ]},
+    cap:{t:'🧮 Считаем: 78 % × 3 = 234 %. Утром A и C не выдержат', pain:false,
+      s:['В инструкции есть команда «добавить узлы в зону»','Владелец балансировщика — команда сети, её дежурный на связи'],
+      o:[
+        {t:'Добавить узлов в A и C по готовой команде из инструкции', m:4, g:'ok', to:'endGood', log:'добавила узлы в A и C, записала в канал',
+         w:'Готовый рычаг, никакого нового кода. Утренний пик пройдёт спокойно, а зону B команда сети починит днём.'},
+        {t:'Позвонить дежурному сети: пусть чинит зону B сейчас', m:10, g:'meh', to:'endGood2', log:'подняла дежурного сети',
+         w:'Допустимо: у сети свой дежурный, и это его зона. Но ночная правка — всегда риск, а у вас был более безопасный вариант.'},
+      ]},
+    endGood:{end:'good', t:'Отличная ночь', d:'Вы взяли инцидент, нашли место поломки, наложили жгут, записали всё и убедились, что жгут продержится до утра. Утром команде сети остаётся спокойно разобрать настройку.'},
+    endGood2:{end:'good2', t:'Хорошая ночь', d:'Клиенты спасены, запись есть. Разбудили ещё одного человека — иногда это нужно, но сначала стоит спросить себя, нельзя ли дожить до утра на готовом рычаге.'},
+    endMid:{end:'mid', t:'Ночь спасена, утро — нет', d:'В 10:00 трафик вырос, зоны A и C перегрузились, сайт начал тормозить. Хорошо хоть, что запись в канале помогла быстро понять, что происходит. Урок: смягчение меняет систему, проверьте, продержится ли она.'},
+    endBad:{end:'bad', t:'Утренняя вторая авария', d:'Утром трафик вырос втрое, зоны A и C легли. Команда час выясняла, почему зона B без трафика, — записи не было, а вы спали. Одна строчка в канале сэкономила бы этот час.'},
+  };
+  const SCORE = {good:3, good2:2, mid:1, bad:0};
+  let node, clock, pain, okN, log, badN;
+  const hhmm = m => { const h = Math.floor(m / 60) % 24, mm = m % 60; return (h < 10 ? '0' : '') + h + ':' + (mm < 10 ? '0' : '') + mm; };
+  function reset(){ node = 'start'; clock = 100; pain = 0; okN = 0; badN = 0; log = []; paint(); }
+  function paintLog(){
+    $('dux-q-log').innerHTML = log.length ? log.map(l => '<div><b>' + l[0] + '</b> <span class="' + l[2] + '">' + esc(l[1]) + '</span></div>').join('')
+      : '<div>Пока пусто. Хорошая запись: время + что сделано.</div>';
+    $('dux-q-clock').textContent = hhmm(clock);
+    $('dux-q-pain').textContent = pain;
+    $('dux-q-ok').textContent = okN;
+  }
+  function paint(){
+    const n = Q[node];
+    paintLog();
+    if(n.end){
+      let sc = SCORE[n.end];
+      if(sc === 3 && badN > 0) sc = 2;
+      $('dux-q-root').innerHTML =
+        '<div class="note ' + (sc >= 3 ? 'good' : sc >= 1 ? 'warn' : 'bad') + '"><b>' + n.t + '.</b> ' + n.d +
+        '<br><br>Клиенты с ошибками: <b>' + pain + ' мин</b> (лучший путь — 5 мин). Удачных решений: <b>' + okN + '</b>.</div>';
+      Progress.report('dux-quest', sc);
+      return;
+    }
+    $('dux-q-root').innerHTML =
+      '<div class="box ' + (n.pain ? 'down' : '') + '" style="margin-bottom:12px"><h4 style="font-size:15px;margin:0 0 8px">' + n.t + '</h4>' +
+      '<div class="cells">' + n.s.map(x => '<span class="cell ' + (n.pain ? 'warn' : 'ok') + '">' + esc(x) + '</span>').join('') + '</div></div>' +
+      '<div class="rtask"><div class="rq2">Что делаете?</div><div class="rbtns" style="flex-direction:column;align-items:stretch">' +
+      n.o.map((o, j) => '<button class="rb" data-q="' + j + '">' + esc(o.t) + '</button>').join('') +
+      '</div><div class="rwhy"></div></div>';
+  }
+  $('dux-q-root').addEventListener('click', e => {
+    const nx = e.target.closest('button[data-go]');
+    if(nx){ node = nx.dataset.go; paint(); return; }
+    const b = e.target.closest('button[data-q]'); if(!b || b.disabled) return;
+    const n = Q[node], o = n.o[+b.dataset.q], task = b.closest('.rtask');
+    task.querySelectorAll('button[data-q]').forEach(x => { x.disabled = true; });
+    if(o.g !== 'meh') b.classList.add(o.g === 'ok' ? 'correct' : 'wrong');
+    clock += o.m;
+    if(n.pain) pain += o.m;
+    if(o.g === 'ok') okN++;
+    if(o.g === 'bad') badN++;
+    log.push([hhmm(clock), o.log, o.g]);
+    paintLog();
+    const why = task.querySelector('.rwhy');
+    why.classList.add('show');
+    why.innerHTML = '<b style="color:var(--' + (o.g === 'ok' ? 'ok' : o.g === 'meh' ? 'warn' : 'danger') + ')">+' + o.m + ' мин. </b>' + o.w +
+      '<div style="margin-top:12px"><button class="act" data-go="' + o.to + '">Дальше →</button></div>';
+  });
+  $('dux-q-reset').addEventListener('click', reset);
+  Progress.register('dux-quest', 3, 'Дежурство: первые 15 минут');
+  reset();
+})();
+
+/* ═══ Глава 8: разбор без виноватых ═══ */
+(function(){
+  if(!document.getElementById('dux-pm-root')) return;
+  const B = [{id:'keep', n:'✅ Оставить в разборе'}, {id:'drop', n:'✂️ Вычеркнуть'}];
+  const items = [
+    {t:'Хронология: 02:58 выкатка, 03:05 алерт, 03:08 ack, 03:12 откат, 03:16 восстановлено', bucket:'keep', why:'Основа любого разбора. Взята прямо из канала инцидента — вот зачем Игорь писал туда ночью.'},
+    {t:'Игорь должен был заметить проблему в релизе ещё вечером', bucket:'drop', why:'Поиск виноватого. Игорь не автор релиза и не должен читать каждый чужой код. Вопрос к системе: почему ошибку не поймали тесты.'},
+    {t:'Канареечная выкатка: новая версия сначала на 5 % трафика', bucket:'keep', why:'Системное изменение. С ним ошибка задела бы 5 % оплат, а не все, и алерт сработал бы до полной выкатки.'},
+    {t:'Автор v2.14 лишается квартальной премии', bucket:'drop', why:'Наказание научит одному — скрывать ошибки. На следующем разборе все будут молчать.'},
+    {t:'Тест формата запросов к банку перед выкаткой', bucket:'keep', why:'Закрывает именно ту дыру, через которую прошла ошибка: копейки вместо рублей.'},
+    {t:'Всем быть внимательнее при выкатках', bucket:'drop', why:'Звучит правильно, но ничего не меняет. Нельзя проверить, выполнено ли «быть внимательнее». Хорошее действие — конкретное и проверяемое.'},
+    {t:'Запретить автоматические выкатки с 00:00 до 07:00', bucket:'keep', why:'Конкретно и проверяемо: если что-то сломается, это случится, когда команда на месте.'},
+  ];
+  renderSort('dux-pm-root', items, B, 'dux-pm', 'dux-pm-t');
+  Progress.register('dux-pm', items.length, 'Дежурство: разбор без виноватых');
+})();
+
+/* ═══ Глава 9: здоровье ротации ═══ */
+(function(){
+  const $ = id => document.getElementById(id);
+  if(!$('dux-hl-n')) return;
+  const NAMES = ['Игорь','Марина','Олег','Анна','Пётр','Вера','Саша','Лена','Дима','Катя'];
+  function paint(){
+    const n = +$('dux-hl-n').value, a = +$('dux-hl-a').value;
+    $('dux-hl-nv').textContent = n;
+    $('dux-hl-av').textContent = a;
+    $('dux-hl-cal').innerHTML = Array.from({length:12}, (_, w) => {
+      const who = NAMES[w % n];
+      return '<div class="' + (who === 'Игорь' ? 'me' : '') + '"><small>нед ' + (w + 1) + '</small>' + who + '</div>';
+    }).join('');
+    const weeks = Math.round(52 / n), nights = Math.round(weeks * a), perNight = a / 7;
+    $('dux-hl-met').innerHTML =
+      '<span class="meter ' + (n < 4 ? 'bad' : 'good') + '">Игорь дежурит: <b>' + weeks + ' недель в год</b></span>' +
+      '<span class="meter ' + (perNight > 1 ? 'bad' : perNight > 0.3 ? 'wq' : 'good') + '">Звонков за ночь: <b>' + perNight.toFixed(1).replace('.', ',') + '</b></span>' +
+      '<span class="meter ' + (nights > 150 ? 'bad' : nights > 50 ? 'wq' : 'good') + '">Сломанных ночей в год: <b>≈ ' + nights + '</b></span>';
+    let cls, say;
+    if(n < 4 && perNight > 1){ cls = 'bad'; say = 'Двойная беда: людей мало и алертов много. Через пару месяцев люди начнут увольняться. Начинать надо с шума: большинство таких алертов — «подгоревший тост».'; }
+    else if(perNight > 1){ cls = 'bad'; say = 'Больше одного звонка за ночь — дежурный не высыпается всю неделю. Расширять команду бесполезно: шум просто размажется по большему числу людей. Сначала убрать лишние алерты и починить частые причины.'; }
+    else if(n < 4){ cls = 'warn'; say = 'Алертов терпимо, но людей мало: каждый дежурит чаще раза в месяц. Отпуск или болезнь одного — и остальные дежурят через неделю. Нужно хотя бы 4–5 человек.'; }
+    else if(a === 0){ cls = 'good'; say = 'Тихо. Проверьте только, что алерты вообще работают: полная тишина иногда значит, что сломан мониторинг.'; }
+    else { cls = 'good'; say = 'Здоровая ротация: дежурство выпадает не чаще раза в месяц, ночные звонки редки. Так дежурить можно годами.'; }
+    $('dux-hl-say').innerHTML = '<div class="note ' + cls + '" style="margin-top:10px">' + say + '</div>';
+  }
+  $('dux-hl-n').addEventListener('input', paint);
+  $('dux-hl-a').addEventListener('input', paint);
+  paint();
+})();
+
+/* ═══ Глава 10: проверьте себя ═══ */
+(function(){
+  if(!document.getElementById('dux-quiz-root')) return;
+  const items = [
+    {q:'Пейджер позвонил в 3 ночи. Что дежурный делает в первую очередь?', opts:[
+      {t:'Подтверждает алерт и открывает дашборд', ok:true},{t:'Ищет в коде, какая строка сломалась'},{t:'Пишет руководителю, чтобы тот решил'}],
+     why:'Подтверждение останавливает эскалацию и показывает, кто главный. Дашборд даёт масштаб. Поиск в коде — не первым делом, а часто вообще не ночью.'},
+    {q:'Чем смягчение отличается от исправления?', opts:[
+      {t:'Смягчение убирает боль клиентов без поиска причины, исправление устраняет причину', ok:true},{t:'Это одно и то же разными словами'},{t:'Смягчение — это временный код, написанный ночью'}],
+     why:'Смягчение — жгут: откат, флаг, перевод трафика, без нового кода. Исправление — операция днём, с ревью и тестами.'},
+    {q:'Алерт «процессор 90 % на одном узле», ответы быстрые, ошибок нет. Будить дежурного?', opts:[
+      {t:'Нет: это причина, а не симптом, клиенты не страдают', ok:true},{t:'Да: 90 % — это опасно'},{t:'Да, но только в выходные'}],
+     why:'Будить стоит только из-за симптомов — того, что чувствует клиент. Иначе наступит усталость от алертов, и настоящий пожар пропустят.'},
+    {q:'Сломалось через 5 минут после выкатки. Что сначала?', opts:[
+      {t:'Откатить, а причину искать утром', ok:true},{t:'Доказать логами, что виновата выкатка'},{t:'Выкатить исправление поверх'}],
+     why:'Если после отката стало хорошо — вы и доказали, и починили одновременно. Новый код ночью — риск второй аварии.'},
+    {q:'Зачем постмортем без поиска виноватых?', opts:[
+      {t:'Чтобы люди честно рассказывали, что случилось, и чинили систему', ok:true},{t:'Чтобы никто не расстраивался'},{t:'Потому что виноватых не бывает'}],
+     why:'Ошибаются все. Вопрос в том, почему ошибка дошла до клиентов. Наказание учит скрывать — и следующий разбор будет враньём.'},
+    {q:'Команда из 3 человек, 20 ночных звонков в неделю. С чего начать?', opts:[
+      {t:'Сократить шум: убрать лишние алерты и починить частые причины', ok:true},{t:'Нанять ещё троих в ротацию'},{t:'Выключить ночные алерты совсем'}],
+     why:'Почти три звонка за ночь — это шум. Новые люди только поделят его между собой. А выключить всё — значит проспать настоящую аварию.'},
+  ];
+  renderTasks('dux-quiz-root', items, 'dux-quiz', 'dux-quiz-t');
+  Progress.register('dux-quiz', items.length, 'Дежурство: проверьте себя');
 })();
 </script>
 <!-- ==================== 25. ПРАКТИКА ==================== -->
