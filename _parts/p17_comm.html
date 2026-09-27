@@ -1,92 +1,584 @@
-<!-- ==================== 15. КАК СЕРВИСЫ ГОВОРЯТ ==================== -->
+<!-- ==================== 17. КАК СЕРВИСЫ ГОВОРЯТ ==================== -->
 <section class="panel" id="comm" data-accent="nt" role="tabpanel">
-  <p class="lead"><b>Способ связи выбирают двумя вопросами:</b> ждём ли мы ответ прямо сейчас и знаем ли, кому звоним. Получается четыре сочетания. Почти все ошибки интеграции — это попытка решить задачу из одного угла средствами другого.</p>
+  <p class="lead"><b>Сервисы — как люди в большой компании: каждый делает своё дело, но в одиночку заказ не соберёт никто.</b> Им приходится договариваться. Можно позвонить и ждать ответа, можно оставить записку, можно повесить объявление для всех. В этом разделе мы проследим один заказ от нажатия кнопки до письма на почту и увидим, какой способ разговора где нужен и почему.</p>
+
+  <style>
+    .cmx-map{display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:7px; margin-top:12px}
+    .cmx-map button{appearance:none; text-align:left; border:1px solid var(--line); background:var(--surface-2); color:var(--ink); border-radius:9px; padding:8px 11px; font:500 13px/1.35 var(--sans); cursor:pointer; display:flex; gap:9px; align-items:flex-start}
+    .cmx-map button:hover{border-color:var(--accent); color:var(--accent)}
+    .cmx-map button b{flex:none; min-width:20px; font:700 12px/1.35 var(--mono); color:var(--accent)}
+    .cmx-map button span{color:var(--muted); font-size:12px; display:block}
+    .cmx-cast{display:grid; grid-template-columns:repeat(4,1fr); gap:9px; margin-top:12px}
+    @media (max-width:760px){.cmx-cast{grid-template-columns:1fr 1fr}}
+    .cmx-cast .box{margin:0}
+    .cmx-cast .cmx-ic{font-size:22px; line-height:1}
+    /* сквозной сценарий */
+    .cmx-nodes{display:grid; grid-template-columns:repeat(3,1fr); gap:9px; margin-top:12px}
+    @media (max-width:520px){.cmx-nodes{grid-template-columns:1fr 1fr}}
+    .cmx-nd{border:1.5px solid var(--line); border-radius:10px; background:var(--surface-2); padding:8px 10px; opacity:.55; transition:opacity .2s, border-color .2s, box-shadow .2s}
+    .cmx-nd .cmx-ic{font-size:18px; line-height:1}
+    .cmx-nd b{display:block; font-size:13px; margin-top:3px}
+    .cmx-nd small{display:block; font:500 10.5px/1.3 var(--mono); color:var(--faint)}
+    .cmx-nd.seen{opacity:1}
+    .cmx-nd.from{opacity:1; border-color:var(--accent); box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 18%,transparent)}
+    .cmx-nd.to{opacity:1; border-color:var(--ok); box-shadow:0 0 0 3px color-mix(in srgb,var(--ok) 18%,transparent)}
+    .cmx-nd.to.async{border-color:var(--dt); box-shadow:0 0 0 3px color-mix(in srgb,var(--dt) 18%,transparent)}
+    .cmx-nd .cmx-st{display:block; margin-top:4px; font:600 11px var(--mono); color:var(--muted)}
+    .cmx-arrow{display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-top:12px; padding:9px 12px; border:1px dashed var(--line); border-radius:9px; font:600 13px var(--mono); color:var(--ink); background:var(--surface)}
+    .cmx-arrow .cmx-ln{color:var(--accent)}
+    .cmx-arrow .cmx-ln.async{color:var(--dt)}
+    .cmx-arrow .cmx-ln.reply{color:var(--ok)}
+    .cmx-chip{display:inline-block; font:600 11px var(--mono); padding:3px 8px; border-radius:12px; border:1px solid var(--line); color:var(--muted); background:var(--surface-2)}
+    .cmx-chip.sync{color:var(--accent); border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
+    .cmx-chip.async{color:var(--dt); border-color:color-mix(in srgb,var(--dt) 45%,var(--line))}
+    .cmx-chip.free{color:var(--ok); border-color:color-mix(in srgb,var(--ok) 45%,var(--line))}
+    .cmx-chip.wait{color:var(--warn); border-color:color-mix(in srgb,var(--warn) 45%,var(--line))}
+    .cmx-two{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:12px; align-items:start}
+    @media (max-width:760px){.cmx-two{grid-template-columns:1fr}}
+    .cmx-two pre.json{margin:0; font-size:12px; overflow-x:auto}
+    /* житейские аналогии */
+    .cmx-lanes{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px}
+    @media (max-width:520px){.cmx-lanes{grid-template-columns:1fr}}
+    .cmx-lane{border:1px solid var(--line); border-radius:10px; background:var(--surface-2); padding:9px 11px; min-height:150px}
+    .cmx-lane h4{margin:0 0 7px; font-size:13px}
+    .cmx-fr{font-size:13px; padding:6px 9px; border-radius:7px; border:1px solid var(--line); background:var(--surface); margin-top:5px; animation:pop .2s ease}
+    .cmx-fr.busy{border-color:var(--warn); background:var(--warn-bg); color:var(--warn)}
+    .cmx-fr.free{border-color:var(--ok); background:var(--ok-bg); color:var(--ok)}
+    @media (prefers-reduced-motion:reduce){.cmx-fr{animation:none}}
+    /* два вопроса */
+    .cmx-quad .box{transition:opacity .2s, border-color .2s, box-shadow .2s}
+    .cmx-quad.pick .box{opacity:.4}
+    .cmx-quad.pick .box.cmx-hit{opacity:1; border-color:var(--accent); box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 16%,transparent)}
+    .cmx-qa{display:flex; gap:14px; flex-wrap:wrap; align-items:center; margin-top:10px}
+    .cmx-qa .seg{margin:4px 0}
+    .cmx-qa label{font:600 12px var(--mono); color:var(--faint); display:block}
+    /* симулятор */
+    .cmx-svc{display:grid; grid-template-columns:repeat(4,1fr); gap:9px; margin-top:12px}
+    @media (max-width:760px){.cmx-svc{grid-template-columns:1fr 1fr}}
+    @media (max-width:400px){.cmx-svc{grid-template-columns:1fr}}
+    .cmx-svc .box{margin:0; transition:border-color .2s, box-shadow .2s}
+    .cmx-svc .box.cmx-now{border-color:var(--accent); box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 16%,transparent)}
+    .cmx-svc .box.cmx-down{border-color:var(--danger)}
+    .cmx-svc .box.cmx-slow{border-color:var(--warn)}
+    .cmx-svc h4{margin:0 0 4px; font-size:13.5px}
+    .cmx-svc .bs{margin:0 0 6px}
+    .cmx-sbtn{appearance:none; width:100%; border:1px solid var(--line); background:var(--surface); color:var(--ink); border-radius:7px; padding:6px 8px; font:600 12px var(--mono); cursor:pointer; text-align:left}
+    .cmx-sbtn:hover{border-color:var(--accent)}
+    .cmx-bar{position:relative; display:flex; height:30px; margin-top:12px; border:1px solid var(--line); border-radius:8px; background:var(--surface-2); overflow:hidden}
+    .cmx-seg{height:100%; display:flex; align-items:center; justify-content:center; font:600 10.5px var(--mono); color:#fff; white-space:nowrap; overflow:hidden; border-right:1px solid var(--surface); background:var(--accent); transition:width .3s}
+    .cmx-seg.slow{background:var(--warn)}
+    .cmx-seg.down{background:var(--danger)}
+    .cmx-seg.own{background:var(--ms)}
+    .cmx-barlab{font:500 12px var(--mono); color:var(--muted); margin-top:5px}
+    .cmx-goal .step{padding:7px 11px; font-size:13px}
+    /* очередь изнутри */
+    .cmx-wk{display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:10px}
+    @media (max-width:640px){.cmx-wk{grid-template-columns:1fr 1fr}}
+    .cmx-w{border:1px solid var(--line); border-radius:9px; background:var(--surface-2); padding:7px 9px; font:500 12px var(--mono); color:var(--muted); min-height:52px}
+    .cmx-w b{color:var(--ink)}
+    .cmx-w.busy{border-color:var(--accent)}
+    .cmx-w.dead{border-color:var(--danger); color:var(--danger)}
+    .cmx-prog{height:5px; border-radius:3px; background:var(--surface-3); margin-top:6px; overflow:hidden}
+    .cmx-prog i{display:block; height:100%; background:var(--accent); transition:width .25s}
+    .cmx-lbl{font:600 11px var(--mono); color:var(--faint); text-transform:uppercase; margin-top:12px}
+    /* издатель и подписчики */
+    .cmx-subs{display:flex; gap:8px; flex-wrap:wrap; margin-top:10px}
+    .cmx-sub{appearance:none; border:1px solid var(--line); background:var(--surface-2); color:var(--muted); border-radius:9px; padding:7px 10px; font:500 12.5px var(--sans); cursor:pointer; text-align:left; min-width:140px}
+    .cmx-sub b{display:block; color:var(--ink); font-size:13px}
+    .cmx-sub.on{border-color:var(--dt); background:color-mix(in srgb,var(--dt) 9%,var(--surface))}
+    .cmx-sub.flash{box-shadow:0 0 0 3px color-mix(in srgb,var(--ok) 30%,transparent)}
+    /* контракты */
+    .cmx-cons{display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:10px}
+    @media (max-width:560px){.cmx-cons{grid-template-columns:1fr}}
+    .cmx-con{border:1.5px solid var(--ok); border-radius:9px; background:var(--ok-bg); padding:8px 10px; font-size:13px}
+    .cmx-con small{display:block; font:500 11px var(--mono); color:var(--muted); margin-top:3px}
+    .cmx-con.bad{border-color:var(--danger); background:var(--danger-bg)}
+    .cmx-con.warn{border-color:var(--warn); background:var(--warn-bg)}
+    .cmx-cmp-t td:first-child{font-weight:600; white-space:nowrap}
+    .cmx-stage-wrap{overflow-x:auto; margin-top:12px; border:1px solid var(--line); border-radius:10px; background:var(--surface-2)}
+    .cmx-stage{position:relative; min-width:440px; padding:10px 8px 8px}
+    .cmx-acts{display:flex; gap:6px}
+    .cmx-act{flex:1 1 0; text-align:center; border:1.5px solid var(--line); border-radius:9px; background:var(--surface); padding:6px 4px; transition:border-color .2s, box-shadow .2s}
+    .cmx-act .cmx-ic{font-size:18px; line-height:1}
+    .cmx-act b{display:block; font-size:12px; margin-top:2px}
+    .cmx-act small{display:block; font:600 10.5px/1.3 var(--mono); color:var(--muted); min-height:14px; margin-top:3px}
+    .cmx-act.from{border-color:var(--accent); box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 16%,transparent)}
+    .cmx-act.to{border-color:var(--ok); box-shadow:0 0 0 3px color-mix(in srgb,var(--ok) 16%,transparent)}
+    .cmx-act.wait small{color:var(--warn)}
+    .cmx-track{position:relative; height:92px; margin-top:6px}
+    .cmx-life{position:absolute; top:0; bottom:0; width:0; border-left:1px dashed var(--line)}
+    .cmx-conn{position:absolute; height:18px; border:2px dashed var(--ms); border-radius:9px; font:600 10px/14px var(--mono); color:var(--ms); text-align:center; white-space:nowrap; overflow:hidden; background:color-mix(in srgb,var(--ms) 7%,transparent)}
+    .cmx-line{position:absolute; top:56px; height:2px; background:var(--accent)}
+    .cmx-line.res{background:var(--ok)} .cmx-line.evt{background:var(--dt)} .cmx-line.bin{background:var(--mn)} .cmx-line.fail{background:var(--danger)}
+    .cmx-envl{position:absolute; top:40px; transform:translateX(-50%); display:flex; align-items:center; gap:5px; padding:4px 8px; border-radius:8px; border:1.5px solid var(--accent); background:var(--surface); font:600 11px var(--mono); color:var(--ink); white-space:nowrap; max-width:60%; overflow:hidden; text-overflow:ellipsis; box-shadow:var(--shadow); transition:left .9s cubic-bezier(.4,.1,.2,1)}
+    .cmx-envl.res{border-color:var(--ok)} .cmx-envl.evt{border-color:var(--dt)} .cmx-envl.bin{border-color:var(--mn)} .cmx-envl.fail{border-color:var(--danger); color:var(--danger)}
+    .cmx-envl.self{animation:cmx-pulse .9s ease 2}
+    @keyframes cmx-pulse{50%{transform:translateX(-50%) scale(1.12)}}
+    @media (prefers-reduced-motion:reduce){.cmx-envl{transition:none} .cmx-envl.self{animation:none}}
+    .cmx-fields{display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:10px}
+    @media (max-width:760px){.cmx-fields{grid-template-columns:1fr 1fr}}
+    .cmx-fg{border:1px solid var(--line); border-radius:9px; background:var(--surface-2); padding:7px 10px; font-size:13px}
+    .cmx-fg h5{margin:0 0 5px; font:700 12px var(--mono); color:var(--accent)}
+    .cmx-fg label{display:flex; gap:6px; align-items:center; padding:2px 0; cursor:pointer}
+    .cmx-rq{border:1px solid var(--line); border-radius:9px; background:var(--surface-2); padding:7px 10px; margin-top:7px; font-size:12.5px}
+    .cmx-rq code{font:600 12px var(--mono); color:var(--ink)}
+    .cmx-rq .cells{margin-top:5px; min-height:0}
+    .cmx-rq .cell{font-size:10.5px; padding:2px 6px}
+    .cmx-rq .cmx-why{color:var(--warn); font-size:12px; margin-top:4px}
+    .cmx-big td:first-child{font-weight:700; white-space:nowrap}
+    .cmx-big td{min-width:110px; font-size:12.5px}
+    .cmx-wq{border:1px solid var(--line); border-radius:9px; padding:8px 11px; margin-top:8px; background:var(--surface-2)}
+    .cmx-wq .seg{margin:6px 0 0}
+    .cmx-wq b{font-size:13.5px}
+    .cmx-dict{display:grid; grid-template-columns:140px 1fr; gap:7px 12px; font-size:13.5px; margin-top:8px}
+    .cmx-dict b{font:600 12px var(--mono); color:var(--accent); padding-top:2px}
+    @media (max-width:520px){.cmx-dict{grid-template-columns:1fr; gap:2px 0} .cmx-dict b{margin-top:8px}}
+  </style>
 
   <div class="card">
-    <h2><span class="tag">зачем это</span> зачем разбираться в способах связи</h2>
+    <h2><span class="tag">карта раздела</span> как мы пойдём</h2>
+    <p>Раздел — одна история. Мы начнём с конкретного заказа и будем спускаться всё глубже. Главы можно проходить по порядку или прыгать по кнопкам.</p>
+    <div class="cmx-map" id="cmx-map">
+      <button data-cmx-go="cmx-ch1"><b>1</b><div>Анна покупает ботинки<span>о чём вообще речь</span></div></button>
+      <button data-cmx-go="cmx-ch2"><b>2</b><div>Заказ Анны по шагам<span>что происходит внутри</span></div></button>
+      <button data-cmx-go="cmx-ch3"><b>3</b><div>Как договариваются люди<span>звонок, записка, объявление, очередь</span></div></button>
+      <button data-cmx-go="cmx-ch4"><b>4</b><div>Два вопроса выбора<span>ждём ли ответ и знаем ли адресата</span></div></button>
+      <button data-cmx-go="cmx-ch5"><b>5</b><div>Симулятор: звонки против писем<span>роняем сервисы</span></div></button>
+      <button data-cmx-go="cmx-ch6"><b>6</b><div>Очередь изнутри<span>подтверждения, повторы, неудачники</span></div></button>
+      <button data-cmx-go="cmx-ch7"><b>7</b><div>События: объявление для всех<span>издатель и подписчики</span></div></button>
+      <button data-cmx-go="cmx-ch8"><b>8</b><div>Как летят сообщения<span>конверты: REST, gRPC, вебхук, SSE…</span></div></button>
+      <button data-cmx-go="cmx-ch9"><b>9</b><div>GraphQL подробно<span>кто решает, какие поля нужны</span></div></button>
+      <button data-cmx-go="cmx-ch10"><b>10</b><div>Под капотом<span>провод и код девяти способов</span></div></button>
+      <button data-cmx-go="cmx-ch11"><b>11</b><div>Сравнение и выбор<span>таблица и помощник выбора</span></div></button>
+      <button data-cmx-go="cmx-ch12"><b>12</b><div>Контракт и его изменения<span>как не сломать соседей</span></div></button>
+      <button data-cmx-go="cmx-ch13"><b>13</b><div>Идемпотентность<span>повтор не должен удваивать</span></div></button>
+      <button data-cmx-go="cmx-ch14"><b>14</b><div>Итоговое задание<span>проверьте себя</span></div></button>
+    </div>
+  </div>
+
+  <!-- ─── Глава 1 ─── -->
+  <div class="card" id="cmx-ch1">
+    <h2><span class="tag">глава 1 · сюжет</span> Анна покупает ботинки</h2>
+    <p>Есть интернет-магазин «Ботинок». Раньше это была одна большая программа. Потом её разрезали на несколько <b>сервисов</b> — отдельных программ, у каждой своя задача и своя база данных. Сейчас нас интересуют четыре из них.</p>
+    <div class="cmx-cast">
+      <div class="box"><div class="cmx-ic">🧾</div><h4>Заказы</h4><p class="bs">Принимают заказ и следят, чтобы он дошёл до конца. Главный герой истории.</p></div>
+      <div class="box"><div class="cmx-ic">📦</div><h4>Склад</h4><p class="bs">Знает, сколько ботинок лежит на полках, и умеет отложить пару под заказ.</p></div>
+      <div class="box"><div class="cmx-ic">💳</div><h4>Оплата</h4><p class="bs">Списывает деньги с карты через банк. Работает медленнее всех.</p></div>
+      <div class="box"><div class="cmx-ic">✉️</div><h4>Уведомления</h4><p class="bs">Шлёт письма и пуши: «заказ оформлен», «курьер выехал».</p></div>
+    </div>
+    <p style="margin-top:14px">Анна открывает приложение и нажимает «Оформить заказ». Сервис заказов не может выполнить заказ в одиночку. Ему надо <b>поговорить</b> со складом, с оплатой и с уведомлениями. Как именно — и есть тема раздела.</p>
+    <div class="note good"><b>Определение.</b> <b>Способ связи</b> — это правило, по которому один сервис передаёт другому просьбу или новость. Главное в нём — два вопроса. Ждёт ли отправитель ответа? Знает ли он, кому пишет? От ответов зависит, насколько быстро работает система и что с ней будет, когда один из сервисов упадёт.</div>
+    <p>Звучит абстрактно, поэтому сначала посмотрим на живой заказ. А пока — коротко о том, зачем в этом разбираться.</p>
     <div id="why-comm"></div>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">карта</span> четыре квадранта связи</h2>
-    <div class="grid2">
-      <div class="box">
-        <h4>Синхронно, знаю получателя — <b>запрос-ответ</b></h4>
-        <p class="bs">«Дай мне баланс», «зарезервируй товар». REST, gRPC, GraphQL. Ответ нужен для продолжения работы.</p>
-        <p class="bs"><b>Цена:</b> звено в цепочке доступности, задержка в хвосте, связность по адресу и контракту.</p>
+  <!-- ─── Глава 2 ─── -->
+  <div class="card" id="cmx-ch2">
+    <h2><span class="tag">глава 2 · сквозной пример</span> заказ Анны по шагам</h2>
+    <p>Анна купила зимние ботинки за 4 200 ₽. Ниже — всё, что случилось в системе за этим нажатием. Жмите «Дальше»: на схеме подсветится, <b>кто говорит</b> (синяя рамка) и <b>кто слушает</b> (зелёная — ответ ждут, фиолетовая — не ждут). Справа — что именно ушло по сети, внизу — почему так.</p>
+    <div id="cmx-flow">
+      <div class="cmx-nodes" id="cmx-flow-nodes"></div>
+      <div class="cmx-arrow" id="cmx-flow-arrow"></div>
+      <div class="skbar" style="margin-top:10px">
+        <button class="ghost" id="cmx-flow-prev">←</button>
+        <button class="act" id="cmx-flow-next">Дальше →</button>
+        <button class="ghost" id="cmx-flow-play">▶ Прогнать</button>
+        <button class="ghost" id="cmx-flow-reset">⟲ Сначала</button>
+        <span class="skstep" id="cmx-flow-lab"></span>
       </div>
-      <div class="box">
-        <h4>Асинхронно, знаю получателя — <b>команда в очередь</b></h4>
-        <p class="bs">«Сформируй отчёт», «отправь письмо». Очередь конкретному обработчику, ответа не ждём.</p>
-        <p class="bs"><b>Цена:</b> нужен способ узнать результат — статус, колбэк или уведомление.</p>
-      </div>
-      <div class="box">
-        <h4>Асинхронно, не знаю получателей — <b>событие</b></h4>
-        <p class="bs">«Заказ оформлен». Публикуем факт, кто заинтересован — подпишется. Издатель о подписчиках не знает.</p>
-        <p class="bs"><b>Цена:</b> процесс не виден целиком, отложенная согласованность, обязательная идемпотентность.</p>
-      </div>
-      <div class="box">
-        <h4>Синхронно, не знаю получателя — <b>почти всегда ошибка</b></h4>
-        <p class="bs">«Спрошу у всех, кто ответит». Встречается в виде широковещательных запросов и «запрос-ответ через брокер».</p>
-        <p class="bs"><b>Почему плохо:</b> доступность зависит от самого медленного, а отладка невозможна. Редкое исключение — поиск ближайшего живого узла.</p>
+      <div class="meters" id="cmx-flow-m"></div>
+      <div class="cmx-two">
+        <div class="skout" id="cmx-flow-say" style="margin:0"></div>
+        <div><div class="cmx-lbl" style="margin-top:0">что ушло по сети</div><pre class="json" id="cmx-flow-data"></pre></div>
       </div>
     </div>
-    <div class="note"><b>Правило большого пальца:</b> <b>команда</b> — «сделай» (адресована одному, может быть отклонена), <b>событие</b> — «случилось» (адресовано никому конкретно, отклонить нельзя, факт уже произошёл). Путаница между ними — источник половины проблем в событийных системах: событие <code class="inl">OrderShouldBeShipped</code> на самом деле команда, и её маскировка под факт лишает систему возможности вернуть отказ.</div>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">главное здесь</span> девять способов поговорить — разберите каждый до конца</h2>
-    <p>Дальше — один и тот же магазин «Ботинок» и одна и та же задача, показанная девятью способами. У каждого: житейская аналогия, <b>интерактивная схема разговора</b> (жмите «Дальше» или тыкайте прямо в стрелки), настоящий код с обеих сторон и честный список, чем за это платят.</p>
+  <!-- ─── Глава 3 ─── -->
+  <div class="card" id="cmx-ch3">
+    <h2><span class="tag">глава 3 · на пальцах</span> как договариваются люди</h2>
+    <p>В заказе Анны мы видели два разных приёма: Заказы <b>звонили</b> складу и оплате и ждали, а про письмо просто <b>сообщили</b> и пошли дальше. Люди делают то же самое каждый день. Выберите ситуацию — она проиграется по шагам. Следите за левой колонкой: <span class="cmx-chip wait">жёлтым</span> отмечено время, когда вы заняты ожиданием.</p>
+    <div class="seg" id="cmx-life-pick"></div>
+    <div class="cmx-lanes">
+      <div class="cmx-lane"><h4>🙋 Вы (отправитель)</h4><div id="cmx-life-you"></div></div>
+      <div class="cmx-lane"><h4 id="cmx-life-them-h">Собеседник</h4><div id="cmx-life-them"></div></div>
+    </div>
+    <div class="form-row">
+      <button class="act" id="cmx-life-play">▶ Проиграть ещё раз</button>
+    </div>
+    <div id="cmx-life-def"></div>
+    <h3>Словарик: слова, которые будут дальше</h3>
+    <div class="cmx-dict">
+      <b>Синхронно</b><div>Отправитель ждёт ответа и без него не продолжает. Как телефонный звонок.</div>
+      <b>Асинхронно</b><div>Отправитель отдал сообщение и занимается своими делами. Ответ, если он нужен, придёт потом. Как записка или сообщение в мессенджере.</div>
+      <b>Сообщение</b><div>Кусок данных, который один сервис передаёт другому: просьба или новость.</div>
+      <b>Брокер</b><div>Отдельная программа-посредник между сервисами, «почтовое отделение». Принимает сообщения, хранит, раздаёт получателям. Примеры: RabbitMQ, Kafka.</div>
+      <b>Очередь</b><div>Ящик в брокере, где сообщения ждут своего обработчика по порядку. Как очередь с талончиками в поликлинике.</div>
+      <b>Команда</b><div>Сообщение «сделай»: у него один адресат, и адресат может отказаться.</div>
+      <b>Событие</b><div>Сообщение «случилось»: факт в прошедшем времени, без адресата. Кому интересно — тот подписан.</div>
+      <b>Подписчик</b><div>Сервис, который сам попросил брокер присылать ему события определённого вида.</div>
+    </div>
+  </div>
+
+  <!-- ─── Глава 4 ─── -->
+  <div class="card" id="cmx-ch4">
+    <h2><span class="tag">глава 4 · правило выбора</span> два вопроса, которые выбирают способ</h2>
+    <p>Все аналогии из прошлой главы раскладываются по двум вопросам. Ответьте на них за сервис заказов — и получите подходящий способ. Почти все ошибки в интеграции — это попытка решить задачу из одного угла средствами другого.</p>
+    <div class="cmx-qa">
+      <div><label>нужен ли ответ, чтобы продолжить?</label><div class="seg" id="cmx-q2-a"><button data-v="1">да, прямо сейчас</button><button data-v="0">нет, потом</button></div></div>
+      <div><label>знаю ли я, кто получатель?</label><div class="seg" id="cmx-q2-b"><button data-v="1">да, один конкретный</button><button data-v="0">нет, кому интересно</button></div></div>
+    </div>
+    <div class="grid2 cmx-quad" id="cmx-quad">
+      <div class="box" id="cmx-quad-11">
+        <h4>📞 Ждём ответ, знаем получателя — <b>запрос-ответ</b></h4>
+        <p class="bs">«Отложи товар», «сколько у меня денег?». REST, gRPC, GraphQL. Ответ нужен, чтобы продолжить работу.</p>
+        <p class="bs"><b>Цена:</b> вы зависите от того, жив ли получатель. Его задержка добавляется к вашей.</p>
+      </div>
+      <div class="box" id="cmx-quad-01">
+        <h4>✉️ Не ждём, знаем получателя — <b>команда в очередь</b></h4>
+        <p class="bs">«Сформируй отчёт», «отправь письмо». Кладём задачу в очередь конкретному обработчику и идём дальше.</p>
+        <p class="bs"><b>Цена:</b> результат сразу неизвестен. Нужен способ его узнать: статус, обратный вызов или уведомление.</p>
+      </div>
+      <div class="box" id="cmx-quad-00">
+        <h4>📢 Не ждём, не знаем получателей — <b>событие</b></h4>
+        <p class="bs">«Заказ оформлен». Публикуем факт, кому интересно — тот подписан. Отправитель про подписчиков не знает.</p>
+        <p class="bs"><b>Цена:</b> процесс целиком не виден ни в одном месте. Данные у соседей обновляются с задержкой. Повторы сообщений неизбежны, их надо уметь переживать.</p>
+      </div>
+      <div class="box" id="cmx-quad-10">
+        <h4>❓ Ждём ответ, не знаем получателя — <b>почти всегда ошибка</b></h4>
+        <p class="bs">«Спрошу у всех, кто-нибудь да ответит». Встречается как «запрос-ответ через брокер» или рассылка вопроса всем.</p>
+        <p class="bs"><b>Почему плохо:</b> вы ждёте самого медленного, а при сбое непонятно, кого искать. Редкое исключение — поиск ближайшего живого узла.</p>
+      </div>
+    </div>
+    <div class="console" id="cmx-q2-msg"></div>
+    <div class="note"><b>Команда и событие — главная путаница.</b> <b>Команда</b> — «сделай»: адресована одному, может получить отказ. <b>Событие</b> — «случилось»: адресовано никому конкретно, отклонить его нельзя, факт уже произошёл. Если назвать событие <code class="inl">OrderShouldBeShipped</code> («заказ надо отгрузить»), это на самом деле команда. Маскировка под факт лишает систему возможности вернуть отказ — его просто некому отправить.</div>
+  </div>
+
+  <!-- ─── Глава 5 ─── -->
+  <div class="card" id="cmx-ch5">
+    <h2><span class="tag">глава 5 · симулятор</span> цепочка звонков против очереди писем</h2>
+    <p>Теперь проверим на практике, почему выбор важен. Представим два крайних варианта магазина.</p>
+    <ul>
+      <li><b>Синхронно.</b> Заказы по очереди звонят складу, оплате и уведомлениям и ждут каждого. Анна видит ответ, только когда ответили все трое.</li>
+      <li><b>Асинхронно.</b> Заказы сохраняют заказ и кладут три сообщения в очереди — по одному на каждый сервис. Анна сразу видит «заказ принят», а сервисы разбирают свои очереди сами.</li>
+    </ul>
+    <p>Кнопка под каждым сервисом меняет его состояние: <b>работает → тормозит → лежит</b>. Заказы ждут ответ не дольше 2,5 секунды. Это <b>таймаут</b> — предел ожидания, после которого вызов считается неудачным.</p>
+    <div class="seg" id="cmx-sim-mode">
+      <button data-m="sync" class="on">📞 Синхронно: звоним всем по очереди</button>
+      <button data-m="async">✉️ Асинхронно: сообщения в очереди</button>
+    </div>
+    <div class="cmx-svc" id="cmx-sim-svc"></div>
+    <div class="form-row">
+      <button class="act" id="cmx-sim-go">🛒 Анна оформляет заказ</button>
+      <button class="ghost" id="cmx-sim-go3">🛒×3 Три заказа подряд</button>
+      <button class="ghost" id="cmx-sim-reset">⟲ Сначала</button>
+    </div>
+    <div class="cmx-lbl">сколько Анна ждала ответа (последний заказ)</div>
+    <div class="cmx-bar" id="cmx-sim-bar"></div>
+    <div class="cmx-barlab" id="cmx-sim-barlab"></div>
+    <div class="meters" id="cmx-sim-m"></div>
+    <div class="console" id="cmx-sim-msg"></div>
+    <div class="steps" id="cmx-sim-log"></div>
+    <h3>Что попробовать</h3>
+    <div class="steps cmx-goal" id="cmx-sim-goals"></div>
+    <div class="note warn" style="margin-top:12px"><b>Честная оговорка.</b> В асинхронном режиме Анна видит не «оплачено», а «заказ принят, подтверждаем оплату». Это другой опыт для пользователя, и его надо проектировать: показывать статус, присылать уведомление, уметь отменить заказ, если оплата не прошла. Поэтому в реальных магазинах резерв товара часто делают синхронным, а письма и бонусы — асинхронными. Асинхронность не бесплатна, но она не даёт одному упавшему сервису уронить всё.</div>
+  </div>
+
+  <!-- ─── Глава 6 ─── -->
+  <div class="card" id="cmx-ch6">
+    <h2><span class="tag">глава 6 · очередь изнутри</span> талончики, подтверждения и неудачники</h2>
+    <p>Вспомним поликлинику. Пациенты берут талоны, врачи вызывают по одному. Если пришло сразу много людей, очередь растёт, но никто не уходит ни с чем. Если открыть второй кабинет, очередь тает быстрее. Очередь сообщений устроена так же. Вот три её главных правила.</p>
+    <div class="grid3">
+      <div class="box"><h4>1. Очередь — буфер</h4><p class="bs">Отправитель кладёт задачу и свободен. Пик в 12 задач не роняет обработчика: они подождут.</p></div>
+      <div class="box"><h4>2. Подтверждение (ack)</h4><p class="bs">Задача удаляется из очереди, только когда обработчик сказал «готово». Упал посреди работы — задача вернётся и достанется другому.</p></div>
+      <div class="box"><h4>3. Очередь неудачников</h4><p class="bs">Задача, которая падает раз за разом, после трёх попыток уезжает в отдельную очередь (dead letter queue, DLQ), чтобы не крутиться вечно.</p></div>
+    </div>
+    <p style="margin-top:12px">Очередь <code class="inl">email.send</code>: каждое сообщение — просьба отправить письмо. Поиграйте с ней.</p>
+    <div class="form-row">
+      <button class="ghost" id="cmx-qs-add">➕ 1 задача</button>
+      <button class="act" id="cmx-qs-peak">🔥 Пик: +12 задач</button>
+      <button class="ghost" id="cmx-qs-crash">💥 Уронить обработчика посреди работы</button>
+      <button class="ghost" id="cmx-qs-poison">☠ Ядовитое сообщение</button>
+      <button class="ghost" id="cmx-qs-reset">⟲ Сначала</button>
+    </div>
+    <div class="cmx-qa"><div><label>сколько обработчиков («врачей»)</label><div class="seg" id="cmx-qs-w"><button data-w="1" class="on">1</button><button data-w="2">2</button><button data-w="4">4</button></div></div></div>
+    <div class="cmx-lbl">очередь email.send</div>
+    <div class="cells" id="cmx-qs-q"></div>
+    <div class="cmx-lbl">обработчики</div>
+    <div class="cmx-wk" id="cmx-qs-wk"></div>
+    <div class="cmx-lbl">очередь неудачников (DLQ)</div>
+    <div class="cells" id="cmx-qs-dlq"></div>
+    <div class="meters" id="cmx-qs-m"></div>
+    <div class="steps" id="cmx-qs-log"></div>
+    <h3>Что попробовать</h3>
+    <div class="steps cmx-goal" id="cmx-qs-goals"></div>
+    <div class="note"><b>Отсюда главное следствие.</b> Раз упавший обработчик приводит к повторной доставке, одно и то же сообщение может прийти <b>дважды</b>. Брокеры честно обещают «хотя бы один раз» (at least once), а не «ровно один раз». Поэтому каждый обработчик обязан спокойно переживать повтор. Как — в главе 13.</div>
+  </div>
+
+  <!-- ─── Глава 7 ─── -->
+  <div class="card" id="cmx-ch7">
+    <h2><span class="tag">глава 7 · события</span> объявление для всех</h2>
+    <p>Очередь — это записка конкретному адресату. Но бывают новости, которые нужны многим. «Заказ оформлен» интересен складу, уведомлениям, а завтра — аналитике, бонусам и антифроду (сервису, который ловит мошенников). Можно звонить каждому. А можно повесить объявление в чате дома: кому надо — прочитает.</p>
+    <p><b>Событие</b> — сообщение о свершившемся факте. <b>Издатель</b> (тот, кто публикует) не знает подписчиков. <b>Подписчик</b> сам решает, читать или нет. Брокер вроде Kafka хранит события как журнал, и каждый подписчик держит свою закладку — номер последнего прочитанного (offset).</p>
+    <p>Включайте и выключайте подписчиков в двух режимах. Смотрите на счётчик правок в коде Заказов.</p>
+    <div class="seg" id="cmx-ps-mode">
+      <button data-m="sync" class="on">📞 Заказы звонят каждому</button>
+      <button data-m="event">📢 Заказы публикуют событие</button>
+    </div>
+    <div class="cmx-lbl">подписчики (нажмите, чтобы включить или выключить)</div>
+    <div class="cmx-subs" id="cmx-ps-subs"></div>
+    <div class="form-row">
+      <button class="act" id="cmx-ps-pub">🛒 Оформить заказ</button>
+      <button class="ghost" id="cmx-ps-reset">⟲ Сначала</button>
+    </div>
+    <div class="meters" id="cmx-ps-m"></div>
+    <div class="cmx-two">
+      <div><div class="cmx-lbl" style="margin-top:0">код сервиса заказов</div><pre class="json" id="cmx-ps-code"></pre></div>
+      <div><div class="cmx-lbl" style="margin-top:0">журнал событий orders.events</div><div class="cells" id="cmx-ps-log"></div><div class="console" id="cmx-ps-msg"></div></div>
+    </div>
+    <h3>Что попробовать</h3>
+    <div class="steps cmx-goal" id="cmx-ps-goals"></div>
+    <h3>Команда, событие или запрос?</h3>
+    <p>Отличайте по форме. <b>Команда</b> — повелительное наклонение, один адресат: «зарезервируй». <b>Событие</b> — прошедшее время, адресата нет: «оплачен». <b>Запрос</b> — вопрос, ничего не меняет: «сколько осталось?». Решено <b id="cmx-ce-score">0</b> из <span id="cmx-ce-total">0</span>.</p>
+    <div id="cmx-ce-sort"></div>
+  </div>
+
+  <!-- ─── Глава 8 ─── -->
+  <div class="card" id="cmx-ch8">
+    <h2><span class="tag">глава 8 · в движении</span> как летят сообщения: восемь способов</h2>
+    <p>Мы разобрались с идеей: звонок, записка, объявление. Теперь посмотрим на настоящие технологии. Для каждой — живая схема на примере магазина. <b>Конверт ✉️ летит по стрелке</b> от того, кто говорит, к тому, кто слушает. Под схемой — содержимое конверта: заголовки и тело, ровно то, что уходит по сети. Над участниками написано, кто ждёт и кто работает. Пунктирная полоса 🔌 показывает, что соединение между участниками открыто и держится.</p>
+    <div class="seg" id="cmx-env-pick"></div>
+    <div class="note" id="cmx-env-intro"></div>
+    <div class="cmx-stage-wrap"><div class="cmx-stage" id="cmx-env-stage"></div></div>
+    <div class="skbar">
+      <button class="ghost" id="cmx-env-prev">←</button>
+      <button class="act" id="cmx-env-next">Дальше →</button>
+      <button class="ghost" id="cmx-env-play">▶ Прогнать</button>
+      <button class="ghost" id="cmx-env-reset">⟲ Сначала</button>
+      <span class="skstep" id="cmx-env-lab"></span>
+    </div>
+    <div class="cmx-two">
+      <div class="skout" id="cmx-env-say" style="margin:0"></div>
+      <div><div class="cmx-lbl" style="margin-top:0">✉️ что в конверте</div><pre class="json" id="cmx-env-data"></pre></div>
+    </div>
+    <div class="note good" id="cmx-env-diff"></div>
+    <p class="cmx-sticky" id="cmx-env-seen"></p>
+  </div>
+
+  <!-- ─── Глава 9 ─── -->
+  <div class="card" id="cmx-ch9">
+    <h2><span class="tag">глава 9 · GraphQL подробно</span> кто решает, какие поля нужны</h2>
+    <p>Частый вопрос: «В REST летит JSON, в GraphQL тоже летит JSON. В чём разница?» Разница не в формате, а в том, <b>кто решает, что будет в ответе</b>.</p>
+    <div class="grid2">
+      <div class="box">
+        <h4>🍱 REST: комплексный обед</h4>
+        <p class="bs">У сервера много адресов: <code class="inl">/orders/77</code>, <code class="inl">/couriers/9</code>. Каждый отдаёт свой <b>фиксированный</b> набор полей. Лишнее приходится выбрасывать (перевыборка, over-fetching). Недостающее — добирать новыми запросами (недовыборка, under-fetching).</p>
+      </div>
+      <div class="box">
+        <h4>🧑‍🍳 GraphQL: заказ à la carte</h4>
+        <p class="bs">Адрес один: <code class="inl">/graphql</code>. У сервера есть <b>схема</b> — типизированное описание всех данных и связей между ними. Клиент присылает запрос в виде «формы» ответа, и сервер возвращает ровно её. Ни полем больше.</p>
+      </div>
+    </div>
+    <h3>Экран «Мой заказ»: соберите его двумя способами</h3>
+    <p>Отметьте галочками, какие данные нужны экрану. Слева — сколько запросов придётся сделать в REST и сколько там лишнего. Справа — один запрос GraphQL и ответ на него.</p>
+    <div class="cmx-fields" id="cmx-gq-fields"></div>
+    <div class="meters" id="cmx-gq-m"></div>
+    <div class="cmx-two">
+      <div><div class="cmx-lbl" style="margin-top:0">REST: какие запросы нужны</div><div id="cmx-gq-rest"></div></div>
+      <div>
+        <div class="cmx-lbl" style="margin-top:0">GraphQL: запрос</div><pre class="json" id="cmx-gq-q"></pre>
+        <div class="cmx-lbl">GraphQL: ответ — той же формы</div><pre class="json" id="cmx-gq-r"></pre>
+      </div>
+    </div>
+    <div class="console" id="cmx-gq-msg"></div>
+    <h3>Что внутри: схема и резолверы</h3>
+    <p><b>Схема</b> — контракт GraphQL: какие есть типы, поля и связи. <b>Резолвер</b> — маленькая функция, которая умеет достать одно поле. Сервер проходит по запросу клиента и для каждого поля вызывает его резолвер.</p>
+    <div class="cmx-two">
+      <pre class="json">type Query {
+  order(id: ID!): Order
+}
+
+type Order {
+  id: ID!
+  status: OrderStatus!
+  total: Int!
+  createdAt: String!
+  items: [OrderItem!]!
+  courier: Courier        # живёт в сервисе доставки
+  customer: Customer!     # живёт в сервисе клиентов
+}
+
+type OrderItem {
+  title: String!
+  qty: Int!
+  price: Int!
+  photo: String
+}
+
+type Courier  { name: String!  phone: String  eta: String }
+type Customer { name: String! }</pre>
+      <pre class="json">const resolvers = {
+  Query: {
+    // GET /orders/:id в сервисе заказов
+    order: (_, { id }) => ordersApi.get(id),
+  },
+  Order: {
+    items:    o => ordersApi.items(o.id),
+    // два вызова внутри: доставка → курьер
+    courier:  o => delivery.courierFor(o.deliveryId),
+    customer: o => customersApi.get(o.customerId),
+  },
+  OrderItem: {
+    title: it => catalogLoader.load(it.sku)
+                   .then(p => p.title),
+  },
+};
+
+// Резолвер вызывается ТОЛЬКО для полей,
+// которые клиент попросил.
+// Не спросили courier — в доставку не ходим.</pre>
+    </div>
+    <div class="note"><b>Важно понимать.</b> GraphQL не отменяет походов между сервисами. Те же вызовы делает сервер — внутри дата-центра, близко и параллельно. Клиент же делает один запрос по медленной мобильной сети. Выигрыш — в числе походов по «длинному» участку и в объёме трафика.</div>
+
+    <h3>Честные минусы</h3>
+    <p><b>1. Проблема N+1.</b> Экран «мои заказы» показывает 10 заказов и курьера у каждого. Резолвер <code class="inl">courier</code> вызывается для каждого заказа отдельно: 1 запрос за списком + 10 за курьерами. Лечится загрузчиком пачками — DataLoader: он копит вызовы и делает один общий.</p>
+    <div class="seg" id="cmx-gq-dl"><button data-v="0" class="on">Без DataLoader</button><button data-v="1">С DataLoader</button></div>
+    <div class="form-row" style="margin-top:0"><button class="act" id="cmx-gq-n1">▶ Запросить 10 заказов с курьерами</button></div>
+    <div class="cells" id="cmx-gq-calls"></div>
+    <div class="console" id="cmx-gq-n1msg"></div>
+    <p style="margin-top:14px"><b>2. Дорогие запросы.</b> Клиент сам строит запрос, значит, может построить и очень тяжёлый: вложить списки друг в друга. Каждый уровень умножает число объектов. Двигайте глубину.</p>
+    <div class="slider-row"><span>глубина вложенности</span><input type="range" id="cmx-gq-depth" min="1" max="6" value="2"><span class="sv" id="cmx-gq-dv">2</span></div>
+    <div class="cmx-two">
+      <pre class="json" id="cmx-gq-dq"></pre>
+      <div class="console" id="cmx-gq-dmsg" style="margin-top:0"></div>
+    </div>
+    <div class="grid2" style="margin-top:12px">
+      <div class="box"><h4>3. Кеширование по HTTP не работает</h4><p class="bs">В REST у каждого ресурса свой адрес, и прокси или браузер кешируют <code class="inl">GET /orders/77</code> сами. В GraphQL всё идёт через один <code class="inl">POST /graphql</code> с разными телами. Стандартный кеш тут бессилен. Выручают сохранённые запросы (persisted queries) и кеш на клиенте — но это ещё работа.</p></div>
+      <div class="box"><h4>4. Права доступа на уровне полей</h4><p class="bs">В REST права проверяют на адресе: «этот эндпоинт — только для менеджеров». В GraphQL один адрес, а запрос может дотянуться через связи куда угодно: <code class="inl">order → customer → phone</code>. Права приходится проверять в каждом резолвере, иначе клиент вытащит чужой телефон через соседнее поле.</p></div>
+    </div>
+    <div class="note warn"><b>Когда брать GraphQL.</b> Много разных клиентов (веб, iOS, Android), экраны собирают данные из нескольких сервисов, важен объём трафика. Обычно GraphQL ставят как отдельный слой между клиентами и сервисами (BFF — backend for frontend, «бэкенд для конкретного фронтенда»). <b>Когда не брать:</b> один клиент и десяток простых ручек, межсервисные вызовы, файлы и потоки.</div>
+  </div>
+
+  <!-- ─── Глава 10 ─── -->
+  <div class="card" id="cmx-ch10">
+    <h2><span class="tag">глава 10 · под капотом</span> девять способов: провод и код</h2>
+    <p>Для тех, кто хочет до конца. Тот же магазин «Ботинок» и одна задача, показанная девятью способами. У каждого: житейская аналогия, схема разговора (жмите «Дальше» или тыкайте прямо в стрелки), что летит по проводу, настоящий код с обеих сторон и честный список, чем за это платят.</p>
     <div class="seg" id="cm-pick"></div>
     <div id="cm-out"></div>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">справочник</span> протоколы и когда что</h2>
+  <!-- ─── Глава 11 ─── -->
+  <div class="card" id="cmx-ch11">
+    <h2><span class="tag">глава 11 · сравнение и выбор</span> что брать и чем платить</h2>
+    <p>Четыре самых частых способа рядом. Переключайте и сравнивайте по одинаковым вопросам.</p>
+    <div class="seg" id="cmx-cmp-pick"></div>
+    <div id="cmx-cmp-out"></div>
+    <h3>Большая таблица: все способы сразу</h3>
+    <p>Таблица широкая — на телефоне её можно прокрутить вбок.</p>
+    <div class="table-wrap">
+      <table class="db cmx-big">
+        <thead><tr><th>Способ</th><th>Формат</th><th>Транспорт</th><th>Кто начинает</th><th>Где хорош</th><th>Где плох</th><th>Из жизни</th><th>Выбирай, когда…</th></tr></thead>
+        <tbody>
+          <tr><td>REST</td><td>JSON, текст</td><td>HTTP/1.1 или 2, запрос → ответ</td><td>клиент</td><td>публичные API, простые CRUD, кеширование</td><td>экран из многих ресурсов, частые вызовы</td><td>звонок</td><td>нужен ответ сейчас и понятный всем API</td></tr>
+          <tr><td>GraphQL</td><td>JSON, запрос-форма</td><td>HTTP, обычно один POST</td><td>клиент</td><td>разные клиенты, экраны из нескольких сервисов</td><td>кеш по HTTP, дорогие запросы, права на поля</td><td>заказ à la carte</td><td>клиентов много и им нужны разные поля</td></tr>
+          <tr><td>gRPC</td><td>Protobuf, байты</td><td>HTTP/2, вызовы и потоки</td><td>клиент (потоки — обе стороны)</td><td>частые вызовы между своими сервисами</td><td>браузер напрямую, отладка глазами</td><td>звонок по служебной линии</td><td>внутри периметра важны скорость и строгий контракт</td></tr>
+          <tr><td>Вебхук</td><td>JSON + подпись</td><td>HTTP-запрос в обратную сторону</td><td>внешний сервис</td><td>интеграция с партнёрами, долгие процессы</td><td>нужен открытый адрес, повторы, подписи</td><td>«мы вам перезвоним»</td><td>результат у партнёра появляется непредсказуемо поздно</td></tr>
+          <tr><td>Опрос / long polling</td><td>JSON</td><td>HTTP, повторные запросы</td><td>клиент, по таймеру</td><td>простота, работает везде</td><td>пустые запросы, задержка, висящие соединения</td><td>«мы приехали?»</td><td>пользователей немного, задержка в секунды приемлема</td></tr>
+          <tr><td>SSE</td><td>текст: event/data</td><td>HTTP, один долгий ответ</td><td>клиент подписывается, дальше пишет сервер</td><td>статусы, прогресс, лента, вывод нейросети</td><td>только сервер → клиент</td><td>радио</td><td>обновления идут в одну сторону</td></tr>
+          <tr><td>WebSocket</td><td>любые кадры (JSON, байты)</td><td>TCP после HTTP Upgrade</td><td>обе стороны в любой момент</td><td>чаты, совместная работа, игры</td><td>привязка к серверу, переподключения, масштаб</td><td>рация</td><td>обе стороны пишут часто и быстро</td></tr>
+          <tr><td>Очередь</td><td>сообщение-команда</td><td>брокер (RabbitMQ, SQS)</td><td>отправитель, получатель забирает сам</td><td>фоновые задачи, сглаживание пиков</td><td>результат сразу неизвестен, дубли</td><td>записка, талончик</td><td>ответ не нужен сейчас, исполнитель один</td></tr>
+          <tr><td>Событие</td><td>факт в прошедшем времени</td><td>брокер-журнал (Kafka)</td><td>издатель, подписчики читают сами</td><td>много потребителей, список растёт</td><td>процесс не виден целиком, порядок только по ключу</td><td>объявление в чате</td><td>о факте должны узнать многие, в том числе будущие</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <h3>Помощник выбора: ответьте на четыре вопроса</h3>
+    <p>Опишите задачу — помощник подскажет способ и объяснит, почему. Попробуйте разные сочетания.</p>
+    <div id="cmx-wiz"></div>
+    <div id="cmx-wiz-out"></div>
+    <h3>Справочник протоколов</h3>
+    <p>Строки раскрываются по клику — там подробности, когда что брать.</p>
     <div id="pr-table"></div>
-  </div>
-
-  <div class="card">
-    <h2><span class="tag">интерактив</span> выберите способ связи</h2>
+    <h3>Задание: выберите способ связи</h3>
     <p>Решено <b id="cm2-score">0</b> из <span id="cm2-total">0</span>.</p>
     <div id="cm2-tasks"></div>
   </div>
-
-  <div class="card">
-    <h2><span class="tag">эволюция</span> как менять контракт, не ломая потребителей</h2>
-    <p>Главное правило распределённых систем: <b>вы не контролируете момент обновления потребителей</b>. Значит, любое изменение обязано быть обратно совместимым, а несовместимое — разбито на несколько совместимых шагов.</p>
-    <div class="grid2">
+  <!-- ─── Глава 12 ─── -->
+  <div class="card" id="cmx-ch12">
+    <h2><span class="tag">глава 12 · контракты</span> о чём договорились и как это менять</h2>
+    <p>Когда Заказы звонят Складу, оба заранее договорились: куда звонить, какие поля отправить, что придёт в ответ. Эта договорённость называется <b>контракт</b>. Для REST её записывают в OpenAPI — файл с описанием запросов и ответов, для gRPC — в файл <code class="inl">.proto</code>, для событий — в схему события.</p>
+    <p>Главное правило распределённых систем: <b>вы не решаете, когда соседи обновят свой код</b>. У мобильного приложения старые версии живут месяцами на телефонах, которые никто не обновляет. Значит, любое изменение контракта должно быть <b>обратно совместимым</b>: старый потребитель продолжает работать. Несовместимое изменение разбивают на несколько совместимых шагов.</p>
+    <p>Попробуйте. Сервис заказов отдаёт заказ с полем <code class="inl">name</code> — имя покупателя. Решили переименовать его в <code class="inl">fullName</code>. Этот ответ читают три потребителя.</p>
+    <div class="form-row">
+      <button class="ghost" id="cmx-ev-rename">✂ Переименовать сразу</button>
+      <button class="ghost" id="cmx-ev-expand">1. Расширь: добавить fullName рядом</button>
+      <button class="ghost" id="cmx-ev-migrate">2. Мигрируй: перевести одного потребителя</button>
+      <button class="ghost" id="cmx-ev-contract">3. Сузь: удалить name</button>
+      <button class="ghost" id="cmx-ev-meaning">🤫 total теперь без НДС</button>
+      <button class="ghost" id="cmx-ev-reset">⟲ Сначала</button>
+    </div>
+    <div class="cmx-two">
+      <div><div class="cmx-lbl" style="margin-top:0">ответ GET /orders/ord-77</div><pre class="json" id="cmx-ev-json"></pre></div>
+      <div><div class="cmx-lbl" style="margin-top:0">потребители</div><div class="cmx-cons" id="cmx-ev-cons" style="grid-template-columns:1fr"></div></div>
+    </div>
+    <div class="meters" id="cmx-ev-m"></div>
+    <div class="console" id="cmx-ev-msg"></div>
+    <h3>Что попробовать</h3>
+    <div class="steps cmx-goal" id="cmx-ev-goals"></div>
+    <div class="grid2" style="margin-top:14px">
       <div class="box">
         <h4 style="color:var(--ok)">Совместимые изменения</h4>
         <ul style="margin:0">
           <li>Добавить необязательное поле в ответ.</li>
           <li>Добавить необязательное поле в запрос со значением по умолчанию.</li>
-          <li>Добавить новую ручку или новый тип события.</li>
-          <li>Ослабить валидацию (принимать больше, чем раньше).</li>
+          <li>Добавить новую ручку (адрес API) или новый тип события.</li>
+          <li>Ослабить проверку: принимать больше, чем раньше.</li>
         </ul>
       </div>
       <div class="box down">
         <h4 style="color:var(--danger)">Ломающие изменения</h4>
         <ul style="margin:0">
           <li>Удалить или переименовать поле.</li>
-          <li>Сменить тип или формат (строка → число, дата с таймзоной → без).</li>
+          <li>Сменить тип или формат: строка → число, дата с часовым поясом → без.</li>
           <li>Сделать необязательное поле обязательным.</li>
-          <li>Изменить смысл значения при том же имени — <b>худший случай:</b> ничего не сломается сразу, всё сломается тихо.</li>
+          <li>Изменить смысл значения при том же имени — <b>худший случай:</b> сразу ничего не сломается, всё сломается тихо.</li>
         </ul>
       </div>
     </div>
     <h3>Цикл «расширь — мигрируй — сузь» (expand / contract)</h3>
     <div class="steps">
-      <div class="step done"><div class="si">1</div><div><b>Расширь.</b> Добавляем новое поле рядом со старым. Сервис пишет в оба, читает старое. Ничего не ломается.<span class="sx">Пример: было <code class="inl">name</code>, добавили <code class="inl">firstName</code> + <code class="inl">lastName</code>.</span></div></div>
-      <div class="step done"><div class="si">2</div><div><b>Мигрируй.</b> Потребители по одному переходят на новое поле в своём темпе. Старое ещё живо.<span class="sx">Здесь нужен способ узнать, кто ещё читает старое поле: метрика обращений или логирование по потребителям.</span></div></div>
-      <div class="step done"><div class="si">3</div><div><b>Сузь.</b> Когда старое поле никто не читает, оно удаляется.<span class="sx">Это тот шаг, который откладывают навсегда. Ставьте дату сразу на шаге 1, иначе через три года у вас сорок полей и половина не используется.</span></div></div>
+      <div class="step done"><div class="si">1</div><div><b>Расширь.</b> Добавляем новое поле рядом со старым. Сервис пишет в оба, читает старое. Ничего не ломается.<span class="sx">Пример: было <code class="inl">name</code>, добавили <code class="inl">fullName</code>.</span></div></div>
+      <div class="step done"><div class="si">2</div><div><b>Мигрируй.</b> Потребители по одному переходят на новое поле в своём темпе. Старое ещё живо.<span class="sx">Нужен способ узнать, кто ещё читает старое поле: метрика обращений или журнал по потребителям.</span></div></div>
+      <div class="step done"><div class="si">3</div><div><b>Сузь.</b> Когда старое поле никто не читает, его удаляют.<span class="sx">Этот шаг откладывают навсегда. Ставьте дату удаления сразу на первом шаге, иначе через три года у вас сорок полей и половина не используется.</span></div></div>
     </div>
-    <div class="note warn"><b>Про версионирование:</b> <code class="inl">/v2/orders</code> — не спасение, а отсрочка. Две версии означают две ветки кода, два набора тестов и удвоенную поддержку; и удалить <code class="inl">v1</code> всё равно нельзя, пока на нём кто-то есть. Версия в URL или заголовке оправдана для крупных редизайнов раз в несколько лет. Повседневная эволюция — через совместимые изменения, а не через новые версии.</div>
+    <div class="note warn"><b>Про версии в адресе.</b> <code class="inl">/v2/orders</code> — не спасение, а отсрочка. Две версии — это две ветки кода, два набора тестов и двойная поддержка. Удалить <code class="inl">v1</code> всё равно нельзя, пока на ней кто-то сидит. Версия в адресе оправдана для крупной переделки раз в несколько лет. Повседневные изменения делают совместимыми шагами.</div>
+    <div class="note"><b>Как ловить поломку до выкатки.</b> Контрактные тесты: потребитель описывает, какие поля ему действительно нужны, а сборка поставщика падает, если изменение их ломает (consumer-driven contracts, инструмент Pact). Несовместимость обнаруживается у автора изменения, а не в проде у соседа через две недели.</div>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">обязательно</span> идемпотентность запросов на изменение</h2>
-    <p>Клиент отправил «создать платёж», не получил ответа и повторил. Создать второй платёж нельзя. Стандартное решение — <b>ключ идемпотентности</b>: клиент генерирует уникальный идентификатор попытки и присылает его в заголовке.</p>
+  <!-- ─── Глава 13 ─── -->
+  <div class="card" id="cmx-ch13">
+    <h2><span class="tag">глава 13 · идемпотентность</span> повтор не должен удваивать</h2>
+    <p>Сеть ненадёжна. Запрос может дойти, а ответ — потеряться. Клиент не знает, что случилось, и повторяет. Анна может дважды нажать кнопку. Брокер может доставить сообщение второй раз. Во всех этих случаях сервер получает <b>одну и ту же просьбу дважды</b>.</p>
+    <div class="note good"><b>Определение.</b> Операция <b>идемпотентна</b>, если её повтор даёт тот же результат, что и первый раз. «Поставь лампочку в положение “выкл”» — идемпотентно: сколько ни нажимай, лампочка выключена. «Переключи лампочку» — нет: каждое нажатие меняет результат. «Спиши 4 200 ₽» — тоже нет: два запроса спишут 8 400 ₽.</div>
+    <p>Стандартное решение — <b>ключ идемпотентности</b>. Клиент придумывает уникальный номер для каждого намерения («оплатить заказ ord-77») и присылает его в заголовке. Сервер запоминает ключ и ответ. Если ключ пришёл снова, сервер не делает работу повторно, а отдаёт сохранённый ответ.</p>
+    <div class="seg" id="cmx-id-mode">
+      <button data-k="0" class="on">🚫 Без ключа</button>
+      <button data-k="1">🔑 С ключом идемпотентности</button>
+    </div>
+    <div class="form-row">
+      <button class="act" id="cmx-id-pay">💳 Оплатить заказ</button>
+      <button class="ghost" id="cmx-id-dbl">👆👆 Двойное нажатие</button>
+      <button class="ghost" id="cmx-id-lost">📶 Ответ потерялся — повтор</button>
+      <button class="ghost" id="cmx-id-reset">⟲ Сначала</button>
+    </div>
+    <div class="meters" id="cmx-id-m"></div>
+    <div class="cmx-two">
+      <div><div class="cmx-lbl" style="margin-top:0">таблица payments</div><div id="cmx-id-pt"></div></div>
+      <div><div class="cmx-lbl" style="margin-top:0">таблица idempotency_keys</div><div id="cmx-id-kt"></div></div>
+    </div>
+    <div class="steps" id="cmx-id-log"></div>
+    <h3>Что попробовать</h3>
+    <div class="steps cmx-goal" id="cmx-id-goals"></div>
+    <h3>Как это выглядит в запросе</h3>
     <pre class="json">POST /payments
 Idempotency-Key: 3f1c8a2e-4b7d-4f11-9c2a-77e0d1b6a904
 Content-Type: application/json
@@ -99,14 +591,17 @@ Content-Type: application/json
 //    возвращает СОХРАНЁННЫЙ ответ первой попытки, а не новый;
 // 3) ключ живёт ограниченное время (обычно 24 часа).</span></pre>
     <div class="grid3">
-      <div class="box"><h4>Естественно идемпотентные</h4><p class="bs"><code class="inl">GET</code>, <code class="inl">PUT</code> с полным состоянием, <code class="inl">DELETE</code>. Повтор не меняет результат.</p></div>
+      <div class="box"><h4>Идемпотентны сами по себе</h4><p class="bs"><code class="inl">GET</code>, <code class="inl">PUT</code> с полным состоянием, <code class="inl">DELETE</code>. Повтор не меняет результат.</p></div>
       <div class="box"><h4>Требуют ключа</h4><p class="bs"><code class="inl">POST</code> на создание, любое «добавь», «спиши», «начисли». Повтор создаёт дубль.</p></div>
-      <div class="box"><h4>Частая ошибка</h4><p class="bs">Возвращать на повтор ошибку «уже существует». Клиент не различит «мой повтор» и «чужой конфликт». Правильно — вернуть <b>тот же ответ</b>.</p></div>
+      <div class="box"><h4>Частая ошибка</h4><p class="bs">Отвечать на повтор ошибкой «уже существует». Клиент не отличит «мой повтор» от «чужого конфликта». Правильно — вернуть <b>тот же ответ</b>.</p></div>
     </div>
+    <div class="note">В обработчиках сообщений работает тот же приём: у каждого сообщения есть <code class="inl">messageId</code> или <code class="inl">eventId</code>. Обработчик записывает обработанные номера и пропускает уже виденные. Так «хотя бы один раз» от брокера превращается в «ровно один раз» по результату.</div>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">задание</span> контракты и связь</h2>
+  <!-- ─── Глава 14 ─── -->
+  <div class="card" id="cmx-ch14">
+    <h2><span class="tag">глава 14 · задание</span> контракты и связь</h2>
+    <p>Коротко, что мы прошли. Звоним, когда без ответа нельзя продолжать. Пишем в очередь, когда ответ не нужен сейчас и адресат известен. Публикуем событие, когда о факте должны узнать многие. Контракт меняем совместимыми шагами. Любую операцию на изменение делаем безопасной для повтора. Теперь проверьте себя.</p>
     <p>Решено <b id="cmq-score">0</b> из <span id="cmq-total">0</span>.</p>
     <div id="cmq-tasks"></div>
   </div>
@@ -118,7 +613,9 @@ Content-Type: application/json
 </section>
 
 <script>
+/* ═══ 17.0 Справочник протоколов и задания ═══ */
 (function(){
+  if(!document.getElementById('pr-table')) return;
   renderCmp('pr-table',
     ['Протокол','Тип','Сильная сторона','Слабое место'],
     [
@@ -206,8 +703,9 @@ Content-Type: application/json
 </script>
 
 <script>
-/* ═══ 17.0 Девять способов связи ═══ */
+/* ═══ 17.0a Девять способов связи ═══ */
 (function(){
+  if(!document.getElementById('cm-pick')) return;
   const C = [
     /* ───────────── 1. REST ───────────── */
     {n:'1 · REST / HTTP',
@@ -440,5 +938,1463 @@ Content-Type: application/json
   }
   bar.addEventListener('click', e => { const b = e.target.closest('button[data-i]'); if(b) show(+b.dataset.i); });
   show(0);
+})();
+</script>
+
+<script>
+/* ═══ 17.1 Карта раздела ═══ */
+(function(){
+  const map = document.getElementById('cmx-map');
+  if(!map) return;
+  map.addEventListener('click', e => {
+    const b = e.target.closest('button[data-cmx-go]'); if(!b) return;
+    const t = document.getElementById(b.dataset.cmxGo);
+    if(t) t.scrollIntoView({behavior:'smooth', block:'start'});
+  });
+})();
+</script>
+
+<script>
+/* ═══ 17.2 Сквозной сценарий: заказ Анны по шагам ═══ */
+(function(){
+  if(!document.getElementById('cmx-flow')) return;
+  const N = {
+    anna: ['📱','Анна','приложение магазина'],
+    ord:  ['🧾','Заказы','сервис заказов'],
+    stock:['📦','Склад','сервис склада'],
+    pay:  ['💳','Оплата','платёжный сервис'],
+    bus:  ['📮','Брокер','почта между сервисами'],
+    mail: ['✉️','Уведомления','письма и пуши'],
+  };
+  const S = [
+    {t:'Анна нажимает «Оформить заказ»', from:'anna', to:'ord', how:'sync', lab:'POST /orders', anna:0,
+     data:'POST /orders HTTP/1.1\nHost: api.botinok.ru\nContent-Type: application/json\n\n{\n  "customerId": "cus-3",\n  "items": [\n    { "sku": "SKU-42", "title": "Ботинки зимние", "qty": 1 }\n  ],\n  "total": 4200,\n  "paymentMethod": "card-****4417"\n}',
+     d:'Приложение на телефоне Анны упаковывает корзину в сообщение и отправляет его сервису заказов. На экране у Анны крутится колёсико.',
+     why:'Это <b>синхронный</b> вызов: приложение ждёт ответа. Иначе оно не знает, что показать Анне — «спасибо» или «товар закончился».'},
+    {t:'Заказы создают черновик заказа', from:'ord', to:'ord', how:'self', lab:'INSERT INTO orders', anna:5,
+     data:'таблица orders в базе сервиса заказов:\n\n  id      customer  total  status\n  ──────  ────────  ─────  ──────\n  ord-77  cus-3     4200   NEW',
+     d:'Сервис заказов записывает заказ в свою базу со статусом NEW («новый»). Пока это только намерение Анны: товар не отложен, деньги не списаны. На это ушло 5 мс.',
+     why:'Заказу нужен номер <code class="inl">ord-77</code>. По нему Заказы дальше будут говорить с другими сервисами о конкретном заказе.'},
+    {t:'Заказы звонят Складу', from:'ord', to:'stock', how:'sync', lab:'POST /reservations', anna:5,
+     data:'POST /reservations HTTP/1.1\nHost: stock.botinok.local\n\n{\n  "orderId": "ord-77",\n  "sku": "SKU-42",\n  "qty": 1\n}',
+     d:'Заказы просят Склад отложить одну пару ботинок под этот заказ. И <b>ждут ответа</b>: работа над заказом Анны стоит.',
+     why:'Без ответа Склада продолжать нельзя. Если ботинок нет, Анне надо сказать об этом сейчас, а не письмом через час. Поэтому здесь звонок, а не записка.'},
+    {t:'Склад отвечает: отложил', from:'stock', to:'ord', how:'reply', lab:'201 Created', anna:45,
+     data:'HTTP/1.1 201 Created\n\n{\n  "reservationId": "res-510",\n  "sku": "SKU-42",\n  "qty": 1,\n  "holdUntil": "14:18"\n}',
+     d:'Склад нашёл ботинки, пометил их «отложено для ord-77» на 15 минут и ответил. Ушло 40 мс. Всё это время Анна ждала.',
+     why:'Склад не «проверил наличие», а сразу <b>отложил</b> товар. Если бы он только проверил, между проверкой и оплатой последнюю пару мог бы купить кто-то другой.'},
+    {t:'Заказы звонят Оплате', from:'ord', to:'pay', how:'sync', lab:'POST /payments', anna:45,
+     data:'POST /payments HTTP/1.1\nHost: pay.botinok.local\nIdempotency-Key: 3f1c8a2e-4b7d-4f11-9c2a-77e0d1b6a904\n\n{\n  "orderId": "ord-77",\n  "amount": 4200,\n  "currency": "RUB",\n  "card": "****4417"\n}',
+     d:'Второй звонок. Заказы просят списать 4 200 ₽ с карты Анны и снова ждут.',
+     why:'Без подтверждения оплаты тоже нельзя сказать «заказ оформлен». Обратите внимание на заголовок <code class="inl">Idempotency-Key</code>: он защищает от двойного списания, если запрос придётся повторить. Его разберём в главе 13.'},
+    {t:'Оплата отвечает: списано', from:'pay', to:'ord', how:'reply', lab:'200 OK', anna:345,
+     data:'HTTP/1.1 200 OK\n\n{\n  "paymentId": "pay-51",\n  "status": "succeeded",\n  "amount": 4200\n}',
+     d:'Банк подтвердил списание за 300 мс. Это самый медленный шаг. Анна ждёт уже 345 мс.',
+     why:'<b>Задержки синхронных вызовов складываются.</b> 5 мс своей работы + 40 мс Склада + 300 мс Оплаты. Каждый новый звонок в цепочке добавляет своё время к ожиданию Анны.'},
+    {t:'Заказы сохраняют результат', from:'ord', to:'ord', how:'self', lab:'UPDATE orders + INSERT outbox', anna:350,
+     data:"BEGIN;\n  UPDATE orders SET status = 'PAID'\n   WHERE id = 'ord-77';\n  INSERT INTO outbox (type, payload)\n  VALUES ('OrderPlaced', '{\"orderId\":\"ord-77\", ...}');\nCOMMIT;",
+     d:'Заказ стал оплаченным. В той же транзакции сервис кладёт в таблицу <code class="inl">outbox</code> («исходящие») будущее сообщение для остальных. Транзакция — группа изменений в базе, которая выполняется целиком или не выполняется вовсе.',
+     why:'Если сначала сохранить заказ, а потом отправить сообщение, между этими действиями сервис может упасть. Заказ оплачен, а письмо не уйдёт никогда. Outbox связывает «сохранить» и «отправить» в одно действие. Подробно — в разделе «Outbox и CDC».'},
+    {t:'Заказы вешают объявление', from:'ord', to:'bus', how:'async', lab:'publish OrderPlaced', anna:353,
+     data:'топик: orders.events   ключ: ord-77\n\n{\n  "eventId": "evt-91af",\n  "eventType": "OrderPlaced",\n  "occurredAt": "2026-09-20T14:03:11Z",\n  "orderId": "ord-77",\n  "customerId": "cus-3",\n  "total": 4200\n}',
+     d:'Заказы отдают брокеру сообщение «заказ оформлен». Брокер — почтовое отделение между сервисами: принимает сообщение, хранит его и раздаёт всем, кто подписан. На отправку ушло 3 мс.',
+     why:'Письмо, бонусы и аналитика не нужны, чтобы показать Анне «спасибо за заказ». Поэтому Заказы не звонят каждому, а <b>сообщают факт</b> и сразу идут дальше. Это асинхронно: ответа никто не ждёт.'},
+    {t:'Анна видит «Спасибо за заказ!»', from:'ord', to:'anna', how:'reply', lab:'201 Created', anna:355, fin:true,
+     data:'HTTP/1.1 201 Created\nLocation: /orders/ord-77\n\n{\n  "orderId": "ord-77",\n  "status": "PAID",\n  "total": 4200\n}',
+     d:'Ответ пришёл в приложение. Колёсико пропало, Анна видит номер заказа. Она ждала 355 мс — примерно как моргнуть.',
+     why:'Письмо Анне ещё <b>не отправлено</b>. И это нормально: сейчас она его не ждёт. Главное, что на экране правда: товар отложен, деньги списаны.'},
+    {t:'Брокер доставляет событие Уведомлениям', from:'bus', to:'mail', how:'async', lab:'доставка OrderPlaced', anna:null, bg:200,
+     data:'доставка №1 → группа подписчиков notifications\noffset (номер в журнале): 18 214\n\n{\n  "eventId": "evt-91af",\n  "eventType": "OrderPlaced",\n  "orderId": "ord-77",\n  "customerId": "cus-3",\n  "total": 4200\n}',
+     d:'Сервис уведомлений подписан на события о заказах. Он забирает сообщение из брокера, когда освобождается. Анна в этот момент уже листает каталог.',
+     why:'Если бы Уведомления сейчас лежали, сообщение просто подождало бы в брокере. Заказ Анны от этого бы не пострадал. В этом главная сила асинхронности.'},
+    {t:'Уведомления отправляют письмо', from:'mail', to:'mail', how:'self', lab:'SMTP: письмо Анне', anna:null, bg:1700,
+     data:'To: anna@mail.ru\nSubject: Заказ ord-77 оформлен\n\nАнна, спасибо! Ботинки зимние, 4 200 ₽.\nДоставим завтра с 10 до 14.\n\n──────────\n→ брокеру: ack\n  (сообщение обработано, повторять не надо)',
+     d:'Письмо уходит за полторы секунды: почтовые серверы медленные. После отправки Уведомления говорят брокеру «готово» — это <b>ack</b>, подтверждение. Без подтверждения брокер доставит сообщение снова.',
+     why:'Представьте, что письмо отправлялось бы синхронно, внутри заказа. Анна ждала бы не 355 мс, а почти 2 секунды. А если бы почтовый сервер упал, заказ не оформился бы из-за письма.'},
+    {t:'Что мы только что увидели', from:null, to:null, how:'sum', anna:null, bg:1700,
+     data:'Анна ждала                    355 мс\n  своя работа Заказов          12 мс\n  звонок Складу                40 мс   синхронно\n  звонок Оплате               300 мс   синхронно\n  объявление в брокер           3 мс   асинхронно\n\nВ фоне, без Анны            ~1 700 мс\n  доставка события            200 мс\n  письмо                    1 500 мс',
+     d:'В одном нажатии уместились два способа говорить. <b>Звонок</b> (синхронно) — там, где без ответа нельзя продолжать: товар и деньги. <b>Объявление</b> (асинхронно) — там, где ответ сейчас не нужен: письмо, бонусы, аналитика.',
+     why:'Весь раздел — про этот выбор. Дальше разберём, откуда он берётся и что сломается, если выбрать иначе.'},
+  ];
+  const HOW = {sync:['sync','синхронно: ждём ответа'], reply:['free','ответ на звонок'], async:['async','асинхронно: не ждём'], self:['', 'работа внутри сервиса'], sum:['free','итог']};
+  const ids = Object.keys(N);
+  const nodes = document.getElementById('cmx-flow-nodes');
+  nodes.innerHTML = ids.map(k => '<div class="cmx-nd" data-n="' + k + '"><span class="cmx-ic">' + N[k][0] + '</span><b>' + N[k][1] + '</b><small>' + N[k][2] + '</small><span class="cmx-st"></span></div>').join('');
+  const arrow = document.getElementById('cmx-flow-arrow'), lab = document.getElementById('cmx-flow-lab'),
+        say = document.getElementById('cmx-flow-say'), data = document.getElementById('cmx-flow-data'),
+        m = document.getElementById('cmx-flow-m'), play = document.getElementById('cmx-flow-play');
+  let cur = 0, timer = null, reached = false;
+  Progress.register('cmx-flow', 1, 'Сквозной пример: заказ Анны');
+
+  function statusOf(k){
+    // что делает узел на текущем шаге
+    const st = S[cur];
+    if(k === 'anna'){
+      if(cur === 0) return '⏳ ждёт ответа';
+      if(st.anna !== null) return '⏳ ждёт ' + st.anna + ' мс';
+      return '😊 свободна';
+    }
+    if(st.how === 'sync' && st.from === k) return '⏳ ждёт ответа';
+    if(st.to === k && st.how === 'sync') return '⚙ работает';
+    if(st.to === k && st.how === 'async') return '📥 получил';
+    if(st.from === k && st.how === 'self') return '⚙ работает';
+    return '';
+  }
+  function paint(){
+    const st = S[cur];
+    const seen = new Set();
+    for(let i = 0; i <= cur; i++){ if(S[i].from) seen.add(S[i].from); if(S[i].to) seen.add(S[i].to); }
+    [...nodes.children].forEach(el => {
+      const k = el.dataset.n;
+      el.classList.toggle('seen', seen.has(k));
+      el.classList.toggle('from', st.from === k && st.to !== k);
+      el.classList.toggle('to', st.to === k);
+      el.classList.toggle('async', st.to === k && st.how === 'async');
+      el.querySelector('.cmx-st').textContent = statusOf(k);
+    });
+    const h = HOW[st.how];
+    if(st.how === 'sum'){
+      arrow.innerHTML = '<span class="cmx-chip free">итог</span> 📱 Анна получила ответ, ✉️ письмо ушло фоном';
+    } else if(st.from === st.to){
+      arrow.innerHTML = '<span class="cmx-chip ' + h[0] + '">' + h[1] + '</span> ' + N[st.from][0] + ' ' + N[st.from][1] + ' <span class="cmx-ln">⟳ ' + esc(st.lab) + '</span>';
+    } else {
+      const cls = st.how === 'async' ? ' async' : st.how === 'reply' ? ' reply' : '';
+      arrow.innerHTML = '<span class="cmx-chip ' + h[0] + '">' + h[1] + '</span> ' + N[st.from][0] + ' ' + N[st.from][1] +
+        ' <span class="cmx-ln' + cls + '">── ' + esc(st.lab) + ' ──▶</span> ' + N[st.to][0] + ' ' + N[st.to][1];
+    }
+    lab.textContent = 'шаг ' + (cur + 1) + ' из ' + S.length;
+    let calls = 0, msgs = 0;
+    for(let i = 0; i <= cur; i++){
+      if(S[i].how === 'sync' && S[i].from === 'ord') calls++;
+      if(S[i].how === 'async' && S[i].from === 'ord') msgs++;
+    }
+    const annaMs = st.anna === null ? 355 : st.anna;
+    m.innerHTML =
+      '<div class="meter ' + (st.anna === null ? 'good' : 'wq') + '">Анна ' + (st.anna === null ? 'ждала' : 'ждёт') + ': <b>' + annaMs + ' мс</b></div>' +
+      '<div class="meter">звонков из Заказов: <b>' + calls + '</b></div>' +
+      '<div class="meter">сообщений в брокер: <b>' + msgs + '</b></div>' +
+      (st.bg ? '<div class="meter">работа в фоне: <b>' + st.bg + ' мс</b></div>' : '');
+    say.innerHTML = '<h4>Шаг ' + (cur + 1) + '. ' + st.t + '</h4><div style="font-size:13.5px">' + st.d + '</div>' +
+      '<div class="note ' + (st.fin ? 'good' : '') + '" style="margin:10px 0 0"><b>Почему так:</b> ' + st.why + '</div>';
+    data.textContent = st.data;
+    if(cur === S.length - 1 && !reached){ reached = true; Progress.report('cmx-flow', 1); }
+  }
+  function stop(){ if(timer){ clearInterval(timer); timer = null; } play.textContent = '▶ Прогнать'; }
+  document.getElementById('cmx-flow-next').addEventListener('click', () => { stop(); if(cur < S.length - 1){ cur++; paint(); } });
+  document.getElementById('cmx-flow-prev').addEventListener('click', () => { stop(); if(cur > 0){ cur--; paint(); } });
+  document.getElementById('cmx-flow-reset').addEventListener('click', () => { stop(); cur = 0; paint(); });
+  play.addEventListener('click', () => {
+    if(timer){ stop(); return; }
+    if(cur >= S.length - 1) cur = 0;
+    play.textContent = '⏸ Пауза';
+    paint();
+    timer = setInterval(() => {
+      if(cur >= S.length - 1){ stop(); return; }
+      cur++; paint();
+    }, 2600);
+  });
+  nodes.addEventListener('click', e => {
+    const el = e.target.closest('.cmx-nd'); if(!el) return;
+    stop();
+    const k = el.dataset.n;
+    const i = S.findIndex((s, j) => j > cur && (s.from === k || s.to === k));
+    const j = i >= 0 ? i : S.findIndex(s => s.from === k || s.to === k);
+    if(j >= 0){ cur = j; paint(); }
+  });
+  paint();
+})();
+</script>
+
+<script>
+/* ═══ 17.3 Житейские аналогии: кто ждёт ═══ */
+(function(){
+  const pick = document.getElementById('cmx-life-pick');
+  if(!pick) return;
+  const L = [
+    {n:'📞 Звонок', them:'👩 Мама', frames:[
+      {y:'Набираю номер', t:'Готовит обед', b:1},
+      {y:'⏳ Жду, пока возьмут трубку', t:'Слышит звонок, вытирает руки', b:1},
+      {y:'⏳ Спросил рецепт, жду ответа', t:'Вспоминает рецепт', b:1},
+      {y:'✓ Получил ответ — продолжаю свои дела', t:'Вернулась к обеду', b:0},
+    ],
+     def:'<b>Синхронно.</b> Всё время разговора вы заняты ожиданием: жёлтые строки. Если трубку не возьмут, вы так и будете стоять с телефоном, пока не сдадитесь. В программах «сдаться» называется <b>таймаут</b>. <br><b>В IT:</b> REST, gRPC — обычный запрос-ответ. Так Заказы говорили со Складом и Оплатой.'},
+    {n:'💬 Сообщение в мессенджере', them:'👨 Муж', frames:[
+      {y:'Пишу: «Купи хлеб по дороге»', t:'В метро, связи нет', b:0},
+      {y:'✓ Отправил — занимаюсь своими делами', t:'Сообщение ждёт в телефоне', b:0},
+      {y:'Работаю, про хлеб не думаю', t:'Вышел из метро, прочитал', b:0},
+      {y:'Пришло «ок, куплю» — узнал результат', t:'Купил хлеб', b:0},
+    ],
+     def:'<b>Асинхронно.</b> Ни одной жёлтой строки: вы ни секунды не ждали. Адресат был недоступен, но сообщение не пропало — дождалось его. Результат пришёл отдельным сообщением позже. <br><b>В IT:</b> команда в очередь сообщений (RabbitMQ, Amazon SQS). Адресат один и известен.'},
+    {n:'📢 Объявление в чате дома', them:'🏠 Соседи', frames:[
+      {y:'Пишу в чат: «Завтра отключат воду»', t:'Кто спит, кто на работе', b:0},
+      {y:'Ушёл по делам, ответа не жду', t:'Сосед из 12-й прочитал — набирает ванну', b:0},
+      {y:'Даже не знаю, кто прочитал', t:'Соседка из 5-й прочитала — уедет на дачу', b:0},
+      {y:'В чат вступил новый жилец — мне ничего менять не надо', t:'Новый жилец пролистал историю и тоже узнал', b:0},
+    ],
+     def:'<b>Событие (публикация и подписка, pub/sub).</b> Вы сообщили <b>факт</b>, а не просьбу. Не знаете, сколько людей прочитает и что каждый сделает. Новый читатель появился без вашего участия и прочитал историю. <br><b>В IT:</b> событие в брокер (Kafka): «заказ оформлен». Так Заказы сообщили об оплате уведомлениям.'},
+    {n:'🎫 Очередь в поликлинике', them:'🩺 Врачи', frames:[
+      {y:'Взял талон №17', t:'Врач принимает №14', b:0},
+      {y:'Сижу, читаю книгу — не стою под дверью', t:'Приём №15. Утренний наплыв, очередь растёт', b:0},
+      {y:'Открыли второй кабинет — очередь пошла быстрее', t:'Два врача: №16 и №17', b:0},
+      {y:'✓ Меня приняли', t:'Врача вызвали посреди приёма — пациента примет другой, талон не сгорел', b:0},
+    ],
+     def:'<b>Очередь сообщений.</b> Буфер между тем, кто просит, и тем, кто делает. Наплыв не роняет врачей — люди просто ждут. Можно открыть второй кабинет, то есть добавить обработчиков. Просьба не теряется, даже если исполнителя отвлекли. <br><b>В IT:</b> очередь в брокере. Её устройство разберём в главе 6.'},
+  ];
+  const you = document.getElementById('cmx-life-you'), them = document.getElementById('cmx-life-them'),
+        themH = document.getElementById('cmx-life-them-h'), def = document.getElementById('cmx-life-def');
+  let cur = 0, k = 0, timer = null;
+  pick.innerHTML = L.map((x, i) => '<button data-i="' + i + '"' + (i === 0 ? ' class="on"' : '') + '>' + x.n + '</button>').join('');
+  function stop(){ if(timer){ clearInterval(timer); timer = null; } }
+  function paint(){
+    const x = L[cur], F = x.frames.slice(0, k);
+    themH.textContent = x.them + ' (получатель)';
+    you.innerHTML = F.map(f => '<div class="cmx-fr ' + (f.b ? 'busy' : 'free') + '">' + f.y + '</div>').join('');
+    them.innerHTML = F.map(f => '<div class="cmx-fr">' + f.t + '</div>').join('');
+    const busy = F.filter(f => f.b).length;
+    def.innerHTML = k >= x.frames.length
+      ? '<div class="note good" style="margin-top:12px">' + x.def + '<br><span class="cmx-chip ' + (busy ? 'wait' : 'free') + '">вы ждали ' + busy + ' из ' + x.frames.length + ' шагов</span></div>'
+      : '<div class="console"><span class="ic">ℹ</span><span>Идёт шаг ' + k + ' из ' + x.frames.length + '…</span></div>';
+  }
+  function run(){
+    stop(); k = 0; paint();
+    timer = setInterval(() => { k++; paint(); if(k >= L[cur].frames.length) stop(); }, 900);
+  }
+  pick.addEventListener('click', e => {
+    const b = e.target.closest('button[data-i]'); if(!b) return;
+    cur = +b.dataset.i;
+    [...pick.children].forEach((c, i) => c.classList.toggle('on', i === cur));
+    run();
+  });
+  document.getElementById('cmx-life-play').addEventListener('click', run);
+  k = L[0].frames.length; paint();
+})();
+</script>
+
+<script>
+/* ═══ 17.4 Два вопроса ═══ */
+(function(){
+  const qa = document.getElementById('cmx-q2-a'), qb = document.getElementById('cmx-q2-b');
+  if(!qa || !qb) return;
+  const quad = document.getElementById('cmx-quad'), out = document.getElementById('cmx-q2-msg');
+  let a = null, b = null;
+  const TXT = {
+    '11':['ok','Ответ нужен сейчас, адресат известен → <b>запрос-ответ</b> (REST, gRPC). Как Заказы и Склад: без резерва товара нельзя сказать Анне «оформлено».'],
+    '01':['ok','Ответ не нужен сейчас, адресат известен → <b>команда в очередь</b>. Как «сформируй годовой отчёт»: пользователь получит его, когда будет готов.'],
+    '00':['ok','Ответ не нужен, адресаты неизвестны → <b>событие</b>. Как «заказ оформлен»: пусть узнают все, кому интересно, включая тех, кого ещё нет.'],
+    '10':['warn','Ответ нужен сейчас, а адресат неизвестен → <b>подозрительное сочетание</b>. Чаще всего это значит, что адресат на самом деле известен, просто его не назвали. Найдите, кто отвечает за ответ, и спросите его напрямую.'],
+  };
+  function paint(){
+    [...qa.children].forEach(x => x.classList.toggle('on', x.dataset.v === a));
+    [...qb.children].forEach(x => x.classList.toggle('on', x.dataset.v === b));
+    if(a === null || b === null){
+      quad.classList.remove('pick');
+      msg(out, '', 'Ответьте на оба вопроса — подсветится подходящий способ.');
+      return;
+    }
+    const key = a + b;
+    quad.classList.add('pick');
+    quad.querySelectorAll('.box').forEach(x => x.classList.toggle('cmx-hit', x.id === 'cmx-quad-' + key));
+    msg(out, TXT[key][0], TXT[key][1]);
+  }
+  qa.addEventListener('click', e => { const x = e.target.closest('button[data-v]'); if(x){ a = x.dataset.v; paint(); } });
+  qb.addEventListener('click', e => { const x = e.target.closest('button[data-v]'); if(x){ b = x.dataset.v; paint(); } });
+  paint();
+})();
+</script>
+
+<script>
+/* ═══ 17.5 Симулятор: синхронная цепочка против очередей ═══ */
+(function(){
+  const svcRoot = document.getElementById('cmx-sim-svc');
+  if(!svcRoot) return;
+  const SV = [
+    {id:'stock', ic:'📦', n:'Склад', what:'отложить товар', ms:80},
+    {id:'pay',   ic:'💳', n:'Оплата', what:'списать деньги', ms:300},
+    {id:'mail',  ic:'✉️', n:'Уведомления', what:'отправить письмо', ms:1200},
+  ];
+  const TIMEOUT = 2500, SLOW_ADD = 900;
+  const ST = {up:'🟢 работает', slow:'🐢 тормозит', down:'🔴 лежит'};
+  const NEXT = {up:'slow', slow:'down', down:'up'};
+  const G = [
+    'Синхронно: уроните любой сервис и оформите заказ. Один упавший сосед срывает весь заказ.',
+    'Асинхронно: уроните сервис и оформите заказ. Заказ принят, сообщение ждёт в очереди.',
+    'Асинхронно: поднимите упавший сервис. Сообщения из очереди доедут, ни одно не пропало.',
+  ];
+  Progress.register('cmx-sim', 3, 'Симулятор: синхронно и асинхронно');
+  let s, gen = 0, tick = null;
+  function fresh(mode){
+    return {mode, state:{stock:'up', pay:'up', mail:'up'}, q:{stock:[], pay:[], mail:[]}, work:{},
+      wasDown:{}, busy:false, pending:0, n:0, ok:0, fail:0, bg:0, last:null, segs:[], log:[], now:null,
+      goals:(s ? s.goals : [0,0,0])};
+  }
+  s = fresh('sync');
+  const els = {
+    bar:document.getElementById('cmx-sim-bar'), barlab:document.getElementById('cmx-sim-barlab'),
+    m:document.getElementById('cmx-sim-m'), msg:document.getElementById('cmx-sim-msg'),
+    log:document.getElementById('cmx-sim-log'), goals:document.getElementById('cmx-sim-goals'),
+    mode:document.getElementById('cmx-sim-mode'),
+  };
+  function goal(i){
+    if(s.goals[i]) return;
+    s.goals[i] = 1;
+    const n = s.goals.reduce((a, b) => a + b, 0);
+    Progress.report('cmx-sim', n);
+    if(n === 3) confetti(24);
+  }
+  function log(k, t){ s.log.unshift({k, t}); s.log = s.log.slice(0, 8); }
+  function paintSvc(){
+    svcRoot.innerHTML =
+      '<div class="box"><h4>🧾 Заказы</h4><p class="bs">' + (s.mode === 'sync' ? 'звонят всем по очереди и ждут' : 'сохраняют заказ и кладут сообщения в очереди') + '</p>' +
+      '<div class="cmx-st" style="font:600 12px var(--mono);color:var(--muted)">' + (s.busy ? '⏳ ждёт ответа…' : 'готов принять заказ') + '</div></div>' +
+      SV.map(v => {
+        const st = s.state[v.id], w = s.work[v.id];
+        return '<div class="box ' + (st === 'down' ? 'cmx-down' : st === 'slow' ? 'cmx-slow' : '') + (s.now === v.id || w ? ' cmx-now' : '') + '">' +
+          '<h4>' + v.ic + ' ' + v.n + '</h4>' +
+          '<p class="bs">' + v.what + ': ' + (st === 'slow' ? (v.ms + SLOW_ADD) : v.ms) + ' мс</p>' +
+          '<button class="cmx-sbtn" data-sv="' + v.id + '">' + ST[st] + ' ⟳</button>' +
+          (s.mode === 'async'
+            ? '<div class="cells" style="min-height:26px">' + (s.q[v.id].length ? s.q[v.id].map((id, i) =>
+                '<span class="cell ' + (i === 0 && w ? 'warn' : '') + '">№' + id + '</span>').join('') : '<span class="cmx-chip">очередь пуста</span>') + '</div>'
+            : '') +
+        '</div>';
+      }).join('');
+  }
+  function paintBar(){
+    const total = s.segs.reduce((a, x) => a + x.ms, 0);
+    const scale = Math.max(3000, total);
+    els.bar.innerHTML = s.segs.map(x =>
+      '<div class="cmx-seg ' + x.k + '" style="width:' + (x.ms / scale * 100) + '%" title="' + esc(x.n + ': ' + x.ms + ' мс') + '">' + (x.ms / scale > 0.09 ? esc(x.n) : '') + '</div>').join('');
+    els.barlab.textContent = s.segs.length
+      ? s.segs.map(x => x.n + ' ' + x.ms + ' мс').join(' + ') + ' = ' + total + ' мс' + (s.mode === 'sync' && s.busy ? ' … и ещё ждём' : '')
+      : 'Пока заказов не было. Шкала — 3 секунды.';
+  }
+  function paint(){
+    paintSvc(); paintBar();
+    const inQ = SV.reduce((a, v) => a + s.q[v.id].length, 0);
+    els.m.innerHTML =
+      '<div class="meter ' + (s.last === null ? '' : s.last > 1000 ? 'bad' : s.last > 400 ? 'wq' : 'good') + '">Анна ждала: <b>' + (s.last === null ? '—' : s.last + ' мс') + '</b></div>' +
+      '<div class="meter good">оформлено: <b>' + s.ok + '</b></div>' +
+      '<div class="meter bad">сорвалось: <b>' + s.fail + '</b></div>' +
+      (s.mode === 'async' ? '<div class="meter wq">в очередях: <b>' + inQ + '</b></div><div class="meter">обработано фоном: <b>' + s.bg + '</b></div>' : '');
+    els.log.innerHTML = s.log.map(x => '<div class="step ' + x.k + '"><div class="si">' + (x.k === 'done' ? '✓' : x.k === 'fail' ? '✕' : x.k === 'comp' ? '!' : '·') + '</div><div>' + x.t + '</div></div>').join('');
+    els.goals.innerHTML = G.map((t, i) => '<div class="step ' + (s.goals[i] ? 'done' : '') + '"><div class="si">' + (s.goals[i] ? '✓' : i + 1) + '</div><div>' + t + '</div></div>').join('');
+    document.getElementById('cmx-sim-go').disabled = s.mode === 'sync' && s.busy;
+    document.getElementById('cmx-sim-go3').disabled = s.mode === 'sync' && s.busy;
+  }
+  function later(fn, ms){ const g = gen; setTimeout(() => { if(g === gen) fn(); }, ms); }
+
+  /* — синхронный заказ: звоним по очереди — */
+  function syncOrder(){
+    s.busy = true; s.segs = [{n:'Заказы', ms:10, k:'own'}]; s.last = null;
+    const id = ++s.n; let t = 10, i = 0;
+    log('', 'Заказ №' + id + ': Анна нажала «Оформить». Заказы начинают обзванивать сервисы по очереди.');
+    msg(els.msg, '', 'Идёт заказ №' + id + '. Анна смотрит на крутилку.');
+    paint();
+    (function next(){
+      if(i >= SV.length){
+        s.busy = false; s.ok++; s.last = t;
+        log('done', 'Заказ №' + id + ' оформлен. Анна ждала <b>' + t + ' мс</b> — сумму всех звонков.');
+        msg(els.msg, t > 1500 ? 'warn' : 'ok', 'Заказ №' + id + ' оформлен за ' + t + ' мс. ' + (t > 1500 ? 'Долго: самый медленный сосед тормозит всех.' : 'Задержки сложились: 10 + 80 + 300 + 1200.'));
+        s.now = null; paint();
+        if(s.pending > 0){ s.pending--; later(syncOrder, 500); }
+        return;
+      }
+      const v = SV[i], st = s.state[v.id];
+      const cost = st === 'up' ? v.ms : st === 'slow' ? v.ms + SLOW_ADD : TIMEOUT;
+      s.now = v.id;
+      log('', '→ звоним: ' + v.ic + ' ' + v.n + ', «' + v.what + '». Заказы ждут…');
+      paint();
+      later(() => {
+        t += cost;
+        s.segs.push({n:v.n, ms:cost, k:st === 'up' ? '' : st});
+        if(st === 'down'){
+          s.busy = false; s.fail++; s.last = t; s.now = null; s.pending = 0;
+          const done = SV.slice(0, i).map(x => x.what);
+          log('fail', v.ic + ' ' + v.n + ' не ответил за ' + TIMEOUT + ' мс — сработал таймаут. <b>Заказ №' + id + ' сорвался.</b>' +
+            (done.length ? ' Уже сделанное придётся откатывать: ' + done.join(', ') + '.' : ''));
+          msg(els.msg, 'err', 'Анна ждала ' + t + ' мс и увидела ошибку. Причина — ' + v.n + ', хотя ' + (i === 2 ? 'письмо вообще не нужно для оформления заказа.' : 'остальные сервисы работали.'));
+          goal(0); paint();
+          return;
+        }
+        log(st === 'slow' ? 'comp' : 'done', v.ic + ' ' + v.n + ' ответил за ' + cost + ' мс' + (st === 'slow' ? ' (тормозит!)' : '') + '. Анна ждёт уже ' + t + ' мс.');
+        i++; paint(); next();
+      }, Math.min(cost, 2500) * 0.7 + 150);
+    })();
+  }
+
+  /* — асинхронный заказ: сообщения в очереди — */
+  function asyncOrder(){
+    const id = ++s.n;
+    SV.forEach(v => { s.q[v.id].push(id); if(s.state[v.id] === 'down') s.wasDown[v.id] = true; });
+    s.ok++; s.last = 15; s.segs = [{n:'Заказы: сохранить + 3 сообщения', ms:15, k:'own'}];
+    const down = SV.filter(v => s.state[v.id] === 'down');
+    log('done', 'Заказ №' + id + ' принят за 15 мс. Три сообщения легли в очереди: складу, оплате, уведомлениям.');
+    if(down.length){
+      log('comp', down.map(v => v.ic + ' ' + v.n).join(', ') + ' сейчас ' + (down.length > 1 ? 'лежат' : 'лежит') + ', но заказу всё равно: сообщение подождёт в очереди.');
+      msg(els.msg, 'ok', 'Анна увидела «Заказ принят» через 15 мс, хотя ' + down.map(v => v.n).join(' и ') + ' не работает. Теперь поднимите его кнопкой.');
+      goal(1);
+    } else {
+      msg(els.msg, 'ok', 'Анна увидела «Заказ принят, подтверждаем оплату» через 15 мс. Сервисы разбирают очереди фоном.');
+    }
+    ensureTick(); paint();
+  }
+  function ensureTick(){
+    if(tick) return;
+    tick = setInterval(step, 200);
+  }
+  function step(){
+    let active = false;
+    SV.forEach(v => {
+      const st = s.state[v.id], w = s.work[v.id];
+      if(st === 'down'){
+        if(w){ // упал посреди работы: подтверждения нет, сообщение остаётся в очереди
+          delete s.work[v.id];
+          log('comp', v.ic + ' ' + v.n + ' упал посреди обработки заказа №' + w.id + '. Подтверждения не было — сообщение осталось в очереди.');
+        }
+        return;
+      }
+      if(w){
+        active = true;
+        w.left -= 200;
+        if(w.left <= 0){
+          s.q[v.id].shift(); delete s.work[v.id]; s.bg++;
+          const after = s.wasDown[v.id];
+          log('done', v.ic + ' ' + v.n + ' обработал сообщение заказа №' + w.id + ' фоном' + (after ? ' — <b>после подъёма, ничего не пропало</b>' : '') + '.');
+          if(after){ goal(2); if(!s.q[v.id].length) s.wasDown[v.id] = false; }
+        }
+      } else if(s.q[v.id].length){
+        active = true;
+        s.work[v.id] = {id:s.q[v.id][0], left:(st === 'slow' ? v.ms + SLOW_ADD : v.ms)};
+      }
+    });
+    if(!active){ clearInterval(tick); tick = null; }
+    paint();
+  }
+
+  svcRoot.addEventListener('click', e => {
+    const b = e.target.closest('button[data-sv]'); if(!b) return;
+    const id = b.dataset.sv, v = SV.find(x => x.id === id);
+    s.state[id] = NEXT[s.state[id]];
+    if(s.state[id] === 'down' && s.q[id].length) s.wasDown[id] = true;
+    log('', v.ic + ' ' + v.n + ': ' + ST[s.state[id]] + '.');
+    if(s.mode === 'async') ensureTick();
+    paint();
+  });
+  document.getElementById('cmx-sim-go').addEventListener('click', () => {
+    if(s.mode === 'sync'){ if(!s.busy) syncOrder(); } else asyncOrder();
+  });
+  document.getElementById('cmx-sim-go3').addEventListener('click', () => {
+    if(s.mode === 'sync'){ if(!s.busy){ s.pending = 2; syncOrder(); } }
+    else { asyncOrder(); asyncOrder(); asyncOrder(); }
+  });
+  function reset(mode){
+    gen++; if(tick){ clearInterval(tick); tick = null; }
+    s = fresh(mode);
+    [...els.mode.children].forEach(b => b.classList.toggle('on', b.dataset.m === mode));
+    msg(els.msg, '', mode === 'sync'
+      ? 'Режим «звонки». Нажмите «Анна оформляет заказ» и посмотрите на шкалу ожидания. Потом уроните какой-нибудь сервис.'
+      : 'Режим «сообщения». Заказы только сохраняют заказ и раскладывают сообщения по очередям. Уроните сервис и оформите пару заказов.');
+    paint();
+  }
+  els.mode.addEventListener('click', e => { const b = e.target.closest('button[data-m]'); if(b) reset(b.dataset.m); });
+  document.getElementById('cmx-sim-reset').addEventListener('click', () => reset(s.mode));
+  reset('sync');
+})();
+</script>
+
+<script>
+/* ═══ 17.6 Очередь изнутри: ack, повторы, DLQ ═══ */
+(function(){
+  const qEl = document.getElementById('cmx-qs-q');
+  if(!qEl) return;
+  const wkEl = document.getElementById('cmx-qs-wk'), dlqEl = document.getElementById('cmx-qs-dlq'),
+        mEl = document.getElementById('cmx-qs-m'), logEl = document.getElementById('cmx-qs-log'),
+        gEl = document.getElementById('cmx-qs-goals'), wSeg = document.getElementById('cmx-qs-w');
+  const WORK = 4, MAXTRY = 3;
+  const G = [
+    'Устройте пик (+12) и дождитесь, пока очередь опустеет. С 4 обработчиками это быстрее.',
+    'Уроните обработчика посреди работы. Его задача вернётся в очередь и выполнится повторно.',
+    'Добавьте ядовитое сообщение. После трёх неудачных попыток оно уедет в DLQ, а остальные пройдут.',
+  ];
+  Progress.register('cmx-qs', 3, 'Очередь: пик, повтор, DLQ');
+  let s, timer = null, goals = [0,0,0];
+  function fresh(){ return {q:[], wk:[], seq:0, done:0, redeliv:0, dlq:[], maxq:0, peak:false, log:[]}; }
+  s = fresh();
+  function setW(n){
+    while(s.wk.length < n) s.wk.push({m:null, left:0, down:0});
+    if(s.wk.length > n) s.wk.splice(n).forEach(w => { if(w.m) s.q.unshift(w.m); });
+    [...wSeg.children].forEach(b => b.classList.toggle('on', +b.dataset.w === n));
+  }
+  function goal(i){ if(goals[i]) return; goals[i] = 1; const n = goals.reduce((a, b) => a + b, 0); Progress.report('cmx-qs', n); if(n === 3) confetti(24); }
+  function log(k, t){ s.log.unshift({k, t}); s.log = s.log.slice(0, 7); }
+  function add(poison){
+    const m = {id:++s.seq, tries:0, poison:!!poison, crashed:false};
+    s.q.push(m); s.maxq = Math.max(s.maxq, s.q.length);
+    return m;
+  }
+  function start(){ if(!timer) timer = setInterval(tick, 350); }
+  function tick(){
+    s.wk.forEach((w, i) => {
+      if(w.down > 0){ w.down--; if(!w.down) log('', 'Обработчик ' + (i + 1) + ' перезапустился и снова берёт задачи.'); return; }
+      if(!w.m){
+        if(s.q.length){
+          w.m = s.q.shift(); w.m.tries++; w.left = WORK;
+          if(w.m.tries > 1){ s.redeliv++; log('comp', 'Задача №' + w.m.id + ' доставлена повторно (попытка ' + w.m.tries + ') обработчику ' + (i + 1) + '.'); }
+        }
+        return;
+      }
+      w.left--;
+      if(w.left > 0) return;
+      const m = w.m; w.m = null;
+      if(m.poison){
+        if(m.tries >= MAXTRY){
+          s.dlq.push(m);
+          log('fail', '☠ Задача №' + m.id + ' упала в ' + MAXTRY + '-й раз. Её убрали в очередь неудачников (DLQ), чтобы не мешала остальным. Человек разберёт её вручную.');
+          goal(2);
+        } else {
+          s.q.push(m);
+          log('comp', '☠ Задача №' + m.id + ' упала с ошибкой: подтверждения нет, задача вернулась в очередь (попытка ' + m.tries + ' из ' + MAXTRY + ').');
+        }
+      } else {
+        s.done++;
+        log('done', 'Письмо по задаче №' + m.id + ' отправлено, обработчик ' + (i + 1) + ' прислал <b>ack</b>. Задача удалена из очереди.' + (m.crashed ? ' <b>Её прошлого обработчика уронили, но она не потерялась.</b>' : ''));
+        if(m.crashed) goal(1);
+      }
+    });
+    const idle = !s.q.length && s.wk.every(w => !w.m && !w.down);
+    if(s.peak && !s.q.length && s.wk.every(w => !w.m)){ s.peak = false; log('done', 'Пик разобран. Максимальная длина очереди была ' + s.maxq + '. Отправитель всё это время не ждал ни секунды.'); goal(0); }
+    if(idle){ clearInterval(timer); timer = null; }
+    paint();
+  }
+  function paint(){
+    qEl.innerHTML = s.q.length ? s.q.map(m => '<span class="cell ' + (m.poison ? 'bad' : m.tries ? 'warn' : '') + '">№' + m.id + (m.poison ? ' ☠' : '') + (m.tries ? ' ↻' + m.tries : '') + '</span>').join('') : '<span class="cmx-chip">очередь пуста</span>';
+    wkEl.innerHTML = s.wk.map((w, i) =>
+      '<div class="cmx-w ' + (w.down ? 'dead' : w.m ? 'busy' : '') + '"><b>👷 обработчик ' + (i + 1) + '</b><br>' +
+      (w.down ? '💥 упал, перезапуск…' : w.m ? 'задача №' + w.m.id + (w.m.poison ? ' ☠' : '') : 'свободен') +
+      '<div class="cmx-prog"><i style="width:' + (w.m ? ((WORK - w.left) / WORK * 100) : 0) + '%"></i></div></div>').join('');
+    dlqEl.innerHTML = s.dlq.length ? s.dlq.map(m => '<span class="cell bad">№' + m.id + ' ☠</span>').join('') : '<span class="cmx-chip">пусто — и хорошо</span>';
+    mEl.innerHTML =
+      '<div class="meter wq">в очереди: <b>' + s.q.length + '</b></div>' +
+      '<div class="meter">в работе: <b>' + s.wk.filter(w => w.m).length + '</b></div>' +
+      '<div class="meter good">выполнено (ack): <b>' + s.done + '</b></div>' +
+      '<div class="meter wq">повторных доставок: <b>' + s.redeliv + '</b></div>' +
+      '<div class="meter bad">в DLQ: <b>' + s.dlq.length + '</b></div>' +
+      '<div class="meter">максимум очереди: <b>' + s.maxq + '</b></div>';
+    logEl.innerHTML = s.log.map(x => '<div class="step ' + x.k + '"><div class="si">' + (x.k === 'done' ? '✓' : x.k === 'fail' ? '✕' : x.k === 'comp' ? '↻' : '·') + '</div><div>' + x.t + '</div></div>').join('');
+    gEl.innerHTML = G.map((t, i) => '<div class="step ' + (goals[i] ? 'done' : '') + '"><div class="si">' + (goals[i] ? '✓' : i + 1) + '</div><div>' + t + '</div></div>').join('');
+  }
+  document.getElementById('cmx-qs-add').addEventListener('click', () => { add(); log('', 'Заказы положили задачу №' + s.seq + ' и сразу занялись своими делами.'); start(); paint(); });
+  document.getElementById('cmx-qs-peak').addEventListener('click', () => {
+    for(let i = 0; i < 12; i++) add();
+    s.peak = true;
+    log('comp', 'Пик: 12 задач сразу, как утренний наплыв в поликлинике. Очередь растёт, но никто не получает отказ.');
+    start(); paint();
+  });
+  document.getElementById('cmx-qs-poison').addEventListener('click', () => {
+    add(true);
+    log('', '☠ Пришла задача №' + s.seq + ' с битым адресом почты. Отправить её невозможно, сколько ни пытайся.');
+    start(); paint();
+  });
+  document.getElementById('cmx-qs-crash').addEventListener('click', () => {
+    const i = s.wk.findIndex(w => w.m && !w.down);
+    if(i < 0){ log('', 'Сейчас все обработчики свободны — ронять некого. Сначала добавьте задачи.'); paint(); return; }
+    const w = s.wk[i], m = w.m;
+    m.crashed = true; s.q.unshift(m); w.m = null; w.down = 4;
+    log('fail', '💥 Обработчик ' + (i + 1) + ' упал посреди задачи №' + m.id + '. Он не успел прислать ack, поэтому брокер вернул задачу в начало очереди.');
+    start(); paint();
+  });
+  document.getElementById('cmx-qs-reset').addEventListener('click', () => {
+    if(timer){ clearInterval(timer); timer = null; }
+    const n = s.wk.length || 1; s = fresh(); setW(n); paint();
+  });
+  wSeg.addEventListener('click', e => { const b = e.target.closest('button[data-w]'); if(!b) return; setW(+b.dataset.w); log('', 'Обработчиков теперь ' + b.dataset.w + '. Очередь раздаёт задачи между ними.'); start(); paint(); });
+  setW(1); paint();
+})();
+</script>
+
+<script>
+/* ═══ 17.7 Издатель и подписчики ═══ */
+(function(){
+  const subsEl = document.getElementById('cmx-ps-subs');
+  if(!subsEl) return;
+  const codeEl = document.getElementById('cmx-ps-code'), mEl = document.getElementById('cmx-ps-m'),
+        logEl = document.getElementById('cmx-ps-log'), msgEl = document.getElementById('cmx-ps-msg'),
+        gEl = document.getElementById('cmx-ps-goals'), modeEl = document.getElementById('cmx-ps-mode');
+  const BASE = [
+    {id:'stock', ic:'📦', n:'Склад', call:'stockClient.reserve(order);', on:true},
+    {id:'mail', ic:'✉️', n:'Уведомления', call:'mailClient.orderPlaced(order);', on:true},
+    {id:'ana', ic:'📊', n:'Аналитика', call:'analyticsClient.track(order);', on:false},
+    {id:'bonus', ic:'🎁', n:'Бонусы', call:'bonusClient.accrue(order);', on:false},
+    {id:'fraud', ic:'🕵', n:'Антифрод', call:'fraudClient.check(order);', on:false},
+  ];
+  const G = [
+    'Режим «звонит каждому»: включите нового подписчика. Придётся править и заново выкатывать код Заказов.',
+    'Режим «событие»: оформите пару заказов, потом включите нового подписчика. Правок ноль, а новичок прочитает историю.',
+  ];
+  Progress.register('cmx-ps', 2, 'События: издатель и подписчики');
+  let s, goals = [0,0], gen = 0;
+  function fresh(mode){ return {mode, subs:BASE.map(x => ({...x, off:0, got:0})), edits:0, events:[], wait:null}; }
+  s = fresh('sync');
+  function goal(i){ if(goals[i]) return; goals[i] = 1; const n = goals[0] + goals[1]; Progress.report('cmx-ps', n); if(n === 2) confetti(20); }
+  function code(){
+    const on = s.subs.filter(x => x.on);
+    if(s.mode === 'sync'){
+      return 'void placeOrder(Order order) {\n  repo.save(order);\n' + on.map(x => '  ' + x.call + '   // ждём ' + x.n).join('\n') +
+        '\n}\n\n// правок этого файла: ' + s.edits + '\n// каждый новый потребитель = правка + выкатка Заказов';
+    }
+    return 'void placeOrder(Order order) {\n  repo.save(order);\n  broker.publish("orders.events",\n      new OrderPlaced(order.id(), order.total()));\n}\n\n// Заказы не знают, кто подписан.\n// Подписчиков сейчас: ' + on.length + ', правок этого файла: ' + s.edits;
+  }
+  function paint(){
+    subsEl.innerHTML = s.subs.map(x =>
+      '<button class="cmx-sub' + (x.on ? ' on' : '') + '" data-id="' + x.id + '"><b>' + x.ic + ' ' + x.n + '</b>' +
+      (x.on ? (s.mode === 'event' ? 'закладка: ' + x.off + ' из ' + s.events.length : 'получил: ' + x.got) : 'не подписан') + '</button>').join('');
+    codeEl.textContent = code();
+    logEl.innerHTML = s.events.length ? s.events.map((e, i) => '<span class="cell">#' + i + ' OrderPlaced ' + e + '</span>').join('') : '<span class="cmx-chip">журнал пуст</span>';
+    const on = s.subs.filter(x => x.on).length;
+    mEl.innerHTML =
+      '<div class="meter ' + (s.edits ? 'bad' : 'good') + '">правок в коде Заказов: <b>' + s.edits + '</b></div>' +
+      '<div class="meter">подписчиков: <b>' + on + '</b></div>' +
+      '<div class="meter ' + (s.wait === null ? '' : s.wait > 200 ? 'wq' : 'good') + '">Анна ждала: <b>' + (s.wait === null ? '—' : s.wait + ' мс') + '</b></div>' +
+      (s.mode === 'event' ? '<div class="meter">событий в журнале: <b>' + s.events.length + '</b></div>' : '');
+    gEl.innerHTML = G.map((t, i) => '<div class="step ' + (goals[i] ? 'done' : '') + '"><div class="si">' + (goals[i] ? '✓' : i + 1) + '</div><div>' + t + '</div></div>').join('');
+  }
+  function flash(id){
+    const b = subsEl.querySelector('[data-id="' + id + '"]');
+    if(b){ b.classList.add('flash'); const g = gen; setTimeout(() => { if(g === gen && b.isConnected) b.classList.remove('flash'); }, 450); }
+  }
+  let catching = false;
+  function catchUp(){
+    // каждый подписчик сам дочитывает журнал до конца, по одному событию
+    if(catching) return;
+    catching = true;
+    const g = gen;
+    (function loop(){
+      setTimeout(() => {
+        if(g !== gen) return;
+        const lag = s.subs.filter(x => x.on && x.off < s.events.length);
+        if(!lag.length){ catching = false; return; }
+        lag.forEach(x => { x.off++; x.got++; });
+        paint(); lag.forEach(x => flash(x.id));
+        loop();
+      }, 380);
+    })();
+  }
+  subsEl.addEventListener('click', e => {
+    const b = e.target.closest('button[data-id]'); if(!b) return;
+    const x = s.subs.find(y => y.id === b.dataset.id);
+    x.on = !x.on;
+    if(s.mode === 'sync'){
+      s.edits++;
+      msg(msgEl, 'warn', (x.on ? 'Подключили ' : 'Отключили ') + x.n + '. Для этого пришлось <b>поменять код Заказов</b> и выкатить их заново. Команда Заказов теперь зависит от чужих планов.');
+      if(x.on) goal(0);
+    } else {
+      if(x.on){
+        x.off = 0;
+        msg(msgEl, 'ok', x.n + ' подписался сам. В коде Заказов — ноль правок. ' + (s.events.length ? 'Закладка стоит на начале журнала: новичок прочитает все ' + s.events.length + ' прошлых событий.' : 'Журнал пока пуст: оформите заказ.'));
+        if(s.events.length) goal(1);
+        catchUp();
+      } else msg(msgEl, '', x.n + ' отписался. Заказы этого даже не заметили.');
+    }
+    paint();
+  });
+  document.getElementById('cmx-ps-pub').addEventListener('click', () => {
+    const on = s.subs.filter(x => x.on);
+    if(s.mode === 'sync'){
+      s.wait = 10 + on.length * 120;
+      on.forEach(x => { x.got++; });
+      msg(msgEl, on.length > 2 ? 'warn' : '', 'Заказы позвонили ' + on.length + ' сервисам по очереди. Анна ждала ' + s.wait + ' мс — по 120 мс на каждого. Упадёт любой — заказ сорвётся.');
+    } else {
+      s.events.push('ord-' + (77 + s.events.length));
+      s.wait = 13;
+      msg(msgEl, 'ok', 'Заказы положили одно событие в журнал и ответили Анне за 13 мс. Каждый подписчик прочитает его сам, со своей скоростью.');
+      catchUp();
+    }
+    paint();
+    if(s.mode === 'sync') on.forEach(x => flash(x.id));
+  });
+  function reset(mode){
+    gen++; catching = false; s = fresh(mode);
+    [...modeEl.children].forEach(b => b.classList.toggle('on', b.dataset.m === mode));
+    msg(msgEl, '', mode === 'sync' ? 'Заказы сами звонят каждому потребителю. Включите Аналитику и посмотрите на код.' : 'Заказы публикуют событие в журнал. Подписчики читают его сами, у каждого своя закладка.');
+    paint();
+  }
+  modeEl.addEventListener('click', e => { const b = e.target.closest('button[data-m]'); if(b) reset(b.dataset.m); });
+  document.getElementById('cmx-ps-reset').addEventListener('click', () => reset(s.mode));
+  reset('sync');
+})();
+</script>
+
+<script>
+/* ═══ 17.7b Команда, событие или запрос ═══ */
+(function(){
+  if(!document.getElementById('cmx-ce-sort')) return;
+  renderSort('cmx-ce-sort', [
+    {t:'«Зарезервируй товар SKU-42 под заказ ord-77»', bucket:'cmd', why:'Повелительное наклонение, адресат один — Склад. Склад может ответить отказом: «нет в наличии». Это команда.'},
+    {t:'«Заказ ord-77 оплачен»', bucket:'evt', why:'Прошедшее время, факт уже случился. Отменить его нельзя, можно только отреагировать. Адресата нет: узнает каждый, кто подписан.'},
+    {t:'«Сколько ботинок SKU-42 осталось?»', bucket:'qry', why:'Вопрос, после которого в системе ничего не меняется. Это запрос: его можно повторять сколько угодно раз.'},
+    {t:'«Отправь Анне письмо о заказе»', bucket:'cmd', why:'Просьба конкретному исполнителю — сервису уведомлений. Её можно отложить в очередь, но это всё равно команда.'},
+    {t:'«Цена на SKU-42 изменилась»', bucket:'evt', why:'Новость для всех заинтересованных: витрины, корзины, аналитики. Издатель не знает, кто её прочитает.'},
+    {t:'«Покажи историю заказов Анны»', bucket:'qry', why:'Чтение без изменений. Такие вопросы хорошо кешируются и безопасно повторяются.'},
+    {t:'«Посылка передана курьеру»', bucket:'evt', why:'Свершившийся факт в прошедшем времени. Его прочитают уведомления, трекинг, аналитика.'},
+    {t:'«Спиши 4 200 ₽ с карты ****4417»', bucket:'cmd', why:'Команда платёжному сервису. Банк может отказать, поэтому отправителю нужен канал для ответа. И нужен ключ идемпотентности, чтобы повтор не списал деньги дважды.'},
+  ], [
+    {id:'cmd', n:'Команда: «сделай»'},
+    {id:'evt', n:'Событие: «случилось»'},
+    {id:'qry', n:'Запрос: «покажи»'},
+  ], 'cmx-ce-score', 'cmx-ce-total');
+  Progress.register('cmx-ce-score', 8, 'Команда, событие или запрос');
+})();
+</script>
+
+<script>
+/* ═══ 17.8 Конверты: как летят сообщения ═══ */
+(function(){
+  const stage = document.getElementById('cmx-env-stage');
+  if(!stage) return;
+  /* шаг: f → t, k: req|res|evt|bin|fail|self, e — надпись на конверте, st — статусы участников,
+     open/close — соединения [a, b, подпись], data — содержимое конверта, d — объяснение */
+  const SC = [
+    {n:'REST', intro:'<b>REST — запрос-ответ по HTTP.</b> Клиент отправляет конверт с адресом ресурса и ждёт. Сервер отвечает, и разговор окончен. Нужны ещё данные — нужен новый конверт. Сервер никогда не пишет первым.',
+     A:[['a','📱','Анна','приложение'],['api','🧾','API заказов','сервер'],['db','🗄','База','заказов']],
+     S:[
+      {f:'a', t:'api', k:'req', e:'GET /orders/ord-77', open:[['a','api','HTTP-соединение']], st:{a:'⏳ ждёт', api:'⚙ получил'},
+       data:'GET /orders/ord-77 HTTP/1.1\nHost: api.botinok.ru\nAccept: application/json\nAuthorization: Bearer eyJhbGciOi…\n\n(тела нет: GET только спрашивает)',
+       d:'Анна открыла экран заказа. Приложение отправляет запрос. В конверте: <b>метод</b> (GET — «дай»), <b>адрес ресурса</b> и заголовки: какой формат ответа нужен и кто спрашивает.'},
+      {f:'api', t:'db', k:'req', e:'SELECT … ord-77', st:{a:'⏳ ждёт', api:'⏳ ждёт базу', db:'⚙ ищет'},
+       data:"SELECT id, status, total, created_at,\n       customer_id, delivery_id\n  FROM orders\n WHERE id = 'ord-77';",
+       d:'API сам идёт в свою базу. Анна по-прежнему ждёт: вся цепочка — синхронная.'},
+      {f:'db', t:'api', k:'res', e:'1 строка', st:{a:'⏳ ждёт', api:'⚙ собирает JSON'},
+       data:'id=ord-77  status=PAID  total=4200\ncreated_at=2026-09-20 14:03\ncustomer_id=cus-3  delivery_id=dl-5',
+       d:'База вернула строку. API превращает её в JSON.'},
+      {f:'api', t:'a', k:'res', e:'200 OK + JSON', st:{a:'✓ получила'},
+       data:'HTTP/1.1 200 OK\nContent-Type: application/json\nCache-Control: max-age=5\nETag: "v7"\n\n{\n  "id": "ord-77",\n  "status": "PAID",\n  "total": 4200,\n  "createdAt": "2026-09-20T14:03:11Z",\n  "customerId": "cus-3",\n  "deliveryId": "dl-5"\n}',
+       d:'Ответ: <b>код статуса</b> (200 — всё хорошо), заголовки и тело в JSON. <code class="inl">Cache-Control</code> разрешает 5 секунд не спрашивать снова: у REST кеширование встроено в сам HTTP.'},
+      {f:'a', t:'api', k:'req', e:'GET /deliveries/dl-5', st:{a:'⏳ ждёт', api:'⚙ получил'},
+       data:'GET /deliveries/dl-5 HTTP/1.1\nHost: api.botinok.ru\nAccept: application/json',
+       d:'Курьера в ответе нет, есть только <code class="inl">deliveryId</code>. Нужен <b>второй конверт</b>. Так в REST собирают экран из нескольких ресурсов: по запросу на каждый.'},
+      {f:'api', t:'a', k:'res', e:'200 OK', close:[['a','api']], st:{a:'✓ экран собран'},
+       data:'HTTP/1.1 200 OK\nContent-Type: application/json\n\n{\n  "id": "dl-5",\n  "courier": "Пётр",\n  "eta": "14:00",\n  "slot": "10:00–14:00"\n}',
+       d:'Второй ответ, экран готов. Каждая пара «запрос → ответ» самостоятельна: сервер ничего не помнит между ними. Это и есть главное свойство REST — сервер без состояния разговора.'},
+     ],
+     diff:'<b>Чем отличается от соседей.</b> От gRPC — текстом и свободой: JSON читается глазами, но схему при сборке никто не проверяет. От GraphQL — тем, что форму ответа решает сервер: адресов много, каждый отдаёт свой фиксированный набор полей.'},
+
+    {n:'gRPC', intro:'<b>gRPC — тот же звонок «спросил — жду», но по строгому договору.</b> Контракт лежит в файле <code class="inl">.proto</code>, из него генерируется код обеих сторон. По сети летят не буквы, а байты. Одно соединение HTTP/2 держит много вызовов сразу.',
+     A:[['o','🧾','Заказы','gRPC-клиент'],['s','📦','Склад','gRPC-сервер']],
+     S:[
+      {f:'o', t:'o', k:'self', e:'компиляция stock.proto', st:{o:'🛠 генерирует код', s:'🛠 генерирует код'},
+       data:'syntax = "proto3";\n\nservice Inventory {\n  rpc GetStock   (StockRequest) returns (StockReply);\n  rpc WatchStock (StockRequest) returns (stream StockReply);\n}\n\nmessage StockRequest { string sku = 1; }\n\nmessage StockReply {\n  string sku       = 1;\n  int32  available = 2;\n  int32  reserved  = 3;\n}',
+       d:'До любого разговора обе команды берут один файл <code class="inl">stock.proto</code> и генерируют из него код. Опечатка в имени поля просто не скомпилируется. Цифры <code class="inl">= 1</code>, <code class="inl">= 2</code> — номера полей, они и полетят по сети.'},
+      {f:'o', t:'s', k:'bin', e:'GetStock · 8 байт', open:[['o','s','HTTP/2: одно соединение, много вызовов']], st:{o:'⏳ ждёт (срок 800 мс)', s:'⚙ работает'},
+       data:'── заголовки HTTP/2 ──\n:method: POST\n:path: /inventory.Inventory/GetStock\ncontent-type: application/grpc\ngrpc-timeout: 800m\n\n── тело: protobuf ──\nбайты:  0A 06 53 4B 55 2D 34 32\n\nрасшифровка по stock.proto:\n  0A           поле 1 (sku), тип «строка»\n  06           длина 6 байт\n  53 4B 55 …   "SKU-42"',
+       d:'Адрес вызова — <code class="inl">/Сервис/Метод</code>. Срок ответа (deadline) едет прямо в заголовке: Склад знает, сколько у него времени. Тело — 8 байт вместо ~20 байт JSON.'},
+      {f:'s', t:'o', k:'bin', e:'StockReply · 12 байт', st:{o:'✓ получил'},
+       data:'── трейлер ──\ngrpc-status: 0   (OK)\n\n── тело: protobuf ──\nбайты:  0A 06 53 4B 55 2D 34 32 10 03 18 01\n\n  0A 06 …  поле 1  sku       = "SKU-42"\n  10 03    поле 2  available = 3\n  18 01    поле 3  reserved  = 1\n\nтот же ответ в JSON — 43 байта:\n{"sku":"SKU-42","available":3,"reserved":1}',
+       d:'По проводу летят <b>номера полей, а не имена</b>. Поэтому поле можно переименовать в .proto, не сломав никого. А вот номер менять нельзя никогда. Сгенерированный код Заказов сам разобрал байты в объект.'},
+      {f:'o', t:'s', k:'bin', e:'WatchStock (поток)', st:{o:'👂 слушает поток', s:'⚙ следит за остатком'},
+       data:'rpc WatchStock (StockRequest) returns (stream StockReply);\n\nзапрос:  sku = "SKU-42"\n→ ответ будет не один, а поток',
+       d:'gRPC умеет <b>потоки</b>. Один запрос «следи за остатком» — и сервер будет присылать ответы по мере изменений, внутри того же соединения.'},
+      {f:'s', t:'o', k:'bin', e:'available = 2', st:{o:'👂 слушает поток', s:'📤 шлёт изменение'},
+       data:'поток WatchStock, сообщение #1\n  sku = "SKU-42", available = 2\n  (кто-то купил пару)',
+       d:'Первое сообщение потока. Клиент не спрашивал заново — сервер прислал сам, потому что поток открыт.'},
+      {f:'s', t:'o', k:'bin', e:'available = 1', st:{o:'👂 слушает поток', s:'📤 шлёт изменение'},
+       data:'поток WatchStock, сообщение #2\n  sku = "SKU-42", available = 1',
+       d:'Внутри одного соединения HTTP/2 идут кадры разных вызовов вперемешку. Из браузера так напрямую нельзя — нужен прокси grpc-web. Поэтому обычно gRPC живёт между своими сервисами, а наружу смотрит REST.'},
+     ],
+     diff:'<b>Чем отличается от REST.</b> Тот же запрос-ответ, но быстрее и компактнее, контракт проверяет компилятор, есть потоки. Цена: глазами не прочитаешь, curl не поможет, из браузера напрямую не вызвать.'},
+
+    {n:'GraphQL', intro:'<b>GraphQL — один адрес, а форму ответа выбирает клиент.</b> Клиент присылает описание нужных полей, сервер обходит его и для каждого поля вызывает свою функцию-резолвер. Подробно — в следующей главе.',
+     A:[['a','📱','Анна','приложение'],['g','🔷','GraphQL','сервер'],['o','🧾','Заказы','сервис'],['d','🛵','Доставка','сервис']],
+     S:[
+      {f:'a', t:'g', k:'req', e:'POST /graphql', open:[['a','g','HTTP']], st:{a:'⏳ ждёт', g:'⚙ разбирает запрос'},
+       data:'POST /graphql HTTP/1.1\nContent-Type: application/json\n\n{\n  "query": "{ order(id: \\"ord-77\\") {\n      status total\n      courier { name eta }\n  } }"\n}',
+       d:'Адрес один — <code class="inl">/graphql</code>. В теле не адрес ресурса, а <b>форма ответа</b>: «дай статус, сумму, имя курьера и время приезда».'},
+      {f:'g', t:'o', k:'req', e:'резолвер order', st:{a:'⏳ ждёт', g:'⏳ ждёт резолверы', o:'⚙ работает'},
+       data:'резолвер Query.order(id: "ord-77")\n→ GET /orders/ord-77  (внутри дата-центра)',
+       d:'Сервер проверил запрос по схеме и вызвал резолвер поля <code class="inl">order</code>.'},
+      {f:'g', t:'d', k:'req', e:'резолвер courier', st:{a:'⏳ ждёт', g:'⏳ ждёт резолверы', o:'⚙ работает', d:'⚙ работает'},
+       data:'резолвер Order.courier(deliveryId: "dl-5")\n→ GET /deliveries/dl-5/courier',
+       d:'Независимые поля достаются параллельно. Клиент об этом не знает и не должен.'},
+      {f:'o', t:'g', k:'res', e:'заказ (12 полей)', st:{a:'⏳ ждёт', g:'✂ отбирает поля', d:'⚙ работает'},
+       data:'{ "id": "ord-77", "status": "PAID", "total": 4200,\n  "createdAt": "…", "customerId": "cus-3",\n  "deliveryId": "dl-5", "address": "…", … }',
+       d:'Сервис заказов отдал всё, что умеет. Лишние поля до клиента не доедут: GraphQL-сервер их отрежет.'},
+      {f:'d', t:'g', k:'res', e:'курьер', st:{a:'⏳ ждёт', g:'✂ собирает ответ'},
+       data:'{ "name": "Пётр", "phone": "+7 900 …", "eta": "14:00", "rating": 4.9 }',
+       d:'Второй резолвер вернулся.'},
+      {f:'g', t:'a', k:'res', e:'200 OK · ровно 4 поля', close:[['a','g']], st:{a:'✓ экран собран'},
+       data:'HTTP/1.1 200 OK\nContent-Type: application/json\n\n{\n  "data": {\n    "order": {\n      "status": "PAID",\n      "total": 4200,\n      "courier": { "name": "Пётр", "eta": "14:00" }\n    }\n  }\n}',
+       d:'Ответ повторяет форму запроса. Ни одного лишнего поля — и всё за один поход по медленной мобильной сети.'},
+     ],
+     diff:'<b>Чем отличается от REST.</b> Тоже JSON поверх HTTP. Но адрес один, а форму ответа выбирает клиент. Поэтому один запрос вместо нескольких и ничего лишнего. Цена — сложный сервер (глава 9).'},
+
+    {n:'Вебхук', intro:'<b>Вебхук — «мы вам перезвоним».</b> Вы оставляете внешнему сервису свой адрес. Когда результат готов, он сам отправляет вам HTTP-запрос. Никакой особой технологии: обычный POST, только в обратную сторону.',
+     A:[['shop','🧾','Магазин','наш сервер'],['pay','💳','Платёжка','внешний сервис'],['bank','🏦','Банк','']],
+     S:[
+      {f:'shop', t:'pay', k:'req', e:'POST /payments', open:[['shop','pay','HTTP']], st:{shop:'⏳ ждёт', pay:'⚙ принимает'},
+       data:'POST /v3/payments HTTP/1.1\nHost: api.paybox.ru\nIdempotency-Key: 3f1c8a2e-…\n\n{\n  "orderId": "ord-77",\n  "amount": 4200,\n  "currency": "RUB",\n  "notifyUrl": "https://botinok.ru/hooks/payment"\n}',
+       d:'Магазин создаёт платёж и оставляет <b>адрес для обратного звонка</b> — <code class="inl">notifyUrl</code>. Это и есть регистрация вебхука.'},
+      {f:'pay', t:'shop', k:'res', e:'202 pending', close:[['shop','pay']], st:{shop:'😊 свободен', pay:'⚙ работает'},
+       data:'HTTP/1.1 202 Accepted\n\n{ "id": "pay-51", "status": "pending" }',
+       d:'Ответ пришёл сразу, но это не результат, а «приняли в работу». Разговор закончен, соединение закрыто. Магазин свободен.'},
+      {f:'pay', t:'bank', k:'req', e:'списание 4200 ₽', st:{pay:'⏳ ждёт банк', bank:'⚙ 3-D Secure…'},
+       data:'→ банк-эмитент: авторизация 4200 RUB\n   карта ****4417, код из СМС',
+       d:'Банк может думать секунду, а может сутки. Держать соединение с магазином столько нельзя — поэтому синхронный вызов здесь не годится.'},
+      {f:'bank', t:'pay', k:'res', e:'успешно', st:{pay:'📤 надо сообщить магазину'},
+       data:'← банк: approved, authCode 834211',
+       d:'Банк подтвердил. Теперь платёжка должна сообщить магазину.'},
+      {f:'pay', t:'shop', k:'req', e:'POST /hooks/payment', open:[['shop','pay','HTTP (роли поменялись)']], st:{shop:'💥 идёт выкатка', pay:'⏳ ждёт ответа'},
+       data:'POST /hooks/payment HTTP/1.1\nHost: botinok.ru\nX-Event-Id: evt_1P9kLm\nX-Signature: t=1758374591,v1=5257a869e7ec…\nContent-Type: application/json\n\n{\n  "type": "payment.succeeded",\n  "data": { "paymentId": "pay-51",\n            "orderId": "ord-77",\n            "amount": 4200 }\n}',
+       d:'<b>Вот он, вебхук.</b> Роли поменялись: теперь платёжка — клиент, наш магазин — сервер. Но у нас как раз выкатка новой версии.'},
+      {f:'shop', t:'pay', k:'fail', e:'503 Unavailable', close:[['shop','pay']], st:{shop:'💥 перезапуск', pay:'⏰ повторит через 1 мин'},
+       data:'HTTP/1.1 503 Service Unavailable\n\nплатёжка: попытка 1 не удалась\nследующие попытки: +1 мин, +5 мин, +30 мин, +2 ч …',
+       d:'Ошибка. Платёжка не сдаётся и повторит позже по расписанию. Поэтому <b>один и тот же вебхук может прийти несколько раз</b>.'},
+      {f:'pay', t:'shop', k:'req', e:'повтор: тот же вебхук', open:[['shop','pay','HTTP']], st:{shop:'⚙ проверяет', pay:'⏳ ждёт ответа'},
+       data:'POST /hooks/payment HTTP/1.1\nX-Event-Id: evt_1P9kLm        ← тот же номер\nX-Attempt: 2\nX-Signature: t=1758374651,v1=9c1e04…\n\n{ "type": "payment.succeeded", … }',
+       d:'Тот же вебхук второй раз, с тем же <code class="inl">X-Event-Id</code>. Обработчик обязан быть идемпотентным: если такое событие уже обработано — просто ответить 200.'},
+      {f:'shop', t:'shop', k:'self', e:'проверка подписи', st:{shop:'🔐 HMAC', pay:'⏳ ждёт ответа'},
+       data:'ожидаемая = HMAC-SHA256(\n  "1758374651." + сырое_тело,\n  секрет_магазина)\n\nсовпала с v1 из заголовка → запрос правда от платёжки\nевент evt_1P9kLm ещё не видели → сохранить во входящие',
+       d:'Адрес <code class="inl">/hooks/payment</code> открыт всему интернету. Без проверки подписи любой пришлёт «оплата прошла» и получит ботинки бесплатно.'},
+      {f:'shop', t:'pay', k:'res', e:'200 OK', close:[['shop','pay']], st:{shop:'✓ принял', pay:'✓ доставлено'},
+       data:'HTTP/1.1 200 OK\n\n(ответить за 3–5 секунд;\n тяжёлую обработку — в очередь)',
+       d:'Отвечаем быстро и только после того, как надёжно сохранили факт. Платёжка больше повторять не будет.'},
+      {f:'shop', t:'pay', k:'req', e:'GET /payments/pay-51', st:{shop:'🔎 перепроверяет'},
+       data:'GET /v3/payments/pay-51 HTTP/1.1\n\n← { "id": "pay-51", "status": "succeeded" }',
+       d:'Хорошая практика: не верить телу вебхука на слово, а переспросить статус через API платёжки. Вебхук — сигнал «загляни», а не истина.'},
+     ],
+     diff:'<b>Чем отличается от соседей.</b> От опроса — не мы спрашиваем «ну что там?», а нам звонят. От события в брокере — тот же смысл «сообщить факт», но между разными компаниями, по обычному HTTP, без общего брокера. Поэтому подпись, повторы и идемпотентность — на вас.'},
+
+    {n:'Событие в брокере', intro:'<b>Событие — объявление о факте.</b> Издатель кладёт его в брокер и забывает. Брокер хранит события в журнале. Каждая группа подписчиков читает журнал со своей закладкой (offset) и получает свою копию.',
+     A:[['o','🧾','Заказы','издатель'],['b','📮','Kafka','orders.events'],['s','📦','Склад','подписчик'],['an','📊','Аналитика','подписчик']],
+     S:[
+      {f:'o', t:'b', k:'evt', e:'OrderPlaced', st:{o:'⏳ ждёт только брокер', b:'💾 пишет в журнал'},
+       data:'топик: orders.events\nключ:  ord-77   (одинаковый ключ → один раздел → порядок)\n\n{\n  "eventId": "evt-91af",\n  "eventType": "OrderPlaced",\n  "occurredAt": "2026-09-20T14:03:11Z",\n  "orderId": "ord-77",\n  "total": 4200\n}',
+       d:'Заказы публикуют факт в прошедшем времени. Им неважно, кто подписан.'},
+      {f:'b', t:'o', k:'res', e:'ack: offset 18214', st:{o:'😊 свободен', b:'📚 хранит'},
+       data:'ack от брокера:\n  раздел 3, offset 18214\n  запись сохранена на 3 узлах',
+       d:'Брокер записал событие на диск и подтвердил. Заказам этого достаточно, дальше забота брокера. Весь разговор с издателем — 3 мс.'},
+      {f:'b', t:'s', k:'evt', e:'копия → inventory', st:{s:'⚙ резервирует', b:'📚 хранит'},
+       data:'группа подписчиков: inventory\nзакладка: 18213 → читает 18214\n\n{ "eventType": "OrderPlaced", "orderId": "ord-77", … }',
+       d:'Склад читает журнал своей группой со своей закладкой.'},
+      {f:'b', t:'an', k:'evt', e:'копия → analytics', st:{s:'⚙ резервирует', an:'⚙ считает', b:'📚 хранит'},
+       data:'группа подписчиков: analytics\nзакладка: 18213 → читает 18214\n\n{ "eventType": "OrderPlaced", "orderId": "ord-77", … }',
+       d:'Аналитика получает ту же запись. Это не две отправки: запись одна, а читателей двое, и каждый читает сам.'},
+      {f:'s', t:'b', k:'res', e:'commit 18214', st:{s:'✓ готово', an:'⚙ считает'},
+       data:'группа inventory: закладка = 18214\n(следующий раз читать с 18215)',
+       d:'Склад обработал событие и сдвинул свою закладку. На закладку Аналитики это не влияет.'},
+      {f:'an', t:'an', k:'self', e:'упала на час', st:{an:'💤 лежит'},
+       data:'группа analytics: закладка всё ещё 18213\nсобытие 18214 никуда не делось — журнал хранит его 7 дней',
+       d:'Аналитика ушла на обслуживание, не успев подтвердить. Событие в журнале ждёт. Заказы ничего не знают.'},
+      {f:'an', t:'b', k:'res', e:'commit 18214', st:{an:'✓ дочитала'},
+       data:'через час: analytics читает с 18214\n→ обработала → закладка = 18214',
+       d:'Аналитика поднялась и дочитала с того места, где остановилась. Ничего не потерялось.'},
+     ],
+     diff:'<b>Чем отличается от очереди.</b> В очереди сообщение забирает один обработчик, и после подтверждения оно удаляется. В журнале событий каждая группа подписчиков получает свою копию, а запись остаётся — её можно перечитать хоть с начала.'},
+
+    {n:'Опрос и long polling', intro:'<b>Опрос — самый простой способ узнать новость: спрашивать.</b> Обычный опрос спрашивает по таймеру и часто впустую. Длинный опрос (long polling) спрашивает один раз, а сервер держит вопрос открытым, пока не появится ответ.',
+     A:[['a','📱','Анна','приложение'],['api','🧾','API','статус заказа'],['dl','🛵','Доставка','сервис']],
+     S:[
+      {f:'a', t:'api', k:'req', e:'GET /status', open:[['a','api','HTTP']], st:{a:'⏳ ждёт', api:'⚙'},
+       data:'GET /orders/ord-77/status HTTP/1.1',
+       d:'Обычный опрос: приложение спрашивает каждые 2 секунды.'},
+      {f:'api', t:'a', k:'res', e:'waiting', close:[['a','api']], st:{a:'💤 ждёт таймер'},
+       data:'HTTP/1.1 200 OK\n\n{ "state": "waiting_courier" }',
+       d:'Новостей нет. Запрос был напрасным. При 10 000 пользователей это 5 000 пустых запросов в секунду.'},
+      {f:'a', t:'api', k:'req', e:'GET /status?wait=30', open:[['a','api','запрос висит до 30 с']], st:{a:'⏳ ждёт (приложение не зависло)', api:'🤐 держит запрос'},
+       data:'GET /orders/ord-77/status?wait=30 HTTP/1.1\n\n(сервер НЕ отвечает сразу:\n ждёт новости или 30 секунд)',
+       d:'<b>Длинный опрос.</b> Сервер не отвечает сразу, а держит соединение открытым. Приложение Анны при этом работает: ждёт фоновый запрос, а не весь интерфейс.'},
+      {f:'dl', t:'api', k:'evt', e:'курьер назначен', st:{api:'🔔 есть новость', dl:'📤'},
+       data:'внутреннее событие:\n{ "orderId": "ord-77", "courier": "Пётр" }',
+       d:'Через 11 секунд доставка назначила курьера.'},
+      {f:'api', t:'a', k:'res', e:'200 courier_assigned', close:[['a','api']], st:{a:'✓ новость', api:'😊 отпустил'},
+       data:'HTTP/1.1 200 OK\n\n{ "state": "courier_assigned", "courier": "Пётр" }',
+       d:'Ответ ушёл <b>в момент события</b> — без задержки и без пустых запросов.'},
+      {f:'a', t:'api', k:'req', e:'GET /status?wait=30', open:[['a','api','запрос висит до 30 с']], st:{a:'⏳ ждёт следующую новость', api:'🤐 держит запрос'},
+       data:'GET /orders/ord-77/status?wait=30&after=courier_assigned',
+       d:'Приложение сразу задаёт следующий длинный вопрос. Цена: сервер держит тысячи открытых запросов, ему нужна неблокирующая обработка. И отвечать надо до таймаута прокси (обычно 60 с).'},
+     ],
+     diff:'<b>Чем отличается от соседей.</b> От обычного опроса — нет пустых запросов и задержки. От SSE — каждое обновление требует нового запроса, а SSE держит один поток и шлёт в него много событий.'},
+
+    {n:'SSE', intro:'<b>SSE (Server-Sent Events) — радио.</b> Клиент один раз подписывается обычным GET, сервер отвечает и не закрывает ответ: дописывает в него строчки по мере новостей. Говорит только сервер.',
+     A:[['a','📱','Анна','браузер'],['api','🧾','API трекинга','сервер'],['dl','🛵','Доставка','сервис']],
+     S:[
+      {f:'a', t:'api', k:'req', e:'GET /track', open:[['a','api','HTTP']], st:{a:'👂 подписалась', api:'⚙'},
+       data:'GET /orders/ord-77/track HTTP/1.1\nAccept: text/event-stream',
+       d:'Обычный GET. Никакого рукопожатия и смены протокола — это по-прежнему HTTP.'},
+      {f:'api', t:'a', k:'res', e:'200 event-stream', open:[['a','api','🔌 поток открыт: сервер → клиент']], st:{a:'👂 слушает', api:'📡 держит поток'},
+       data:'HTTP/1.1 200 OK\nContent-Type: text/event-stream\nCache-Control: no-cache\n\n(соединение НЕ закрывается)',
+       d:'Сервер ответил и <b>не закрыл соединение</b>. Дальше он будет дописывать события.'},
+      {f:'dl', t:'api', k:'evt', e:'курьер назначен', st:{a:'👂 слушает', api:'🔔 новость', dl:'📤'},
+       data:'внутреннее событие от доставки:\n{ "orderId": "ord-77", "status": "courier_assigned" }',
+       d:'API узнал новость от сервиса доставки (например, из брокера).'},
+      {f:'api', t:'a', k:'evt', e:'event: status', st:{a:'👂 показала', api:'📡 держит поток'},
+       data:'id: 1\nevent: status\ndata: {"status":"courier_assigned","courier":"Пётр"}\n\n',
+       d:'Каждое событие — несколько строк текста: номер, тип, данные. Пустая строка — конец события. Формат читается глазами.'},
+      {f:'api', t:'a', k:'evt', e:'event: status', st:{a:'👂 показала', api:'📡 держит поток'},
+       data:'id: 2\nevent: status\ndata: {"status":"in_transit","eta":"14:20"}\n\n',
+       d:'Второе событие по тому же соединению. Клиент ничего не спрашивал.'},
+      {f:'a', t:'a', k:'fail', e:'обрыв связи (лифт)', close:[['a','api']], st:{a:'📵 нет сети', api:'—'},
+       data:'соединение оборвалось\nбраузер помнит: последний id = 2',
+       d:'Анна зашла в лифт. Соединение порвалось. А теперь самое приятное.'},
+      {f:'a', t:'api', k:'req', e:'Last-Event-ID: 2', open:[['a','api','🔌 поток снова открыт']], st:{a:'👂 переподключилась', api:'📡 продолжает с 3'},
+       data:'GET /orders/ord-77/track HTTP/1.1\nAccept: text/event-stream\nLast-Event-ID: 2        ← браузер прислал САМ',
+       d:'<b>Браузер переподключился сам</b> и сообщил последний номер. Писать это руками не надо: встроено в <code class="inl">EventSource</code>.'},
+      {f:'api', t:'a', k:'evt', e:'event: status', st:{a:'✓ всё знает', api:'📡'},
+       data:'id: 3\nevent: status\ndata: {"status":"delivered"}\n\n',
+       d:'Сервер продолжил с номера 3. Ни одно событие не потерялось.'},
+     ],
+     diff:'<b>Чем отличается от соседей.</b> От WebSocket — только в одну сторону (сервер → клиент), зато это обычный HTTP и переподключение встроено в браузер. От long polling — одно соединение и много событий, а не запрос на каждое.'},
+
+    {n:'WebSocket', intro:'<b>WebSocket — рация.</b> Соединение открывается один раз и держится. Писать может любая сторона в любой момент, без новых запросов. Пример — чат Анны с курьером.',
+     A:[['a','📱','Анна','браузер'],['ws','💬','Чат-сервер',''],['c','🛵','Курьер','приложение']],
+     S:[
+      {f:'a', t:'ws', k:'req', e:'GET /ws Upgrade', open:[['ws','c','WebSocket курьера']], st:{a:'🤝 рукопожатие', ws:'⚙', c:'🟢 онлайн'},
+       data:'GET /ws?chat=ord-77 HTTP/1.1\nHost: chat.botinok.ru\nUpgrade: websocket\nConnection: Upgrade\nSec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==\nSec-WebSocket-Version: 13',
+       d:'Начинается с обычного HTTP-запроса: «давай переключим это соединение в другой режим». Курьер уже подключён своим каналом.'},
+      {f:'ws', t:'a', k:'res', e:'101 Switching Protocols', open:[['a','ws','🔌 WebSocket: говорят обе стороны']], st:{a:'🟢 онлайн', ws:'🔀', c:'🟢 онлайн'},
+       data:'HTTP/1.1 101 Switching Protocols\nUpgrade: websocket\nConnection: Upgrade\nSec-WebSocket-Accept: s3pPLMBiTxaQ9kYGzzhZRbK+xOo=\n\n──── дальше HTTP нет, идут кадры ────',
+       d:'<b>Ключевой момент.</b> Соединение не закрылось, а сменило режим. HTTP на этом закончился.'},
+      {f:'a', t:'ws', k:'evt', e:'message', st:{a:'✍', ws:'📨'},
+       data:'кадр от Анны:\n{ "type": "message", "chat": "ord-77",\n  "text": "Позвоните в домофон 45" }',
+       d:'Отправка без заголовков и нового соединения: 2–6 байт служебной обёртки вместо ~700 байт HTTP-заголовков.'},
+      {f:'ws', t:'c', k:'evt', e:'message', st:{ws:'📤 пишет первым', c:'🔔'},
+       data:'кадр курьеру:\n{ "type": "message", "from": "customer",\n  "text": "Позвоните в домофон 45", "seq": 1841 }',
+       d:'<b>Вот чего не умеет обычный HTTP.</b> Сервер сам пишет курьеру — не в ответ на запрос, а когда захотел.'},
+      {f:'c', t:'ws', k:'evt', e:'typing', st:{c:'✍ печатает'},
+       data:'{ "type": "typing" }',
+       d:'Мелкое служебное событие. По HTTP слать такое на каждое нажатие клавиши было бы разорительно.'},
+      {f:'ws', t:'a', k:'evt', e:'typing', st:{a:'👀 «курьер печатает…»'},
+       data:'{ "type": "typing", "who": "courier" }',
+       d:'Анна видит «курьер печатает». Задержка — единицы миллисекунд: соединение уже открыто.'},
+      {f:'c', t:'ws', k:'evt', e:'message', st:{c:'✓ отправил'},
+       data:'{ "type": "message", "text": "Буду через 5 минут" }',
+       d:'Курьер ответил.'},
+      {f:'ws', t:'a', k:'evt', e:'message', st:{a:'✓ прочитала'},
+       data:'{ "type": "message", "from": "courier",\n  "text": "Буду через 5 минут", "seq": 1842 }',
+       d:'Номер <code class="inl">seq</code> нужен, чтобы после обрыва попросить «всё, что после 1842».'},
+      {f:'a', t:'ws', k:'evt', e:'ping', st:{a:'💓', ws:'💓'},
+       data:'ping → ← pong   (каждые 30 секунд)',
+       d:'<b>Сердцебиение.</b> Прокси и мобильные сети молча закрывают тихие соединения. Без ping/pong обе стороны будут думать, что связь есть, а её нет. И ещё: соединение привязано к конкретному экземпляру сервера, поэтому между экземплярами нужна общая шина (например, Redis Pub/Sub).'},
+     ],
+     diff:'<b>Чем отличается от соседей.</b> От SSE — говорят обе стороны по одному соединению. От REST — не надо стучаться за каждым сообщением, и сервер может писать первым. Цена: переподключения, добор пропущенного и масштабирование пишете сами.'},
+  ];
+
+  const pick = document.getElementById('cmx-env-pick'), intro = document.getElementById('cmx-env-intro'),
+        say = document.getElementById('cmx-env-say'), data = document.getElementById('cmx-env-data'),
+        diff = document.getElementById('cmx-env-diff'), lab = document.getElementById('cmx-env-lab'),
+        play = document.getElementById('cmx-env-play'), seenEl = document.getElementById('cmx-env-seen');
+  const KL = {req:'запрос', res:'ответ', evt:'сообщение', bin:'двоичный кадр', fail:'ошибка', self:'внутри'};
+  const seen = new Set();
+  Progress.register('cmx-env', SC.length, 'Конверты: восемь способов в движении');
+  let sc = 0, cur = 0, timer = null;
+  pick.innerHTML = SC.map((x, i) => '<button data-i="' + i + '"' + (i === 0 ? ' class="on"' : '') + '>' + x.n + '</button>').join('');
+
+  function build(){
+    const x = SC[sc], n = x.A.length;
+    stage.innerHTML =
+      '<div class="cmx-acts">' + x.A.map(a => '<div class="cmx-act" data-a="' + a[0] + '"><span class="cmx-ic">' + a[1] + '</span><b>' + a[2] + '</b><small></small></div>').join('') + '</div>' +
+      '<div class="cmx-track">' + x.A.map((a, i) => '<div class="cmx-life" style="left:' + ((i + 0.5) / n * 100) + '%"></div>').join('') +
+      '<div class="cmx-conns"></div><div class="cmx-line"></div><div class="cmx-envl">✉️</div></div>';
+    intro.innerHTML = x.intro;
+    diff.innerHTML = x.diff;
+  }
+  const cx = id => { const x = SC[sc], i = x.A.findIndex(a => a[0] === id); return (i + 0.5) / x.A.length * 100; };
+  function conns(){
+    const x = SC[sc], m = new Map();
+    for(let i = 0; i <= cur; i++){
+      const st = x.S[i];
+      (st.close || []).forEach(c => m.delete([c[0], c[1]].sort().join('|')));
+      (st.open || []).forEach(c => m.set([c[0], c[1]].sort().join('|'), c));
+    }
+    return [...m.values()];
+  }
+  function paint(animate){
+    const x = SC[sc], st = x.S[cur];
+    stage.querySelectorAll('.cmx-act').forEach(el => {
+      const id = el.dataset.a, t = (st.st && st.st[id]) || '';
+      el.classList.toggle('from', st.f === id);
+      el.classList.toggle('to', st.t === id && st.f !== id);
+      el.classList.toggle('wait', t.indexOf('⏳') === 0);
+      el.querySelector('small').textContent = t;
+    });
+    stage.querySelector('.cmx-conns').innerHTML = conns().map(c => {
+      const a = cx(c[0]), b = cx(c[1]), l = Math.min(a, b), w = Math.abs(a - b);
+      return '<div class="cmx-conn" style="left:' + l + '%;width:' + w + '%;top:6px">' + esc(c[2]) + '</div>';
+    }).join('');
+    const line = stage.querySelector('.cmx-line'), env = stage.querySelector('.cmx-envl');
+    const a = cx(st.f), b = cx(st.t);
+    line.className = 'cmx-line ' + st.k;
+    line.style.left = Math.min(a, b) + '%'; line.style.width = Math.abs(a - b) + '%';
+    line.style.display = st.f === st.t ? 'none' : '';
+    env.className = 'cmx-envl ' + st.k;
+    env.innerHTML = (st.k === 'fail' ? '⚠️ ' : st.k === 'self' ? '⚙️ ' : '✉️ ') + esc(st.e);
+    if(animate && st.f !== st.t){
+      env.style.transition = 'none'; env.style.left = a + '%';
+      void env.offsetWidth;
+      env.style.transition = ''; env.style.left = b + '%';
+    } else {
+      env.style.left = b + '%';
+    }
+    if(st.k === 'self'){ env.classList.remove('self'); void env.offsetWidth; env.classList.add('self'); }
+    const names = id => { const q = x.A.find(z => z[0] === id); return q[1] + ' ' + q[2]; };
+    say.innerHTML = '<h4>Шаг ' + (cur + 1) + '. ' + (st.f === st.t ? names(st.f) + ': ' + esc(st.e) : names(st.f) + ' → ' + names(st.t)) + '</h4>' +
+      '<div style="margin-bottom:6px"><span class="cmx-chip ' + (st.k === 'req' ? 'sync' : st.k === 'res' ? 'free' : st.k === 'fail' ? 'wait' : 'async') + '">' + KL[st.k] + '</span> ' +
+      (conns().length ? '<span class="cmx-chip">🔌 открытых соединений: ' + conns().length + '</span>' : '<span class="cmx-chip">соединений нет</span>') + '</div>' +
+      '<div style="font-size:13.5px">' + st.d + '</div>';
+    data.textContent = st.data;
+    lab.textContent = x.n + ' · шаг ' + (cur + 1) + ' из ' + x.S.length;
+    if(cur === x.S.length - 1 && !seen.has(sc)){ seen.add(sc); Progress.report('cmx-env', seen.size); if(seen.size === SC.length) confetti(26); }
+    seenEl.textContent = 'Досмотрено до конца: ' + seen.size + ' из ' + SC.length + (seen.size ? ' (' + [...seen].map(i => SC[i].n).join(', ') + ')' : '');
+  }
+  function stop(){ if(timer){ clearInterval(timer); timer = null; } play.textContent = '▶ Прогнать'; }
+  function go(i){ stop(); sc = i; cur = 0; [...pick.children].forEach((b, k) => b.classList.toggle('on', k === i)); build(); paint(true); }
+  pick.addEventListener('click', e => { const b = e.target.closest('button[data-i]'); if(b) go(+b.dataset.i); });
+  document.getElementById('cmx-env-next').addEventListener('click', () => { stop(); if(cur < SC[sc].S.length - 1){ cur++; paint(true); } });
+  document.getElementById('cmx-env-prev').addEventListener('click', () => { stop(); if(cur > 0){ cur--; paint(false); } });
+  document.getElementById('cmx-env-reset').addEventListener('click', () => { stop(); cur = 0; paint(true); });
+  play.addEventListener('click', () => {
+    if(timer){ stop(); return; }
+    if(cur >= SC[sc].S.length - 1){ cur = 0; paint(true); }
+    play.textContent = '⏸ Пауза';
+    timer = setInterval(() => {
+      if(cur >= SC[sc].S.length - 1){ stop(); return; }
+      cur++; paint(true);
+    }, 2400);
+  });
+  go(0);
+})();
+</script>
+
+<script>
+/* ═══ 17.9 GraphQL: экран «Мой заказ» двумя способами ═══ */
+(function(){
+  const fEl = document.getElementById('cmx-gq-fields');
+  if(!fEl) return;
+  const F = [
+    {g:'order', n:'🧾 Заказ', f:[['status','статус',1],['total','сумма',1],['createdAt','дата',0]]},
+    {g:'items', n:'👟 Товары', f:[['title','название',1],['qty','количество',1],['price','цена',0],['photo','фото',0]]},
+    {g:'courier', n:'🛵 Курьер', f:[['name','имя',1],['phone','телефон',0],['eta','время приезда',1]]},
+    {g:'customer', n:'🙋 Покупатель', f:[['name','имя',0]]},
+  ];
+  const sel = new Set();
+  F.forEach(g => g.f.forEach(f => { if(f[2]) sel.add(g.g + '.' + f[0]); }));
+  /* REST: адреса, их поля, что они дают экрану и от кого зависят */
+  const E = [
+    {id:'order', url:'GET /orders/ord-77', k:1, lvl:1,
+     fields:['id','status','total','createdAt','updatedAt','customerId','deliveryId','address','comment','promoCode','channel','currency'],
+     give:{'order.status':'status','order.total':'total','order.createdAt':'createdAt'}},
+    {id:'items', url:'GET /orders/ord-77/items', k:1, lvl:1,
+     fields:['sku','qty','price','discount','warehouseId'], give:{'items.qty':'qty','items.price':'price'}},
+    {id:'prod', url:'GET /products/{sku} × 2 товара', k:2, lvl:2, need:'items', link:['items','sku'],
+     why:'В ответе /items нет названия и фото, только sku. Приходится идти в каталог — по запросу на каждый товар.',
+     fields:['sku','title','photo','description','brand','weight','sizes','rating'], give:{'items.title':'title','items.photo':'photo'}},
+    {id:'dlv', url:'GET /deliveries/dl-5', k:1, lvl:2, need:'order', link:['order','deliveryId'],
+     why:'Про курьера в заказе есть только deliveryId. Сначала узнаём его из /orders, потом идём в доставку.',
+     fields:['id','status','eta','courierId','route','slot','warehouse'], give:{'courier.eta':'eta'}},
+    {id:'cour', url:'GET /couriers/c-9', k:1, lvl:3, need:'dlv', link:['dlv','courierId'],
+     why:'Доставка знает только courierId. Имя и телефон — в третьем по счёту запросе цепочки.',
+     fields:['id','name','phone','rating','vehicle','zone'], give:{'courier.name':'name','courier.phone':'phone'}},
+    {id:'cust', url:'GET /customers/cus-3', k:1, lvl:2, need:'order', link:['order','customerId'],
+     why:'Имени покупателя нет в заказе, только customerId.',
+     fields:['id','name','email','phone','birthday','addresses','segment','bonus'], give:{'customer.name':'name'}},
+  ];
+  const DATA = {
+    order:{status:'PAID', total:4200, createdAt:'2026-09-20T14:03:11Z'},
+    items:[{title:'Ботинки зимние', qty:1, price:3900, photo:'/img/sku-42.jpg'},{title:'Стельки тёплые', qty:2, price:150, photo:'/img/sku-7.jpg'}],
+    courier:{name:'Пётр', phone:'+7 900 123-45-67', eta:'14:00'},
+    customer:{name:'Анна'},
+  };
+  const G = [0,0];
+  Progress.register('cmx-gq', 2, 'GraphQL: поля и N+1');
+  function goal(i){ if(G[i]) return; G[i] = 1; Progress.report('cmx-gq', G[0] + G[1]); }
+  fEl.innerHTML = F.map(g => '<div class="cmx-fg"><h5>' + g.n + '</h5>' + g.f.map(f =>
+    '<label><input type="checkbox" data-k="' + g.g + '.' + f[0] + '"' + (sel.has(g.g + '.' + f[0]) ? ' checked' : '') + '> ' + f[1] + ' <span class="cmx-chip" style="padding:0 5px">' + f[0] + '</span></label>').join('') + '</div>').join('');
+
+  function restPlan(){
+    const inc = new Set();
+    E.forEach(e => { if(Object.keys(e.give).some(k => sel.has(k))) inc.add(e.id); });
+    let grew = true;
+    while(grew){ grew = false; E.forEach(e => { if(inc.has(e.id) && e.need && !inc.has(e.need)){ inc.add(e.need); grew = true; } }); }
+    return E.filter(e => inc.has(e.id));
+  }
+  function paint(){
+    const plan = restPlan();
+    const links = {};
+    plan.forEach(e => { if(e.link) (links[e.link[0]] = links[e.link[0]] || new Set()).add(e.link[1]); });
+    let reqs = 0, got = 0, used = 0, depth = 0, bytesR = 0;
+    document.getElementById('cmx-gq-rest').innerHTML = plan.length ? plan.map(e => {
+      const need = new Set(Object.keys(e.give).filter(k => sel.has(k)).map(k => e.give[k]));
+      const lk = links[e.id] || new Set();
+      reqs += e.k; got += e.fields.length * e.k; used += (need.size + lk.size) * e.k; depth = Math.max(depth, e.lvl);
+      bytesR += e.k * (160 + e.fields.length * 22 * (e.id === 'items' ? 2 : 1));
+      return '<div class="cmx-rq"><code>' + esc(e.url) + '</code> <span class="cmx-chip">поход ' + e.lvl + '</span>' +
+        '<div class="cells">' + e.fields.map(f => '<span class="cell ' + (need.has(f) ? 'ok' : lk.has(f) ? 'warn' : 'dim') + '">' + f + '</span>').join('') + '</div>' +
+        (e.why ? '<div class="cmx-why">↳ недовыборка: ' + e.why + '</div>' : '') +
+        (!need.size && !e.why ? '<div class="cmx-why">↳ сам по себе экрану не нужен — только ради ссылок: ' + [...lk].join(', ') + '</div>' : '') +
+        '</div>';
+    }).join('') + '<p class="bs" style="margin:6px 0 0;font-size:12px;color:var(--muted)"><span class="cell ok">поле</span> нужно экрану · <span class="cell warn">поле</span> нужно, чтобы сделать следующий запрос · <span class="cell dim">поле</span> лишнее (перевыборка)</p>'
+      : '<div class="console"><span class="ic">ℹ</span><span>Ничего не выбрано — и запросов нет.</span></div>';
+
+    /* GraphQL: запрос и ответ */
+    const pad = n => '  '.repeat(n);
+    let q = 'query {\n' + pad(1) + 'order(id: "ord-77") {\n';
+    const res = {};
+    let cnt = 0;
+    F.forEach(g => {
+      const fs = g.f.filter(f => sel.has(g.g + '.' + f[0]));
+      if(!fs.length) return;
+      if(g.g === 'order'){
+        fs.forEach(f => { q += pad(2) + f[0] + '\n'; res[f[0]] = DATA.order[f[0]]; cnt++; });
+      } else {
+        q += pad(2) + g.g + ' {\n' + fs.map(f => pad(3) + f[0]).join('\n') + '\n' + pad(2) + '}\n';
+        if(g.g === 'items'){ res.items = DATA.items.map(it => { const o = {}; fs.forEach(f => o[f[0]] = it[f[0]]); return o; }); cnt += fs.length * 2; }
+        else { const o = {}; fs.forEach(f => o[f[0]] = DATA[g.g][f[0]]); res[g.g] = o; cnt += fs.length; }
+      }
+    });
+    q += pad(1) + '}\n}';
+    document.getElementById('cmx-gq-q').textContent = sel.size ? q : '# отметьте хотя бы одно поле';
+    const body = JSON.stringify({data:{order:res}}, null, 2);
+    document.getElementById('cmx-gq-r').textContent = sel.size ? body : '';
+    const bytesG = sel.size ? 220 + body.length : 0;
+    document.getElementById('cmx-gq-m').innerHTML =
+      '<div class="meter ' + (reqs > 3 ? 'bad' : reqs > 1 ? 'wq' : 'good') + '">REST: запросов <b>' + reqs + '</b></div>' +
+      '<div class="meter ' + (depth > 1 ? 'wq' : '') + '">REST: последовательных походов <b>' + depth + '</b></div>' +
+      '<div class="meter bad">REST: полей получено <b>' + got + '</b>, нужно <b>' + used + '</b></div>' +
+      '<div class="meter">REST: ~<b>' + bytesR + '</b> байт</div>' +
+      '<div class="meter good">GraphQL: запросов <b>' + (sel.size ? 1 : 0) + '</b>, полей <b>' + cnt + '</b>, ~<b>' + bytesG + '</b> байт</div>';
+    msg(document.getElementById('cmx-gq-msg'), reqs > 3 ? 'warn' : '',
+      sel.size ? 'REST: ' + reqs + ' запрос' + (reqs === 1 ? '' : reqs < 5 ? 'а' : 'ов') + ', из них ' + depth + ' пойдут друг за другом — каждый ждёт предыдущего, потому что ему нужен id из прошлого ответа. На мобильной сети с задержкой 150 мс это минимум ' + (depth * 150) + ' мс только на дорогу. GraphQL: один запрос, одна дорога, ' + cnt + ' полей.'
+      : 'Отметьте поля, которые нужны экрану.');
+  }
+  fEl.addEventListener('change', e => {
+    const c = e.target.closest('input[data-k]'); if(!c) return;
+    if(c.checked) sel.add(c.dataset.k); else sel.delete(c.dataset.k);
+    goal(0); paint();
+  });
+  paint();
+
+  /* N+1 */
+  const dlSeg = document.getElementById('cmx-gq-dl'), callsEl = document.getElementById('cmx-gq-calls'), n1msg = document.getElementById('cmx-gq-n1msg');
+  let dl = false, gen = 0;
+  dlSeg.addEventListener('click', e => { const b = e.target.closest('button[data-v]'); if(!b) return; dl = b.dataset.v === '1'; [...dlSeg.children].forEach(x => x.classList.toggle('on', x === b)); gen++; callsEl.innerHTML = ''; msg(n1msg, '', 'Режим: ' + (dl ? 'с DataLoader' : 'без DataLoader') + '. Нажмите «Запросить».'); });
+  document.getElementById('cmx-gq-n1').addEventListener('click', () => {
+    const g = ++gen;
+    const calls = ['orders.list(user: cus-3)'].concat(dl ? ['couriers.getMany([c-1 … c-10])'] : Array.from({length:10}, (_, i) => 'couriers.get(c-' + (i + 1) + ')'));
+    callsEl.innerHTML = '';
+    calls.forEach((c, i) => setTimeout(() => {
+      if(g !== gen) return;
+      callsEl.insertAdjacentHTML('beforeend', '<span class="cell ' + (i === 0 ? '' : dl ? 'ok' : 'bad') + '">' + (i + 1) + '. ' + c + '</span>');
+      if(i === calls.length - 1){
+        msg(n1msg, dl ? 'ok' : 'err', dl
+          ? '2 вызова. DataLoader подождал, пока все 10 резолверов попросят курьера, и сделал один общий запрос пачкой.'
+          : '11 вызовов: 1 за списком + 10 за курьерами, по одному на заказ. При 100 заказах будет 101. Это и есть N+1.');
+        if(dl) goal(1);
+      }
+    }, i * 110));
+  });
+  msg(n1msg, '', 'Нажмите «Запросить» в обоих режимах и сравните число вызовов.');
+
+  /* глубина и стоимость */
+  const LV = [['orders',10],['items',10],['similar',10],['reviews',10],['author',1],['orders',10]];
+  const LIMIT = 1000;
+  const depth = document.getElementById('cmx-gq-depth');
+  function dpaint(){
+    const d = +depth.value;
+    document.getElementById('cmx-gq-dv').textContent = d;
+    let q = '{\n  customer(id: "cus-3") {\n', cost = 1, ind = 2;
+    for(let i = 0; i < d; i++){ q += '  '.repeat(ind) + LV[i][0] + ' {' + (LV[i][1] > 1 ? '        # до ' + LV[i][1] + ' шт.' : '') + '\n'; cost *= LV[i][1]; ind++; }
+    q += '  '.repeat(ind) + 'id\n';
+    for(let i = d; i >= 1; i--){ ind--; q += '  '.repeat(ind) + '}\n'; }
+    q += '  }\n}';
+    document.getElementById('cmx-gq-dq').textContent = q;
+    msg(document.getElementById('cmx-gq-dmsg'), cost > LIMIT ? 'err' : cost > LIMIT / 10 ? 'warn' : 'ok',
+      'Короткий запрос на экране — а объектов в ответе до <b>' + cost.toLocaleString('ru-RU') + '</b>. ' +
+      (cost > LIMIT ? 'Сервер с ограничением стоимости (лимит ' + LIMIT + ') <b>отклонит запрос до выполнения</b>. Без ограничения такой запрос положит базу — случайно или намеренно.'
+                    : 'Пока в пределах лимита ' + LIMIT + '. Но каждый уровень умножает нагрузку в 10 раз.'));
+  }
+  depth.addEventListener('input', dpaint);
+  dpaint();
+})();
+</script>
+
+<script>
+/* ═══ 17.10 Сравнение: REST, gRPC, очередь, событие ═══ */
+(function(){
+  if(!document.getElementById('cmx-cmp-pick')) return;
+  const C = [
+    {n:'📞 REST', life:'Телефонный звонок. Набрали номер, спросили, ждёте ответа.',
+     look:'GET /stock/SKU-42\n→ 200 { "available": 3 }', wait:'Да. Поток отправителя стоит, пока нет ответа.',
+     down:'У отправителя ошибка или таймаут. Нужно решать: повторить, отказать, взять из кеша.',
+     shop:'Заказы спрашивают Склад, есть ли товар, и сразу резервируют.',
+     when:'Нужен ответ прямо сейчас, API публичный или межкомандный, важно, чтобы понимали все.',
+     pay:'Доступность перемножается, задержки складываются. На экране из многих ресурсов — много запросов.'},
+    {n:'⚡ gRPC', life:'Звонок по служебной линии: без «алло, слышно?», сразу по регламенту.',
+     look:'Inventory.GetStock(sku: "SKU-42")\n→ StockReply { available: 3 }   // 12 байт', wait:'Да, как REST. Плюс умеет потоки.',
+     down:'Так же, как в REST: ошибка у отправителя. Коды стандартные: UNAVAILABLE, DEADLINE_EXCEEDED.',
+     shop:'Частые проверки остатков между Заказами и Складом внутри дата-центра.',
+     when:'Свои сервисы, много вызовов, важны задержка и строгий контракт.',
+     pay:'Глазами не прочитаешь, из браузера напрямую не вызвать, нужны свои инструменты отладки.'},
+    {n:'✉️ Очередь', life:'Записка в ящик коллеге. Знаете, кому и что, но стоять над душой не будете.',
+     look:'queue: email.send\n{ "to": "anna@mail.ru", "template": "order-placed" }', wait:'Нет. Отправитель положил задачу и свободен.',
+     down:'Задачи копятся в очереди и ждут. Получатель поднимется — разберёт.',
+     shop:'«Отправь письмо», «сформируй чек», «пережми фото товара».',
+     when:'Действие долгое и не нужно пользователю сразу. Исполнитель один.',
+     pay:'Результат сразу неизвестен. Сообщения могут прийти дважды. За очередью надо следить: длина, возраст, DLQ.'},
+    {n:'📢 Событие', life:'Объявление в чате дома. Сообщили факт, кому надо — прочитает.',
+     look:'topic: orders.events\n{ "eventType": "OrderPlaced", "orderId": "ord-77" }', wait:'Нет. Издатель даже не знает, кто прочитает.',
+     down:'Событие лежит в журнале. Подписчик дочитает со своей закладки.',
+     shop:'«Заказ оформлен» — склад, письма, бонусы, аналитика, антифрод.',
+     when:'О факте должны узнать многие, и список будет расти.',
+     pay:'Процесс целиком не виден нигде. Порядок — только внутри одного ключа. Схема события — публичный контракт, менять её больно.'},
+  ];
+  dbSegment('cmx-cmp', C, x =>
+    '<div class="skout" style="margin-top:4px"><h4>' + x.n + '</h4>' +
+    '<pre class="json" style="font-size:12px;margin:6px 0">' + esc(x.look) + '</pre>' +
+    '<div class="lgrid">' +
+      '<b>в жизни</b><div>' + x.life + '</div>' +
+      '<b>ждём ответа?</b><div>' + x.wait + '</div>' +
+      '<b>получатель лежит</b><div>' + x.down + '</div>' +
+      '<b>в магазине</b><div>' + x.shop + '</div>' +
+      '<b>когда брать</b><div>' + x.when + '</div>' +
+      '<b>чем платишь</b><div>' + x.pay + '</div>' +
+    '</div></div>');
+})();
+</script>
+
+<script>
+/* ═══ 17.11 Помощник выбора способа связи ═══ */
+(function(){
+  const root = document.getElementById('cmx-wiz');
+  if(!root) return;
+  const out = document.getElementById('cmx-wiz-out');
+  const Q = [
+    {id:'who', t:'1. Кто с кем говорит?', o:[['c','📱 Приложение или браузер ↔ наш сервер'],['i','🧩 Наш сервис ↔ наш сервис'],['p','🤝 Внешний партнёр ↔ мы']]},
+    {id:'now', t:'2. Нужен ли ответ, чтобы продолжить?', o:[['y','Да, прямо сейчас'],['n','Нет, результат может прийти позже']]},
+    {id:'dir', t:'3. Кто и кому пишет?', o:[['one','Одному получателю, по запросу'],['many','Многим, и их список будет расти'],['push','Сервер сам сообщает об изменениях'],['both','Обе стороны пишут часто']]},
+    {id:'imp', t:'4. Что ещё важно?', o:[['fields','Разным экранам нужны разные поля'],['speed','Скорость и строгий контракт'],['simple','Простота, ничего особого']]},
+  ];
+  const R = {
+    rest:{n:'REST', w:'Нужен ответ сразу от одного известного получателя. REST понятен всем, отлаживается curl-ом, кешируется по HTTP.', x:'Если взять очередь — пользователь не получит ответ сразу. Если GraphQL — усложните сервер без нужды.'},
+    gql:{n:'GraphQL (или BFF)', w:'Клиенты разные, и каждому нужны свои поля. Один запрос вместо нескольких, ничего лишнего по мобильной сети.', x:'С REST будет либо много запросов на экран, либо «толстые» ответы с лишним. Альтернатива — отдельный BFF под каждый клиент.'},
+    grpc:{n:'gRPC', w:'Свои сервисы, частые вызовы, важны скорость и строгий контракт. Protobuf компактен, контракт проверяет компилятор.', x:'REST тоже сработает, но медленнее и без проверки контракта при сборке.'},
+    queue:{n:'Очередь (команда)', w:'Исполнитель один и известен, а ответ сразу не нужен. Отправитель свободен, пики сглаживаются, упавший исполнитель ничего не потеряет.', x:'Синхронный вызов заставит ждать и уронит отправителя вместе с исполнителем.'},
+    evt:{n:'Событие в брокере', w:'О факте должны узнать многие, и список будет расти. Издатель не знает подписчиков, новый подключается без правок.', x:'Звонки каждому потребителю превратят издателя в диспетчера: каждый новый потребитель — правка его кода.'},
+    hook:{n:'Вебхук', w:'Между компаниями общего брокера нет. Партнёр сам вызывает ваш адрес, когда появился результат.', x:'Опрос тоже работает, но впустую нагружает обе стороны и даёт задержку.'},
+    async202:{n:'202 Accepted + статус (SSE или опрос)', w:'Задача долгая, а спрашивает клиент. Сервер сразу отвечает «принято» и номер задачи, а о готовности сообщает потоком SSE или по опросу статуса.', x:'Синхронный запрос на минуты упрётся в таймауты прокси и займёт поток сервера.'},
+    hook202:{n:'202 Accepted + вебхук', w:'Партнёр принимает задачу сразу, а результат присылает вебхуком, когда он готов.', x:'Держать HTTP-соединение до готовности нельзя: процесс может идти часами.'},
+    sse:{n:'SSE', w:'Сервер сам сообщает клиенту новости, а клиенту отвечать не нужно. Это обычный HTTP, переподключение встроено в браузер.', x:'WebSocket тоже сработает, но сложнее: обратный канал вам не нужен.'},
+    poll:{n:'Опрос или long polling', w:'Нужно просто и надёжно, пользователей немного. Работает через любые прокси, отлаживается элементарно.', x:'Если пользователей станет много — переходите на SSE.'},
+    ws:{n:'WebSocket', w:'Обе стороны пишут часто и быстро: чат, совместное редактирование, игра. Один открытый двусторонний канал.', x:'С REST каждое сообщение — новый запрос, а сервер не может написать первым.'},
+  };
+  const a = {};
+  root.innerHTML = Q.map(q => '<div class="cmx-wq"><b>' + q.t + '</b><div class="seg" data-q="' + q.id + '">' +
+    q.o.map(o => '<button data-v="' + o[0] + '">' + o[1] + '</button>').join('') + '</div></div>').join('');
+  const got = new Set();
+  Progress.register('cmx-wiz', 3, 'Помощник выбора: три разных ответа');
+  function decide(){
+    if(a.dir === 'both') return 'ws';
+    if(a.dir === 'push') return a.who === 'p' ? 'hook' : a.who === 'i' ? 'evt' : (a.imp === 'simple' ? 'poll' : 'sse');
+    if(a.dir === 'many') return a.who === 'p' ? 'hook' : 'evt';
+    if(a.now === 'n') return a.who === 'i' ? 'queue' : a.who === 'p' ? 'hook202' : 'async202';
+    if(a.imp === 'fields' && a.who === 'c') return 'gql';
+    if(a.imp === 'speed' && a.who === 'i') return 'grpc';
+    return 'rest';
+  }
+  function paint(){
+    root.querySelectorAll('.seg').forEach(s => [...s.children].forEach(b => b.classList.toggle('on', a[s.dataset.q] === b.dataset.v)));
+    const left = Q.filter(q => !a[q.id]).length;
+    if(left){ out.innerHTML = '<div class="console"><span class="ic">ℹ</span><span>Осталось ответить на ' + left + ' из ' + Q.length + ' вопросов.</span></div>'; return; }
+    const k = decide(), r = R[k];
+    const note = (a.now === 'y' && (a.dir === 'many' || a.dir === 'push')) ? '<div class="note warn" style="margin:8px 0 0">Вы сказали «ответ нужен сейчас», но пишете многим или сервер пишет сам. Так бывает, если в задаче на самом деле две части: запрос-ответ одному (например, REST) и оповещение остальных событием.</div>' :
+      (a.imp === 'speed' && a.who === 'c' && k === 'rest') ? '<div class="note" style="margin:8px 0 0">gRPC из браузера напрямую не работает. Для клиентов берут REST, а gRPC оставляют между своими сервисами.</div>' : '';
+    out.innerHTML = '<div class="skout" style="margin-top:10px"><h4>Подходит: ' + r.n + '</h4><div class="lgrid">' +
+      '<b>почему</b><div>' + r.w + '</div><b>если выбрать иначе</b><div>' + r.x + '</div></div>' + note + '</div>';
+    if(!got.has(k)){ got.add(k); Progress.report('cmx-wiz', Math.min(got.size, 3)); }
+  }
+  root.addEventListener('click', e => {
+    const b = e.target.closest('button[data-v]'); if(!b) return;
+    a[b.closest('.seg').dataset.q] = b.dataset.v; paint();
+  });
+  paint();
+})();
+</script>
+
+<script>
+/* ═══ 17.12 Эволюция контракта: расширь — мигрируй — сузь ═══ */
+(function(){
+  const cons = document.getElementById('cmx-ev-cons');
+  if(!cons) return;
+  const jsonEl = document.getElementById('cmx-ev-json'), mEl = document.getElementById('cmx-ev-m'),
+        out = document.getElementById('cmx-ev-msg'), gEl = document.getElementById('cmx-ev-goals');
+  const G = ['Переименуйте поле сразу и посмотрите, кто сломается.', 'Пройдите цикл «расширь — мигрируй — сузь» так, чтобы не сломался никто.'];
+  const goals = [0,0];
+  Progress.register('cmx-ev', 2, 'Эволюция контракта');
+  let s;
+  function fresh(){ return {f:{name:true, fullName:false}, vat:false, c:[
+    {n:'📱 Мобильное приложение', note:'версия 3.2 у 40 % пользователей, обновляется неделями', r:'name'},
+    {n:'🌐 Веб-кабинет', note:'выкатывается каждый день', r:'name'},
+    {n:'📊 Аналитика', note:'считает выручку по полю total', r:'name', total:true},
+  ]}; }
+  function goal(i){ if(goals[i]) return; goals[i] = 1; Progress.report('cmx-ev', goals[0] + goals[1]); if(i === 1) confetti(20); }
+  function broken(){ return s.c.filter(c => !s.f[c.r]).length; }
+  function paint(){
+    const o = {id:'ord-77'};
+    if(s.f.name) o.name = 'Анна Смирнова';
+    if(s.f.fullName) o.fullName = 'Анна Смирнова';
+    o.total = s.vat ? 3500 : 4200;
+    jsonEl.textContent = JSON.stringify(o, null, 2) + (s.vat ? '\n\n// total теперь БЕЗ НДС,\n// имя поля прежнее' : '');
+    cons.innerHTML = s.c.map(c => {
+      const bad = !s.f[c.r], warn = !bad && s.vat && c.total;
+      return '<div class="cmx-con ' + (bad ? 'bad' : warn ? 'warn' : '') + '"><b>' + c.n + '</b> — ' +
+        (bad ? '💥 упал: поля <code class="inl">' + c.r + '</code> больше нет' : warn ? '🤫 работает, но выручка в отчётах занижена на 17 %' : '✓ работает, читает <code class="inl">' + c.r + '</code>') +
+        '<small>' + c.note + '</small></div>';
+    }).join('');
+    const readsOld = s.c.filter(c => c.r === 'name').length;
+    mEl.innerHTML =
+      '<div class="meter good">работают: <b>' + (s.c.length - broken()) + '</b></div>' +
+      '<div class="meter bad">сломаны: <b>' + broken() + '</b></div>' +
+      '<div class="meter wq">метрика «читают name»: <b>' + readsOld + '</b></div>';
+    gEl.innerHTML = G.map((t, i) => '<div class="step ' + (goals[i] ? 'done' : '') + '"><div class="si">' + (goals[i] ? '✓' : i + 1) + '</div><div>' + t + '</div></div>').join('');
+  }
+  const on = (id, fn) => document.getElementById(id).addEventListener('click', () => { fn(); paint(); });
+  on('cmx-ev-rename', () => {
+    if(!s.f.name){ msg(out, '', 'Поля name уже нет. Нажмите «Сначала».'); return; }
+    s.f.name = false; s.f.fullName = true;
+    s.c.forEach(c => { if(c.r === 'name') c.broke = true; });
+    msg(out, 'err', 'Одним махом переименовали name → fullName. Все, кто читал name, упали. Веб починят завтра, а мобильное — только когда пользователи обновят приложение. Это недели.');
+    if(broken()) goal(0);
+  });
+  on('cmx-ev-expand', () => {
+    if(s.f.fullName){ msg(out, '', 'fullName уже есть в ответе.'); return; }
+    s.f.fullName = true;
+    msg(out, 'ok', 'Шаг 1. В ответе теперь оба поля с одинаковым значением. Никто ничего не заметил, никто не сломался. Сразу назначьте дату, когда удалите name.');
+  });
+  on('cmx-ev-migrate', () => {
+    if(!s.f.fullName){ msg(out, 'warn', 'Сначала шаг 1: потребителям не на что переходить, пока fullName нет в ответе.'); return; }
+    const c = s.c.find(x => x.r === 'name');
+    if(!c){ msg(out, '', 'Все уже читают fullName. Метрика показывает ноль — можно сужать.'); return; }
+    c.r = 'fullName';
+    const left = s.c.filter(x => x.r === 'name').length;
+    msg(out, 'ok', 'Шаг 2. ' + c.n + ' перешёл на fullName в своём темпе. По метрике name читают ещё: ' + left + '.' + (left ? ' Удалять рано.' : ' Теперь можно сужать.'));
+  });
+  on('cmx-ev-contract', () => {
+    if(!s.f.name){ msg(out, '', 'name уже удалено.'); return; }
+    s.f.name = false;
+    if(!s.f.fullName){ msg(out, 'err', 'Удалили name, а замены нет. Все потребители упали.'); if(broken()) goal(0); return; }
+    if(broken()){ msg(out, 'err', 'Удалили name, но метрика не была нулевой: ' + broken() + ' потребител' + (broken() === 1 ? 'ь' : 'я') + ' ещё читали его и упали. Сужать можно, только когда метрика показывает ноль.'); goal(0); return; }
+    msg(out, 'ok', 'Шаг 3. name удалено, и никто не заметил: все уже на fullName. Так меняют контракт без единой поломки.');
+    goal(1);
+  });
+  on('cmx-ev-meaning', () => {
+    s.vat = !s.vat;
+    msg(out, s.vat ? 'warn' : '', s.vat
+      ? 'Поле total теперь отдаёт сумму без НДС. Имя то же, тип тот же — ни один потребитель не упал. Но Аналитика молча считает выручку неправильно. Заметят через месяц по расхождению в отчётах. Поэтому смену смысла делают только через новое поле с новым именем: totalWithoutVat.'
+      : 'Вернули смысл total обратно.');
+  });
+  on('cmx-ev-reset', () => { s = fresh(); msg(out, '', 'Исходное состояние: все три потребителя читают name.'); });
+  s = fresh();
+  msg(out, '', 'Все три потребителя читают name. Попробуйте переименовать сразу, потом — по шагам.');
+  paint();
+})();
+</script>
+
+<script>
+/* ═══ 17.13 Идемпотентность: двойной клик и потерянный ответ ═══ */
+(function(){
+  const logEl = document.getElementById('cmx-id-log');
+  if(!logEl) return;
+  const modeEl = document.getElementById('cmx-id-mode'), mEl = document.getElementById('cmx-id-m'),
+        ptEl = document.getElementById('cmx-id-pt'), ktEl = document.getElementById('cmx-id-kt'),
+        gEl = document.getElementById('cmx-id-goals');
+  const G = ['Без ключа: сделайте двойное нажатие или повтор после потерянного ответа. Деньги спишутся дважды.',
+             'С ключом: сделайте то же самое. Сервер узнает повтор и вернёт сохранённый ответ.'];
+  const goals = [0,0];
+  Progress.register('cmx-id', 2, 'Идемпотентность: ключ против дублей');
+  const AMT = 4200;
+  let s, gen = 0, keyOn = false;
+  function fresh(){ return {bal:20000, pays:[], keys:{}, want:0, busy:false, log:[], seq:0, kseq:0}; }
+  function goal(i){ if(goals[i]) return; goals[i] = 1; Progress.report('cmx-id', goals[0] + goals[1]); if(goals[0] && goals[1]) confetti(20); }
+  function log(k, t){ s.log.push({k, t}); }
+  function paint(){
+    const spent = s.pays.length * AMT;
+    mEl.innerHTML =
+      '<div class="meter">Анна хотела оплатить: <b>' + s.want + '</b> раз</div>' +
+      '<div class="meter ' + (s.pays.length > s.want ? 'bad' : 'good') + '">платежей в базе: <b>' + s.pays.length + '</b></div>' +
+      '<div class="meter ' + (s.pays.length > s.want ? 'bad' : '') + '">списано: <b>' + spent.toLocaleString('ru-RU') + ' ₽</b></div>' +
+      '<div class="meter">на карте: <b>' + s.bal.toLocaleString('ru-RU') + ' ₽</b></div>';
+    ptEl.innerHTML = '<div class="table-wrap" style="margin-top:4px"><table class="db"><thead><tr><th>id</th><th>сумма</th><th>ключ</th></tr></thead><tbody>' +
+      (s.pays.length ? s.pays.map(p => '<tr' + (p.dup ? ' style="color:var(--danger)"' : '') + '><td>' + p.id + (p.dup ? ' ⚠ дубль' : '') + '</td><td>' + AMT + '</td><td>' + (p.key || '—') + '</td></tr>').join('') : '<tr><td colspan="3">пусто</td></tr>') +
+      '</tbody></table></div>';
+    const ks = Object.keys(s.keys);
+    ktEl.innerHTML = '<div class="table-wrap" style="margin-top:4px"><table class="db"><thead><tr><th>ключ</th><th>сохранённый ответ</th></tr></thead><tbody>' +
+      (ks.length ? ks.map(k => '<tr><td>' + k + '</td><td>201 ' + s.keys[k] + '</td></tr>').join('') : '<tr><td colspan="2">' + (keyOn ? 'пусто' : 'не используется') + '</td></tr>') +
+      '</tbody></table></div>';
+    logEl.innerHTML = s.log.slice(-9).map((x, i) => '<div class="step ' + x.k + '"><div class="si">' + (x.k === 'done' ? '✓' : x.k === 'fail' ? '✕' : x.k === 'comp' ? '↻' : '·') + '</div><div>' + x.t + '</div></div>').join('');
+    gEl.innerHTML = G.map((t, i) => '<div class="step ' + (goals[i] ? 'done' : '') + '"><div class="si">' + (goals[i] ? '✓' : i + 1) + '</div><div>' + t + '</div></div>').join('');
+    ['cmx-id-pay','cmx-id-dbl','cmx-id-lost'].forEach(id => document.getElementById(id).disabled = s.busy);
+  }
+  /* сервер обрабатывает один запрос */
+  function server(key, intent){
+    if(keyOn && s.keys[key]){
+      log('comp', 'Сервер: ключ <code class="inl">' + key + '</code> уже есть в таблице. Это повтор. Деньги <b>не списываем</b>, возвращаем сохранённый ответ: 201 ' + s.keys[key] + '.');
+      goal(1);
+      return s.keys[key];
+    }
+    if(s.bal < AMT){ log('fail', 'Сервер: на карте не хватает денег. Нажмите «Сначала».'); return null; }
+    const id = 'pay-' + (51 + s.seq++);
+    const dup = s.pays.some(p => p.intent === intent);
+    s.pays.push({id, key:keyOn ? key : '', intent, dup});
+    s.bal -= AMT;
+    if(keyOn) s.keys[key] = id;
+    log(dup ? 'fail' : 'done', 'Сервер: ' + (keyOn ? 'ключ ' + key + ' новый. ' : 'ключа нет, отличить повтор невозможно. ') + 'Списал ' + AMT + ' ₽, создал ' + id + '.' + (dup ? ' <b>Это второй платёж за одну покупку!</b>' : ''));
+    if(dup) goal(0);
+    return id;
+  }
+  function run(steps){
+    const g = ++gen; s.busy = true; paint();
+    let i = 0;
+    (function next(){
+      if(g !== gen) return;
+      if(i >= steps.length){ s.busy = false; paint(); return; }
+      steps[i++](); paint();
+      setTimeout(next, 700);
+    })();
+  }
+  const newKey = () => 'k-' + (++s.kseq) + 'a7';
+  document.getElementById('cmx-id-pay').addEventListener('click', () => {
+    const key = newKey(), intent = s.want++ + 1;
+    run([
+      () => log('', 'Анна нажала «Оплатить» один раз. Приложение отправило POST /payments' + (keyOn ? ' с Idempotency-Key: ' + key : ' без ключа') + '.'),
+      () => server(key, intent),
+      () => log('done', 'Анна видит «Оплачено». Всё честно: одна покупка — один платёж.'),
+    ]);
+  });
+  document.getElementById('cmx-id-dbl').addEventListener('click', () => {
+    const key = newKey(), intent = s.want++ + 1;
+    run([
+      () => log('', 'Палец дрогнул: Анна нажала «Оплатить» дважды за 200 мс. Приложение отправило два одинаковых запроса' + (keyOn ? ' с одним ключом ' + key + ' — ключ создаётся на намерение, а не на нажатие.' : '.')),
+      () => server(key, intent),
+      () => server(key, intent),
+      () => log(s.pays.filter(p => p.intent === intent).length > 1 ? 'fail' : 'done', s.pays.filter(p => p.intent === intent).length > 1 ? 'Итог: одна покупка — два списания. Анна звонит в поддержку.' : 'Итог: одна покупка — одно списание. Второй запрос получил тот же ответ, что и первый.'),
+    ]);
+  });
+  document.getElementById('cmx-id-lost').addEventListener('click', () => {
+    const key = newKey(), intent = s.want++ + 1;
+    run([
+      () => log('', 'Анна нажала «Оплатить». Запрос' + (keyOn ? ' с ключом ' + key : '') + ' дошёл до сервера.'),
+      () => server(key, intent),
+      () => log('fail', 'Ответ потерялся: телефон переключился с Wi-Fi на мобильную сеть. Приложение не знает, прошла ли оплата.'),
+      () => log('comp', 'Приложение ждало 10 секунд (таймаут) и повторило запрос' + (keyOn ? ' с <b>тем же</b> ключом ' + key + '.' : '. Сервер видит просто ещё один запрос на оплату.')),
+      () => server(key, intent),
+      () => log(s.pays.filter(p => p.intent === intent).length > 1 ? 'fail' : 'done', s.pays.filter(p => p.intent === intent).length > 1 ? 'Итог: повтор после таймаута списал деньги второй раз.' : 'Итог: повтор безопасен. Приложение получило ответ первой попытки и показало «Оплачено».'),
+    ]);
+  });
+  function setMode(k){
+    keyOn = k; [...modeEl.children].forEach(b => b.classList.toggle('on', (b.dataset.k === '1') === k));
+    gen++; s = fresh();
+    log('', keyOn ? 'Режим «с ключом»: приложение создаёт ключ на каждое намерение оплатить и шлёт его в заголовке Idempotency-Key. Сервер хранит ключи 24 часа.' : 'Режим «без ключа»: сервер выполняет каждый пришедший запрос.');
+    paint();
+  }
+  modeEl.addEventListener('click', e => { const b = e.target.closest('button[data-k]'); if(b) setMode(b.dataset.k === '1'); });
+  document.getElementById('cmx-id-reset').addEventListener('click', () => setMode(keyOn));
+  setMode(false);
 })();
 </script>
