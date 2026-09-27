@@ -14449,48 +14449,248 @@ OE --&gt; [Сервис платежей]</pre>
   Progress.register('lbx-who-score', 6, 'Балансировщик, шлюз, BFF, mesh');
 })();
 </script>
-<!-- ==================== 18. УСТОЙЧИВОСТЬ ==================== -->
+<!-- ==================== 20. УСТОЙЧИВОСТЬ ==================== -->
 <section class="panel" id="resil" data-accent="nt" role="tabpanel">
-  <p class="lead"><b>Отказоустойчивость — это не «чтобы не падало».</b> Падать будет. Это «чтобы падало предсказуемо и по частям». Приёмы ниже не убирают сбои — они не дают одному сбою растечься на всю систему. Порядок важен: без таймаутов всё остальное бесполезно.</p>
+  <p class="lead"><b>Устойчивость — это не «чтобы не падало».</b> Падать будет. Устойчивость — это чтобы падало <b>по частям и предсказуемо</b>: сломался один блок, а магазин продолжает продавать. Весь раздел — одна история одной пятницы. Сначала посмотрим, как маленький сбой валит всё. Потом починим её по шагам, по одному приёму за главу.</p>
 
+  <style>
+    .rsx-ch{scroll-margin-top:150px}
+    .rsx-map{display:grid; grid-template-columns:repeat(auto-fill,minmax(215px,1fr)); gap:8px; margin-top:12px}
+    .rsx-map button{display:flex; gap:9px; align-items:flex-start; text-align:left; appearance:none; border:1px solid var(--line); background:var(--surface-2); color:var(--ink); font:inherit; font-size:13px; line-height:1.35; padding:9px 11px; border-radius:9px; cursor:pointer}
+    .rsx-map button:hover{border-color:var(--accent)}
+    .rsx-map .n{flex:none; width:22px; height:22px; border-radius:50%; background:var(--accent); color:var(--surface); font:700 11px var(--mono); display:grid; place-items:center}
+    .rsx-map small{display:block; color:var(--muted); font-size:11.5px; margin-top:2px}
+    .rsx-def{border:1px solid color-mix(in srgb,var(--accent) 40%,var(--line)); background:color-mix(in srgb,var(--accent) 6%,var(--surface)); border-radius:10px; padding:11px 14px; margin:12px 0 0; font-size:14px}
+    .rsx-def b{color:var(--accent)}
+    .rsx-life{border-left:3px solid var(--ok); background:var(--ok-bg); border-radius:0 9px 9px 0; padding:9px 13px; margin:10px 0 0; font-size:13.5px; color:var(--ink)}
+    .rsx-life::before{content:"Из жизни: "; font-weight:700; color:var(--ok)}
+    .rsx-go{margin-top:12px}
+
+    /* сквозной flow */
+    .rsx-fw{overflow-x:auto; margin-top:12px; border:1px solid var(--line); border-radius:12px; background:var(--surface); padding:12px 8px}
+    .rsx-fd{min-width:320px; display:flex; flex-direction:column; gap:4px}
+    .rsx-fr{display:flex; gap:8px; justify-content:center; flex-wrap:wrap}
+    .rsx-fn{flex:0 1 158px; min-width:118px; border:1.5px solid var(--line); border-radius:10px; background:var(--surface-2); padding:7px 8px; text-align:center; opacity:.72; transition:opacity .2s, border-color .2s, box-shadow .2s}
+    .rsx-fn .i{font-size:17px; line-height:1.1}
+    .rsx-fn .nm{font:650 12.5px/1.25 var(--sans)}
+    .rsx-fn .sb{font:500 10.5px/1.3 var(--mono); color:var(--faint)}
+    .rsx-fn .st{font:600 11px/1.3 var(--mono); margin-top:4px; min-height:14px; color:var(--muted)}
+    .rsx-fn.lit{opacity:1}
+    .rsx-fn.on{opacity:1; border-color:var(--accent); box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 20%,transparent)}
+    .rsx-fn.good{opacity:1; border-color:var(--ok)} .rsx-fn.good .st{color:var(--ok)}
+    .rsx-fn.bad{opacity:1; border-color:var(--danger); background:var(--danger-bg)} .rsx-fn.bad .st{color:var(--danger)}
+    .rsx-fn.wait{opacity:1; border-color:var(--warn); background:var(--warn-bg)} .rsx-fn.wait .st{color:var(--warn)}
+    .rsx-fa{display:flex; justify-content:center; gap:6px; flex-wrap:wrap; min-height:26px; align-items:center}
+    .rsx-fa span{font:600 10.5px var(--mono); padding:3px 8px; border-radius:12px; border:1px solid var(--accent); color:var(--accent); background:color-mix(in srgb,var(--accent) 8%,transparent)}
+    .rsx-fa span.bad{border-color:var(--danger); color:var(--danger); background:var(--danger-bg)}
+    .rsx-fa span.good{border-color:var(--ok); color:var(--ok); background:var(--ok-bg)}
+    .rsx-fa span.wait{border-color:var(--warn); color:var(--warn); background:var(--warn-bg)}
+    .rsx-poolrow{display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:10px; font:500 12px var(--mono); color:var(--muted)}
+    .rsx-pool{display:flex; flex-wrap:wrap; gap:3px}
+    .rsx-th{width:19px; height:19px; border-radius:5px; border:1px solid var(--line); background:var(--surface-2); font:700 10px/1 var(--mono); display:grid; place-items:center; color:var(--faint)}
+    .rsx-th.b{background:var(--ok-bg); border-color:var(--ok); color:var(--ok)}
+    .rsx-th.o{background:color-mix(in srgb,var(--accent) 14%,var(--surface)); border-color:var(--accent); color:var(--accent)}
+    .rsx-th.s{background:var(--danger-bg); border-color:var(--danger); color:var(--danger)}
+    .rsx-th.r{background:var(--warn-bg); border-color:var(--warn); color:var(--warn)}
+    .rsx-clock{font:700 13px var(--mono); padding:3px 9px; border-radius:8px; background:var(--surface-3); color:var(--ink)}
+    .rsx-q{font:600 12px var(--mono)}
+    .rsx-q.bad{color:var(--danger)}
+
+    /* пульт */
+    .rsx-shop{display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:12px}
+    @media (max-width:760px){.rsx-shop{grid-template-columns:1fr}}
+    .rsx-page{border:1px solid var(--line); border-radius:10px; background:var(--surface); overflow:hidden}
+    .rsx-page .bar{background:var(--surface-3); padding:6px 10px; font:500 11.5px var(--mono); color:var(--muted); display:flex; justify-content:space-between; gap:8px; flex-wrap:wrap}
+    .rsx-blk{margin:8px 10px; padding:8px 10px; border:1.5px dashed var(--line); border-radius:8px; font-size:13px}
+    .rsx-blk .h{font:600 11px var(--mono); color:var(--faint); text-transform:uppercase; letter-spacing:.03em}
+    .rsx-blk.ok{border-color:var(--ok)}
+    .rsx-blk.fb{border-color:var(--warn); background:var(--warn-bg)}
+    .rsx-blk.bad{border-color:var(--danger); background:var(--danger-bg); color:var(--danger)}
+    .rsx-blk.wait{border-color:var(--warn); color:var(--warn)}
+    .rsx-err{margin:10px; padding:22px 10px; text-align:center; border-radius:8px; background:var(--danger-bg); color:var(--danger); font:600 14px var(--sans)}
+    .rsx-tg button{position:relative}
+    .rsx-tg button.on::before{content:"✓ "}
+    .rsx-big{display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:12px}
+    @media (max-width:760px){.rsx-big{grid-template-columns:1fr 1fr}}
+    .rsx-kpi{border:1px solid var(--line); border-radius:10px; background:var(--surface-2); padding:8px 10px}
+    .rsx-kpi .l{font:500 11.5px var(--sans); color:var(--muted)}
+    .rsx-kpi .v{font:700 20px var(--mono); font-variant-numeric:tabular-nums; color:var(--ink)}
+    .rsx-kpi.good .v{color:var(--ok)} .rsx-kpi.bad .v{color:var(--danger)} .rsx-kpi.wq .v{color:var(--warn)}
+    .rsx-log{display:flex; flex-direction:column; gap:4px; margin-top:10px; font:500 12px var(--mono); color:var(--muted)}
+    .rsx-log b{color:var(--ink)}
+
+    /* гистограмма повторов */
+    .rsx-bars{position:relative; display:flex; align-items:flex-end; gap:2px; height:130px; border-bottom:1px solid var(--line); margin-top:12px}
+    .rsx-bars i{flex:1; background:var(--accent); min-height:1px; border-radius:2px 2px 0 0}
+    .rsx-bars i.over{background:var(--danger)}
+    .rsx-cap{position:absolute; left:0; right:0; border-top:2px dashed var(--ok)}
+    .rsx-cap span{position:absolute; right:0; top:-17px; font:600 10.5px var(--mono); color:var(--ok)}
+    .rsx-axis{display:flex; justify-content:space-between; font:500 10.5px var(--mono); color:var(--faint); margin-top:3px}
+  </style>
+
+  <!-- ─── карта раздела ─── -->
   <div class="card">
-    <h2><span class="tag">зачем это</span> зачем заниматься устойчивостью</h2>
-    <div id="why-resil"></div>
+    <h2><span class="tag">карта раздела</span> одна пятница, одиннадцать глав</h2>
+    <p>Читайте по порядку: каждая глава опирается на предыдущую. Кнопка переносит к главе.</p>
+    <div class="rsx-map" id="rsx-map">
+      <button data-rsx-ch="rsx-ch1"><span class="n">1</span><span>Пятница, 19:40<small>что такое устойчивость; Анна открывает товар</small></span></button>
+      <button data-rsx-ch="rsx-ch2"><span class="n">2</span><span>Почему упало всё<small>потоки, очередь, каскадный отказ</small></span></button>
+      <button data-rsx-ch="rsx-ch3"><span class="n">3</span><span>Пульт магазина<small>ломайте сами, включайте защиту</small></span></button>
+      <button data-rsx-ch="rsx-ch4"><span class="n">4</span><span>Таймаут<small>ждём такси не дольше 10 минут</small></span></button>
+      <button data-rsx-ch="rsx-ch5"><span class="n">5</span><span>Повторы и шторм<small>backoff и jitter: как дозвониться в поликлинику</small></span></button>
+      <button data-rsx-ch="rsx-ch6"><span class="n">6</span><span>Размыкатель цепи<small>автомат в электрощитке</small></span></button>
+      <button data-rsx-ch="rsx-ch7"><span class="n">7</span><span>Переборки<small>отсеки корабля</small></span></button>
+      <button data-rsx-ch="rsx-ch8"><span class="n">8</span><span>Ограничение частоты<small>турникет в метро</small></span></button>
+      <button data-rsx-ch="rsx-ch9"><span class="n">9</span><span>Деградация<small>что отключать первым</small></span></button>
+      <button data-rsx-ch="rsx-ch10"><span class="n">10</span><span>Та же пятница, но с защитой<small>всё вместе</small></span></button>
+      <button data-rsx-ch="rsx-ch11"><span class="n">11</span><span>Проверь себя<small>задания</small></span></button>
+    </div>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">всё на секвенсах</span> проиграйте каждый приём шаг за шагом</h2>
-    <p>Один и тот же случай: сервис заказов вызывает сервис подбора, и тот начинает сбоить. Выберите приём — и пройдите по стрелкам: видно, <b>какой запрос ушёл, что ответили, сколько ждали и что решил механизм</b>.</p>
-    <div class="seg" id="rs-pick"></div>
-    <div id="rs-out"></div>
+  <!-- ─── глава 1 ─── -->
+  <div class="card rsx-ch" id="rsx-ch1">
+    <h2><span class="tag">глава 1 · завязка</span> пятница, 19:40: как магазин лёг из-за блока «вам может понравиться»</h2>
+    <p>Сначала — что мы вообще ищем.</p>
+    <div class="rsx-def"><b>Устойчивость</b> (resilience) — способность системы продолжать главную работу, когда часть её сломалась. Не «ничего не ломается», а «сломалось маленькое — и осталось маленьким».</div>
+    <div class="rsx-life">в доме перегорела лампочка в коридоре. Устойчивый дом — тот, где при этом горит свет на кухне. Неустойчивый — где от одной лампочки выбивает весь подъезд.</div>
+    <p style="margin-top:14px">Теперь история. У нас интернет-магазин кроссовок. Страница товара собирается из нескольких кусков. <b>Цена</b> и <b>корзина</b> приходят из своих сервисов. Ещё есть блок <b>«вам может понравиться»</b> — его отдаёт сервис рекомендаций. Это мелочь: без него купить можно.</p>
+    <p>Пятница, вечер, пик продаж. В 19:40 сервис рекомендаций начал отвечать не за 50 миллисекунд, а за 30 секунд. <b>Через пять минут не работал весь магазин.</b> Никто не мог даже оформить заказ. Пройдите эти пять минут по шагам. Смотрите на схему, на потоки внизу и на часы.</p>
+    <div id="rsx-flow1"></div>
+    <div class="note"><b>Как читать схему.</b> Подсвечено то, что участвует в текущем шаге. Зелёное — отвечает нормально, жёлтое — ждёт, красное — сломалось. Квадратики внизу — <b>потоки</b> магазина: это «рабочие руки», их всего 20. Каждый квадратик — один запрос, который сейчас обслуживается.</div>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">основа</span> таймаут — первое, без чего бессмысленно всё остальное</h2>
-    <p>Вызов без таймаута — это обещание ждать вечно. Поток занят, соединение из пула занято, и когда медленных вызовов накапливается больше, чем потоков, сервис перестаёт отвечать <b>всем</b>, включая тех, кому нужен совсем другой функционал. Так один тормозящий партнёр кладёт всю систему.</p>
-    <div class="grid2">
+  <!-- ─── глава 2 ─── -->
+  <div class="card rsx-ch" id="rsx-ch2">
+    <h2><span class="tag">глава 2 · почему</span> почему упало всё, а не только рекомендации</h2>
+    <p>Разберём три слова, на которых держится вся история.</p>
+    <div class="grid3">
+      <div class="box"><h4>Поток</h4><p class="bs">Рабочий внутри сервиса. Берёт один запрос и ведёт его от начала до конца. Пока ждёт чужого ответа — стоит и ничего другого не делает.</p></div>
+      <div class="box"><h4>Пул потоков</h4><p class="bs">Все рабочие сервиса. Их число ограничено: у нашего магазина 20. Каждый новый запрос берёт свободного рабочего из пула. Свободных нет — запрос встаёт в очередь.</p></div>
+      <div class="box"><h4>Каскадный отказ</h4><p class="bs">Сбой, который перетекает по цепочке: сломался один сервис, и из-за него падают те, кто его вызывает. А потом — те, кто вызывает их.</p></div>
+    </div>
+    <div class="rsx-life">кафе на 20 официантов. Кухня стала готовить десерт час. Каждый официант, принявший заказ с десертом, стоит у окна раздачи и ждёт. Через 10 минут все 20 стоят у окна. Гость, который хочет просто кофе, не может даже сделать заказ. Кофемашина работает, а кафе — нет.</div>
+
+    <h3>Сколько потоков нужно? Посчитайте сами</h3>
+    <p>Есть простое правило. Оно называется <b>закон Литтла</b>: <code class="inl">занято потоков = запросов в секунду × время одного запроса</code>. 40 покупателей в секунду по 0,07 секунды — это около трёх занятых потоков. А если запрос длится 30 секунд?</p>
+    <div class="slider-row"><label for="rsx-lit-rps">Покупателей в секунду</label><input type="range" id="rsx-lit-rps" min="5" max="200" step="5" value="40"><span class="sv" id="rsx-lit-rps-v">40</span></div>
+    <div class="seg" id="rsx-lit-t">
+      <button data-t="0.07">70 мс (обычный вечер)</button>
+      <button data-t="0.3">300 мс</button>
+      <button data-t="1">1 с</button>
+      <button data-t="5">5 с</button>
+      <button class="on" data-t="30">30 с (пятница)</button>
+    </div>
+    <div class="rsx-pool" id="rsx-lit-cells"></div>
+    <div class="meters">
+      <span class="meter">Нужно потоков: <b id="rsx-lit-need">—</b></span>
+      <span class="meter">Есть потоков: <b>20</b></span>
+      <span class="meter bad">Не хватает: <b id="rsx-lit-miss">—</b></span>
+    </div>
+    <div class="console" id="rsx-lit-msg"></div>
+
+    <h3>То же самое — на секвенсе</h3>
+    <p>Секвенс — схема «кто кому что отправил и когда». Время идёт сверху вниз. Пройдите по стрелкам.</p>
+    <div id="rsx-seq-none"></div>
+    <div class="note warn"><b>Главный вывод главы.</b> Магазин упал не потому, что рекомендации сломались. Он упал, потому что их <b>ждал</b>. Ожидание — вот что переносит беду из одного сервиса в другой. Поэтому все приёмы дальше делают одно из трёх: <b>ждут меньше</b>, <b>не ходят туда, где не ответят</b>, или <b>не дают одному сбою занять все ресурсы</b>.</div>
+  </div>
+
+  <!-- ─── глава 3: пульт ─── -->
+  <div class="card rsx-ch" id="rsx-ch3">
+    <h2><span class="tag">глава 3 · пульт</span> магазин, который можно ломать</h2>
+    <p>Это живая модель нашего магазина. 15 покупателей в секунду открывают карточку товара, ещё 5 оформляют заказ. У магазина 20 потоков. Нажмите «▶ Запустить», потом «💥 Сломать рекомендации». Посмотрите, как за несколько секунд кончатся потоки и упадут заказы.</p>
+    <p>Потом включайте защиту переключателями. Каждый переключатель — одна из следующих глав. Под метриками пульт объясняет, <b>почему</b> картина стала такой. Время в модели идёт в 5 раз быстрее настоящего.</p>
+    <div class="form-row">
+      <button class="act" id="rsx-p-run">▶ Запустить</button>
+      <button class="act danger" id="rsx-p-break">💥 Сломать рекомендации (ответ 30 с)</button>
+      <button class="act okk" id="rsx-p-fix">🔧 Починить рекомендации</button>
+      <button class="ghost" id="rsx-p-reset">⟲ Сначала</button>
+    </div>
+    <div class="seg rsx-tg" id="rsx-p-tg">
+      <button data-o="to">⏱ Таймаут 300 мс</button>
+      <button data-o="rt">🔁 Повторы (до 3)</button>
+      <button data-o="bj">📈 Растущая пауза + разброс</button>
+      <button data-o="cb">⚡ Размыкатель</button>
+      <button data-o="bh">🚧 Переборка (6 потоков)</button>
+      <button data-o="dg">🍽 Деградация</button>
+    </div>
+    <div class="form-row" style="margin-top:0">
+      <button class="ghost" id="rsx-p-none">Выключить всё</button>
+      <button class="ghost" id="rsx-p-all">Включить всё</button>
+    </div>
+    <div class="rsx-big" id="rsx-p-kpi"></div>
+    <div class="rsx-shop">
+      <div>
+        <div class="rsx-page" id="rsx-p-page"></div>
+      </div>
+      <div>
+        <div class="rsx-poolrow"><span class="rsx-clock" id="rsx-p-clock">19:39:55</span><span id="rsx-p-recs"></span></div>
+        <div class="rsx-poolrow">Потоки магазина (20):</div>
+        <div class="rsx-pool" id="rsx-p-pool"></div>
+        <div class="rsx-poolrow" style="font-size:11.5px">● страница · ₽ заказ · ⌛ ждёт рекомендации дольше секунды</div>
+        <div class="rsx-log" id="rsx-p-log"></div>
+      </div>
+    </div>
+    <div class="console" id="rsx-p-msg"></div>
+    <div class="note"><b>Что заложено в модель.</b> Карточка товара вызывает цену и корзину (25 мс), потом рекомендации (обычно 40 мс). Заказ вызывает цену, корзину и оплату (85 мс) — рекомендации ему не нужны. Покупатель ждёт не дольше 5 секунд, потом уходит. Рекомендации выдерживают до 40 запросов в секунду; больше — захлёбываются и тоже отвечают по 30 секунд. Покупателей в модели меньше, чем в истории, чтобы разница между приёмами была видна яснее.</div>
+  </div>
+
+  <!-- ─── глава 4: таймаут ─── -->
+  <div class="card rsx-ch" id="rsx-ch4">
+    <h2><span class="tag">глава 4 · таймаут</span> первое лекарство: не ждать вечно</h2>
+    <div class="rsx-def"><b>Таймаут</b> — предел ожидания. Заранее решаем: «жду ответа не дольше N миллисекунд». Не пришёл — обрываем, освобождаем поток и идём дальше.</div>
+    <div class="rsx-life">вы вызвали такси. Решили: жду не дольше 10 минут, потом вызываю другое. Без этого правила можно простоять у подъезда весь вечер — и опоздать туда, куда ехали.</div>
+    <p style="margin-top:14px">В нашей пятнице именно этого не было. Запрос к рекомендациям мог висеть 30 секунд, и поток магазина всё это время стоял. Вызов без таймаута — это обещание ждать вечно. А у многих библиотек по умолчанию таймаута нет или он огромный.</p>
+    <div id="rsx-seq-to"></div>
+
+    <h3>Какое число поставить? Подберите сами</h3>
+    <p>Обычно рекомендации отвечают так: половина запросов — за 40 мс, 99 из 100 — быстрее 200 мс. Это «99-й перцентиль», коротко <b>p99</b>. Двигайте таймаут и следите за двумя вещами: сколько <b>здоровых</b> ответов мы оборвём зря и сколько потоков займёт сбой.</p>
+    <div class="slider-row"><label for="rsx-tmo">Таймаут</label><input type="range" id="rsx-tmo" min="0" max="12" step="1" value="12"><span class="sv" id="rsx-tmo-v">30 с</span></div>
+    <div class="meters">
+      <span class="meter wq">Здоровых ответов оборвём зря: <b id="rsx-tmo-cut">—</b></span>
+      <span class="meter bad">Потоков занято во время сбоя: <b id="rsx-tmo-th">—</b></span>
+      <span class="meter">Страница во время сбоя ждёт: <b id="rsx-tmo-w">—</b></span>
+    </div>
+    <div class="console" id="rsx-tmo-msg"></div>
+    <div class="grid2" style="margin-top:14px">
       <div class="box">
-        <h4>Как выбрать значение</h4>
-        <p class="bs">От <b>p99 нормального ответа</b>, а не «на глаз». Если сосед в 99 % случаев отвечает за 300 мс, таймаут в 500 мс отсечёт аномалии и не тронет нормальные запросы. Таймаут в 30 секунд не отсекает ничего — он просто даёт очереди вырасти.</p>
+        <h4>Правило 1: от p99, а не «на глаз»</h4>
+        <p class="bs">Берите время, в которое сосед укладывается в 99 случаях из 100, и добавьте запас. Таймаут в 30 секунд не отсекает ничего — он только даёт очереди вырасти.</p>
+      </div>
+      <div class="box">
+        <h4>Правило 2: поток за время таймаута</h4>
+        <p class="bs">Проверьте по закону Литтла: <code class="inl">запросов/с × таймаут</code> должно быть заметно меньше числа потоков. 40 × 0,3 с = 12 из 20 — терпимо. 40 × 0,5 с = 20 из 20 — пул снова кончится.</p>
       </div>
       <div class="box">
         <h4>Бюджет на цепочку</h4>
-        <p class="bs">Если у клиента 2 секунды, а в цепочке четыре звена, каждое не может иметь таймаут 2 секунды. Бюджет делится и <b>передаётся дальше</b> (в gRPC — deadline): звено знает, сколько времени осталось, и не начинает работу, которую заведомо не успеет.</p>
+        <p class="bs">Если у покупателя 2 секунды, а в цепочке четыре звена, каждое не может ждать 2 секунды. Бюджет делится и <b>передаётся дальше</b> (в gRPC это называется deadline). Звено знает, сколько времени осталось, и не начинает работу, которую заведомо не успеет.</p>
+      </div>
+      <div class="box">
+        <h4>Вложенность</h4>
+        <p class="bs">Внешний таймаут должен быть больше суммы внутренних. Иначе внешний оборвёт запрос, который вот-вот успешно закончился бы, и работа пропадёт зря.</p>
       </div>
     </div>
-    <div class="note warn"><b>Три таймаута, а не один:</b> на установку соединения (доли секунды — либо сеть жива, либо нет), на получение ответа (от p99), на всю операцию с учётом повторов. Настроен обычно только второй, а зависают чаще на первом — когда узел не отвечает вообще, а не отвечает медленно.</div>
+    <div class="note warn"><b>Таймаутов три, а не один.</b> На установку соединения — доли секунды: сеть либо жива, либо нет. На получение ответа — от p99. На всю операцию целиком, вместе с повторами. Обычно настроен только второй. А зависают чаще на первом — когда узел не отвечает вообще.</div>
+    <button class="ghost rsx-go" data-rsx-preset="to">▶ Проверить на пульте: сломать и включить только таймаут</button>
+    <div class="note"><b>Что вы увидите на пульте.</b> Заказы оживут: потоки больше не висят. Но страницы товаров начнут падать с ошибкой — рекомендаций нет, а страница без них собираться не умеет. Это починим в главе 9. А пока разберёмся, нельзя ли просто попробовать ещё раз.</div>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">симулятор</span> шторм повторов: как повторы добивают лежащий сервис</h2>
-    <p>Сервис начал отвечать ошибками. Все клиенты дружно повторяют. Посмотрите, во сколько раз вырастет нагрузка на уже упавший сервис — и что меняют экспоненциальная задержка и случайный разброс.</p>
+  <!-- ─── глава 5: повторы ─── -->
+  <div class="card rsx-ch" id="rsx-ch5">
+    <h2><span class="tag">глава 5 · повторы</span> «попробую ещё раз» — и как это добивает лежачего</h2>
+    <div class="rsx-def"><b>Повтор</b> (retry) — после неудачи отправить тот же запрос ещё раз. Помогает при <b>случайных</b> сбоях: моргнула сеть, узел перезапускался. Вредит, когда сосед лежит всерьёз.</div>
+    <p style="margin-top:12px">После таймаута рука тянется добавить повторы: «не ответили — спросим ещё». Иногда это правильно. Вот удачный случай:</p>
+    <div id="rsx-seq-retry"></div>
+    <p>А теперь наша пятница. Рекомендации лежат не случайно — они перегружены. Каждый повтор — это ещё один запрос к тому, кто и так не справляется. Три повтора на каждый запрос — втрое больше нагрузки. Такую лавину повторов называют <b>штормом повторов</b> (retry storm).</p>
+
+    <h3>Шторм повторов: посчитайте, во сколько раз вырастет нагрузка</h3>
+    <p>Хуже всего, когда повторяет каждое звено цепочки. Магазин повторяет рекомендациям, рекомендации повторяют своей базе, и так далее. Повторы <b>перемножаются</b>.</p>
     <div class="slider-row"><label for="rs-load">Нормальная нагрузка, запросов/с</label><input type="range" id="rs-load" min="100" max="5000" step="100" value="1000"><span class="sv" id="rs-load-v">1000</span></div>
     <div class="slider-row"><label for="rs-try">Повторов на запрос</label><input type="range" id="rs-try" min="0" max="5" value="3"><span class="sv" id="rs-try-v">3</span></div>
     <div class="slider-row"><label for="rs-depth">Звеньев в цепочке (каждое повторяет)</label><input type="range" id="rs-depth" min="1" max="5" value="3"><span class="sv" id="rs-depth-v">3</span></div>
     <div class="seg" id="rs-mode">
       <button class="on" data-m="naive">Повтор сразу</button>
-      <button data-m="backoff">Экспоненциальная задержка</button>
-      <button data-m="jitter">Задержка + случайный разброс</button>
+      <button data-m="backoff">Растущая пауза (backoff)</button>
+      <button data-m="jitter">Пауза + случайный разброс (jitter)</button>
       <button data-m="cb">+ размыкатель цепи</button>
     </div>
     <div class="meters">
@@ -14499,11 +14699,41 @@ OE --&gt; [Сервис платежей]</pre>
       <span class="meter">Пик после восстановления: <b id="rs-peak">—</b></span>
     </div>
     <div class="console" id="rs-msg"></div>
+
+    <h3>Как повторять правильно: растущая пауза</h3>
+    <div class="rsx-def"><b>Экспоненциальная задержка</b> (exponential backoff) — пауза между попытками растёт вдвое: 1 с, 2 с, 4 с, 8 с. Сосед получает время прийти в себя.</div>
+    <div class="rsx-life">вы дозваниваетесь в поликлинику. Не жмёте «повтор» каждую секунду — линия от этого не освободится. Позвонили, занято — ждёте минуту. Снова занято — две. Потом пять.</div>
+    <div class="rsx-def" style="margin-top:12px"><b>Случайный разброс</b> (jitter) — к паузе добавляется случайная добавка. Клиенты, упавшие одновременно, повторяют в <b>разное</b> время.</div>
+    <div class="rsx-life">поликлиника открывается в 9:00. Если все пациенты позвонят ровно в 9:00, линия ляжет. Если каждый позвонит «где-то между 9:00 и 9:30», дозвонятся почти все.</div>
+    <p style="margin-top:14px">Вот 60 покупателей, которые получили ошибку в одну и ту же секунду. У каждого 3 повтора. Сервис успевает обработать 10 запросов за четверть секунды (зелёная линия). Всё, что выше линии, — отказ. Переключайте режим и смотрите, сколько покупателей в итоге дозвонятся.</p>
+    <div class="seg" id="rsx-jit-mode">
+      <button class="on" data-m="fix">Повтор через 1 с</button>
+      <button data-m="exp">Растущая пауза: 1, 2, 4 с</button>
+      <button data-m="jit">Растущая пауза + разброс</button>
+    </div>
+    <div class="rsx-bars" id="rsx-jit-bars"></div>
+    <div class="rsx-axis"><span>0 с</span><span>2 с</span><span>4 с</span><span>6 с</span><span>8 с</span></div>
+    <div class="form-row"><button class="ghost" id="rsx-jit-again">🎲 Бросить кости ещё раз</button></div>
+    <div class="meters">
+      <span class="meter good">Дозвонились: <b id="rsx-jit-ok">—</b></span>
+      <span class="meter bad">Сдались: <b id="rsx-jit-fail">—</b></span>
+      <span class="meter wq">Пик за 0,25 с: <b id="rsx-jit-peak">—</b></span>
+    </div>
+    <div class="console" id="rsx-jit-msg"></div>
+
+    <div class="note warn"><b>Три правила повторов.</b> 1) Повторять только <b>безопасные</b> операции — те, где повтор ничего не испортит. Повторить «списать деньги» без ключа идемпотентности — значит списать дважды. 2) Попыток мало (2–3), пауза растёт, к ней добавлен разброс. 3) Повторяет <b>одно</b> звено цепочки — ближайшее к пользователю. Остальные сразу отдают ошибку.</div>
+    <button class="ghost rsx-go" data-rsx-preset="rt">▶ На пульте: таймаут + повторы сразу, потом «Починить»</button>
+    <button class="ghost rsx-go" data-rsx-preset="bj">▶ На пульте: таймаут + повторы с растущей паузой</button>
+    <div class="note"><b>Что вы увидите на пульте.</b> С повторами «сразу» нагрузка на рекомендации вырастает втрое. Нажмите «Починить» — рекомендации <b>не встанут</b>: их топят наши же повторы. С растущей паузой в бюджет операции помещается меньше попыток, и нагрузка ниже предела — сервис поднимается. Но лучше вообще перестать звонить туда, где не ответят. Это следующая глава.</div>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">симулятор</span> размыкатель цепи (circuit breaker)</h2>
-    <p>Три состояния. <b>Замкнут</b> — запросы идут. Накопилось много ошибок — <b>разомкнут</b>: вызовы мгновенно отклоняются, не мучая лежащего соседа и не занимая свои потоки. Через паузу — <b>полуразомкнут</b>: пропускаем несколько пробных. Успешны — замыкаем, нет — размыкаем снова.</p>
+  <!-- ─── глава 6: размыкатель ─── -->
+  <div class="card rsx-ch" id="rsx-ch6">
+    <h2><span class="tag">глава 6 · размыкатель</span> перестать звонить туда, где не ответят</h2>
+    <div class="rsx-def"><b>Размыкатель цепи</b> (circuit breaker) — посредник между нами и соседом. Он считает ошибки. Когда их слишком много, он «размыкается»: следующие вызовы сразу получают отказ, не уходя в сеть. Через паузу пробует снова.</div>
+    <div class="rsx-life">автомат в электрощитке. Где-то замыкание — автомат выбило. Вы не держите рычаг силой: сначала ждёте, потом пробуете включить. Не выбило снова — свет вернулся. Выбило — ещё ждёте.</div>
+    <p style="margin-top:14px">Таймаут ограничивает <b>одно</b> ожидание. Но при 40 запросах в секунду это всё равно 40 бесполезных походов по сети и 12 занятых потоков. Размыкатель убирает и их: пока сосед лежит, к нему просто не ходят. Отказ приходит за доли миллисекунды.</p>
+    <p>У размыкателя три состояния. <b>Замкнут</b> — запросы идут, как обычно. <b>Разомкнут</b> — запросы отклоняются сразу. <b>Полуразомкнут</b> — пропускаем несколько пробных запросов, чтобы понять, ожил ли сосед.</p>
     <div class="flow">
       <div class="fnode" id="cb-closed">ЗАМКНУТ<span class="fs">запросы проходят</span></div>
       <span class="farr">→</span>
@@ -14524,28 +14754,46 @@ OE --&gt; [Сервис платежей]</pre>
       <span class="meter wq">Отклонено сразу: <b id="cb-rej">0</b></span>
     </div>
     <div class="console" id="cb-msg">Нажимайте «падает», пока не сработает размыкатель.</div>
+    <h3>Полный цикл на секвенсе</h3>
+    <div id="rsx-seq-cb"></div>
+    <div class="note bad"><b>Размыкатель без таймаута слеп.</b> Он считает ошибки. А зависший вызов — не ошибка, это бесконечное ожидание. Пока ответа нет, считать нечего. Поэтому порядок всегда такой: сначала таймаут, потом размыкатель.</div>
+    <button class="ghost rsx-go" data-rsx-preset="cbonly">▶ На пульте: размыкатель без таймаута</button>
+    <button class="ghost rsx-go" data-rsx-preset="cb">▶ На пульте: таймаут + размыкатель</button>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">изоляция</span> переборки (bulkhead): не дать одному потопить корабль</h2>
-    <p>Название из судостроения: корпус разделён переборками, пробоина затапливает один отсек, а не всё судно. В коде это <b>раздельные пулы ресурсов</b> под разные зависимости.</p>
-    <div class="grid2">
-      <div class="box down">
-        <h4>Без переборок</h4>
-        <p class="bs">Один пул на 100 потоков. Сервис рекомендаций тормозит — 100 потоков висят на нём — оформление заказа не может получить поток — магазин не продаёт. <b>Некритичная зависимость уронила критичный путь.</b></p>
-      </div>
-      <div class="box">
-        <h4>С переборками</h4>
-        <p class="bs">Рекомендациям выделено 10 потоков, платежам — 40, каталогу — 50. Рекомендации выбрали свои 10 и получают отказ мгновенно. Оформление заказа работает, экран показывается без блока рекомендаций.</p>
-      </div>
+  <!-- ─── глава 7: переборки ─── -->
+  <div class="card rsx-ch" id="rsx-ch7">
+    <h2><span class="tag">глава 7 · переборки</span> не дать одной пробоине потопить корабль</h2>
+    <div class="rsx-def"><b>Переборка</b> (bulkhead) — отдельный, ограниченный запас ресурсов под каждую зависимость. Рекомендациям — не больше 6 потоков. Сколько бы они ни висели, остальные 14 им не достанутся.</div>
+    <div class="rsx-life">корпус корабля разделён переборками на отсеки. Пробоина затапливает один отсек, а не всё судно. Или так: в столовой отдельная касса для сотрудников. Хоть какая очередь у гостей — повара пообедают вовремя.</div>
+    <p style="margin-top:14px">В пятницу рекомендации заняли <b>все</b> потоки, потому что пул был общий. Посмотрите, как заполняется пул, секунда за секундой.</p>
+    <div class="seg" id="rsx-bh-mode">
+      <button class="on" data-m="shared">Один общий пул</button>
+      <button data-m="bh">Переборки: 6 рекомендациям, 14 остальным</button>
     </div>
-    <p>Разделять можно не только потоки: <b>пулы соединений к базе</b> (чтобы отчёты не съели все соединения у продаж), <b>отдельные инстансы</b> для критичного и некритичного трафика, <b>отдельные очереди</b> для быстрых и долгих задач.</p>
+    <div class="form-row">
+      <button class="act" id="rsx-bh-step">+0,25 секунды сбоя</button>
+      <button class="ghost" id="rsx-bh-reset">⟲ Сначала</button>
+    </div>
+    <div class="rsx-pool" id="rsx-bh-cells" style="margin-top:10px"></div>
+    <div class="console" id="rsx-bh-msg"></div>
+    <h3>На секвенсе</h3>
+    <div id="rsx-seq-bh"></div>
+    <p>Разделять можно не только потоки: <b>пулы соединений к базе</b> (чтобы отчёты не съели все соединения у продаж), <b>отдельные экземпляры</b> для важного и неважного трафика, <b>отдельные очереди</b> для быстрых и долгих задач.</p>
+    <div class="note"><b>Цена переборок.</b> Потоки поделены заранее, и в спокойное время часть их простаивает. Это честная плата за то, что отказ перестаёт быть «всё или ничего».</div>
+    <button class="ghost rsx-go" data-rsx-preset="bh">▶ На пульте: только переборка</button>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">лимиты</span> ограничение частоты: четыре алгоритма</h2>
+  <!-- ─── глава 8: ограничение частоты ─── -->
+  <div class="card rsx-ch" id="rsx-ch8">
+    <h2><span class="tag">глава 8 · лимиты</span> ограничение частоты: самозащита того, кого вызывают</h2>
+    <div class="rsx-def"><b>Ограничение частоты</b> (rate limiting) — сервис принимает не больше N запросов в секунду. Лишние сразу получают отказ <code class="inl">429 Too Many Requests</code>, а не встают в бесконечную очередь.</div>
+    <div class="rsx-life">турникет в метро. Он пропускает людей с постоянной скоростью. В час пик на входе очередь, но на платформе не давка, и поезда ходят.</div>
+    <p style="margin-top:14px">Все прошлые главы — защита <b>вызывающего</b>: магазин бережёт свои потоки. А рекомендации могли защитить <b>себя</b>. Они выдерживают 100 запросов в секунду. Когда пошёл шторм повторов, им прилетело 120 — и они захлебнулись целиком, отвечая по 30 секунд <b>всем</b>. С лимитом они честно обслужили бы 100, а 20 сразу отказали бы. Быстрый отказ части лучше медленного отказа всем.</p>
+    <p>Турникет можно устроить по-разному. Нажмите на строку, чтобы раскрыть подробности.</p>
     <div id="rl-table"></div>
     <h3>Ведро токенов вживую</h3>
+    <p>Самый популярный турникет. В ведро с постоянной скоростью капают <b>токены</b> — жетоны на один запрос. Запрос забирает жетон. Жетонов нет — отказ. Ёмкость ведра — сколько жетонов может скопиться за тихое время: это разрешённый всплеск.</p>
     <div class="slider-row"><label for="tb-rate">Пополнение, токенов/с</label><input type="range" id="tb-rate" min="1" max="20" value="5"><span class="sv" id="tb-rate-v">5</span></div>
     <div class="slider-row"><label for="tb-cap">Ёмкость ведра (запас на всплеск)</label><input type="range" id="tb-cap" min="1" max="40" value="10"><span class="sv" id="tb-cap-v">10</span></div>
     <div class="form-row">
@@ -14555,22 +14803,54 @@ OE --&gt; [Сервис платежей]</pre>
     </div>
     <div class="cells" id="tb-cells"></div>
     <div class="console" id="tb-msg"></div>
+    <div class="note warn"><b>Отказ по лимиту должен быть вежливым.</b> Код <code class="inl">429</code> и заголовок <code class="inl">Retry-After: 2</code> — «вернись через 2 секунды». Без заголовка клиент будет долбиться в цикле и сделает только хуже. Это и есть <b>обратное давление</b> (backpressure): получатель говорит отправителю «притормози».</div>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">деградация</span> что отключать первым</h2>
-    <p>Самый дешёвый способ поднять доступность — не «сделать всё надёжным», а заранее решить, <b>без чего можно жить</b>. Разложите функции магазина по уровням критичности.</p>
+  <!-- ─── глава 9: деградация ─── -->
+  <div class="card rsx-ch" id="rsx-ch9">
+    <h2><span class="tag">глава 9 · деградация</span> что отключать первым</h2>
+    <div class="rsx-def"><b>Плавная деградация</b> (graceful degradation) — при сбое система отключает второстепенное и продолжает делать главное. <b>Запасной ответ</b> (fallback) — то, что отдаём вместо недоступного: кеш, значение по умолчанию, пустой блок.</div>
+    <div class="rsx-life">час пик в кафе. Кухня не справляется, и из меню убирают сложные блюда: суфле, фламбе. Остаются суп, салат, кофе. Кафе продолжает кормить — просто выбор меньше.</div>
+    <p style="margin-top:14px">Помните пульт в главе 4? Таймаут спас заказы, но страницы товаров падали с ошибкой 500. Потому что код страницы был написан так: «нет рекомендаций — исключение — ошибка». Хотя цена и корзина были! Деградация — это решение, принятое <b>заранее</b>: «без рекомендаций показываем блок „Популярное“ из кеша».</p>
+    <p>Самый дешёвый способ поднять доступность — не «сделать всё надёжным», а заранее решить, <b>без чего можно жить</b>. Разложите функции магазина по уровням важности.</p>
     <p style="color:var(--muted);font-size:13.5px">Разложено <b id="dg-score">0</b> из <span id="dg-total">0</span>.</p>
     <div id="dg-sort"></div>
+    <button class="ghost rsx-go" data-rsx-preset="dg">▶ На пульте: таймаут + деградация</button>
+    <div class="note warn"><b>Запасной ответ должен быть виден в метриках.</b> Иначе система месяцами «работает» на заглушках, и никто не знает, что рекомендации давно мертвы. Считайте долю запасных ответов и поднимайте тревогу, когда она растёт.</div>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">ещё</span> остальные приёмы одной строкой</h2>
+  <!-- ─── глава 10: итог ─── -->
+  <div class="card rsx-ch" id="rsx-ch10">
+    <h2><span class="tag">глава 10 · развязка</span> та же пятница, 19:40 — но с защитой</h2>
+    <p>Перемотаем назад. Та же база рекомендаций, тот же сбой, те же 30 секунд. Но теперь у магазина таймаут, один повтор с разбросом, размыкатель, переборка и запасной ответ. Пройдите по шагам и сравните с главой 1.</p>
+    <div id="rsx-flow2"></div>
+    <button class="ghost rsx-go" data-rsx-preset="all">▶ На пульте: включить всё и сломать</button>
+    <h3>Как приёмы работают вместе — на секвенсе</h3>
+    <div id="rsx-seq-all"></div>
+    <div class="table-wrap" style="margin-top:14px">
+      <table class="db">
+        <thead><tr><th>Приём</th><th>От чего защищает</th><th>Без него в пятницу</th></tr></thead>
+        <tbody>
+          <tr><td><b>Таймаут</b></td><td>Бесконечное ожидание</td><td>Потоки висят 30 с, пул кончается за полсекунды</td></tr>
+          <tr><td><b>Повтор + пауза + разброс</b></td><td>Случайные разовые сбои</td><td>Моргнула сеть — покупатель видит ошибку</td></tr>
+          <tr><td><b>Размыкатель</b></td><td>Походы к тому, кто лежит</td><td>40 бесполезных запросов в секунду добивают рекомендации</td></tr>
+          <tr><td><b>Переборка</b></td><td>Захват всех ресурсов одной зависимостью</td><td>Зависшие рекомендации отнимают потоки у заказов</td></tr>
+          <tr><td><b>Ограничение частоты</b></td><td>Перегрузку сверх возможностей</td><td>Шторм повторов топит рекомендации целиком</td></tr>
+          <tr><td><b>Деградация</b></td><td>Отказ всей страницы из-за одного блока</td><td>Цена и корзина есть, а страница — ошибка 500</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <h3>Ещё приёмы — одной строкой</h3>
+    <p>Нажмите на пункт, чтобы раскрыть.</p>
     <div id="res-list" class="numlist"></div>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">задание</span> устойчивость</h2>
+  <!-- ─── глава 11: проверка ─── -->
+  <div class="card rsx-ch" id="rsx-ch11">
+    <h2><span class="tag">глава 11 · проверь себя</span> вопросы по пятнице</h2>
+    <p>Решено <b id="rsx-q-score">0</b> из <span id="rsx-q-total">0</span>.</p>
+    <div id="rsx-q-tasks"></div>
+    <h3>Общие вопросы по устойчивости</h3>
     <p>Решено <b id="rsq-score">0</b> из <span id="rsq-total">0</span>.</p>
     <div id="rsq-tasks"></div>
   </div>
@@ -14582,9 +14862,562 @@ OE --&gt; [Сервис платежей]</pre>
 </section>
 
 <script>
+/* ═══ карта раздела ═══ */
+(function(){
+  const map = document.getElementById('rsx-map'); if(!map) return;
+  map.addEventListener('click', e => {
+    const b = e.target.closest('button[data-rsx-ch]'); if(!b) return;
+    const t = document.getElementById(b.dataset.rsxCh);
+    if(t) t.scrollIntoView({behavior:'smooth', block:'start'});
+  });
+})();
+
+/* ═══ сквозной flow: движок и две пятницы ═══ */
+(function(){
+function rsxFlow(rootId, cfg){
+  const root = document.getElementById(rootId); if(!root) return;
+  const S = cfg.steps; let cur = 0, timer = null;
+  const node = n => '<div class="rsx-fn" data-id="'+n.id+'"><div class="i">'+n.ic+'</div><div class="nm">'+esc(n.n)+'</div>' +
+    (n.s ? '<div class="sb">'+esc(n.s)+'</div>' : '') + '<div class="st"></div></div>';
+  root.innerHTML =
+    '<div class="rsx-fw"><div class="rsx-fd">' +
+      cfg.rows.map((r, i) => '<div class="rsx-fr">'+r.map(node).join('')+'</div>' +
+        (i < cfg.rows.length - 1 ? '<div class="rsx-fa" data-gap="'+i+'"></div>' : '')).join('') +
+    '</div>' +
+    '<div class="rsx-poolrow" style="justify-content:center"><span class="rsx-clock" data-f="clock"></span>' +
+      '<span>потоки магазина:</span><span class="rsx-pool" data-f="pool"></span><span class="rsx-q" data-f="q"></span></div></div>' +
+    '<div class="skbar"><button class="ghost" data-f="prev">←</button><button class="act" data-f="next">Дальше →</button>' +
+      '<button class="ghost" data-f="play">▶ Прогнать</button><button class="ghost" data-f="first">⟲ С начала</button>' +
+      '<span class="skstep" data-f="lab"></span></div>' +
+    '<div data-f="out"></div>';
+  const q = s => root.querySelector('[data-f='+s+']');
+  const nodes = [...root.querySelectorAll('.rsx-fn')], gaps = [...root.querySelectorAll('.rsx-fa')];
+  function paint(){
+    const st = {}, cls = {}; let pool = {b:0, s:0, q:0};
+    for(let k = 0; k <= cur; k++){ Object.assign(st, S[k].st || {}); Object.assign(cls, S[k].cls || {}); if(S[k].pool) pool = S[k].pool; }
+    const x = S[cur], on = new Set(x.on || []);
+    nodes.forEach(n => {
+      const id = n.dataset.id;
+      n.className = 'rsx-fn' + (cls[id] ? ' ' + cls[id] : '') + (on.has(id) ? ' on' : '') + (st[id] ? ' lit' : '');
+      n.querySelector('.st').textContent = st[id] || '';
+    });
+    gaps.forEach((g, gi) => {
+      g.innerHTML = (x.arr || []).filter(a => (a.gap || 0) === gi)
+        .map(a => '<span class="'+(a.k || '')+'">'+(a.up ? '▲ ' : '▼ ')+esc(a.l)+'</span>').join('');
+    });
+    q('clock').textContent = x.clock;
+    let h = '';
+    for(let i = 0; i < (cfg.pool || 20); i++){
+      h += i < pool.s ? '<span class="rsx-th s">⌛</span>' : i < pool.b ? '<span class="rsx-th b">●</span>' : '<span class="rsx-th"></span>';
+    }
+    q('pool').innerHTML = h;
+    const qq = q('q'); qq.textContent = pool.q ? 'в очереди: ' + pool.q : 'очередь пуста'; qq.className = 'rsx-q' + (pool.q ? ' bad' : '');
+    q('lab').textContent = 'шаг ' + (cur + 1) + ' из ' + S.length;
+    q('out').innerHTML = '<div class="skout" style="margin-top:9px"><h4>' + esc(x.clock) + ' · ' + x.t + '</h4>' +
+      (x.a ? '<pre class="json" style="font-size:12px;margin:8px 0;white-space:pre-wrap">' + esc(x.a.join('\n')) + '</pre>' : '') +
+      '<div class="note' + (x.k === 'bad' ? ' bad' : x.k === 'good' ? ' good' : x.k === 'warn' ? ' warn' : '') + '" style="margin:6px 0 0;max-width:none">' + x.d + '</div></div>';
+    if(cur === S.length - 1 && cfg.key) Progress.report(cfg.key, 1);
+  }
+  function stop(){ if(timer){ clearInterval(timer); timer = null; q('play').textContent = '▶ Прогнать'; } }
+  root.addEventListener('click', e => {
+    const b = e.target.closest('button[data-f]'); if(!b) return;
+    const k = b.dataset.f;
+    if(k === 'next'){ stop(); if(cur < S.length - 1) cur++; paint(); }
+    if(k === 'prev'){ stop(); if(cur > 0) cur--; paint(); }
+    if(k === 'first'){ stop(); cur = 0; paint(); }
+    if(k === 'play'){
+      if(timer){ stop(); return; }
+      if(cur >= S.length - 1) cur = 0;
+      b.textContent = '⏸ Пауза'; paint();
+      timer = setInterval(() => {
+        const sec = document.getElementById('resil');
+        if(cur >= S.length - 1 || (sec && !sec.classList.contains('active'))){ stop(); return; }
+        cur++; paint();
+      }, 2600);
+    }
+  });
+  if(cfg.key) Progress.register(cfg.key, 1, cfg.label);
+  paint();
+}
+
+/* ═══ глава 1: пятница без защиты ═══ */
+(function(){
+  if(!document.getElementById('rsx-flow1')) return;
+  rsxFlow('rsx-flow1', {key:'rsx-flow', label:'Пятница: как лёг магазин', pool:20,
+    rows:[
+      [{id:'anna',ic:'👩',n:'Анна',s:'смотрит кроссовки'},{id:'crowd',ic:'👥',n:'Другие покупатели',s:'40 в секунду'},{id:'boris',ic:'🧔',n:'Борис',s:'хочет оплатить'}],
+      [{id:'shop',ic:'🏬',n:'Магазин',s:'веб-сервер · 20 потоков'}],
+      [{id:'price',ic:'💰',n:'Цена'},{id:'cart',ic:'🛒',n:'Корзина'},{id:'pay',ic:'💳',n:'Оплата'},{id:'recs',ic:'✨',n:'Рекомендации',s:'«вам может понравиться»'}],
+      [{id:'db',ic:'🗄',n:'База рекомендаций'}],
+    ],
+    steps:[
+      {clock:'19:39:58.000', t:'Анна открывает карточку товара', on:['anna','shop'], st:{anna:'открывает товар №42', shop:'поток №1 взял запрос'}, cls:{anna:'good'},
+       arr:[{gap:0,l:'GET /product/42'}], pool:{b:1,s:0,q:0},
+       a:['GET /product/42 HTTP/1.1','Host: shop.example','Cookie: user=anna'],
+       d:'Обычный пятничный вечер. Браузер Анны отправляет запрос в магазин. Магазин отдаёт запрос одному из своих <b>потоков</b> — рабочих, которые ведут запрос от начала до конца. Всего потоков 20. Один сейчас занят Анной — квадратик внизу загорелся.'},
+      {clock:'19:39:58.004', t:'Магазин спрашивает цену', on:['shop','price'], st:{price:'12 мс ✓'}, cls:{price:'good'},
+       arr:[{gap:1,l:'GET /price/42 → 12 мс',k:'good'}],
+       a:['→ GET /price/42','← 200 OK  {"price": 4990, "currency": "RUB"}   12 мс'],
+       d:'Чтобы собрать страницу, магазину нужны кусочки из других сервисов. Первый — цена. Ответ пришёл за 12 миллисекунд. Всё это время поток №1 ждал ответа: пока он ждёт, другой работы он не делает.'},
+      {clock:'19:39:58.016', t:'…и корзину', on:['shop','cart'], st:{cart:'9 мс ✓'}, cls:{cart:'good'},
+       arr:[{gap:1,l:'GET /cart/anna → 9 мс',k:'good'}],
+       a:['→ GET /cart/anna','← 200 OK  {"items": 2, "total": 7380}   9 мс'],
+       d:'Корзина нужна, чтобы в шапке горело «в корзине 2 товара». Ещё 9 миллисекунд.'},
+      {clock:'19:39:58.025', t:'…и рекомендации', on:['shop','recs','db'], st:{recs:'40 мс ✓', db:'5 мс'}, cls:{recs:'good', db:'good'},
+       arr:[{gap:1,l:'GET /recs?item=42 → 40 мс',k:'good'},{gap:2,l:'SELECT похожие → 5 мс',k:'good'}],
+       a:['→ GET /recs?item=42&user=anna','   рекомендации → база: SELECT … 5 мс','← 200 OK  ["носки", "стельки", "бутылка для воды"]   40 мс'],
+       d:'Сервис рекомендаций заглядывает в свою базу и подбирает «вам может понравиться». 40 миллисекунд. Заметьте: блок — просто украшение. Анна пришла за кроссовками, а не за носками.'},
+      {clock:'19:39:58.070', t:'Страница готова, поток свободен', on:['anna','shop'], st:{anna:'страница за 70 мс ✓', shop:'поток №1 снова свободен'},
+       arr:[{gap:0,l:'200 OK · страница за 70 мс',k:'good',up:true}], pool:{b:0,s:0,q:0},
+       a:['← 200 OK  text/html   70 мс','','Сколько потоков занято в среднем:','40 покупателей/с × 0,07 с ≈ 3 потока из 20'],
+       d:'Анна увидела страницу за 70 мс. Поток вернулся в пул. Посчитайте запас: 40 покупателей в секунду, каждый держит поток 0,07 секунды. В среднем заняты около трёх потоков из двадцати. <b>Запас огромный</b> — кажется, что ничего не может пойти не так.'},
+      {clock:'19:40:00.000', t:'База рекомендаций начала тормозить', on:['recs','db'], st:{db:'перестраивает индекс', recs:'принимает запросы и молчит', anna:'', price:'', cart:''}, cls:{db:'bad', recs:'wait', anna:'', price:'', cart:''},
+       a:['база рекомендаций: REINDEX … (займёт 12 минут)','каждый SELECT теперь ждёт ~30 с'],
+       d:'Кто-то запустил перестройку индекса в базе рекомендаций. Каждый запрос теперь идёт 30 секунд. Важная деталь: рекомендации <b>не упали</b>. Они принимают соединение и молчат. <b>Медленный сосед опаснее мёртвого.</b> Мёртвый сразу отвечает «соединение отклонено», и мы идём дальше. Медленный заставляет ждать.', k:'bad'},
+      {clock:'19:40:01.000', t:'Анна обновляет страницу', on:['anna','shop','recs'], st:{anna:'⌛ крутится колёсико', shop:'поток №1 ждёт рекомендации', price:'12 мс ✓', cart:'9 мс ✓', recs:'⌛ ждём… 1 с'}, cls:{anna:'wait', price:'good', cart:'good'},
+       arr:[{gap:0,l:'GET /product/42'},{gap:1,l:'GET /recs?item=42 → тишина…',k:'wait'}], pool:{b:1,s:1,q:0},
+       a:['→ GET /recs?item=42','   … 0,5 с … 1 с … ответа нет','   таймаут не задан → ждём, сколько потребуется'],
+       d:'Цена и корзина ответили как обычно. А рекомендации молчат. Таймаута нет — значит, поток №1 будет ждать, пока ответ не придёт. Хоть 30 секунд, хоть час. Анна смотрит на крутящееся колёсико.', k:'warn'},
+      {clock:'19:40:01.500', t:'За полсекунды кончились все потоки', on:['crowd','shop','recs'], st:{crowd:'⌛ 20 человек ждут', shop:'20 из 20 потоков ждут', recs:'⌛ 20 запросов висят'}, cls:{crowd:'wait', shop:'wait'},
+       arr:[{gap:0,l:'20 × GET /product/…'},{gap:1,l:'20 × GET /recs → тишина…',k:'wait'}], pool:{b:20,s:20,q:0},
+       a:['приходит 40 покупателей в секунду','каждый занимает поток и застревает на рекомендациях','через 0,5 с: 40 × 0,5 = 20 потоков заняты ожиданием','свободных потоков: 0'],
+       d:'Вот здесь начинается настоящая беда. Каждый новый покупатель занимает поток — и тоже застревает. За полсекунды приходят 20 человек, и все 20 потоков стоят в ожидании одного и того же медленного сервиса. Все квадратики внизу красные.', k:'bad'},
+      {clock:'19:40:02.000', t:'Борис жмёт «Оформить заказ»', on:['boris','shop'], st:{boris:'⌛ в очереди, место 21'}, cls:{boris:'wait'},
+       arr:[{gap:0,l:'POST /checkout',k:'wait'}], pool:{b:20,s:20,q:21},
+       a:['POST /checkout  {"cart": "boris", "pay": "card"}','нужно: цена ✓, корзина ✓, оплата ✓ — все здоровы','свободных потоков: 0 → встал в очередь, место 21'],
+       d:'Борису рекомендации не нужны вообще. Для заказа нужны цена, корзина и оплата — все три здоровы. Но в магазине нет свободного потока, чтобы хотя бы начать его заказ. Борис встаёт в очередь за теми, кто ждёт рекомендаций.', k:'warn'},
+      {clock:'19:40:07.000', t:'Борис ушёл без покупки', on:['boris','shop','pay'], st:{boris:'504 · ушёл', pay:'здорова, но простаивает'}, cls:{boris:'bad', pay:'good'},
+       arr:[{gap:0,l:'504 Gateway Timeout',k:'bad',up:true}], pool:{b:20,s:20,q:200},
+       a:['Борис ждал 5 с — браузер: «Сервис временно недоступен»','очередь выросла до 200 запросов','оплата за последние 5 с: 0 платежей'],
+       d:'Борис подождал пять секунд и закрыл вкладку. <b>Заказ потерян</b>, хотя сервис оплаты полностью исправен и простаивает. Вот что значит «упало всё»: сломалось украшение, а не работает касса.', k:'bad'},
+      {clock:'19:40:10.000', t:'Балансировщик добивает второй экземпляр', on:['shop'], st:{shop:'не отвечает на /health'}, cls:{shop:'bad'},
+       a:['балансировщик → GET /health  … нет ответа (нет свободного потока)','×3 подряд → экземпляр №1 выведен из работы','весь трафик → экземпляр №2 (у него тоже 20 потоков)','экземпляр №2: 20 из 20 заняты через 0,25 с'],
+       d:'Перед магазином стоит <b>балансировщик</b> — он раскидывает запросы по копиям магазина и проверяет их здоровье. Магазин не ответил на проверку: нечем. Балансировщик решил, что копия мертва, и отправил весь поток на вторую. Та получила двойную нагрузку и легла ещё быстрее. Добавить копий? Каждая новая за полсекунды набьётся зависшими запросами.', k:'bad'},
+      {clock:'19:40:30.000', t:'Ответы пришли — но уже никому не нужны', on:['recs','shop','crowd'], st:{recs:'ответил через 30 с', crowd:'жмут F5'}, cls:{crowd:'bad'},
+       arr:[{gap:1,l:'200 OK через 30 000 мс',k:'wait',up:true}], pool:{b:20,s:20,q:400},
+       a:['поток №1: ответ пришёл через 30 000 мс — Анна давно ушла','поток освободился → тут же взял следующий запрос → снова ждёт 30 с','каждое нажатие F5 = ещё один запрос в очередь'],
+       d:'Первые ответы пришли через 30 секунд. Работа сделана, но Анна давно закрыла вкладку. Освободившийся поток тут же берёт новый запрос и снова застревает. А люди жмут F5, и каждое обновление — ещё один запрос в очередь. Очередь не рассасывается.', k:'bad'},
+      {clock:'19:45:00.000', t:'Итог: каскадный отказ', on:['anna','crowd','boris','shop'], st:{shop:'лежит', anna:'ушла', crowd:'ушли к конкурентам'}, cls:{anna:'bad'},
+       pool:{b:20,s:20,q:400},
+       a:['за 5 минут:','  рекомендации — медленные, но живые','  цена, корзина, оплата — здоровы','  магазин — 0 заказов'],
+       d:'Посмотрите на схему. Ни один «важный» сервис не сломался. Цена, корзина и оплата здоровы. Рекомендации живы, просто медленные. А магазин не продаёт. Это <b>каскадный отказ</b>: сбой одного звена перетёк на тех, кто его вызывает, через <b>ожидание</b>. Дальше разберём, почему так вышло, — и починим по одному приёму за главу.', k:'bad'},
+    ]});
+})();
+
+/* ═══ глава 10: пятница с защитой ═══ */
+(function(){
+  if(!document.getElementById('rsx-flow2')) return;
+  rsxFlow('rsx-flow2', {key:'rsx-flow2', label:'Пятница с защитой', pool:20,
+    rows:[
+      [{id:'anna',ic:'👩',n:'Анна',s:'смотрит кроссовки'},{id:'crowd',ic:'👥',n:'Другие покупатели',s:'40 в секунду'},{id:'boris',ic:'🧔',n:'Борис',s:'хочет оплатить'}],
+      [{id:'shop',ic:'🏬',n:'Магазин',s:'20 потоков · таймаут · размыкатель · переборка'}],
+      [{id:'price',ic:'💰',n:'Цена'},{id:'cart',ic:'🛒',n:'Корзина'},{id:'pay',ic:'💳',n:'Оплата'},{id:'recs',ic:'✨',n:'Рекомендации',s:'лимит 100 запросов/с'}],
+      [{id:'cache',ic:'📦',n:'Кеш «Популярное»',s:'запасной ответ'},{id:'db',ic:'🗄',n:'База рекомендаций'}],
+    ],
+    steps:[
+      {clock:'19:40:00.000', t:'Тот же сбой', on:['recs','db'], st:{db:'перестраивает индекс', recs:'принимает и молчит', shop:'размыкатель: ЗАМКНУТ'}, cls:{db:'bad', recs:'wait'}, pool:{b:0,s:0,q:0},
+       a:['база рекомендаций: REINDEX … (12 минут)','каждый запрос к рекомендациям — ~30 с'],
+       d:'Всё как в главе 1: перестройка индекса, рекомендации отвечают по 30 секунд. Ни одну причину сбоя мы не убрали — такое будет случаться. Мы изменили только то, <b>как магазин реагирует</b>.', k:'bad'},
+      {clock:'19:40:01.000', t:'Анна открывает карточку', on:['anna','shop','price','cart'], st:{anna:'открывает товар №42', price:'12 мс ✓', cart:'9 мс ✓'}, cls:{price:'good', cart:'good'},
+       arr:[{gap:0,l:'GET /product/42'},{gap:1,l:'цена 12 мс · корзина 9 мс',k:'good'}], pool:{b:1,s:0,q:0},
+       d:'Начало то же: поток №1 берёт запрос Анны, цена и корзина отвечают быстро.'},
+      {clock:'19:40:01.021', t:'Рекомендации — через переборку и с таймаутом', on:['shop','recs'], st:{recs:'⌛ ждём не дольше 300 мс', shop:'переборка: место 1 из 6'},
+       arr:[{gap:1,l:'GET /recs (дедлайн 300 мс)',k:'wait'}], pool:{b:1,s:1,q:0},
+       a:['переборка «рекомендации»: занято 1 из 6 мест','→ GET /recs?item=42   дедлайн: 300 мс'],
+       d:'Два отличия. Вызов идёт через <b>переборку</b>: рекомендациям разрешено держать не больше 6 потоков. И у вызова есть <b>таймаут</b> — 300 мс. Решение «сколько ждать» принято до отправки.', k:'warn'},
+      {clock:'19:40:01.321', t:'Таймаут: обрываем ожидание', on:['shop','recs'], st:{recs:'✕ оборвали через 300 мс', shop:'поток №1 свободен для дела'}, cls:{recs:'bad'},
+       arr:[{gap:1,l:'обрыв по таймауту · 300 мс',k:'bad',up:true}], pool:{b:1,s:0,q:0},
+       a:['300 мс прошло — ответа нет','соединение закрыто, место в переборке освобождено','повтор? да, один: пауза = случайно 0…400 мс → выпало 180 мс'],
+       d:'300 мс — ответа нет, обрываем. Поток не стоит 30 секунд. Можно попробовать ещё раз — вдруг это был случайный сбой. Но не сразу: пауза растёт и <b>случайна</b>, чтобы тысячи клиентов не повторили хором.'},
+      {clock:'19:40:01.801', t:'Повтор тоже не удался — берём запасной ответ', on:['shop','recs','cache'], st:{recs:'✕ снова 300 мс', cache:'«Популярное» · 2 мс'}, cls:{cache:'good'},
+       arr:[{gap:1,l:'повтор: снова обрыв',k:'bad'},{gap:2,l:'«Популярное» из кеша · 2 мс',k:'good'}],
+       a:['попытка 2: обрыв через 300 мс','бюджет на рекомендации (1 с) исчерпан','→ запасной ответ: ["беговые носки", "шнурки", "рюкзак"] из кеша'],
+       d:'Повтор тоже не ответил. Бюджет времени на блок рекомендаций закончился, больше не пробуем. <b>Деградация:</b> вместо персональных рекомендаций показываем «Популярное» из кеша.'},
+      {clock:'19:40:01.830', t:'Анна видит страницу', on:['anna','shop'], st:{anna:'страница за 0,83 с ✓'}, cls:{anna:'good'},
+       arr:[{gap:0,l:'200 OK · 0,83 с',k:'good',up:true}], pool:{b:0,s:0,q:0},
+       d:'Анна увидела кроссовки, цену, корзину и блок «Популярное». Чуть медленнее обычного, но без ошибки. Скорее всего, она и не заметила подмены.', k:'good'},
+      {clock:'19:40:03.000', t:'Размыкатель размыкается', on:['shop','recs'], st:{shop:'размыкатель: РАЗОМКНУТ', recs:'к ним не ходят · 0 запросов'}, cls:{shop:'good'}, pool:{b:2,s:0,q:0},
+       a:['окно: последние 20 вызовов рекомендаций','ошибок: 14 из 20 = 70 %  ≥ порог 50 %','→ РАЗОМКНУТ на 30 с; вызовы отклоняются без сети'],
+       d:'<b>Размыкатель</b> насчитал 70 % ошибок и разомкнулся. Теперь магазин вообще не ходит к рекомендациям: ответ «нет» приходит за доли миллисекунды. Потоки не ждут даже 300 мс.'},
+      {clock:'19:40:03.500', t:'Страницы открываются быстрее, чем обычно', on:['crowd','anna','shop','cache'], st:{crowd:'страницы за 30 мс ✓', anna:'снова открыла · 30 мс ✓'}, cls:{crowd:'good'},
+       arr:[{gap:0,l:'40 × GET /product/…'},{gap:2,l:'«Популярное» · 1 мс',k:'good'}], pool:{b:2,s:0,q:0},
+       d:'Забавный эффект: пока рекомендации отключены, страница собирается даже быстрее, чем в обычный вечер. 40 покупателей в секунду держат в среднем 1–2 потока.', k:'good'},
+      {clock:'19:40:04.000', t:'Борис оформляет заказ', on:['boris','shop','price','cart','pay'], st:{boris:'заказ за 90 мс ✓', pay:'60 мс ✓'}, cls:{boris:'good', pay:'good'},
+       arr:[{gap:0,l:'POST /checkout',k:'good'},{gap:1,l:'цена · корзина · оплата',k:'good'}], pool:{b:3,s:0,q:0},
+       a:['свободных потоков: 17 из 20','POST /checkout → 201 Created  {"order": 58812}   90 мс'],
+       d:'Свободных потоков полно. Заказ Бориса прошёл за 90 мс. <b>Касса работает.</b>', k:'good'},
+      {clock:'19:40:05.000', t:'Рекомендации отдыхают, дежурный знает', on:['recs','db'], st:{db:'спокойно доделывает индекс', recs:'турникет: ≤ 100 запросов/с'}, cls:{db:'wait'},
+       a:['ALERT 19:40:03  размыкатель «recs» разомкнут','ALERT 19:40:04  доля запасных ответов «Популярное»: 100 %'],
+       d:'Размыкатель снял с рекомендаций всю нагрузку, и база спокойно доделывает индекс. У рекомендаций к тому же стоит <b>ограничение частоты</b>: даже если кто-то начнёт их штурмовать, лишнее получит быстрый отказ 429. А дежурному пришло оповещение — сбой не прячется.'},
+      {clock:'19:52:00.000', t:'Пробные запросы', on:['shop','recs','db'], st:{shop:'размыкатель: ПОЛУРАЗОМКНУТ', recs:'40 мс ✓', db:'индекс готов'}, cls:{recs:'good', db:'good'},
+       arr:[{gap:1,l:'3 пробных GET /recs → 40 мс',k:'good'}],
+       a:['полуразомкнут: пропускаем 3 пробных вызова','3 из 3 успешны за 40 мс'],
+       d:'Размыкатель периодически пробовал пропустить несколько запросов. В 19:52 индекс готов, три пробных запроса прошли.'},
+      {clock:'19:52:01.000', t:'Всё вернулось само', on:['anna','crowd','shop','recs'], st:{shop:'размыкатель: ЗАМКНУТ', anna:'«вам может понравиться» снова тут'}, cls:{anna:'good'},
+       arr:[{gap:1,l:'GET /recs → 40 мс',k:'good'}], pool:{b:3,s:0,q:0},
+       a:['сбой длился 12 минут','потеряно заказов: 0','покупатели видели «Популярное» вместо персональных рекомендаций'],
+       d:'Размыкатель замкнулся, персональные рекомендации вернулись. Никто ничего не перезапускал. Итог той же пятницы: 12 минут сбоя, <b>0 потерянных заказов</b>. Сломалось маленькое — и осталось маленьким. Это и есть устойчивость.', k:'good'},
+    ]});
+})();
+})();
+
+/* ═══ глава 2: закон Литтла ═══ */
+(function(){
+  const g = id => document.getElementById(id);
+  if(!g('rsx-lit-rps')) return;
+  let t = 30;
+  function calc(user){
+    const rps = +g('rsx-lit-rps').value; g('rsx-lit-rps-v').textContent = rps;
+    const need = rps * t, miss = Math.max(0, Math.ceil(need - 20));
+    g('rsx-lit-need').textContent = need < 10 ? fmt(need) : Math.round(need).toLocaleString('ru-RU');
+    g('rsx-lit-miss').textContent = miss ? miss.toLocaleString('ru-RU') : '0';
+    let h = '';
+    for(let i = 0; i < 20; i++) h += '<span class="rsx-th ' + (i < Math.ceil(need) ? (need > 20 ? 's' : 'b') : '') + '">' + (i < Math.ceil(need) ? (need > 20 ? '⌛' : '●') : '') + '</span>';
+    g('rsx-lit-cells').innerHTML = h;
+    const tt = t < 1 ? Math.round(t * 1000) + ' мс' : t + ' с';
+    if(need <= 10) msg(g('rsx-lit-msg'), 'ok', rps + ' × ' + tt + ' = <b>' + fmt(need) + '</b> потока. Из 20 занято меньше половины: всплески переживём.');
+    else if(need <= 20) msg(g('rsx-lit-msg'), 'warn', rps + ' × ' + tt + ' = <b>' + fmt(need) + '</b>. Почти весь пул. Любой всплеск — и новые покупатели встанут в очередь.');
+    else msg(g('rsx-lit-msg'), 'err', rps + ' × ' + tt + ' = <b>' + Math.round(need).toLocaleString('ru-RU') + '</b> потоков нужно, а есть 20. Не хватает ' + miss.toLocaleString('ru-RU') + '. Очередь растёт каждую секунду, и в ней стоят все — в том числе те, кому рекомендации не нужны. Увеличить пул до ' + Math.round(need) + '? Потоки стоят памяти, а сбой может длиться дольше — это гонка, которую не выиграть. Выход один: <b>держать поток меньше</b>.');
+    if(user) Progress.report('rsx-lit', 1);
+  }
+  g('rsx-lit-rps').addEventListener('input', () => calc(true));
+  g('rsx-lit-t').addEventListener('click', e => {
+    const b = e.target.closest('button[data-t]'); if(!b) return;
+    t = +b.dataset.t;
+    [...b.parentNode.children].forEach(x => x.classList.toggle('on', x === b));
+    calc(true);
+  });
+  Progress.register('rsx-lit', 1, 'Закон Литтла');
+  calc(false);
+})();
+
+/* ═══ глава 4: подбор таймаута ═══ */
+(function(){
+  const g = id => document.getElementById(id);
+  if(!g('rsx-tmo')) return;
+  const V = [50,100,150,200,300,400,500,800,1000,2000,5000,10000,30000];
+  const CDF = [[20,0],[40,.5],[90,.9],[200,.99],[700,.999],[3000,1]];
+  function cdf(x){
+    if(x <= CDF[0][0]) return 0;
+    for(let i = 1; i < CDF.length; i++) if(x <= CDF[i][0]){
+      const a = CDF[i-1], b = CDF[i]; return a[1] + (b[1]-a[1]) * (x-a[0]) / (b[0]-a[0]);
+    }
+    return 1;
+  }
+  const f = ms => ms < 1000 ? ms + ' мс' : (ms/1000).toLocaleString('ru-RU') + ' с';
+  function calc(user){
+    const T = V[+g('rsx-tmo').value];
+    g('rsx-tmo-v').textContent = f(T);
+    const cut = (1 - cdf(T)) * 100, th = 40 * T / 1000;
+    g('rsx-tmo-cut').textContent = cut < .01 ? '0 %' : cut.toLocaleString('ru-RU', {maximumFractionDigits:2}) + ' %';
+    g('rsx-tmo-th').textContent = th >= 20 ? '20 из 20 — пул кончился' : fmt(th) + ' из 20';
+    g('rsx-tmo-w').textContent = f(T);
+    let k, t;
+    if(cut > 5){ k = 'err'; t = 'Слишком жёстко. Обрываем <b>' + Math.round(cut) + ' %</b> нормальных ответов — рекомендации пропадут и в спокойный вечер.'; }
+    else if(th >= 20){ k = 'err'; t = 'Слишком мягко. Во время сбоя каждый поток держится ' + f(T) + ', и 40 запросов в секунду занимают все 20 потоков. Таймаут есть, а пятница повторится.'; }
+    else if(th >= 14 || cut > 1.5){ k = 'warn'; t = th >= 14 ? 'На грани: во время сбоя заняты ' + fmt(th) + ' потока из 20. Небольшой всплеск — и пул кончится.' : 'Обрываем ' + cut.toLocaleString('ru-RU', {maximumFractionDigits:1}) + ' % ответов. Многовато: это уже не только аномалии.'; }
+    else { k = 'ok'; t = 'Хороший выбор. Чуть выше p99 (200 мс): обрываем только аномально медленные ответы, а во время сбоя занято ' + fmt(th) + ' потока из 20. Но 40 походов в секунду в пустоту всё равно остаются — их уберёт размыкатель.'; }
+    msg(g('rsx-tmo-msg'), k, t);
+    if(user && k === 'ok') Progress.report('rsx-tmo', 1);
+  }
+  g('rsx-tmo').addEventListener('input', () => calc(true));
+  Progress.register('rsx-tmo', 1, 'Подбор таймаута');
+  calc(false);
+})();
+
+/* ═══ глава 5: разброс повторов ═══ */
+(function(){
+  const g = id => document.getElementById(id);
+  if(!g('rsx-jit-bars')) return;
+  const N = 60, CAP = 10, B = 0.25, NB = 32, TRIES = 3;
+  let mode = 'fix';
+  function pause(n){ // n — номер повтора, 1..3
+    if(mode === 'fix') return 1;
+    if(mode === 'exp') return Math.pow(2, n - 1);
+    return Math.random() * Math.pow(2, n);
+  }
+  function run(){
+    const C = Array.from({length:N}, () => ({next:0, n:0, st:''}));
+    const bars = new Array(NB).fill(0);
+    for(let b = 0; b < NB; b++){
+      const here = C.filter(c => !c.st && c.next >= b*B && c.next < (b+1)*B);
+      for(let i = here.length - 1; i > 0; i--){ const j = Math.floor(Math.random()*(i+1)); [here[i], here[j]] = [here[j], here[i]]; }
+      bars[b] = here.length;
+      here.forEach((c, i) => {
+        if(i < CAP){ c.st = 'ok'; return; }
+        c.n++;
+        if(c.n > TRIES){ c.st = 'fail'; return; }
+        c.next = c.next + pause(c.n);
+      });
+    }
+    C.forEach(c => { if(!c.st) c.st = 'fail'; });
+    const ok = C.filter(c => c.st === 'ok').length, peak = Math.max(...bars);
+    const H = 130, top = Math.max(peak, CAP*2);
+    g('rsx-jit-bars').innerHTML = bars.map(v => '<i class="' + (v > CAP ? 'over' : '') + '" style="height:' + (v/top*H) + 'px" title="' + v + '"></i>').join('') +
+      '<div class="rsx-cap" style="bottom:' + (CAP/top*H) + 'px"><span>предел: 10</span></div>';
+    g('rsx-jit-ok').textContent = ok + ' из ' + N;
+    g('rsx-jit-fail').textContent = N - ok;
+    g('rsx-jit-peak').textContent = peak;
+    const txt = {
+      fix:'Все повторяют хором, ровно через секунду. Каждый раз сервис успевает обслужить 10, а остальные 50 снова получают отказ. Между всплесками сервис простаивает. После трёх повторов сдались <b>' + (N-ok) + '</b>.',
+      exp:'Паузы растут: 1, 2, 4 с. Сервису дают передохнуть, но толпа всё равно приходит <b>одновременно</b>: все упали в одну секунду, значит, и повторят в одну. Столбики те же, только реже. Сдались <b>' + (N-ok) + '</b>.',
+      jit:'Случайная пауза размазала толпу по времени. Всплесков почти нет, большинство попыток попадает под зелёную линию. Сдались всего <b>' + (N-ok) + '</b>. Это одна строчка кода: <code class="inl">пауза = random(0, 2^n)</code>.',
+    }[mode];
+    msg(g('rsx-jit-msg'), mode === 'jit' ? 'ok' : mode === 'exp' ? 'warn' : 'err', txt);
+    if(mode === 'jit') Progress.report('rsx-jit', 1);
+  }
+  g('rsx-jit-mode').addEventListener('click', e => {
+    const b = e.target.closest('button[data-m]'); if(!b) return;
+    mode = b.dataset.m;
+    [...b.parentNode.children].forEach(x => x.classList.toggle('on', x === b));
+    run();
+  });
+  g('rsx-jit-again').addEventListener('click', run);
+  Progress.register('rsx-jit', 1, 'Разброс повторов');
+  run();
+})();
+
+/* ═══ глава 7: переборки ═══ */
+(function(){
+  const g = id => document.getElementById(id);
+  if(!g('rsx-bh-cells')) return;
+  let mode = 'shared', k = 0;
+  function paint(){
+    const shared = mode === 'shared';
+    const stuck = shared ? Math.min(20, 10*k) : Math.min(6, 10*k);
+    let h = '';
+    for(let i = 0; i < 20; i++){
+      if(!shared && i === 6) h += '<span style="width:6px"></span>';
+      if(i < stuck) h += '<span class="rsx-th s" title="висит на рекомендациях">⌛</span>';
+      else if(!shared && i < 6) h += '<span class="rsx-th r" title="место для рекомендаций"></span>';
+      else h += '<span class="rsx-th b" title="свободен">●</span>';
+    }
+    g('rsx-bh-cells').innerHTML = h;
+    const t = (k*0.25).toLocaleString('ru-RU');
+    if(k === 0) msg(g('rsx-bh-msg'), '', shared ? 'Один пул на 20 потоков для всего. Нажимайте «+0,25 секунды»: каждые 0,25 с приходят 10 покупателей, и каждый застревает на рекомендациях.' : 'Пул разделён: 6 мест (жёлтые) — только для вызовов рекомендаций, 14 — для всего остального. Нажимайте «+0,25 секунды».');
+    else if(shared) msg(g('rsx-bh-msg'), stuck >= 20 ? 'err' : 'warn', 'Прошло ' + t + ' с. Зависло потоков: <b>' + stuck + ' из 20</b>. ' + (stuck >= 20 ? 'Свободных нет. Заказ Бориса встаёт в очередь — и не дождётся. <b>Некритичная зависимость уронила критичный путь.</b>' : 'Ещё немного — и свободных не останется.'));
+    else { msg(g('rsx-bh-msg'), 'ok', 'Прошло ' + t + ' с. Рекомендации заняли свои <b>' + stuck + ' из 6</b> и упёрлись. Следующий вызов рекомендаций получает отказ сразу, без ожидания. 14 потоков свободны: заказ Бориса проходит за 90 мс.'); if(stuck >= 6) Progress.report('rsx-bh', 1); }
+  }
+  g('rsx-bh-mode').addEventListener('click', e => {
+    const b = e.target.closest('button[data-m]'); if(!b) return;
+    mode = b.dataset.m; k = 0;
+    [...b.parentNode.children].forEach(x => x.classList.toggle('on', x === b));
+    paint();
+  });
+  g('rsx-bh-step').addEventListener('click', () => { if(k < 4) k++; paint(); });
+  g('rsx-bh-reset').addEventListener('click', () => { k = 0; paint(); });
+  Progress.register('rsx-bh', 1, 'Переборки');
+  paint();
+})();
+
+/* ═══ глава 3: пульт магазина ═══ */
+(function(){
+  const g = id => document.getElementById(id);
+  const sec = document.getElementById('resil');
+  if(!g('rsx-p-page') || !sec) return;
+  const POOL = 20, BH = 6, PAT = 5000, CAP = 40, RPS_P = 15, RPS_O = 5, TMO = 300, BUDGET = 1000, DT = 50, SUB = 10, SLOW = 30000;
+  const O = {to:false, rt:false, bj:false, cb:false, bh:false, dg:false};
+  let S, timer = null;
+  function fresh(){
+    S = {t:0, broken:false, ever:false, over:false, busy:[], q:[], done:[], att:[], bh:new Array(BH).fill(0),
+         cb:{st:'closed', win:[], until:0, trials:0, ok:0}, accP:0, accO:0, log:[], full:false, brokeAt:0};
+  }
+  const clock = () => { const s = 19*3600 + 39*60 + 55 + Math.floor(S.t/1000);
+    const p = n => String(n).padStart(2, '0'); return p(Math.floor(s/3600)) + ':' + p(Math.floor(s/60)%60) + ':' + p(s%60); };
+  const log = t => { S.log.unshift('<b>' + clock() + '</b> ' + t); S.log = S.log.slice(0, 6); };
+  const recsLat = () => (S.broken || S.over) ? SLOW : 40;
+  function cbAllow(){
+    const c = S.cb;
+    if(c.st === 'closed') return true;
+    if(c.st === 'open'){
+      if(S.t < c.until) return false;
+      c.st = 'half'; c.trials = 0; c.ok = 0; log('размыкатель: полуразомкнут, пробуем');
+    }
+    if(c.trials < 3){ c.trials++; return true; }
+    return false;
+  }
+  function cbRecord(ok){
+    const c = S.cb;
+    if(c.st === 'half'){
+      if(!ok){ c.st = 'open'; c.until = S.t + 5000; log('пробный запрос упал — снова разомкнут'); }
+      else if(++c.ok >= 3){ c.st = 'closed'; c.win = []; log('размыкатель замкнут: рекомендации ожили'); }
+      return;
+    }
+    if(c.st !== 'closed') return;
+    c.win.push(ok); if(c.win.length > 20) c.win.shift();
+    const bad = c.win.filter(x => !x).length;
+    if(c.win.length >= 10 && bad / c.win.length >= .5){ c.st = 'open'; c.until = S.t + 5000; c.win = []; log('<span style="color:var(--danger)">размыкатель разомкнут</span>'); }
+  }
+  function plan(kind){
+    let el = 25;
+    if(kind === 'ord') return {dur:el + 60, res:'ok', stuck:false};
+    let ok = false, slot = -1, skip = false;
+    if(O.cb && !cbAllow()){ skip = true; el += 1; }
+    else if(O.bh){ slot = S.bh.findIndex(r => r <= S.t + el); if(slot < 0){ skip = true; el += 1; } }
+    if(!skip){
+      const tries = O.rt ? 4 : 1, st = el; let a = 0;
+      while(true){
+        const L = recsLat(); S.att.push(S.t + el);
+        if(O.to){ el += Math.min(L, TMO); ok = L <= TMO; }
+        else { el += L; ok = true; }
+        if(O.cb) cbRecord(ok);
+        a++;
+        if(ok || a >= tries) break;
+        const p = O.bj ? Math.random() * 100 * Math.pow(2, a) : 0;
+        if(el - st + p + TMO > BUDGET) break;
+        el += p;
+      }
+      if(slot >= 0) S.bh[slot] = S.t + el;
+    }
+    el += 20;
+    return {dur:el, res: ok ? 'full' : O.dg ? 'norecs' : 'err', stuck: el > 1000};
+  }
+  function step(){
+    S.t += DT;
+    S.busy = S.busy.filter(r => { if(r.end <= S.t){ S.done.push({t:S.t, kind:r.kind, res:r.res, lat:r.lat}); return false; } return true; });
+    S.accP += RPS_P * DT / 1000; S.accO += RPS_O * DT / 1000;
+    while(S.accP >= 1){ S.accP--; S.q.length < 400 ? S.q.push({kind:'page', arr:S.t}) : S.done.push({t:S.t, kind:'page', res:'gone', lat:PAT}); }
+    while(S.accO >= 1){ S.accO--; S.q.length < 400 ? S.q.push({kind:'ord', arr:S.t}) : S.done.push({t:S.t, kind:'ord', res:'gone', lat:PAT}); }
+    S.q = S.q.filter(x => { if(S.t - x.arr > PAT){ S.done.push({t:S.t, kind:x.kind, res:'gone', lat:PAT}); return false; } return true; });
+    while(S.busy.length < POOL && S.q.length){
+      const x = S.q.shift(), p = plan(x.kind), lat = S.t - x.arr + p.dur;
+      S.busy.push({kind:x.kind, end:S.t + p.dur, res: lat > PAT ? 'gone' : p.res, lat, stuck:p.stuck});
+    }
+    S.att = S.att.filter(a => a > S.t - 1000);
+    const load = S.att.filter(a => a <= S.t).length;
+    if(!S.broken){
+      const was = S.over; S.over = load > CAP;
+      if(S.over && !was) log('<span style="color:var(--danger)">рекомендации захлебнулись: ' + load + ' запросов/с</span>');
+      if(!S.over && was) log('<span style="color:var(--ok)">рекомендации поднялись</span>');
+    }
+    S.done = S.done.filter(d => d.t > S.t - 6000);
+    if(S.busy.length >= POOL && !S.full && S.ever){ S.full = true; log('<span style="color:var(--danger)">пул потоков исчерпан</span>'); Progress.report('rsx-pult', 1); }
+    if(S.busy.length < POOL * .6) S.full = false;
+  }
+  function stats(){
+    const win = S.done.filter(d => d.t > S.t - 5000);
+    const ords = win.filter(d => d.kind === 'ord'), pages = win.filter(d => d.kind === 'page');
+    const ordOk = ords.filter(d => d.res === 'ok').length;
+    const pFull = pages.filter(d => d.res === 'full').length, pNo = pages.filter(d => d.res === 'norecs').length;
+    const lats = pages.map(d => d.res === 'gone' ? PAT : d.lat).sort((a, b) => a - b);
+    const pGone = pages.filter(d => d.res === 'gone').length;
+    return {n:pages.length + ords.length, ordPct: ords.length ? Math.round(ordOk / ords.length * 100) : null,
+      pages:pages.length, pFull, pNo, pGone, pBad: pages.length - pFull - pNo,
+      med: lats.length ? lats[lats.length >> 1] : null,
+      load: S.att.filter(a => a <= S.t).length};
+  }
+  const ms = v => v == null ? '—' : v >= PAT ? '> 5 с' : v >= 1000 ? (v/1000).toLocaleString('ru-RU', {maximumFractionDigits:1}) + ' с' : Math.round(v) + ' мс';
+  function render(){
+    const s = stats(), busy = S.busy.length;
+    const kpi = (cls, l, v) => '<div class="rsx-kpi ' + cls + '"><div class="l">' + l + '</div><div class="v">' + v + '</div></div>';
+    g('rsx-p-kpi').innerHTML =
+      kpi(busy >= POOL ? 'bad' : busy >= 14 ? 'wq' : 'good', 'Занято потоков', busy + ' / ' + POOL) +
+      kpi(s.ordPct == null ? '' : s.ordPct >= 95 ? 'good' : s.ordPct >= 50 ? 'wq' : 'bad', 'Успешных заказов', s.ordPct == null ? '—' : s.ordPct + ' %') +
+      kpi(s.med == null ? '' : s.med < 1000 ? 'good' : s.med < PAT ? 'wq' : 'bad', 'Страница открывается за', ms(s.med)) +
+      kpi(s.load > CAP ? 'bad' : s.load > CAP * .7 ? 'wq' : 'good', 'Нагрузка на рекомендации', s.load + ' /с');
+    let h = '';
+    const sorted = S.busy.slice().sort((a, b) => (b.end - S.t > 1000) - (a.end - S.t > 1000));
+    for(let i = 0; i < POOL; i++){
+      const r = sorted[i];
+      if(!r) h += '<span class="rsx-th"></span>';
+      else if(r.kind === 'ord') h += '<span class="rsx-th o">₽</span>';
+      else if(r.end - S.t > 1000) h += '<span class="rsx-th s">⌛</span>';
+      else h += '<span class="rsx-th b">●</span>';
+    }
+    if(S.q.length) h += '<span class="rsx-q bad" style="margin-left:6px">+ очередь ' + S.q.length + '</span>';
+    g('rsx-p-pool').innerHTML = h;
+    g('rsx-p-clock').textContent = clock();
+    const cbs = {closed:'замкнут', open:'РАЗОМКНУТ', half:'полуразомкнут'}[S.cb.st];
+    g('rsx-p-recs').innerHTML = 'Рекомендации: <b style="color:var(--' + (S.broken || S.over ? 'danger' : 'ok') + ')">' +
+      (S.broken ? 'сломаны (30 с)' : S.over ? 'захлебнулись' : 'здоровы (40 мс)') + '</b>' + (O.cb ? ' · размыкатель: <b>' + cbs + '</b>' : '');
+    g('rsx-p-log').innerHTML = S.log.map(x => '<div>' + x + '</div>').join('');
+    // страница глазами покупателя
+    const view = !s.pages ? 'ok' : (s.pBad / s.pages > .5) ? (s.pGone * 2 > s.pBad ? 'wait' : 'err') : (s.pNo > s.pFull ? 'fb' : 'ok');
+    const bar = '<div class="bar"><span>shop.example/product/42</span><span>' + (s.med == null ? '' : ms(s.med)) + '</span></div>';
+    let body;
+    if(view === 'err') body = '<div class="rsx-err">500 · Что-то пошло не так<div style="font:500 12px var(--sans);margin-top:6px;color:var(--muted)">цена и корзина есть, но страница без рекомендаций не собирается</div></div>';
+    else if(view === 'wait') body = '<div class="rsx-err" style="background:var(--warn-bg);color:var(--warn)">⌛ Загрузка…<div style="font:500 12px var(--sans);margin-top:6px;color:var(--muted)">покупатель смотрит на колёсико и уходит через 5 с</div></div>';
+    else body =
+      '<div class="rsx-blk ok"><div class="h">товар · цена</div>Кроссовки «Бег-42» — <b>4 990 ₽</b></div>' +
+      '<div class="rsx-blk ok"><div class="h">корзина</div>2 товара · <b>7 380 ₽</b></div>' +
+      (view === 'fb' ? '<div class="rsx-blk fb"><div class="h">популярное (запасной ответ из кеша)</div>беговые носки · шнурки · рюкзак</div>'
+                     : '<div class="rsx-blk ok"><div class="h">вам может понравиться</div>носки · стельки · бутылка для воды</div>');
+    const ob = s.ordPct == null ? '' : s.ordPct >= 95 ? 'ok' : s.ordPct >= 50 ? 'wait' : 'bad';
+    body += '<div class="rsx-blk ' + ob + '"><div class="h">оформление заказа</div>' + (s.ordPct == null ? 'кнопка «Оформить»' : s.ordPct >= 95 ? '✓ заказы проходят' : s.ordPct >= 50 ? '⚠ часть заказов теряется' : '✕ заказы не проходят') + '</div>';
+    g('rsx-p-page').innerHTML = bar + body;
+    explain(s);
+  }
+  function explain(s){
+    const L = [];
+    let kind = '';
+    if(!S.ever){ L.push(timer ? 'Обычный вечер: страницы открываются за ~90 мс, потоков занято 1–2 из 20. Теперь нажмите <b>«💥 Сломать рекомендации»</b>.' : 'Нажмите <b>«▶ Запустить»</b>, чтобы пошли покупатели.'); }
+    else if(!S.broken && !S.over){ L.push('Рекомендации здоровы. ' + (S.busy.length > 10 ? 'Потоки ещё заняты хвостом зависших запросов — они освободятся, когда те закончатся.' : 'Магазин работает в обычном режиме.')); kind = 'ok'; }
+    else {
+      if(S.over && !S.broken) L.push('<b>Рекомендации починили, но они захлебнулись.</b> На них идёт ' + s.load + ' запросов/с при пределе ' + CAP + '. Это наши повторы: каждый запрос делает несколько попыток. Это и есть <b>шторм повторов</b> — сервис не встанет, пока его топят. Помогут растущая пауза или размыкатель.');
+      if(!O.to){
+        if(O.bh) L.push('<b>Переборка держит удар:</b> на рекомендациях висят не больше ' + BH + ' потоков, остальные обслуживают заказы. Но эти ' + BH + ' висят по 30 с, а страницам, которым не досталось места, рекомендации не достаются вовсе.');
+        else L.push('<b>Нет таймаута.</b> Каждая страница ждёт рекомендации 30 с и держит поток. 15 страниц в секунду × 30 с = 450 потоков, а их 20. Пул кончается за секунду с небольшим. Заказам не достаётся потоков, хотя рекомендации им не нужны.');
+        if(O.cb) L.push('<b>Размыкатель включён, но молчит.</b> Он считает ошибки, а ошибок нет — есть бесконечное ожидание. Без таймаута размыкатель слеп.');
+        if(O.rt) L.push('<b>Повторы включены, но не срабатывают.</b> Повторить можно только то, что закончилось. Без таймаута первый вызов не заканчивается.');
+      } else {
+        if(O.cb && S.cb.st === 'open') L.push('<b>Размыкатель разомкнут.</b> К рекомендациям не ходим вовсе: отказ за 1 мс, нагрузка на них — ноль. Раз в 5 с он пропускает пробные запросы.');
+        else L.push('<b>Таймаут ' + TMO + ' мс.</b> Ждём не 30 с, а 0,3 с. Поток освобождается быстро, и заказам хватает потоков. Но каждую секунду ~' + s.load + ' запросов уходят в пустоту.');
+        if(O.rt && !(O.cb && S.cb.st === 'open')) L.push(O.bj
+          ? '<b>Повторы с растущей случайной паузой.</b> В бюджет 1 с на рекомендации помещается в среднем одна дополнительная попытка, и нагрузка растёт вдвое, а не втрое.'
+          : '<b>Повторы сразу.</b> До 3 попыток на запрос: нагрузка на лежащие рекомендации ×3, а поток держится 0,9 с вместо 0,3.');
+        if(!O.dg && s.pBad) L.push('<b>Нет деградации.</b> Без рекомендаций страница падает с ошибкой 500 целиком, хотя цена и корзина есть. Включите «деградацию» — страница откроется с блоком «Популярное».');
+        if(O.dg) L.push('<b>Деградация.</b> Вместо персональных рекомендаций — «Популярное» из кеша. Покупатель видит товар и может купить.');
+        if(O.bh) L.push('<b>Переборка.</b> Даже если что-то пойдёт не так, больше ' + BH + ' потоков рекомендации не займут.');
+      }
+      kind = s.ordPct != null && s.ordPct >= 95 && !s.pBad ? 'ok' : (s.ordPct != null && s.ordPct < 50) ? 'err' : 'warn';
+      if(S.broken && S.t - S.brokeAt > 10000 && s.ordPct != null && s.ordPct >= 95 && s.pBad === 0 && s.pages){
+        Progress.report('rsx-pult', 2);
+        L.push('<b>Магазин пережил сбой:</b> заказы проходят, страницы открываются. Это и есть устойчивость.');
+      }
+    }
+    msg(g('rsx-p-msg'), kind, L.join('<br>'));
+  }
+  function tick(){
+    if(!sec.classList.contains('active') || S.t > 600000){ stop(); render(); return; }
+    for(let i = 0; i < SUB; i++) step();
+    render();
+  }
+  function start(){ if(timer) return; timer = setInterval(tick, 100); g('rsx-p-run').textContent = '⏸ Пауза'; }
+  function stop(){ if(timer){ clearInterval(timer); timer = null; } g('rsx-p-run').textContent = '▶ Запустить'; }
+  function paintTg(){ [...g('rsx-p-tg').children].forEach(b => b.classList.toggle('on', !!O[b.dataset.o])); }
+  function doBreak(){ if(!S.broken){ S.broken = true; S.ever = true; S.brokeAt = S.t; log('<span style="color:var(--danger)">рекомендации отвечают по 30 с</span>'); } start(); render(); }
+  g('rsx-p-run').addEventListener('click', () => { timer ? stop() : start(); render(); });
+  g('rsx-p-break').addEventListener('click', doBreak);
+  g('rsx-p-fix').addEventListener('click', () => { if(S.broken){ S.broken = false; log('<span style="color:var(--ok)">рекомендации починили</span>'); } render(); });
+  g('rsx-p-reset').addEventListener('click', () => { stop(); fresh(); render(); });
+  g('rsx-p-tg').addEventListener('click', e => {
+    const b = e.target.closest('button[data-o]'); if(!b) return;
+    const o = b.dataset.o; O[o] = !O[o];
+    if(o === 'bj' && O.bj) O.rt = true;
+    if(o === 'rt' && !O.rt) O.bj = false;
+    paintTg(); render();
+  });
+  const setAll = v => { Object.keys(O).forEach(k => O[k] = v); paintTg(); render(); };
+  g('rsx-p-none').addEventListener('click', () => setAll(false));
+  g('rsx-p-all').addEventListener('click', () => setAll(true));
+  const PRESET = {to:['to'], rt:['to','rt'], bj:['to','rt','bj'], cbonly:['cb'], cb:['to','cb'], bh:['bh'], dg:['to','dg'], all:['to','rt','bj','cb','bh','dg']};
+  sec.addEventListener('click', e => {
+    const b = e.target.closest('button[data-rsx-preset]'); if(!b) return;
+    const p = PRESET[b.dataset.rsxPreset]; if(!p) return;
+    stop(); fresh();
+    Object.keys(O).forEach(k => O[k] = p.includes(k)); paintTg();
+    for(let i = 0; i < 40; i++) step();   // 2 секунды обычного вечера
+    doBreak();
+    const card = g('rsx-ch3'); if(card) card.scrollIntoView({behavior:'smooth', block:'start'});
+  });
+  Progress.register('rsx-pult', 2, 'Пульт: пятница');
+  fresh(); paintTg(); render();
+})();
+
 /* ═══ шторм повторов ═══ */
 (function(){
   const el = id => document.getElementById(id);
+  if(!el('rs-load')) return;
   let mode = 'naive';
   function calc(){
     const load = +el('rs-load').value, tries = +el('rs-try').value, depth = +el('rs-depth').value;
@@ -14596,23 +15429,23 @@ OE --&gt; [Сервис платежей]</pre>
       kind = amp > 8 ? 'err' : 'warn';
       note = 'Каждое звено повторяет '+tries+' раз, и повторы <b>перемножаются по глубине</b>: '+perLevel+' в степени '+depth+' = <b>×'+amp+'</b>. ' +
         'Сервис, который лёг под обычной нагрузкой, получает её в '+amp+' раз больше — и не встанет никогда, даже если причина сбоя давно ушла. ' +
-        '<b>Правило:</b> повторять должно только одно звено — то, что ближе к источнику; остальные отдают ошибку сразу.';
+        '<b>Правило:</b> повторять должно только одно звено — то, что ближе к пользователю; остальные отдают ошибку сразу.';
     } else if(mode === 'backoff'){
       peak = load * amp * 0.35;
       kind = 'warn';
-      note = 'Экспоненциальная задержка (1с, 2с, 4с, 8с) растягивает повторы во времени — мгновенный пик падает примерно втрое. Но остаётся <b>синхронизация</b>: все клиенты получили ошибку в одну секунду, значит и повторят они тоже одновременно, ровно через секунду. Получается не один большой пик, а серия пиков поменьше — сервис не успевает встать между ними.';
+      note = 'Растущая пауза (1 с, 2 с, 4 с, 8 с) растягивает повторы во времени — мгновенный пик падает примерно втрое. Но остаётся <b>синхронность</b>: все клиенты получили ошибку в одну секунду, значит, и повторят одновременно. Получается не один большой пик, а серия пиков поменьше — сервис не успевает встать между ними.';
     } else if(mode === 'jitter'){
       peak = load * amp * 0.12;
       kind = 'ok';
-      note = 'Задержка со <b>случайным разбросом</b> (полный джиттер: пауза = random(0, 2^n)) размазывает повторы. Синхронность исчезает, пик падает почти на порядок. Это одна строчка кода, которая отделяет «сервис встал за минуту» от «сервис не встаёт час». <b>Джиттер обязателен всегда</b> — экспоненциальная задержка без него работает вполовину.';
+      note = 'Пауза со <b>случайным разбросом</b> (полный jitter: пауза = random(0, 2^n)) размазывает повторы. Синхронность исчезает, пик падает почти на порядок. Одна строчка кода отделяет «сервис встал за минуту» от «сервис не встаёт час». <b>Разброс нужен всегда</b> — растущая пауза без него работает вполсилы.';
     } else {
       peak = load * 0.05;
       kind = 'ok';
-      note = 'Размыкатель цепи убирает повторы <b>полностью</b>: после нескольких неудач вызовы отклоняются мгновенно, не доходя до сети. Упавший сервис получает почти нулевую нагрузку и может спокойно подняться, а вызывающий не тратит на него свои потоки. Это самая сильная защита из всех — и поэтому размыкатель ставят на каждую внешнюю зависимость, а не «где-нибудь потом».';
+      note = 'Размыкатель цепи убирает повторы <b>полностью</b>: после нескольких неудач вызовы отклоняются мгновенно, не доходя до сети. Упавший сервис получает почти нулевую нагрузку и может спокойно подняться, а вызывающий не тратит на него свои потоки. Поэтому размыкатель ставят на каждую внешнюю зависимость, а не «где-нибудь потом».';
     }
-    el('rs-amp').textContent = Math.round(load * amp).toLocaleString('ru-RU') + ' rps';
+    el('rs-amp').textContent = Math.round(load * amp).toLocaleString('ru-RU') + ' запросов/с';
     el('rs-x').textContent = '×' + amp;
-    el('rs-peak').textContent = Math.round(peak).toLocaleString('ru-RU') + ' rps';
+    el('rs-peak').textContent = Math.round(peak).toLocaleString('ru-RU') + ' запросов/с';
     msg(el('rs-msg'), kind, note);
   }
   ['rs-load','rs-try','rs-depth'].forEach(id => el(id).addEventListener('input', () => { calc(); Progress.report('rs-play', 1); }));
@@ -14629,6 +15462,7 @@ OE --&gt; [Сервис платежей]</pre>
 /* ═══ размыкатель цепи ═══ */
 (function(){
   const el = id => document.getElementById(id);
+  if(!el('cb-state')) return;
   const TH = 5, HALF_N = 3, OPEN_MS = 4000;
   let state = 'closed', errs = 0, pass = 0, rej = 0, halfOk = 0, timer = null, auto = null;
   function paint(){
@@ -14641,14 +15475,14 @@ OE --&gt; [Сервис платежей]</pre>
   }
   function toOpen(){
     state = 'open'; paint();
-    msg(el('cb-msg'), 'err', '<b>Размыкатель сработал.</b> '+TH+' ошибки подряд — вызовы к соседу больше не выполняются, они отклоняются мгновенно. Два эффекта сразу: упавший сосед не получает добивающую нагрузку, а наши потоки не висят на его таймаутах. Через '+(OPEN_MS/1000)+' секунды пропустим пробные запросы.');
+    msg(el('cb-msg'), 'err', '<b>Размыкатель сработал.</b> '+TH+' ошибок подряд — вызовы к соседу больше не выполняются, они отклоняются мгновенно. Два эффекта сразу: упавший сосед не получает добивающую нагрузку, а наши потоки не висят на его таймаутах. Через '+(OPEN_MS/1000)+' секунды пропустим пробные запросы.');
     clearTimeout(timer);
     timer = setTimeout(() => { state = 'half'; halfOk = 0; paint();
-      msg(el('cb-msg'), 'warn', '<b>Полуразомкнут.</b> Пропускаем несколько пробных запросов. Успешны — замкнём; первая же ошибка — снова разомкнём на полный интервал. Здесь важно пропускать <b>единицы</b> запросов, а не весь поток: иначе едва вставший сосед снова ляжет.'); }, OPEN_MS);
+      msg(el('cb-msg'), 'warn', '<b>Полуразомкнут.</b> Пропускаем несколько пробных запросов. Успешны — замкнём; первая же ошибка — снова разомкнём на полный интервал. Важно пропускать <b>единицы</b> запросов, а не весь поток: иначе едва вставший сосед снова ляжет.'); }, OPEN_MS);
   }
   function req(ok){
     if(state === 'open'){ rej++; paint();
-      msg(el('cb-msg'), 'warn', 'Отклонено мгновенно, без обращения к сети. Вызывающий получает ошибку за микросекунды и может показать запасной ответ. <b>Быстрый отказ лучше медленного успеха</b> — это и есть главная мысль паттерна.'); return; }
+      msg(el('cb-msg'), 'warn', 'Отклонено мгновенно, без обращения к сети. Вызывающий получает ошибку за микросекунды и может показать запасной ответ. <b>Быстрый отказ лучше медленного успеха</b> — это главная мысль приёма.'); return; }
     if(ok){
       pass++;
       if(state === 'half'){ if(++halfOk >= HALF_N){ state = 'closed'; errs = 0; msg(el('cb-msg'),'ok','<b>Замкнут.</b> '+HALF_N+' пробных запроса прошли — сосед здоров, трафик восстановлен полностью.'); }
@@ -14681,7 +15515,8 @@ OE --&gt; [Сервис платежей]</pre>
 /* ═══ ведро токенов ═══ */
 (function(){
   const el = id => document.getElementById(id);
-  let rate = 5, cap = 10, tokens = 10, last = Date.now(), okc = 0, rej = 0;
+  if(!el('tb-cells')) return;
+  let rate = 5, cap = 10, tokens = 10, last = Date.now();
   function refill(){
     const now = Date.now();
     tokens = Math.min(cap, tokens + (now - last) / 1000 * rate);
@@ -14696,13 +15531,13 @@ OE --&gt; [Сервис платежей]</pre>
   function take(k){
     refill();
     let taken = 0, refused = 0;
-    for(let i = 0; i < k; i++){ if(tokens >= 1){ tokens--; taken++; okc++; } else { refused++; rej++; } }
+    for(let i = 0; i < k; i++){ if(tokens >= 1){ tokens--; taken++; } else { refused++; } }
     paint();
     msg(el('tb-msg'), refused ? 'warn' : 'ok',
       'Пропущено <b>'+taken+'</b>, отклонено <b>'+refused+'</b>. В ведре осталось '+Math.floor(tokens)+' из '+cap+'. ' +
       (refused
         ? 'Отклонённым надо вернуть <code class="inl">429 Too Many Requests</code> и заголовок <code class="inl">Retry-After</code> — иначе клиент будет долбиться в цикле и сделает только хуже.'
-        : 'Ёмкость ведра — это <b>разрешённый всплеск</b>: накопленные за тихий период токены позволяют пропустить пачку разом. Именно этим ведро токенов отличается от жёсткого «не больше N в секунду».'));
+        : 'Ёмкость ведра — это <b>разрешённый всплеск</b>: накопленные за тихое время токены позволяют пропустить пачку разом. Этим ведро токенов отличается от жёсткого «не больше N в секунду».'));
     Progress.report('tb-play', 1);
   }
   ['tb-rate','tb-cap'].forEach(id => el(id).addEventListener('input', e => {
@@ -14720,27 +15555,28 @@ OE --&gt; [Сервис платежей]</pre>
 
 /* ═══ таблицы и задания ═══ */
 (function(){
+  if(!document.getElementById('rsq-tasks')) return;
   renderCmp('rl-table',
     ['Алгоритм','Как работает','Особенность'],
     [
-      {cells:['<b>Фиксированное окно</b>','счётчик за минуту, в начале новой обнуляется','простой, но даёт двойной всплеск на стыке окон'],
-       why:'Лимит 100 в минуту: клиент делает 100 запросов в 12:00:59 и ещё 100 в 12:01:00 — 200 запросов за две секунды, формально не нарушив лимит. Годится, когда точность не критична и важна дешевизна: это один счётчик в Redis.'},
+      {cells:['<b>Фиксированное окно</b>','счётчик за минуту, в начале новой минуты обнуляется','простой, но даёт двойной всплеск на стыке окон'],
+       why:'Лимит 100 в минуту: клиент делает 100 запросов в 12:00:59 и ещё 100 в 12:01:00 — 200 запросов за две секунды, формально не нарушив лимит. Годится, когда точность не важна, а важна дешевизна: это один счётчик в Redis.'},
       {cells:['<b>Скользящее окно</b>','учитывает последние 60 секунд от текущего момента','точнее, дороже по памяти'],
-       why:'Хранит метки времени запросов или взвешенную сумму двух соседних окон. Убирает проблему стыка. Компромиссный вариант (sliding window counter) хранит два счётчика и интерполирует — почти так же точно и почти так же дёшево, как фиксированное окно.'},
+       why:'Хранит время каждого запроса или взвешенную сумму двух соседних окон. Убирает проблему стыка. Компромиссный вариант (sliding window counter) хранит два счётчика и усредняет — почти так же точно и почти так же дёшево, как фиксированное окно.'},
       {cells:['<b>Ведро токенов</b>','токены копятся с постоянной скоростью, запрос тратит один','разрешает контролируемый всплеск'],
-       why:'<b>Самый распространённый выбор.</b> Два параметра: скорость пополнения (средняя допустимая нагрузка) и ёмкость (насколько большой всплеск разрешён). Хорошо соответствует реальному поведению клиентов, которые работают пачками.'},
+       why:'<b>Самый распространённый выбор.</b> Два параметра: скорость пополнения (средняя допустимая нагрузка) и ёмкость (насколько большой всплеск разрешён). Хорошо подходит к реальным клиентам, которые работают пачками.'},
       {cells:['<b>Дырявое ведро</b>','запросы становятся в очередь и вытекают равномерно','сглаживает, но добавляет задержку'],
        why:'На выходе получается идеально ровный поток — полезно, когда защищаемая система не переносит всплесков вовсе (например, внешний партнёр со строгим лимитом). Цена: запрос может ждать в очереди, то есть лимит превращается в задержку, а не в отказ.'},
     ]);
 
   renderSort('dg-sort', [
-    {t:'Оформление и оплата заказа', bucket:'crit', why:'Основной денежный путь. Всё остальное существует ради него. Если он не работает, компания не зарабатывает — здесь резервирование, приоритет, отдельные ресурсы.'},
-    {t:'Просмотр карточки товара', bucket:'crit', why:'Без карточки нет продажи. Но карточку можно отдавать из кеша или из статики даже при недоступности половины системы — это самый выгодный объект для кеширования у края.'},
-    {t:'Персональные рекомендации', bucket:'degr', why:'Первый кандидат на отключение. Заменяется популярными товарами или просто пустым блоком — покупатель не заметит. Вынести за переборку и обернуть размыкателем.'},
+    {t:'Оформление и оплата заказа', bucket:'crit', why:'Основной денежный путь. Всё остальное существует ради него. Если он не работает, магазин не зарабатывает — здесь запас, приоритет, отдельные ресурсы.'},
+    {t:'Просмотр карточки товара', bucket:'crit', why:'Без карточки нет продажи. Но карточку можно отдавать из кеша даже при недоступности половины системы — это самый выгодный объект для кеширования.'},
+    {t:'Персональные рекомендации', bucket:'degr', why:'Герой нашей пятницы и первый кандидат на отключение. Заменяется популярными товарами или пустым блоком — покупатель не заметит. Вынести за переборку и обернуть размыкателем.'},
     {t:'Отзывы и рейтинги на карточке', bucket:'degr', why:'Отдать закешированное или скрыть блок. Продажа без отзывов возможна, продажа без цены — нет.'},
     {t:'Начисление бонусов за покупку', bucket:'defer', why:'Не отключать, а <b>отложить</b>: записать факт в очередь и начислить позже. Клиент не должен терять бонусы из-за того, что сервис лояльности перезагружался.'},
-    {t:'Отправка письма о заказе', bucket:'defer', width:1, why:'Классика отложенного: письмо уйдёт через минуту, и это никого не ранит. Ставится в очередь с повторами.'},
-    {t:'Обновление поискового индекса', bucket:'defer', why:'Товар появится в поиске на минуту позже. Достаточно следить, что отставание не растёт бесконечно.'},
+    {t:'Отправка письма о заказе', bucket:'defer', why:'Классика отложенного: письмо уйдёт через минуту, и это никого не ранит. Ставится в очередь с повторами.'},
+    {t:'Обновление поискового индекса', bucket:'defer', why:'Товар появится в поиске на минуту позже. Достаточно следить, чтобы отставание не росло бесконечно.'},
     {t:'Аналитические события', bucket:'drop', why:'Единственная категория, где потеря допустима. При перегрузке их сбрасывают первыми — лучше потерять статистику, чем продажи. Но решение должно быть явным, а не случайным.'},
     {t:'Баннер акции на главной', bucket:'degr', why:'Не показали — ничего не случилось. Место для статического запасного варианта.'},
     {t:'Проверка остатка при оформлении', bucket:'crit', why:'Соблазн «пропустить проверку, если склад не отвечает» велик и опасен: продадите то, чего нет, и получите отмены, возвраты и разбор с клиентом. Здесь честный отказ лучше оптимистичного успеха.'},
@@ -14749,20 +15585,39 @@ OE --&gt; [Сервис платежей]</pre>
 
   renderNum('res-list', [
     {t:'Запасной ответ (fallback)', d:'Когда зависимость недоступна, отдаём что-то осмысленное вместо ошибки: закешированное значение, значение по умолчанию, пустой список, популярные товары вместо персональных. <b>Важно:</b> запасной ответ должен быть виден в метриках — иначе система «работает» месяцами на заглушках, и никто не знает, что рекомендации давно мертвы.'},
-    {t:'Сброс нагрузки (load shedding)', d:'При перегрузке сознательно отказывать <b>части</b> запросов, чтобы обслужить остальные. Контринтуитивно, но математически необходимо: сервис, принимающий больше, чем может обработать, обслуживает плохо всех и не обслуживает никого. Приоритет отдают по классу запроса: оформление заказа важнее просмотра каталога, платящий клиент важнее робота.'},
-    {t:'Обратное давление (backpressure)', d:'Сигнал «мне много, притормози», идущий от получателя к отправителю. В очередях — ограничение размера; в HTTP — код 429 с <code class="inl">Retry-After</code>; в потоках — reactive streams с запросом порций. Без обратного давления быстрый отправитель просто переполняет медленного получателя, и данные теряются в самом неудобном месте.'},
-    {t:'Гашение запроса (request hedging)', d:'Если ответ не пришёл за p95, отправить дублирующий запрос на другой узел и взять тот ответ, который придёт первым. Заметно улучшает хвост задержки ценой лишней нагрузки. Годится только для идемпотентных операций и только при небольшой доле дублей.'},
-    {t:'Устранение синхронности (jitter везде)', d:'Одинаковые интервалы — источник самосинхронизации: все клиенты повторяют одновременно, все кеши истекают одновременно, все задания по расписанию стартуют в 00:00. Случайный разброс добавляют к повторам, к TTL кеша, к расписаниям и к интервалам проверок.'},
-    {t:'Проверка отказами (chaos engineering)', d:'Единственный способ узнать, работает ли отказоустойчивость, — регулярно ломать систему специально и в рабочее время, когда команда на месте. Начинают не с «убить случайный узел», а с малого: добавить задержку в один вызов и посмотреть, что произойдёт. Обычно обнаруживается таймаут, которого нет.'},
+    {t:'Сброс нагрузки (load shedding)', d:'При перегрузке сознательно отказывать <b>части</b> запросов, чтобы обслужить остальные. Звучит странно, но иначе нельзя: сервис, принимающий больше, чем может обработать, обслуживает плохо всех. Приоритет отдают по классу запроса: оформление заказа важнее просмотра каталога, покупатель важнее робота.'},
+    {t:'Обратное давление (backpressure)', d:'Сигнал «мне много, притормози», идущий от получателя к отправителю. В очередях — ограничение размера; в HTTP — код 429 с <code class="inl">Retry-After</code>; в потоках данных — запрос порций. Без обратного давления быстрый отправитель переполняет медленного получателя, и данные теряются в самом неудобном месте.'},
+    {t:'Дублирующий запрос (request hedging)', d:'Если ответ не пришёл за p95, отправить такой же запрос на другой узел и взять тот ответ, что придёт первым. Заметно улучшает самые медленные ответы ценой лишней нагрузки. Годится только для безопасных к повтору операций и только при небольшой доле дублей.'},
+    {t:'Разброс везде (jitter)', d:'Одинаковые интервалы — источник самосинхронизации: все клиенты повторяют одновременно, все записи кеша истекают одновременно, все задания по расписанию стартуют в 00:00. Случайный разброс добавляют к повторам, к сроку жизни кеша, к расписаниям и к интервалам проверок.'},
+    {t:'Проверка отказами (chaos engineering)', d:'Единственный способ узнать, работает ли защита, — регулярно ломать систему специально и в рабочее время, когда команда на месте. Начинают с малого: добавить задержку в один вызов и посмотреть, что произойдёт. Обычно находится таймаут, которого нет. Наша пятница — ровно такой эксперимент, только незапланированный.'},
   ]);
+
+  renderTasks('rsx-q-tasks', [
+    {q:'Почему в пятницу лёг весь магазин, если сломались только рекомендации?',
+     opts:[{t:'Рекомендации — самый важный сервис'},{t:'Все потоки магазина застряли в ожидании рекомендаций, и заказам не досталось ни одного', ok:true},{t:'Сервис оплаты зависит от рекомендаций'},{t:'Сломался балансировщик'}],
+     why:'Оплата, цена и корзина были здоровы. Беда пришла через ожидание: без таймаута каждый запрос страницы держал поток 30 секунд, и 20 потоков кончились за полсекунды. Заказы встали в очередь за теми, кто ждал рекомендаций.'},
+    {q:'Включили размыкатель, но таймаута нет. Что будет при зависании рекомендаций?',
+     opts:[{t:'Разомкнётся после 5 ошибок'},{t:'Не сработает: ошибок нет, есть бесконечное ожидание', ok:true},{t:'Разомкнётся мгновенно'},{t:'Рекомендации починятся сами'}],
+     why:'Размыкатель считает завершённые вызовы с ошибкой. Зависший вызов не завершается, считать нечего. Сначала таймаут превращает зависание в ошибку, потом размыкатель на эти ошибки реагирует.'},
+    {q:'Рекомендации починили, но они не поднимаются: нагрузка втрое выше обычной. Почему?',
+     opts:[{t:'Каждый запрос делает до трёх попыток — это шторм повторов', ok:true},{t:'Не хватает памяти'},{t:'Кеш устарел'},{t:'Покупатели ушли'}],
+     why:'Пока рекомендации лежали, каждый запрос магазина делал три попытки. Даже после починки на них идёт ×3 нагрузки — больше, чем они выдерживают, — и они снова отвечают медленно, вызывая новые повторы. Лечится растущей паузой с разбросом, размыкателем и ограничением частоты на стороне рекомендаций.'},
+    {q:'Магазин обрывает ожидание через 300 мс. Заказы проходят, но страницы товаров отдают ошибку 500. Чего не хватает?',
+     opts:[{t:'Таймаут побольше'},{t:'Деградации: показывать страницу без персонального блока', ok:true},{t:'Повторов'},{t:'Переборки'}],
+     why:'Таймаут спас потоки, но код страницы не умеет жить без рекомендаций: исключение — ошибка. Деградация — заранее принятое решение «нет рекомендаций — показываем „Популярное“ из кеша».'},
+    {q:'99 % ответов рекомендаций приходят быстрее 200 мс. 40 запросов в секунду, 20 потоков. Какой таймаут разумен?',
+     opts:[{t:'30 с'},{t:'5 с'},{t:'Около 300 мс', ok:true},{t:'50 мс'}],
+     why:'Таймаут должен быть выше p99 (иначе режем здоровые ответы) и при этом 40 × таймаут должно быть заметно меньше 20 потоков. 40 × 0,3 = 12 — годится. 50 мс режет половину нормальных ответов, а 5 с занимает 200 потоков.'},
+  ], 'rsx-q-score', 'rsx-q-total');
+  Progress.register('rsx-q-score', 5, 'Пятница: вопросы');
 
   renderTasks('rsq-tasks', [
     {q:'Что делать в первую очередь, если у внешнего вызова нет ни таймаута, ни повторов, ни размыкателя?',
      opts:[{t:'Добавить повторы'},{t:'Поставить таймаут', ok:true},{t:'Поставить размыкатель цепи'},{t:'Добавить кеш'}],
-     why:'Таймаут — фундамент. Без него поток висит вечно, пул исчерпывается, и сервис перестаёт отвечать всем. Повторы без таймаута бессмысленны (повторять нечего — первый вызов не завершился), размыкатель без таймаута не сработает (ошибок нет, есть зависание). Порядок всегда: таймаут → повтор с джиттером → размыкатель → запасной ответ.'},
+     why:'Таймаут — фундамент. Без него поток висит вечно, пул кончается, и сервис перестаёт отвечать всем. Повторы без таймаута бессмысленны (повторять нечего — первый вызов не завершился), размыкатель без таймаута не сработает (ошибок нет, есть зависание). Порядок всегда: таймаут → повтор с разбросом → размыкатель → запасной ответ.'},
     {q:'В цепочке из трёх сервисов каждый повторяет по 3 раза. Во сколько раз вырастет нагрузка на последний при сбое?',
      opts:[{t:'В 3 раза'},{t:'В 9 раз'},{t:'В 64 раза', ok:true},{t:'В 12 раз'}],
-     why:'Повторы перемножаются по глубине: (1+3)³ = 64. Лежащий сервис получает нагрузку в 64 раза выше обычной и не встанет никогда. Отсюда правило: <b>повторяет только одно звено</b> — ближайшее к источнику запроса, — а остальные отдают ошибку сразу. Второе правило: повторы всегда с джиттером, иначе клиенты синхронизируются.'},
+     why:'Повторы перемножаются по глубине: (1+3)³ = 64. Лежащий сервис получает нагрузку в 64 раза выше обычной и не встанет никогда. Отсюда правило: <b>повторяет только одно звено</b> — ближайшее к пользователю, — а остальные отдают ошибку сразу. Второе правило: повторы всегда с разбросом, иначе клиенты синхронизируются.'},
     {q:'Зачем размыкателю состояние «полуразомкнут»?',
      opts:[
        {t:'Для красоты диаграммы'},
@@ -14771,17 +15626,17 @@ OE --&gt; [Сервис платежей]</pre>
        {t:'Чтобы вести статистику'},
      ],
      why:'Без промежуточного состояния переход «разомкнут → замкнут» отправил бы весь накопившийся трафик на сервис, который только поднялся, с холодным кешем и пустыми пулами. Он мгновенно лёг бы снова — получились бы качели. Полуразомкнутое состояние пропускает единицы пробных запросов и замыкает цепь, только если они прошли.'},
-    {q:'Сервис рекомендаций тормозит, и перестаёт работать оформление заказа. Какой паттерн отсутствует?',
-     opts:[{t:'Кеширование'},{t:'Переборки: раздельные пулы ресурсов под разные зависимости', ok:true},{t:'Повторы'},{t:'Балансировка'}],
-     why:'Общий пул потоков означает общую судьбу: висящие на рекомендациях вызовы занимают ресурс, нужный оформлению. Переборки выделяют рекомендациям небольшую квоту, после исчерпания которой они получают отказ мгновенно. Заодно это отличная иллюстрация принципа: <b>некритичная зависимость не должна иметь возможности навредить критичному пути</b>.'},
+    {q:'Сервис рекомендаций тормозит, и перестаёт работать оформление заказа. Какого приёма не хватает?',
+     opts:[{t:'Кеширования'},{t:'Переборок: раздельные пулы ресурсов под разные зависимости', ok:true},{t:'Повторов'},{t:'Балансировки'}],
+     why:'Общий пул потоков означает общую судьбу: висящие на рекомендациях вызовы занимают ресурс, нужный оформлению. Переборки выделяют рекомендациям небольшую квоту, после исчерпания которой они получают отказ мгновенно. Принцип: <b>некритичная зависимость не должна иметь возможности навредить критичному пути</b>.'},
     {q:'Сервис перегружен: приходит вдвое больше, чем он может обработать. Что правильно?',
      opts:[
        {t:'Принимать всё и ставить в очередь'},
-       {t:'Сбрасывать часть нагрузки, отказывая менее приоритетным запросам сразу', ok:true},
+       {t:'Сбрасывать часть нагрузки, отказывая менее важным запросам сразу', ok:true},
        {t:'Увеличить таймауты'},
        {t:'Отключить повторы у клиентов'},
      ],
-     why:'Неограниченная очередь превращает перегрузку в рост задержки: запросы обслуживаются, но так поздно, что клиент уже ушёл по таймауту — работа сделана впустую, а нагрузка та же. Сброс нагрузки с быстрым отказом по приоритету сохраняет обслуживание для важного. Увеличение таймаутов делает ровно наоборот — удлиняет очередь.'},
+     why:'Бесконечная очередь превращает перегрузку в рост задержки: запросы обслуживаются, но так поздно, что клиент уже ушёл по таймауту — работа сделана впустую, а нагрузка та же. Сброс нагрузки с быстрым отказом по приоритету сохраняет обслуживание для важного. Увеличение таймаутов делает ровно наоборот — удлиняет очередь.'},
     {q:'Что означает 429 с заголовком Retry-After?',
      opts:[
        {t:'Сервер сломан'},
@@ -14789,114 +15644,87 @@ OE --&gt; [Сервис платежей]</pre>
        {t:'Запрос некорректен'},
        {t:'Нужна авторизация'},
      ],
-     why:'Это не ошибка клиента и не поломка сервера, а обратное давление: «ты превысил квоту, вернись через N секунд». Заголовок <code class="inl">Retry-After</code> обязателен — без него клиент будет повторять в цикле и усугубит перегрузку. Хорошая практика — отдавать ещё и оставшуюся квоту в заголовках, чтобы клиент мог планировать, а не упираться вслепую.'},
+     why:'Это не ошибка клиента и не поломка сервера, а обратное давление: «ты превысил квоту, вернись через N секунд». Заголовок <code class="inl">Retry-After</code> обязателен — без него клиент будет повторять в цикле и усугубит перегрузку. Хорошая практика — отдавать ещё и оставшуюся квоту в заголовках, чтобы клиент мог планировать.'},
   ], 'rsq-score', 'rsq-total');
   Progress.register('rsq-score', 6, 'Устойчивость');
 })();
 </script>
 
 <script>
-/* ═══ 20.0 Приёмы устойчивости на секвенсах ═══ */
+/* ═══ секвенсы по главам ═══ */
 (function(){
-  const R = [
-    {n:'⏱ Без таймаута',
-     idea:'Показываем, что происходит, когда таймаута нет вовсе. Это отправная точка: остальные приёмы бессмысленны, пока не решена эта беда.',
-     seq:{actors:[{id:'u',n:'Клиент'},{id:'o',n:'Заказы',s:'пул: 200 потоков'},{id:'p',n:'Подбор',s:'завис'}],
+  if(!document.getElementById('rsx-seq-none')) return;
+  const R = {
+    none:{actors:[{id:'u',n:'Покупатель'},{id:'o',n:'Магазин',s:'пул: 20 потоков'},{id:'p',n:'Рекомендации',s:'зависли'}],
        steps:[
-         {from:'u',to:'o',l:'открыть экран заказа',d:'Обычный запрос пользователя.'},
-         {from:'o',to:'p',l:'GET /recommendations',ms:'ждём…',d:'Подбор принял соединение, но не отвечает: база у него зависла, а соединение он не закрыл. <b>Клиент по умолчанию будет ждать вечно.</b>'},
-         {from:'o',to:'o',l:'поток №1 занят, ждёт',ms:'5 сек',d:'Один поток из двухсот занят. Пока не страшно.'},
-         {from:'o',to:'o',l:'приходят новые пользователи, потоки кончаются',ms:'30 сек',fail:'Все 200 потоков заняты ожиданием.',d:'<b>Вот где происходит настоящая беда.</b> Каждый новый пользователь занимает ещё один поток, и все они стоят в ожидании одного и того же зависшего сервиса.'},
-         {from:'u',to:'o',l:'новый запрос — отвечать некому',fail:'Заказы перестали отвечать всем, даже тем, кому подбор не нужен.',d:'Упал <b>не подбор</b>, а Заказы. Причём целиком: страница оплаты, история, отмена — всё встало, хотя к подбору они отношения не имеют.'},
+         {from:'u',to:'o',l:'открыть карточку товара',d:'Обычный запрос покупателя.'},
+         {from:'o',to:'p',l:'GET /recs',ms:'ждём…',d:'Рекомендации приняли соединение, но не отвечают: их база зависла. <b>Без таймаута клиент будет ждать вечно.</b>'},
+         {from:'o',to:'o',l:'поток №1 занят, ждёт',ms:'5 с',d:'Один поток из двадцати занят. Пока не страшно.'},
+         {from:'o',to:'o',l:'приходят новые покупатели, потоки кончаются',ms:'0,5 с',fail:'Все 20 потоков заняты ожиданием.',d:'<b>Вот где настоящая беда.</b> Каждый новый покупатель занимает ещё один поток, и все они стоят в ожидании одного и того же зависшего сервиса.'},
+         {from:'u',to:'o',l:'новый запрос — отвечать некому',fail:'Магазин перестал отвечать всем, даже тем, кому рекомендации не нужны.',d:'Упали <b>не рекомендации</b>, а магазин. Целиком: оплата, история заказов, отмена — всё встало, хотя к рекомендациям они отношения не имеют.'},
        ],
-       note:'<b>Запомните эту картинку.</b> Отказ распространяется не потому, что сосед упал, а потому, что вы его <b>ждёте</b>. Таймаут — не оптимизация, а единственное, что отделяет вас от чужой аварии.'}},
-
-    {n:'⏱ С таймаутом',
-     idea:'Тот же случай, но вызов ограничен по времени. Одна строчка настройки меняет исход целиком.',
-     seq:{actors:[{id:'u',n:'Клиент'},{id:'o',n:'Заказы',s:'таймаут 800 мс'},{id:'p',n:'Подбор',s:'завис'}],
+       note:'<b>Запомните эту картинку.</b> Отказ распространяется не потому, что сосед упал, а потому, что вы его <b>ждёте</b>. Таймаут — не оптимизация, а то, что отделяет вас от чужой аварии.'},
+    to:{actors:[{id:'u',n:'Покупатель'},{id:'o',n:'Магазин',s:'таймаут 300 мс'},{id:'p',n:'Рекомендации',s:'зависли'}],
        steps:[
-         {from:'u',to:'o',l:'открыть экран заказа',d:'То же самое начало.'},
-         {from:'o',to:'p',l:'GET /recommendations  (deadline 800 мс)',ms:'пошёл отсчёт',d:'Клиент заранее решил, сколько он готов ждать. Это решение принимается <b>до</b> отправки, а не по ходу дела.'},
-         {from:'o',to:'o',l:'800 мс прошло — обрываем',ms:'800 мс',d:'Соединение закрывается, поток освобождается. <b>Заказы снова здоровы.</b>'},
-         {from:'o',to:'u',l:'экран заказа без блока рекомендаций',k:'ret',ms:'итого 850 мс',d:'Пользователь получил то, ради чего пришёл. Рекомендаций нет — это неприятно, но это не отказ.',ok:true},
+         {from:'u',to:'o',l:'открыть карточку товара',d:'То же самое начало.'},
+         {from:'o',to:'p',l:'GET /recs  (дедлайн 300 мс)',ms:'пошёл отсчёт',d:'Клиент заранее решил, сколько готов ждать. Это решение принимается <b>до</b> отправки, а не по ходу дела.'},
+         {from:'o',to:'o',l:'300 мс прошло — обрываем',ms:'300 мс',d:'Соединение закрывается, поток освобождается. <b>Магазин снова здоров.</b>'},
+         {from:'o',to:'u',l:'страница без блока рекомендаций',k:'ret',ms:'итого 350 мс',d:'Покупатель получил то, ради чего пришёл. Рекомендаций нет — это неприятно, но это не отказ. (Если код страницы умеет жить без них — об этом глава 9.)',ok:true},
        ],
-       note:'<b>Как выбрать число.</b> Не «на глазок», а от перцентили: берут время ответа, которое сосед укладывается в 99 случаях из 100, и добавляют запас. И проверяют правило вложенности: <b>таймаут снаружи должен быть больше суммы таймаутов внутри</b>, иначе внешний оборвёт запрос, который вот-вот успешно завершился бы.'}},
-
-    {n:'🔁 Повтор',
-     idea:'Сбой бывает разовым: моргнула сеть, узел перезапускался. Повтор превращает такой сбой в незаметную задержку — но только при двух условиях.',
-     seq:{actors:[{id:'o',n:'Заказы'},{id:'p',n:'Подбор',s:'3 узла за балансировщиком'}],
+       note:'<b>Одна строчка настройки меняет исход целиком.</b> Поток держится 0,3 с вместо 30 с — в сто раз меньше. Значит, и потоков нужно в сто раз меньше.'},
+    retry:{actors:[{id:'o',n:'Магазин'},{id:'p',n:'Рекомендации',s:'3 копии за балансировщиком'}],
        steps:[
-         {from:'o',to:'p',l:'попытка 1',ms:'0 мс',fail:'503 — узел А как раз перезапускался.',d:'Разовый сбой. Такое случается при каждой выкатке.'},
+         {from:'o',to:'p',l:'попытка 1',ms:'0 мс',fail:'503 — копия А как раз перезапускалась.',d:'Разовый сбой. Такое случается при каждом обновлении.'},
          {from:'o',to:'o',l:'пауза 100 мс ± случайная добавка',ms:'100 мс',d:'<b>Пауза растёт, и к ней добавляется случайность.</b> Без случайности все клиенты, сбившиеся одновременно, повторят тоже одновременно — и добьют сервис ровно в момент его подъёма.'},
-         {from:'o',to:'p',l:'попытка 2',ms:'110 мс',fail:'504 — узел Б не успел прогреться.',d:'Второй узел тоже не ответил. Пока это выглядит как невезение.'},
-         {from:'o',to:'o',l:'пауза 200 мс ± случайная добавка',ms:'200 мс',d:'Пауза удвоилась. Это и называют экспоненциальной выдержкой: 100, 200, 400, 800…'},
-         {from:'o',to:'p',l:'попытка 3',ms:'320 мс',d:'Узел В здоров и отвечает.'},
-         {from:'p',to:'o',l:'200 OK',k:'ret',ms:'итого 430 мс',d:'Пользователь ничего не заметил, кроме того, что экран открылся чуть медленнее.',ok:true},
-         {from:'o',to:'o',l:'⚠ а если повторять БЕЗ ограничения числа попыток',fail:'Лежащий сервис получает в 5 раз больше трафика, чем обычно, и не может подняться никогда.',d:'<b>Вот когда повтор превращается в оружие против себя.</b> Сервис упал от перегрузки, все клиенты начали повторять, нагрузка выросла впятеро — и теперь он не поднимется, даже когда исходная причина исчезла. Это и называют штормом повторов.'},
+         {from:'o',to:'p',l:'попытка 2',ms:'110 мс',fail:'504 — копия Б не успела прогреться.',d:'Вторая копия тоже не ответила. Пока это выглядит как невезение.'},
+         {from:'o',to:'o',l:'пауза 200 мс ± случайная добавка',ms:'200 мс',d:'Пауза удвоилась. Это и есть растущая пауза: 100, 200, 400, 800…'},
+         {from:'o',to:'p',l:'попытка 3',ms:'320 мс',d:'Копия В здорова и отвечает.'},
+         {from:'p',to:'o',l:'200 OK',k:'ret',ms:'итого 430 мс',d:'Покупатель ничего не заметил, кроме того, что страница открылась чуть медленнее.',ok:true},
+         {from:'o',to:'o',l:'⚠ а если сервис лежит всерьёз и повторяют все',fail:'Лежащий сервис получает втрое больше трафика и не может подняться.',d:'<b>Вот когда повтор бьёт по своим.</b> Сервис упал от перегрузки, все клиенты начали повторять, нагрузка выросла втрое — и теперь он не поднимется, даже когда причина исчезла. Это шторм повторов.'},
        ],
-       note:'<b>Два железных условия.</b> Первое: повторять можно только <b>безопасные</b> операции — те, где повтор ничего не испортит. Повторить «списать деньги» без ключа идемпотентности — значит списать дважды. Второе: число попыток ограничено (обычно 2–3), пауза растёт, и к ней добавлена случайность.'}},
-
-    {n:'⚡ Размыкатель цепи',
-     idea:'Полный цикл: замкнут → разомкнут → приоткрыт → снова замкнут. Это то, чего не умеет ни таймаут, ни повтор: <b>перестать звонить туда, где заведомо не ответят</b>.',
-     seq:{actors:[{id:'o',n:'Заказы'},{id:'c',n:'Размыкатель',s:'порог 50 %'},{id:'p',n:'Подбор',s:'лежит'}],
+       note:'<b>Повтор хорош для случайных сбоев и вреден для настоящих.</b> Отличить одно от другого в момент ошибки нельзя. Поэтому повторов мало, паузы растут, есть разброс — а на случай настоящей аварии стоит размыкатель.'},
+    cb:{actors:[{id:'o',n:'Магазин'},{id:'c',n:'Размыкатель',s:'порог 50 %'},{id:'p',n:'Рекомендации',s:'лежат'}],
        steps:[
          {from:'o',to:'c',l:'вызов 1 — цепь ЗАМКНУТА, пропускаем',d:'Пока всё хорошо, размыкатель просто считает и не мешает.'},
-         {from:'c',to:'p',l:'запрос уходит',ms:'800 мс',fail:'таймаут',d:'Первый сбой. Записан в статистику.'},
-         {from:'c',to:'c',l:'вызовы 2…20: сбоев 12 из 20 = 60 %',ms:'16 сек',d:'Порог — 50 % сбоев на окне в 20 вызовов. Превышен.'},
+         {from:'c',to:'p',l:'запрос уходит',ms:'300 мс',fail:'таймаут',d:'Первый сбой. Записан в статистику.'},
+         {from:'c',to:'c',l:'вызовы 2…20: сбоев 12 из 20 = 60 %',ms:'0,5 с',d:'Порог — 50 % сбоев на окне в 20 вызовов. Превышен.'},
          {from:'c',to:'c',l:'🔴 ЦЕПЬ РАЗОМКНУТА',d:'<b>Ключевой момент.</b> Теперь размыкатель <b>не пропускает вызовы вообще</b> — он отвечает отказом сам, мгновенно, не трогая сеть.'},
          {from:'o',to:'c',l:'вызов 21',ms:'0,1 мс',d:'Ответ приходит за доли миллисекунды: запроса не было. <b>Поток не занят, сеть не нагружена, лежащий сервис не добивается.</b>',ok:true},
-         {from:'c',to:'o',l:'сразу запасной ответ: вчерашние рекомендации из кеша',k:'ret',d:'Пользователь видит чуть устаревший блок вместо пустого места. Он этого, скорее всего, даже не заметит.',ok:true},
-         {from:'c',to:'c',l:'ждём 30 секунд',ms:'30 сек',d:'Пауза нужна лежащему сервису, чтобы подняться без потока входящих запросов. Это не вежливость, а необходимость: подняться под полной нагрузкой он не сможет.'},
-         {from:'c',to:'c',l:'🟡 ЦЕПЬ ПРИОТКРЫТА',d:'Прошло 30 секунд. Размыкатель пропускает <b>пять</b> пробных вызовов — не весь трафик, а именно пять.'},
-         {from:'c',to:'p',l:'5 пробных вызовов',ms:'40 мс',d:'Пробники ушли. Сервис отвечает быстро и без ошибок.'},
-         {from:'p',to:'c',l:'все пять успешны',k:'ret',d:'Сосед действительно поднялся.'},
-         {from:'c',to:'c',l:'🟢 ЦЕПЬ ЗАМКНУТА — трафик вернулся',d:'Всё вернулось к норме само, без участия дежурного и без перезапусков. <b>Если бы пробники провалились</b>, цепь снова разомкнулась бы ещё на 30 секунд.',ok:true},
+         {from:'c',to:'o',l:'сразу запасной ответ: «Популярное» из кеша',k:'ret',d:'Покупатель видит блок «Популярное» вместо персонального. Скорее всего, он не заметит разницы.',ok:true},
+         {from:'c',to:'c',l:'ждём 30 секунд',ms:'30 с',d:'Пауза нужна лежащему сервису, чтобы подняться без потока входящих запросов. Подняться под полной нагрузкой он не сможет.'},
+         {from:'c',to:'c',l:'🟡 ЦЕПЬ ПОЛУРАЗОМКНУТА',d:'Прошло 30 секунд. Размыкатель пропускает <b>несколько</b> пробных вызовов — не весь трафик, а именно несколько.'},
+         {from:'c',to:'p',l:'3 пробных вызова',ms:'40 мс',d:'Пробные вызовы ушли. Сервис отвечает быстро и без ошибок.'},
+         {from:'p',to:'c',l:'все три успешны',k:'ret',d:'Сосед действительно поднялся.'},
+         {from:'c',to:'c',l:'🟢 ЦЕПЬ ЗАМКНУТА — трафик вернулся',d:'Всё вернулось само, без дежурного и без перезапусков. <b>Если бы пробные вызовы провалились</b>, цепь снова разомкнулась бы ещё на 30 секунд.',ok:true},
        ],
-       note:'<b>Зачем это, если есть таймаут.</b> Таймаут ограничивает <b>одно</b> ожидание — 800 мс. Но при тысяче запросов в секунду это всё равно 800 занятых потоков и тысяча бесполезных походов по сети в секунду. Размыкатель убирает и их: пока сосед лежит, к нему просто не ходят. <b>Таймаут защищает один вызов, размыкатель — всю систему.</b>'}},
-
-    {n:'🚧 Переборки',
-     idea:'Ресурсы делятся на отсеки, и каждый сосед получает только свой. Название — из судостроения: пробоина в одном отсеке не топит корабль.',
-     seq:{actors:[{id:'o',n:'Заказы',s:'всего 200 потоков'},{id:'p',n:'Подбор',s:'завис'},{id:'s',n:'Склад',s:'здоров'}],
+       note:'<b>Таймаут защищает один вызов, размыкатель — всю систему.</b> Таймаут ограничивает одно ожидание. Размыкатель убирает сами походы, пока сосед лежит.'},
+    bh:{actors:[{id:'o',n:'Магазин',s:'всего 20 потоков'},{id:'p',n:'Рекомендации',s:'зависли'},{id:'s',n:'Оплата',s:'здорова'}],
        steps:[
-         {from:'o',to:'o',l:'БЕЗ переборок: общий пул на всех',d:'Классическая настройка по умолчанию — один пул потоков или соединений на все исходящие вызовы.'},
-         {from:'o',to:'p',l:'подбор завис, запросы копятся',ms:'растёт',fail:'190 из 200 потоков заняты ожиданием подбора.',d:'Медленный сосед вытесняет всех остальных из общего пула.'},
-         {from:'o',to:'s',l:'вызов к складу — свободных потоков нет',fail:'Склад здоров, но обратиться к нему нечем.',d:'<b>Вот суть проблемы.</b> Здоровый сосед становится недоступен из-за больного. Отказ переполз туда, где его причины нет.'},
-         {from:'o',to:'o',l:'С переборками: у каждого свой отсек',d:'Подбору выделено 20 потоков, складу 40, платежам 60. Границы жёсткие.'},
-         {from:'o',to:'p',l:'подбор завис — занял свои 20 и упёрся',ms:'предел',d:'Двадцать первый вызов к подбору отвергается сразу, не дожидаясь ничего. Больше двадцати потоков подбор занять <b>не может физически</b>.'},
-         {from:'o',to:'s',l:'вызов к складу — свои 40 потоков свободны',k:'ret',ms:'12 мс',d:'Склад работает как ни в чём не бывало. <b>Пробоина осталась в своём отсеке.</b>',ok:true},
+         {from:'o',to:'o',l:'БЕЗ переборок: общий пул на всех',d:'Настройка по умолчанию — один пул потоков на все исходящие вызовы.'},
+         {from:'o',to:'p',l:'рекомендации зависли, запросы копятся',ms:'растёт',fail:'20 из 20 потоков заняты ожиданием рекомендаций.',d:'Медленный сосед вытесняет всех остальных из общего пула.'},
+         {from:'o',to:'s',l:'вызов оплаты — свободных потоков нет',fail:'Оплата здорова, но обратиться к ней нечем.',d:'<b>Вот суть проблемы.</b> Здоровый сосед становится недоступен из-за больного. Отказ переполз туда, где его причины нет.'},
+         {from:'o',to:'o',l:'С переборками: у каждого свой отсек',d:'Рекомендациям — 6 потоков, всему остальному — 14. Границы жёсткие.'},
+         {from:'o',to:'p',l:'рекомендации зависли — заняли свои 6 и упёрлись',ms:'предел',d:'Седьмой вызов рекомендаций отвергается сразу, ничего не дожидаясь. Больше шести потоков рекомендации занять <b>не могут физически</b>.'},
+         {from:'o',to:'s',l:'вызов оплаты — свои потоки свободны',k:'ret',ms:'60 мс',d:'Оплата работает как ни в чём не бывало. <b>Пробоина осталась в своём отсеке.</b>',ok:true},
        ],
-       note:'<b>Что это даёт на практике.</b> Отказ перестаёт быть «всё или ничего» и становится частичным: не работает блок рекомендаций, а заказы принимаются. Цена — потоки поделены заранее, и в спокойное время часть их простаивает. Это честная плата за предсказуемость.'}},
-
-    {n:'🎬 Всё вместе: реальная авария',
-     idea:'А теперь то же самое, как оно происходит в бою: все приёмы работают одновременно, и видно, кто в какой момент вступает.',
-     seq:{actors:[{id:'u',n:'Клиент'},{id:'o',n:'Заказы'},{id:'c',n:'Защита',s:'переборка + размыкатель'},{id:'p',n:'Подбор'},{id:'k',n:'Кеш'}],
+       note:'<b>Отказ перестаёт быть «всё или ничего».</b> Не работает блок рекомендаций, а заказы принимаются.'},
+    all:{actors:[{id:'u',n:'Покупатель'},{id:'o',n:'Магазин'},{id:'c',n:'Защита',s:'переборка + таймаут + размыкатель'},{id:'p',n:'Рекомендации'},{id:'k',n:'Кеш'}],
        steps:[
-         {from:'u',to:'o',l:'14:02 — обычный трафик, всё хорошо',d:'База: 400 запросов в секунду, всё отвечает за 40 мс.'},
+         {from:'u',to:'o',l:'19:39 — обычный вечер',d:'40 страниц в секунду, всё отвечает за десятки миллисекунд.'},
          {from:'o',to:'c',l:'вызов проходит через защиту',ms:'+0,1 мс',d:'В спокойное время вся защита — это микросекунды накладных расходов.'},
          {from:'c',to:'p',l:'200 OK',k:'ret',ms:'40 мс',d:'Штатная работа.'},
-         {from:'p',to:'p',l:'14:05 — у подбора деградировала база',fail:'Время ответа выросло с 40 мс до 6 секунд.',d:'Вот и авария. Обратите внимание: подбор <b>не упал</b>, он замедлился — а это опаснее, чем падение, потому что выглядит как работа.'},
-         {from:'c',to:'p',l:'таймаут 800 мс срабатывает',ms:'800 мс',d:'<b>Первый рубеж.</b> Ждём не шесть секунд, а восемьсот миллисекунд. Потоки возвращаются в пул.'},
-         {from:'c',to:'c',l:'переборка: подбор занял свои 20 потоков и упёрся',d:'<b>Второй рубеж.</b> Остальные 180 потоков остались свободны — заказы, оплата и склад работают в полную силу.'},
-         {from:'c',to:'c',l:'14:05:30 — сбоев 60 %, цепь разомкнулась',d:'<b>Третий рубеж.</b> Хождение к подбору прекращается совсем. Нагрузка на его больную базу падает до нуля.'},
-         {from:'c',to:'k',l:'берём рекомендации из кеша',ms:'2 мс',d:'<b>Четвёртый рубеж.</b> Запасной путь: вчерашние рекомендации вместо свежих.'},
-         {from:'k',to:'u',l:'экран открылся за 90 мс',k:'ret',ms:'90 мс',d:'<b>Пользователь не заметил аварии.</b> Он увидел свой заказ, и рекомендации на месте — просто чуть менее свежие. Никакой ошибки, никакого «попробуйте позже».',ok:true},
-         {from:'o',to:'o',l:'дежурному ушло оповещение',d:'Система деградировала осознанно и об этом сообщила. Это и есть цель: не «не сломаться никогда», а <b>сломаться предсказуемо и негромко</b>.'},
-         {from:'c',to:'p',l:'14:12 — базу починили, пробники прошли',ms:'35 мс',d:'Цепь замкнулась сама. Свежие рекомендации вернулись.',ok:true},
+         {from:'p',to:'p',l:'19:40 — у рекомендаций тормозит база',fail:'Время ответа выросло с 40 мс до 30 секунд.',d:'Вот и авария. Рекомендации <b>не упали</b>, а замедлились — это опаснее, потому что выглядит как работа.'},
+         {from:'c',to:'p',l:'таймаут 300 мс срабатывает',ms:'300 мс',d:'<b>Первый рубеж.</b> Ждём не 30 секунд, а 0,3. Потоки возвращаются в пул.'},
+         {from:'c',to:'c',l:'переборка: рекомендации заняли свои 6 потоков и упёрлись',d:'<b>Второй рубеж.</b> Остальные 14 потоков свободны — заказы и оплата работают в полную силу.'},
+         {from:'c',to:'c',l:'19:40:03 — сбоев 70 %, цепь разомкнулась',d:'<b>Третий рубеж.</b> Походы к рекомендациям прекращаются совсем. Нагрузка на их больную базу падает до нуля.'},
+         {from:'c',to:'k',l:'берём «Популярное» из кеша',ms:'2 мс',d:'<b>Четвёртый рубеж.</b> Запасной ответ вместо свежих персональных рекомендаций.'},
+         {from:'k',to:'u',l:'страница открылась за 30 мс',k:'ret',ms:'30 мс',d:'<b>Покупатель не заметил аварии.</b> Никакой ошибки, никакого «попробуйте позже».',ok:true},
+         {from:'o',to:'o',l:'дежурному ушло оповещение',d:'Система деградировала осознанно и сообщила об этом. Цель — не «не сломаться никогда», а <b>сломаться предсказуемо и негромко</b>.'},
+         {from:'c',to:'p',l:'19:52 — базу починили, пробные вызовы прошли',ms:'40 мс',d:'Цепь замкнулась сама. Персональные рекомендации вернулись.',ok:true},
        ],
-       note:'<b>Вот что стоит забрать из этого раздела.</b> Ни один приём по отдельности не спасает. Таймаут без размыкателя оставляет тысячу бесполезных походов в секунду. Размыкатель без запасного пути превращает медленный экран в пустой. Переборка без таймаута просто переносит зависание в отдельный отсек. <b>Работает именно связка</b>, и настраивается она числами, а не по умолчанию.'}},
-  ];
-  const bar = document.getElementById('rs-pick'), out = document.getElementById('rs-out');
-  if(!bar) return;
-  bar.innerHTML = R.map((x, i) => '<button' + (i === 0 ? ' class="on"' : '') + ' data-i="' + i + '">' + x.n + '</button>').join('');
-  function show(i){
-    [...bar.children].forEach((b, k) => b.classList.toggle('on', k === i));
-    out.innerHTML =
-      '<div class="note" style="margin:11px 0"><b>Что смотрим:</b> ' + R[i].idea + '</div>' +
-      '<div id="rs-seq"></div>';
-    renderSeq('rs-seq', R[i].seq);
-  }
-  bar.addEventListener('click', e => { const b = e.target.closest('button[data-i]'); if(b) show(+b.dataset.i); });
-  show(0);
+       note:'<b>Ни один приём по отдельности не спасает.</b> Таймаут без размыкателя оставляет десятки бесполезных походов в секунду. Размыкатель без запасного ответа превращает медленную страницу в пустую. Переборка без таймаута просто переносит зависание в отдельный отсек. <b>Работает связка</b>, и настраивается она числами, а не значениями по умолчанию.'},
+  };
+  Object.keys(R).forEach(k => renderSeq('rsx-seq-' + k, R[k]));
 })();
 </script>
 <!-- ==================== 19. КЕШ ==================== -->
