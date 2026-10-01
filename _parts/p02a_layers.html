@@ -1,48 +1,446 @@
 <!-- ==================== 0. СЛОИ ПРЕДПРИЯТИЯ ==================== -->
 <section class="panel active" id="layers" data-accent="nt" role="tabpanel">
-  <p class="lead"><b>Начнём с вопроса «зачем мне это знать».</b> Ничего знать заранее не нужно. Идите подряд и нажимайте: почти всё здесь раскрывается по клику.</p>
+  <style>
+    .lyx-ch{scroll-margin-top:150px}
+    .lyx-map{display:grid; grid-template-columns:repeat(auto-fill,minmax(205px,1fr)); gap:8px; margin-top:12px}
+    .lyx-map button{display:flex; gap:9px; align-items:flex-start; text-align:left; appearance:none; border:1px solid var(--line); background:var(--surface-2); color:var(--ink); font:inherit; font-size:13px; line-height:1.35; padding:9px 11px; border-radius:9px; cursor:pointer}
+    .lyx-map button:hover{border-color:var(--accent)}
+    .lyx-map .n{flex:none; width:22px; height:22px; border-radius:50%; background:var(--accent); color:var(--surface); font:700 11px var(--mono); display:grid; place-items:center}
+    .lyx-map small{display:block; color:var(--muted); font-size:11.5px; margin-top:2px}
+    .lyx-cast{display:flex; flex-wrap:wrap; gap:7px; margin-top:12px}
+    .lyx-cast span{border:1px solid var(--line); border-radius:18px; padding:4px 11px; font-size:12.5px; background:var(--surface-2)}
+    .lyx-def{border:1px solid color-mix(in srgb,var(--accent) 40%,var(--line)); background:color-mix(in srgb,var(--accent) 6%,var(--surface)); border-radius:10px; padding:11px 14px; margin:12px 0 0; font-size:14px}
+    .lyx-def > b:first-child{color:var(--accent)}
+    .lyx-life{border-left:3px solid var(--ok); background:var(--ok-bg); border-radius:0 9px 9px 0; padding:9px 13px; margin:10px 0 0; font-size:13.5px; color:var(--ink)}
+    .lyx-life::before{content:"Из жизни: "; font-weight:700; color:var(--ok)}
+    .lyx-req{border:1px dashed color-mix(in srgb,var(--accent) 55%,var(--line)); border-radius:10px; padding:10px 13px; margin:14px 0 0; font-size:13.5px; background:var(--surface)}
+    .lyx-req > b:first-child{display:block; font:700 10.5px var(--mono); text-transform:uppercase; letter-spacing:.03em; color:var(--accent); margin-bottom:5px}
+    .lyx-rq{margin:6px 0; padding:7px 10px; background:var(--surface-2); border-radius:7px; font-size:13px; border-left:3px solid var(--accent)}
+    .lyx-rq.bad{border-left-color:var(--danger)}
+    .lyx-mis{border:1px solid color-mix(in srgb,var(--danger) 35%,var(--line)); background:color-mix(in srgb,var(--danger) 5%,var(--surface)); border-radius:10px; padding:10px 14px; margin:14px 0 0; font-size:13.5px}
+    .lyx-mis h4{margin:0 0 6px; color:var(--danger); font-size:13.5px}
+    .lyx-mis ul{margin:0; padding-left:18px} .lyx-mis li{margin:4px 0}
+    .lyx-nest > div{border:1.5px dashed var(--line); border-radius:10px; padding:7px 10px 10px; margin-top:6px; font-size:12.5px; color:var(--muted)}
+    .lyx-nest div.on{border-style:solid; border-color:var(--accent); background:color-mix(in srgb,var(--accent) 8%,var(--surface)); color:var(--ink)}
+    .lyx-nest div div{border:1.5px dashed var(--line); border-radius:10px; padding:7px 10px 10px; margin-top:6px}
+    .lyx-nest b{color:var(--ink)}
+    .lyx-four{display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:10px; margin-top:12px}
+    .lyx-four .box h4{margin-bottom:4px}
+    .lyx-four .box .lyx-eg{font-size:12.5px; color:var(--muted); margin-top:6px; border-top:1px dashed var(--line); padding-top:6px}
+    /* трассировка */
+    .lyx-tr-bar{display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-top:10px}
+    .lyx-tr-bar .seg{margin:0}
+    .lyx-tr-bar select{font:inherit; font-size:13px; padding:6px 8px; border-radius:8px; border:1px solid var(--line); background:var(--surface); color:var(--ink); max-width:100%}
+    .lyx-tr-wrap{overflow-x:auto; margin-top:10px; border:1px solid var(--line); border-radius:12px; background:var(--surface)}
+    .lyx-tr-svg{display:block; width:100%; min-width:760px; height:auto}
+    .lyx-tr-svg .ln{fill:var(--surface-2)}
+    .lyx-tr-svg .lt{fill:var(--faint); font:700 13px var(--mono); text-transform:uppercase; paint-order:stroke; stroke:var(--surface-2); stroke-width:4px; pointer-events:none}
+    .lyx-tr-svg .e{stroke:var(--line); stroke-width:1.6; fill:none; transition:stroke .2s, opacity .2s}
+    .lyx-tr-svg .e.soft{stroke-dasharray:6 5}
+    .lyx-tr-svg .e.on{stroke:var(--accent); stroke-width:2.6}
+    .lyx-tr-svg .e.bad{stroke:var(--danger); stroke-width:2.6}
+    .lyx-tr-svg .e.warn{stroke:var(--warn); stroke-width:2.4}
+    .lyx-tr-svg .e.dim{opacity:.22}
+    .lyx-tr-svg .nd{cursor:pointer; transition:opacity .2s}
+    .lyx-tr-svg .nd rect{fill:var(--surface); stroke:var(--line); stroke-width:1.6; transition:fill .2s, stroke .2s}
+    .lyx-tr-svg .nd text{fill:var(--ink); font:600 14px var(--sans); pointer-events:none}
+    .lyx-tr-svg .nd:hover rect{stroke:var(--accent)}
+    .lyx-tr-svg .nd:focus{outline:none}
+    .lyx-tr-svg .nd:focus-visible rect{stroke:var(--accent); stroke-width:3}
+    .lyx-tr-svg .nd.on rect{stroke:var(--accent); fill:color-mix(in srgb,var(--accent) 13%,var(--surface))}
+    .lyx-tr-svg .nd.src rect{stroke-width:3.4}
+    .lyx-tr-svg .nd.bad rect{stroke:var(--danger); fill:var(--danger-bg)}
+    .lyx-tr-svg .nd.warn rect{stroke:var(--warn); fill:var(--warn-bg)}
+    .lyx-tr-svg .nd.dim{opacity:.33}
+    .lyx-tr-side{display:grid; grid-template-columns:1.2fr 1fr; gap:12px; margin-top:10px}
+    @media (max-width:760px){.lyx-tr-side{grid-template-columns:1fr}}
+    .lyx-ms{display:flex; flex-direction:column; gap:6px; font-size:13px}
+    .lyx-ms div{border:1px solid var(--line); border-radius:8px; padding:6px 9px; background:var(--surface-2)}
+    .lyx-ms div.done{border-color:var(--ok); background:var(--ok-bg)}
+    .lyx-ms div.done::before{content:"✓ "; color:var(--ok); font-weight:700}
+    .lyx-log{display:flex; flex-direction:column; gap:3px; margin-top:8px; font:500 12px var(--mono); color:var(--muted)}
+    .lyx-log b{color:var(--ink)} .lyx-log .bad{color:var(--danger)} .lyx-log .warn{color:var(--warn)}
+    /* карта возможностей */
+    .lyx-cm{display:grid; grid-template-columns:repeat(auto-fill,minmax(190px,1fr)); gap:10px; margin-top:12px}
+    .lyx-cm-dom{border:1px solid var(--line); border-radius:10px; padding:8px; background:var(--surface-2)}
+    .lyx-cm-dom h5{margin:0 0 2px; font:700 11px var(--mono); text-transform:uppercase; color:var(--faint); letter-spacing:.03em}
+    .lyx-cm-c{display:block; width:100%; appearance:none; text-align:left; border:1.5px solid var(--line); border-radius:8px; padding:7px 9px; margin-top:6px; font:600 12.5px/1.3 var(--sans); color:var(--ink); background:var(--surface); cursor:pointer}
+    .lyx-cm-c small{display:block; font:600 11px var(--mono); color:var(--muted); margin-top:3px}
+    .lyx-cm-c.cur{border-color:var(--ink)}
+    .lyx-cm-c.sel{outline:3px solid var(--accent); outline-offset:1px}
+    .lyx-cm-leg{display:flex; flex-wrap:wrap; gap:10px; margin-top:8px; font:500 11.5px var(--mono); color:var(--muted)}
+    .lyx-cm-leg i{display:inline-block; width:14px; height:14px; border-radius:4px; border:1px solid var(--line); vertical-align:-3px; margin-right:4px}
+  </style>
+
+  <p class="lead"><b>Любая задача живёт не в коде, а в компании.</b> Прежде чем проектировать, надо понимать, что вокруг: зачем компания существует, какие у неё процессы, какие данные, какие программы и на чём они работают. Весь раздел — одна история интернет-магазина кроссовок «Ботинок». Маленькая задача аналитика Олега упрётся в четыре стены. Потом компания затеет большой проект «доставка за 2 часа». Мы посмотрим на него глазами всех, кто отвечает за архитектуру, — от архитектора предприятия до системного аналитика.</p>
+  <div class="lyx-cast">
+    <span>👩 <b>Анна</b> — покупательница</span>
+    <span>📋 <b>Олег</b> — системный аналитик</span>
+    <span>🧑‍💻 <b>Борис</b> — разработчик команды доставки</span>
+    <span>📊 <b>Марина</b> — бизнес-аналитик</span>
+    <span>🧩 <b>Кирилл</b> — архитектор решения</span>
+    <span>🗺 <b>Вера</b> — архитектор предприятия</span>
+  </div>
 
   <div class="card">
-    <h2><span class="tag">с чего всё начинается</span> одна задача — четыре тупика</h2>
-    <p>Вам сказали: «сделай, чтобы клиент мог поменять номер телефона в личном кабинете». Задача на час. Нажмите на каждый тупик, в который вы упрётесь.</p>
+    <h2><span class="tag">зачем это</span> зачем аналитику и разработчику смотреть выше своей системы</h2>
+    <div id="why-layers"></div>
+  </div>
+
+  <div class="card">
+    <h2><span class="tag">карта раздела</span> одна история, тринадцать глав</h2>
+    <p>Читайте по порядку: каждая глава опирается на предыдущую. Кнопка переносит к главе.</p>
+    <div class="lyx-map" id="lyx-map">
+      <button data-lyx-to="lyx-ch1"><span class="n">1</span><span>Четыре тупика<small>телефон Анны: задача на час</small></span></button>
+      <button data-lyx-to="lyx-ch2"><span class="n">2</span><span>Три масштаба<small>предприятие, решение, система</small></span></button>
+      <button data-lyx-to="lyx-ch3"><span class="n">3</span><span>Кто есть кто<small>пять ролей; «чья это задача»</small></span></button>
+      <button data-lyx-to="lyx-ch4"><span class="n">4</span><span>Четыре слоя<small>бизнес, данные, приложения, технологии</small></span></button>
+      <button data-lyx-to="lyx-ch5"><span class="n">5</span><span>Трассировка<small>живая модель «продать кроссовки»</small></span></button>
+      <button data-lyx-to="lyx-ch6"><span class="n">6</span><span>Карта возможностей<small>тепловая карта и бюджет</small></span></button>
+      <button data-lyx-to="lyx-ch7"><span class="n">7</span><span>TOGAF ADM<small>колесо фаз</small></span></button>
+      <button data-lyx-to="lyx-ch8"><span class="n">8</span><span>ArchiMate<small>как рисуют все слои на одной схеме</small></span></button>
+      <button data-lyx-to="lyx-ch9"><span class="n">9</span><span>SEAF<small>одна карта вместо четырёх документов</small></span></button>
+      <button data-lyx-to="lyx-ch10"><span class="n">10</span><span>Конвей и Team Topologies<small>живая модель: команды → архитектура</small></span></button>
+      <button data-lyx-to="lyx-ch11"><span class="n">11</span><span>Архитектурное управление<small>принципы, комитет, реестр решений</small></span></button>
+      <button data-lyx-to="lyx-ch12"><span class="n">12</span><span>Место аналитика<small>артефакты и трассировка требований</small></span></button>
+      <button data-lyx-to="lyx-ch13"><span class="n">13</span><span>Проверь себя<small>задания</small></span></button>
+    </div>
+  </div>
+
+  <!-- ─── глава 1 ─── -->
+  <div class="card lyx-ch" id="lyx-ch1">
+    <h2><span class="tag">глава 1 · завязка</span> «поменять номер телефона»: задача на час, которая заняла три дня</h2>
+    <p>Понедельник. Олег, системный аналитик «Ботинка», получает задачу: «Анна хочет поменять номер телефона в личном кабинете. Сделайте». Кажется, это на час: одна форма, одно поле, одна запись в базе. Нажмите на каждый тупик, в который Олег упрётся к обеду.</p>
     <div id="lay-dead" class="numlist"></div>
     <div class="note good"><b>Ни один из четырёх вопросов не решается в коде.</b> Все четыре — про то, как устроена система вокруг вас. Вот на них и отвечает архитектура.</div>
+    <p style="margin-top:14px">Олег потратил три дня не на форму, а на <b>поиск хозяев</b>: кто решает, можно ли менять номер; чья запись главная; кто ещё пользуется номером; через что идёт запрос в бою. У каждого вопроса оказался свой хозяин, свои документы и свой язык. Эти четыре сорта вопросов называются <b>слоями архитектуры предприятия</b>. К концу раздела вы будете находить хозяина за минуты — по карте.</p>
+    <div class="note"><b>Проще говоря.</b> Код отвечает на вопрос «как сделать». Архитектура отвечает на вопросы «что именно, для кого, с кем вместе и на чём». Если на них никто не ответил заранее, отвечать придётся вам — в последний момент и по догадке.</div>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">интерактив</span> четыре слоя: нажмите на слой</h2>
-    <p>Те же четыре сорта вопросов называются <b>слоями архитектуры предприятия</b>. Нажмите на любой — увидите, что там живёт, кто за это отвечает и что ломается, если ошиблись.</p>
+  <!-- ─── глава 2 ─── -->
+  <div class="card lyx-ch" id="lyx-ch2">
+    <h2><span class="tag">глава 2 · масштаб</span> архитектура предприятия, решения и системы: одна идея, три высоты</h2>
+    <p>Через месяц директор «Ботинка» объявляет: <b>«Через год доставляем по Москве за 2 часа»</b>. На эту фразу смотрят люди с разной высоты. Слово «архитектура» у них одно, а вопросы — разные.</p>
+    <div class="lyx-def"><b>Архитектура</b> — главные решения о том, из каких частей состоит система, как части связаны друг с другом и с окружением и по каким правилам всё это будет развиваться. Так её определяет международный стандарт описания архитектуры ISO/IEC/IEEE 42010. «Система» здесь — что угодно: программа, набор программ или целая компания.</div>
+    <div class="lyx-def"><b>Архитектура предприятия</b> (enterprise architecture) — описание всей компании как одной системы: цели и возможности, процессы, данные, программы и техника, связи между ними и план, как это должно меняться, чтобы компания достигла целей. Горизонт — годы.</div>
+    <div class="lyx-def"><b>Архитектура решения</b> (solution architecture) — как решить одну конкретную задачу бизнеса (проект, продукт, инициативу) силами нескольких систем: что доработать, что купить, что связать и в каком порядке. Горизонт — месяцы.</div>
+    <div class="lyx-def"><b>Архитектура системы</b> (архитектура ПО, software architecture) — как устроена одна программа изнутри: модули и границы, данные, как она переживает сбои и нагрузку. Её меняют каждый спринт, а главные решения живут годами. Почти весь остальной тренажёр — про этот масштаб.</div>
+    <div class="lyx-life">город, квартал и дом. Генплан города решает, где жилые районы, где склады и где пройдёт метро — это архитектура предприятия. Проект квартала вписывает новые дома, школу и парковку в дороги и сети, которые уже есть, — это архитектура решения. Проект дома решает, где несущие стены и стояки, — это архитектура системы. Прекрасный дом, поставленный поперёк будущей линии метро, — всё равно ошибка.</div>
+    <h3>Интерактив: поднимитесь на нужную высоту</h3>
+    <p>Выберите масштаб. Подсветится, где он находится в «матрёшке», и что на этой высоте видно в проекте «доставка за 2 часа».</p>
+    <div class="seg" id="lyx-zm-pick"></div>
+    <div id="lyx-zm-out"></div>
+    <div class="note good"><b>Проще говоря.</b> Предприятие — <b>какие</b> задачи решать компании и в каком порядке. Решение — <b>как решить одну</b> из них. Система — <b>как устроить одну программу</b>, чтобы она это делала долго и надёжно. Ошибка на верхней высоте стоит дороже всего: можно идеально построить не то.</div>
+  </div>
+
+  <!-- ─── глава 3 ─── -->
+  <div class="card lyx-ch" id="lyx-ch3">
+    <h2><span class="tag">глава 3 · роли</span> кто есть кто: пять ролей вокруг одного проекта</h2>
+    <p>На проекте «доставка за 2 часа» работают пять человек, и у каждого в должности есть слово «архитектор» или «аналитик». Путать их — частая беда новичка: он несёт вопрос не тому и неделю ждёт ответа. Нажмите на строку, чтобы раскрыть подробности.</p>
+    <div id="lyx-roles-cmp"></div>
+    <div class="lyx-life">стройка жилого комплекса. Главный архитектор города решает, что здесь вообще можно строить. Архитектор проекта решает, как комплекс встанет на участок и подключится к сетям. Конструктор решает, как устроен каждый дом. Инженер пишет спецификацию: какие окна, какие двери, с какими размерами и допусками. А представитель заказчика выясняет, чего хотят будущие жильцы и за что они готовы платить.</div>
+    <div class="note"><b>Роль — это вопрос, а не должность.</b> В компании из 30 человек один техлид совмещает архитектора решения и системного архитектора, а аналитик — бизнес- и системного. В банке на 5000 ИТ-специалистов это пять разных людей в разных отделах. Важно не название, а чтобы <b>на каждый из пяти вопросов кто-то отвечал</b>.</div>
+    <h3>Тренажёр: чья это задача?</h3>
+    <p>Десять задач из проекта. Отнесите каждую к роли. Ошибётесь — прочитаете разбор.</p>
+    <p style="color:var(--muted);font-size:13.5px">Разложено <b id="lyx-roles-score">0</b> из <span id="lyx-roles-total">0</span>.</p>
+    <div id="lyx-roles"></div>
+    <div class="lyx-req"><b>Как это звучит в документе аналитика</b>
+      Раздел «Контекст» в постановке Олега ссылается на решения других ролей, а не пересказывает их:
+      <div class="lyx-rq">Инициатива ИН-12 «Доставка за 2 часа» (владелец — директор по логистике). Архитектура решения — документ Кирилла, версия 1.3. Затронутые системы: сайт, сервис доставки, складская система. Эта постановка описывает только сервис слотов доставки.</div>
+    </div>
+    <div class="lyx-mis"><h4>Частые ошибки</h4><ul>
+      <li>Аналитик ждёт, что архитектор решения опишет поля API. Не опишет: это работа аналитика.</li>
+      <li>Архитектор предприятия рисует схемы классов одного сервиса — и перестаёт видеть компанию целиком.</li>
+      <li>Стык двух систем ничей: каждая команда думает, что интеграцию описывает соседняя.</li>
+    </ul></div>
+  </div>
+
+  <!-- ─── глава 4 ─── -->
+  <div class="card lyx-ch" id="lyx-ch4">
+    <h2><span class="tag">глава 4 · четыре слоя</span> как архитектор предприятия видит «Ботинок»</h2>
+    <p>Вера, архитектор предприятия, показывает Олегу, как она видит компанию: четыре слоя, лежащих друг на друге. Каждый верхний опирается на нижний. Процессы работают в приложениях, приложения хранят данные, а всё это крутится на технике.</p>
+    <div class="lyx-def"><b>Слой архитектуры</b> — срез компании, в котором собраны вещи одного сорта: только процессы и цели, только данные, только программы или только техника. У каждого слоя свой хозяин, свои документы и свой язык.</div>
+    <div class="lyx-life">поэтажный план дома. На одном листе — планировка комнат, на другом — электрика, на третьем — водопровод, на четвёртом — фундамент. Каждый лист понятен отдельно, но сверлить стену, не посмотрев лист с электрикой, опасно.</div>
+    <h3>Интерактив: нажмите на слой</h3>
+    <p>Нажмите на любой слой — увидите, что там живёт, кто отвечает, какие артефакты рисуют и что ломается, если ошиблись.</p>
     <div id="lay-stack" class="lstack"></div>
     <div id="lay-out"></div>
-    <div class="note"><b>Откуда именно четыре.</b> Это канон <span class="t" data-d="The Open Group Architecture Framework — самый распространённый свод правил по архитектуре предприятия, с 1995 года. Им пользуются банки, телеком, госструктуры.">TOGAF</span>, там их называют BDAT по первым буквам: Business, Data, Application, Technology. Первоисточник — <a href="https://pubs.opengroup.org/architecture/togaf8-doc/arch/chap02.html" target="_blank" rel="noopener">документация The Open Group</a>, короткий обзор — <a href="https://en.wikipedia.org/wiki/TOGAF" target="_blank" rel="noopener">статья про TOGAF</a>.</div>
-  </div>
+    <div class="note"><b>Откуда именно четыре.</b> Это канон <span class="t" data-d="The Open Group Architecture Framework — самый распространённый свод правил по архитектуре предприятия, с 1995 года. Им пользуются банки, телеком, госструктуры.">TOGAF</span>, там их называют BDAT по первым буквам: Business, Data, Application, Technology. Первоисточник — <a href="https://pubs.opengroup.org/architecture/togaf8-doc/arch/chap02.html" target="_blank" rel="noopener">документация The Open Group</a>, короткий обзор — <a href="https://en.wikipedia.org/wiki/TOGAF" target="_blank" rel="noopener">статья про TOGAF</a>. Данные и приложения в TOGAF часто объединяют в одну фазу — «архитектура информационных систем» (глава 7).</div>
 
-  <div class="card">
-    <h2><span class="tag">интерактив</span> закон Конвея: выберите, как поделены люди</h2>
-    <p><b>Закон Конвея (1967):</b> организации проектируют системы, которые копируют структуру общения внутри самой организации. Проще: <b>границы в программе пройдут там же, где границы между людьми</b>. Выберите оргструктуру и посмотрите, что из неё вырастет.</p>
-    <div class="seg" id="lay-conway-pick">
-      <button class="on" data-c="layers">Отделы по слоям</button>
-      <button data-c="flow">Команды по направлениям</button>
-      <button data-c="geo">Команды по офисам</button>
+    <h3>Бизнес-слой изнутри: четыре вещи, которые постоянно путают</h3>
+    <p>Самый трудный для новичка слой — верхний. В нём живут четыре разных сорта вещей, и в разговоре их смешивают. Разберём на одной теме — доставке.</p>
+    <div class="lyx-four">
+      <div class="box"><h4>🎯 Возможность</h4><p class="bs"><b>Что</b> компания умеет делать — без «как» и «кем».</p><div class="lyx-eg">«Доставка заказов»</div></div>
+      <div class="box"><h4>🔁 Процесс</h4><p class="bs"><b>Как</b> она это делает: шаги с началом, концом и результатом.</p><div class="lyx-eg">«Принять заказ → собрать → передать курьеру → вручить»</div></div>
+      <div class="box"><h4>👥 Оргструктура</h4><p class="bs"><b>Кто</b> отвечает: отделы, команды, роли.</p><div class="lyx-eg">«Отдел логистики, команда „Доставка“, курьеры-партнёры»</div></div>
+      <div class="box"><h4>📦 Продукт</h4><p class="bs"><b>Что покупает</b> клиент и за сколько.</p><div class="lyx-eg">«Экспресс-доставка за 2 часа — 299 ₽»</div></div>
     </div>
-    <div id="lay-conway"></div>
+    <div class="lyx-def"><b>Бизнес-возможность</b> (business capability) — то, что компания умеет делать для достижения целей, без ответа на вопросы «как» и «кем». Возможность стабильна: компания может сменить процессы, отделы и программы, а возможность «Доставка заказов» останется.</div>
+    <div class="lyx-life">«умею водить машину» — возможность. Маршрут до работы — процесс. Какая машина — ресурс. Кто за рулём — исполнитель. Пересели с бензиновой машины на электромобиль — возможность та же, а процесс заправки другой.</div>
+    <div class="lyx-def"><b>Бизнес-процесс</b> (business process) — последовательность шагов, которая начинается с события («Анна нажала „Оплатить“») и заканчивается результатом для клиента или компании («Анна получила кроссовки»). Процессы описывают в нотации BPMN.</div>
+    <div class="note good"><b>Проще говоря.</b> Возможность — существительное («доставка»). Процесс — глагол с шагами («принять → собрать → доставить»). Отдел — кто. Продукт — что продаём. Если на вопрос «что компания умеет?» вы отвечаете названием отдела — вы описали оргструктуру, а не возможность. Отделы реорганизуют каждые два года, а доставка остаётся.</div>
+    <div class="note"><b>Ещё одно слово: поток ценности</b> (value stream) — цепочка этапов, через которые клиент получает ценность: «выбрал → купил → получил → носит → вернул, если не подошло». Поток показывают поверх карты возможностей: на каждом этапе работают несколько возможностей.</div>
+
+    <h3>Тренажёр: отнесите решение к слою</h3>
+    <p>Двенадцать решений из жизни проекта. Ошибётесь — прочитаете разбор, это и есть смысл. Пятая корзина, «сквозное», — для решений, у которых нет своего слоя: они связывают остальные четыре (подробно — в главе 9).</p>
+    <p style="color:var(--muted);font-size:13.5px">Разложено <b id="lay-score">0</b> из <span id="lay-total">0</span>.</p>
+    <div id="lay-sort"></div>
+    <div class="lyx-req"><b>Как это звучит в требованиях аналитика</b>
+      Хорошая постановка сама показывает, к какому слою относится каждое утверждение и кто его хозяин:
+      <div class="lyx-rq"><b>Бизнес-правило БП-7.</b> Номер телефона меняется только после ввода кода, отправленного на старый номер. Источник — политика безопасности, владелец — служба безопасности.</div>
+      <div class="lyx-rq"><b>Данные.</b> Мастер-система для телефона клиента — CRM. Сайт и сервис рассылок получают изменение событием «Телефон клиента изменён» и не правят номер сами.</div>
+      <div class="lyx-rq"><b>Технологии (НФТ).</b> Поле «телефон» передаётся в формате E.164 (например, +79161234567), не длиннее 15 цифр — шлюз не должен его обрезать.</div>
+    </div>
+    <div class="lyx-mis"><h4>Частые ошибки</h4><ul>
+      <li>Называть возможностью отдел («у нас есть возможность „Отдел логистики“»).</li>
+      <li>Начинать с нижнего слоя: «берём Kafka», ещё не зная, какой процесс она будет обслуживать.</li>
+      <li>Описывать приложения без данных: схема сервисов есть, а чья запись главная — не сказано.</li>
+    </ul></div>
+  </div>
+  <style>
+    /* колесо ADM */
+    .lyx-adm{display:grid; grid-template-columns:minmax(250px,370px) 1fr; gap:16px; align-items:start; margin-top:12px}
+    @media (max-width:760px){.lyx-adm{grid-template-columns:1fr}}
+    .lyx-adm svg{width:100%; height:auto; display:block; max-width:370px; margin:0 auto}
+    .lyx-adm .ph{cursor:pointer}
+    .lyx-adm .ph path, .lyx-adm .ph circle, .lyx-adm .ph rect{fill:var(--surface-2); stroke:var(--line); stroke-width:2; transition:fill .2s, stroke .2s}
+    .lyx-adm .ph:hover path, .lyx-adm .ph:hover circle, .lyx-adm .ph:hover rect{stroke:var(--accent)}
+    .lyx-adm .ph.seen path, .lyx-adm .ph.seen circle, .lyx-adm .ph.seen rect{fill:color-mix(in srgb,var(--ok) 13%,var(--surface))}
+    .lyx-adm .ph.on path, .lyx-adm .ph.on circle, .lyx-adm .ph.on rect{fill:color-mix(in srgb,var(--accent) 24%,var(--surface)); stroke:var(--accent); stroke-width:3}
+    .lyx-adm .ph:focus{outline:none}
+    .lyx-adm .ph:focus-visible path, .lyx-adm .ph:focus-visible circle, .lyx-adm .ph:focus-visible rect{stroke:var(--accent); stroke-width:3}
+    .lyx-adm .ph text{fill:var(--ink); font:800 23px var(--mono); pointer-events:none}
+    .lyx-adm .ph text.s{font:600 13.5px var(--sans); fill:var(--muted)}
+    .lyx-adm .ar{stroke:var(--faint); stroke-width:2; fill:none}
+    .lyx-adm .seg button{min-width:38px}
+    /* ArchiMate */
+    .lyx-am-wrap{overflow-x:auto; margin-top:10px; border:1px solid var(--line); border-radius:12px; background:var(--surface)}
+    .lyx-am-svg{display:block; width:100%; min-width:760px; height:auto}
+    .lyx-am-svg .band.b{fill:color-mix(in srgb,var(--warn) 8%,var(--surface))}
+    .lyx-am-svg .band.a{fill:color-mix(in srgb,var(--nt) 8%,var(--surface))}
+    .lyx-am-svg .band.t{fill:color-mix(in srgb,var(--ok) 8%,var(--surface))}
+    .lyx-am-svg .bl{font:700 13px var(--mono); fill:var(--faint); text-transform:uppercase}
+    .lyx-am-svg .el rect{fill:var(--surface); stroke-width:1.8; transition:fill .2s, stroke-width .2s}
+    .lyx-am-svg .el.b rect{stroke:var(--warn)} .lyx-am-svg .el.a rect{stroke:var(--nt)} .lyx-am-svg .el.t rect{stroke:var(--ok)}
+    .lyx-am-svg .el text{font:650 14px var(--sans); fill:var(--ink)}
+    .lyx-am-svg .el text.k{font:500 13px var(--mono); fill:var(--muted)}
+    .lyx-am-svg .el.on rect{stroke-width:4; fill:color-mix(in srgb,var(--accent) 12%,var(--surface))}
+    .lyx-am-svg .el.dim{opacity:.35}
+    .lyx-am-svg .rel{stroke:var(--muted); stroke-width:1.8; fill:none; transition:opacity .2s}
+    .lyx-am-svg .rel.dash{stroke-dasharray:7 5} .lyx-am-svg .rel.dot{stroke-dasharray:2 4}
+    .lyx-am-svg .rel.on{stroke:var(--accent); stroke-width:3.2}
+    .lyx-am-svg .rel.dim, .lyx-am-svg .rl.dim{opacity:.22}
+    .lyx-am-svg .rl{font:600 13px var(--sans); fill:var(--muted)}
+    .lyx-am-svg .rl.on{fill:var(--accent)}
+    .lyx-am-svg .mk{stroke:var(--muted); fill:none; stroke-width:1.5}
+    .lyx-am-svg .mk.f{fill:var(--muted)} .lyx-am-svg .mk.h{fill:var(--surface)}
+    .lyx-am-svg .mk.on{stroke:var(--accent)} .lyx-am-svg .mk.f.on{fill:var(--accent)}
+  </style>
+
+  <!-- ─── глава 5 ─── -->
+  <div class="card lyx-ch" id="lyx-ch5">
+    <h2><span class="tag">глава 5 · живая модель</span> трассировка: что нужно, чтобы Анна купила кроссовки</h2>
+    <p>Слои лежат друг на друге не просто так: между ними есть <b>связи</b>. Возможность «Продажа» держится на процессах, процессы работают в приложениях, приложения хранят данные на серверах. Вера держит эти связи в одной модели. Олегу это пригодится дважды: когда он оценивает, что затронет его задача, и когда ночью что-то падает.</p>
+    <div class="lyx-def"><b>Трассировка</b> (traceability) — записанные связи между элементами разных слоёв: какая возможность держится на каких процессах, процессы — на каких приложениях, приложения — на каких данных и серверах. По ним путь читается в обе стороны.</div>
+    <div class="lyx-def"><b>Анализ влияния</b> (impact analysis) — ответ на вопрос «что затронет изменение или отказ вот этого?». Отвечают, идя по связям снизу вверх или сверху вниз.</div>
+    <div class="lyx-life">схема метро с пересадками. Закрыли станцию — по схеме сразу видно, какие маршруты пострадают и где объехать. Без схемы вы узнаёте это, стоя перед закрытыми дверями.</div>
+    <h3>Модель «Ботинка»: 26 узлов в пяти полосах</h3>
+    <p>Режим <b>«Связи»</b>: нажмите на узел — подсветится всё, что ему нужно (ниже), и всё, что от него зависит (выше). Режим <b>«Отказ»</b>: нажмите на узел — он «упадёт», и волна пойдёт вверх по связям. Узел можно выбрать и из списка. Справа — три задания.</p>
+    <div class="lyx-tr-bar">
+      <div class="seg" id="lyx-tr-mode"><button class="on" data-m="link">🔗 Связи</button><button data-m="fail">💥 Отказ</button></div>
+      <select id="lyx-tr-sel" aria-label="Выбрать узел модели"></select>
+      <button class="ghost" id="lyx-tr-reset">⟲ Сбросить</button>
+    </div>
+    <div class="lyx-tr-wrap"><svg class="lyx-tr-svg" id="lyx-tr-svg" viewBox="0 0 900 452" role="group" aria-label="Модель слоёв интернет-магазина: возможности, процессы, приложения, данные, технологии"></svg></div>
+    <div class="lyx-tr-side">
+      <div><div class="console" id="lyx-tr-msg"></div><div class="lyx-log" id="lyx-tr-log"></div></div>
+      <div><b style="font-size:13px">Задания</b><div class="lyx-ms" id="lyx-tr-ms"></div></div>
+    </div>
+    <div class="note"><b>Как читать схему.</b> Пять полос сверху вниз: возможности, процессы, приложения, данные, технологии. Линия значит «верхнему нужен нижний». <b>Пунктир</b> — асинхронная связь через брокер сообщений: если нижний отказал, верхний продолжает работать, но с задержкой. В режиме «Отказ» красное — остановилось, жёлтое — работает с задержкой.</div>
+    <div class="note warn"><b>Что вы увидите и почему.</b>
+      <br>• <b>db-01 держит три сущности</b> — «Клиент», «Заказ», «Отправление». Его отказ останавливает все три возможности. Это единая точка отказа, и без модели её не видно: каждая команда знает только свою таблицу. Лечат репликой с переключением или разносом данных по разным серверам.
+      <br>• <b>Сервер склада стоит на пути продажи</b>: оформить заказ нельзя, пока склад не зарезервировал товар. Архитектор решения спросит: а можно принимать заказ сразу, а резервировать через минуту? Это уже бизнес-вопрос — готовы ли мы иногда продать то, чего нет.
+      <br>• <b>Kafka — на пунктире.</b> Её отказ не останавливает продажу: сервис заказов складывает события у себя в базе (шаблон outbox) и отправит их позже. Но статусы Анне придут с опозданием, и доставка узнает о заказе позже.</div>
+    <div class="lyx-req"><b>Как это звучит в требованиях аналитика</b>
+      <div class="lyx-rq"><b>НФТ-12. Критичность.</b> Сервис заказов поддерживает возможность «Продажа кроссовок» (критичность 1 — высшая). Допустимое время восстановления (<span class="t" data-d="Recovery Time Objective — за сколько времени после аварии система должна снова работать.">RTO</span>) — 15 минут, допустимая потеря данных (<span class="t" data-d="Recovery Point Objective — за какой последний отрезок времени данные можно потерять при аварии. 0 — нельзя терять ничего.">RPO</span>) — 0.</div>
+      <div class="lyx-rq"><b>Раздел «Анализ влияния» в постановке.</b> Задача «сменить телефон» затрагивает процессы «Вход по СМС» и «Рассылка статусов», приложения — сайт, CRM и сервис рассылок, данные — «Клиент». Владельцев всех трёх приложений позвали на ревью постановки.</div>
+    </div>
+    <div class="lyx-mis"><h4>Частые ошибки</h4><ul>
+      <li>Связи хранятся в головах двух старожилов. Ушёл старожил — ушла карта.</li>
+      <li>Трассируют только сверху вниз («что нужно проекту»), а «что затронет отказ» выясняют во время аварии.</li>
+      <li>Карту нарисовали один раз и не обновляют. Устаревшей карте верят — поэтому она опаснее, чем никакая.</li>
+      <li>Не различают синхронные и асинхронные связи и неверно оценивают последствия отказа.</li>
+    </ul></div>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">разбираем</span> что такое SEAF и зачем он нужен</h2>
+  <!-- ─── глава 6 ─── -->
+  <div class="card lyx-ch" id="lyx-ch6">
+    <h2><span class="tag">глава 6 · карта возможностей</span> куда вложить бюджет: тепловая карта «Ботинка»</h2>
+    <p>Совет директоров даёт на следующий год бюджет на <b>две</b> крупные доработки. Маркетинг просит новую рекламную платформу, финансы — новую бухгалтерию, логистика — курьерский модуль. Каждый уверен, что его просьба важнее. Вера приносит на совет одну страницу — карту возможностей.</p>
+    <div class="lyx-def"><b>Карта бизнес-возможностей</b> (business capability map) — одна страница со всеми возможностями компании, сгруппированными по крупным областям, обычно в два-три уровня. На ней нет процессов, отделов и программ — только то, что компания умеет.</div>
+    <div class="lyx-def"><b>Тепловая карта</b> (heat map) — та же карта, раскрашенная по одному признаку: зрелость, важность для стратегии, затраты, риск. Каждый признак — отдельная «линза».</div>
+    <div class="lyx-life">медкарта после диспансеризации. Это не «что болит сегодня», а общий осмотр: сердце в норме, зрение садится, колено пора лечить. По ней врач решает, куда тратить силы, а не лечит того, кто громче жалуется.</div>
+    <h3>Интерактив: четыре линзы одной карты</h3>
+    <p><b>Зрелость</b> (1–5) — насколько хорошо возможность работает сейчас: 1 — вручную и с ошибками, 5 — автоматизировано и измеряется. <b>Важность</b> (1–5) — насколько она нужна стратегии на ближайшие годы. <b>Затраты</b> — сколько компания тратит на неё в год (люди и системы). <b>«Куда вкладывать»</b> — сводная линза. Переключайте линзы и нажимайте на клетки. Потом возьмите задание.</p>
+    <div class="seg" id="lyx-cm-lens">
+      <button class="on" data-l="m">Зрелость</button>
+      <button data-l="i">Важность</button>
+      <button data-l="cost">Затраты</button>
+      <button data-l="inv">Куда вкладывать</button>
+    </div>
+    <div class="lyx-cm-leg" id="lyx-cm-leg"></div>
+    <div class="lyx-cm" id="lyx-cm"></div>
+    <div class="form-row">
+      <button class="act" id="lyx-cm-task">🎯 Задание: выбрать две инвестиции</button>
+      <button class="ghost" id="lyx-cm-check">Проверить выбор</button>
+    </div>
+    <div class="console" id="lyx-cm-msg"></div>
+    <div id="lyx-cm-out"></div>
+    <div class="note good"><b>Проще говоря.</b> Тепловая карта превращает спор «чья просьба важнее» в разговор о фактах: нужна ли возможность стратегии и насколько плохо она работает сейчас. Громкость просящего на карте не видна.</div>
+    <h3>Как составляют карту возможностей</h3>
+    <div id="lyx-cm-how"></div>
+    <div class="lyx-req"><b>Как это звучит в требованиях аналитика</b>
+      <div class="lyx-rq">Инициатива ИН-12 «Доставка за 2 часа» привязана к возможности 3.2 «Доставка заказов» (важность 5, зрелость 1). Все требования проекта ссылаются на неё. Если бюджет урежут, по ссылкам видно, что именно вырезаем.</div>
+      <div class="lyx-rq">Сервис слотов реализует часть возможности 3.2. Владелец возможности — директор по логистике: он утверждает бизнес-правила слотов (сколько заказов в слот, за сколько минут закрывать запись).</div>
+    </div>
+    <div class="lyx-mis"><h4>Частые ошибки</h4><ul>
+      <li>Карта возможностей — это оргструктура с переименованными отделами.</li>
+      <li>300 карточек: карту, которую нельзя окинуть взглядом, не используют для решений.</li>
+      <li>Оценки без владельцев: архитектор сам поставил «зрелость 2», и логистика не согласна с картой целиком.</li>
+      <li>Тепловая карта как приговор. Это повод для разговора, а не готовое решение.</li>
+    </ul></div>
+  </div>
+
+  <!-- ─── глава 7 ─── -->
+  <div class="card lyx-ch" id="lyx-ch7">
+    <h2><span class="tag">глава 7 · TOGAF ADM</span> колесо фаз: как «доставку за 2 часа» вели от идеи до внедрения</h2>
+    <p>Бюджет выделен. Теперь Вере нужен порядок работы: с чего начать, что нарисовать, когда передать проектам и как проследить, что построили задуманное. Для этого есть стандартный цикл.</p>
+    <div class="lyx-def"><b>TOGAF</b> (The Open Group Architecture Framework) — свод методов и правил для архитектуры предприятия от консорциума The Open Group. Первая версия вышла в 1995 году, текущая редакция — TOGAF Standard, 10th Edition (2022).</div>
+    <div class="lyx-def"><b>ADM</b> (Architecture Development Method, метод разработки архитектуры) — сердце TOGAF: цикл фаз, по которому архитектуру предприятия создают и меняют. Это цикл, а не водопад: фазы повторяются, к ним возвращаются, а в центре всё время работает управление требованиями.</div>
+    <div class="lyx-life">ремонт квартиры по-взрослому. Сначала договариваются о правилах («несущие стены не трогаем», бюджет). Потом видение («хотим кухню-гостиную»). Потом обмеряют, что есть, и рисуют, что будет, — по планировке, электрике и трубам. Потом решают, кто делает, и планируют ремонт по комнатам, чтобы было где жить. Потом технадзор за бригадой. А через год смотрят, не пора ли что-то переделать. Всё это время список желаний семьи лежит на столе, и каждое изменение сверяют с ним.</div>
+    <h3>Интерактив: нажмите на фазу</h3>
+    <p>Нажмите на фазу в колесе или на кнопку с её буквой. «▶ Пройти цикл» проведёт по всем фазам по порядку. Для каждой фазы — что происходит, главные вопросы, артефакты (с английскими названиями, как в стандарте), что было в «Ботинке» и где участвует аналитик.</p>
+    <div class="lyx-adm">
+      <div><svg id="lyx-adm-svg" viewBox="22 0 356 452" role="group" aria-label="Колесо фаз TOGAF ADM"></svg></div>
+      <div>
+        <div class="seg" id="lyx-adm-pick"></div>
+        <div class="skbar">
+          <button class="ghost" id="lyx-adm-prev">←</button>
+          <button class="act" id="lyx-adm-next">Дальше →</button>
+          <button class="ghost" id="lyx-adm-play">▶ Пройти цикл</button>
+          <span class="skstep" id="lyx-adm-lab"></span>
+        </div>
+        <div id="lyx-adm-out"></div>
+      </div>
+    </div>
+    <div class="lyx-def"><b>Анализ разрывов</b> (gap analysis) — сравнение «как есть» (baseline) и «как будет» (target) на каждом слое: что добавить, что убрать, что поменять. Каждый разрыв потом становится работой в дорожной карте.</div>
+    <div class="lyx-life">вы смотрите в холодильник (как есть) и в меню на неделю (как будет). Разница — это список покупок.</div>
+    <div class="lyx-def"><b>Переходная архитектура</b> (transition architecture) — промежуточное состояние между «как есть» и «как будет», в котором компания может нормально жить и работать. Большие изменения делают не одним прыжком, а через две-три такие ступеньки.</div>
+    <div class="note"><b>Честно о TOGAF.</b> Мало кто проходит ADM буквально, со всеми артефактами. Стандарт сам предлагает подгонять себя под компанию (tailoring). Но его словарь — видение, «как есть» и «как будет», разрыв, дорожная карта, переходная архитектура, архитектурный контракт — понимают архитекторы во всём мире. Выучите слова, даже если ваша компания «не делает TOGAF».</div>
+    <div class="lyx-req"><b>Как это звучит в требованиях аналитика</b>
+      <div class="lyx-rq">Требование АТ-14 из спецификации архитектурных требований (Architecture Requirements Specification): «Слоты доставки публикует только сервис доставки. Сайт не хранит собственную копию слотов дольше 60 секунд».</div>
+      Олег переносит его в свою постановку дословно и со ссылкой. На ревью видно, откуда ограничение и кого спрашивать, если оно мешает.
+    </div>
+    <div class="lyx-mis"><h4>Частые ошибки</h4><ul>
+      <li>Делать ADM ради документов: 200 страниц, которые никто не прочтёт.</li>
+      <li>Пропустить фазу A и сразу рисовать целевую архитектуру: нет видения — нет критерия, что правильно.</li>
+      <li>Забыть фазу G: нарисовали и ушли, а проекты построили по-своему.</li>
+      <li>Считать ADM водопадом. Из фазы C нормально вернуться в B, если выяснилось новое.</li>
+    </ul></div>
+  </div>
+
+  <!-- ─── глава 8 ─── -->
+  <div class="card lyx-ch" id="lyx-ch8">
+    <h2><span class="tag">глава 8 · ArchiMate</span> как нарисовать все слои на одной схеме и не спорить о стрелках</h2>
+    <p>Вера описала целевую архитектуру. Но если каждый рисует по-своему, прямоугольник у одного — сервер, у другого — команда, а стрелка значит то «вызывает», то «зависит», то «входит в». Нужен общий язык схем.</p>
+    <div class="lyx-def"><b>ArchiMate</b> — язык моделирования архитектуры предприятия от The Open Group: строгий набор значков для элементов всех слоёв и набор связей с точным смыслом. TOGAF говорит, <b>что</b> делать; ArchiMate — <b>как это нарисовать</b>, чтобы любой архитектор понял схему одинаково. Ниже — элементы по спецификации ArchiMate 3.2.</div>
+    <div class="lyx-life">ноты. Мелодию можно описать словами («сначала тихо, потом громче»), но ноты любой музыкант в мире прочитает одинаково.</div>
+    <div class="grid3" style="margin-top:12px">
+      <div class="box" style="border-color:var(--warn)"><h4>Бизнес-слой</h4><p class="bs"><b>Актор</b> — кто (Анна, отдел). <b>Роль</b> — в каком качестве. <b>Бизнес-процесс</b>, <b>функция</b>, <b>событие</b>. <b>Бизнес-сервис</b> — что бизнес даёт наружу. <b>Бизнес-объект</b> — понятие («Заказ»). <b>Продукт</b>.</p></div>
+      <div class="box" style="border-color:var(--nt)"><h4>Слой приложений</h4><p class="bs"><b>Компонент приложения</b> — программа, сервис. <b>Интерфейс</b> — API или экран. <b>Функция</b> и <b>процесс приложения</b>. <b>Сервис приложения</b> — что программа даёт наружу. <b>Объект данных</b> — запись, таблица.</p></div>
+      <div class="box" style="border-color:var(--ok)"><h4>Слой технологий</h4><p class="bs"><b>Узел</b> — сервер, кластер. <b>Устройство</b>. <b>Системное ПО</b> — СУБД, операционная система. <b>Технологический сервис</b> — хостинг, хранение. <b>Артефакт</b> — файл, образ контейнера. <b>Сеть связи</b>.</p></div>
+    </div>
+    <div class="note">Над тремя слоями есть ещё <b>стратегия</b> (возможность, поток ценности, ресурс) и <b>мотивация</b> (цель, драйвер, принцип, требование). Поэтому возможность из главы 6 и принцип из главы 11 рисуются на одной схеме с серверами — и связь «цель → требование → сервис → сервер» видна целиком.</div>
+    <h3>Связи: у каждой стрелки один смысл</h3>
+    <p>Нажмите на строку — раскроется пояснение.</p>
+    <div id="lyx-am-rel"></div>
+    <h3>Интерактив: прочитайте схему по шагам</h3>
+    <p>Один срез «Ботинка»: как процесс «Оформить заказ» держится на программах и технике. На каждом шаге подсвечена одна связь и объяснено, как её читать.</p>
+    <div class="lyx-am-wrap"><svg class="lyx-am-svg" id="lyx-am-svg" viewBox="0 0 900 600" role="img" aria-label="Схема ArchiMate: процесс оформления заказа, сервис заказов, кластер"></svg></div>
+    <div class="skbar">
+      <button class="ghost" id="lyx-am-prev">←</button>
+      <button class="act" id="lyx-am-next">Дальше →</button>
+      <button class="ghost" id="lyx-am-play">▶ Прочитать</button>
+      <button class="ghost" id="lyx-am-reset">⟲ Сначала</button>
+      <span class="skstep" id="lyx-am-lab"></span>
+    </div>
+    <div id="lyx-am-out"></div>
+    <div class="note">Цвета — традиция: бизнес — жёлтый, приложения — голубой, технологии — зелёный. Стандарт цвет не требует, но так рисует большинство инструментов, например бесплатный Archi.</div>
+    <div class="lyx-req"><b>Как это звучит в требованиях аналитика</b>
+      <div class="lyx-rq">В постановке — фрагмент схемы «Оформление заказа» и фраза: «Изменение затрагивает сервис приложения „Приём заказов“ и объект данных „Заказ“. Бизнес-процесс не меняется».</div>
+      Разработчик сразу видит границы задачи, а бизнес — что его процесс не трогают.
+    </div>
+    <div class="lyx-mis"><h4>Частые ошибки</h4><ul>
+      <li>Всё на одной схеме: 120 элементов, которые никто не прочитает. Рисуют отдельные виды (views) под вопрос: «что держит процесс», «где развёрнуто».</li>
+      <li>Путают сервис и компонент. Сервис — обещание («принимаем заказы»), компонент — программа, которая его выполняет.</li>
+      <li>Везде «просто линия» (ассоциация). Такая схема не отвечает ни на один вопрос.</li>
+    </ul></div>
+  </div>
+  <style>
+    /* Team Topologies */
+    .lyx-tg button.on::before{content:"✓ "}
+    .lyx-tt-bar{display:flex; flex-wrap:wrap; gap:6px 12px; align-items:center; margin-top:10px}
+    .lyx-tt-bar .seg{margin:0}
+    .lyx-tt-bar .lab{font:600 11px var(--mono); color:var(--faint); text-transform:uppercase}
+    .lyx-tt{display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:12px}
+    @media (max-width:760px){.lyx-tt{grid-template-columns:1fr}}
+    .lyx-tt-pan{border:1px solid var(--line); border-radius:12px; background:var(--surface); padding:10px}
+    .lyx-tt-pan h4{margin:0 0 8px; font:700 11px var(--mono); text-transform:uppercase; color:var(--faint); letter-spacing:.03em}
+    .lyx-tt-teams{display:flex; flex-wrap:wrap; gap:8px}
+    .lyx-tt-team{flex:1 1 130px; border:1.5px solid var(--line); border-radius:10px; padding:7px 9px; background:var(--surface-2); font-size:12.5px; color:var(--muted); transition:box-shadow .2s, border-color .2s}
+    .lyx-tt-team b{display:block; font-size:13px; color:var(--ink)}
+    .lyx-tt-team .k{font:600 10.5px var(--mono); text-transform:uppercase}
+    .lyx-tt-team.st{border-color:var(--nt)} .lyx-tt-team.pl{border-color:var(--ok)} .lyx-tt-team.cs{border-color:var(--dt)} .lyx-tt-team.en{border-color:var(--warn); border-style:dashed}
+    .lyx-tt-team.hot{border-color:var(--accent); box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 28%,transparent)}
+    .lyx-tt-tok{display:inline-block; margin-top:5px; font:700 11px var(--mono); padding:2px 8px; border-radius:10px; background:var(--accent); color:var(--surface)}
+    .lyx-tt-links{display:flex; flex-wrap:wrap; gap:5px; margin-top:9px}
+    .lyx-tt-links span{font:600 11px var(--mono); border:1px solid var(--line); border-radius:12px; padding:2px 8px; color:var(--muted); background:var(--surface-2)}
+    .lyx-tt-links span.bad{border-color:var(--danger); color:var(--danger)}
+    .lyx-tt-links span.good{border-color:var(--ok); color:var(--ok)}
+    .lyx-tt-a{display:flex; flex-direction:column; gap:6px}
+    .lyx-tt-row{display:flex; gap:6px; flex-wrap:wrap}
+    .lyx-tt-row > .lyx-tt-box{flex:1 1 90px}
+    .lyx-tt-box{border:1.5px solid var(--line); border-radius:8px; padding:6px 8px; font-size:12px; background:var(--surface-2); text-align:center; color:var(--ink)}
+    .lyx-tt-box small{display:block; font:500 10.5px var(--mono); color:var(--muted); margin-top:2px}
+    .lyx-tt-box.bad{border-color:var(--danger); background:var(--danger-bg)}
+    .lyx-tt-box.good{border-color:var(--ok)}
+    .lyx-tt-box.pl{border-color:var(--ok); background:color-mix(in srgb,var(--ok) 10%,var(--surface))}
+    .lyx-tt-box.cs{border-color:var(--dt); background:color-mix(in srgb,var(--dt) 10%,var(--surface))}
+    .lyx-tt-box.en{border-color:var(--warn); border-style:dashed}
+    .lyx-tt-kpi{display:grid; grid-template-columns:repeat(auto-fill,minmax(135px,1fr)); gap:8px; margin-top:12px}
+    .lyx-tt-k{border:1px solid var(--line); border-radius:10px; background:var(--surface-2); padding:8px 10px}
+    .lyx-tt-k .l{font:500 11.5px var(--sans); color:var(--muted)}
+    .lyx-tt-k .v{font:700 18px var(--mono); color:var(--ink)}
+    .lyx-tt-k.good .v{color:var(--ok)} .lyx-tt-k.bad .v{color:var(--danger)} .lyx-tt-k.wq .v{color:var(--warn)}
+    .lyx-gov5{display:grid; grid-template-columns:repeat(auto-fill,minmax(175px,1fr)); gap:10px; margin-top:12px}
+  </style>
+
+  <!-- ─── глава 9 ─── -->
+  <div class="card lyx-ch" id="lyx-ch9">
+    <h2><span class="tag">глава 9 · SEAF</span> одна карта вместо четырёх документов</h2>
     <p>Четыре слоя описывают четыре разных человека. В разное время и <b>каждый своими словами</b>:</p>
     <div class="table-wrap">
       <table class="db">
         <thead><tr><th>Кто</th><th>Что он написал у себя</th></tr></thead>
         <tbody>
-          <tr><td>бизнес</td><td>процесс «Выдача кредита»</td></tr>
-          <tr><td>аналитик</td><td>сущность «Заявка»</td></tr>
-          <tr><td>архитектор</td><td>сервис <code>loan-api</code></td></tr>
+          <tr><td>бизнес</td><td>процесс «Оформление заказа»</td></tr>
+          <tr><td>аналитик</td><td>сущность «Заказ»</td></tr>
+          <tr><td>архитектор</td><td>сервис <code>order-api</code></td></tr>
           <tr><td>инфраструктура</td><td>сервер <code>srv-prod-14</code></td></tr>
         </tbody>
       </table>
     </div>
-    <p>Четыре документа. Каждый сам по себе нормальный. Но <b>связать их между собой нельзя</b>: нигде не написано, что процесс выдачи кредита работает на сервисе <code>loan-api</code>, который хранит «Заявку» и живёт на <code>srv-prod-14</code>. Эта связь есть только в голове у пары старожилов.</p>
+    <p>Четыре документа. Каждый сам по себе нормальный. Но <b>связать их между собой нельзя</b>: нигде не написано, что процесс оформления заказа работает на сервисе <code>order-api</code>, который хранит «Заказ» и живёт на <code>srv-prod-14</code>. Эта связь есть только в голове у пары старожилов.</p>
     <p><b>Два случая, когда это выстреливает.</b> Выберите случай и посмотрите, что происходит.</p>
     <div class="seg" id="seaf-pick">
       <button class="on" data-c="night">🌙 Ночью упал сервер</button>
@@ -50,32 +448,269 @@
     </div>
     <div id="seaf-out"></div>
     <div class="note good"><b>Одной фразой.</b> SEAF — это общие правила описания: один словарь, один способ описывать и явно записанные связи между слоями. Он превращает четыре независимых документа в <b>одну карту</b>, по которой путь читается в обе стороны: от бизнес-цели вниз до сервера и от сервера вверх до бизнес-цели.</div>
-    <div class="note"><b>Честно про аббревиатуру.</b> SEAF — не общепринятый мировой термин. Эту роль обычно играют <a href="https://en.wikipedia.org/wiki/TOGAF" target="_blank" rel="noopener">TOGAF</a> вместе с языком описания <a href="https://pubs.opengroup.org/architecture/archimate3-doc/" target="_blank" rel="noopener">ArchiMate</a>; в научных статьях встречается <a href="https://www.researchgate.net/publication/376730029_Introducing_the_Sectoral_Enterprise_Architecture_Framework_SEAF" target="_blank" rel="noopener">Sectoral Enterprise Architecture Framework</a>. В крупных компаниях чаще заводят свой внутренний свод правил под своим названием. Если аббревиатура пришла из материалов конкретной компании — это почти наверняка их внутренний framework. Суть от названия не меняется.</div>
-  </div>
 
-  <div class="card">
-    <h2><span class="tag">частая путаница</span> слоёв четыре, а коробок на схеме шесть</h2>
+    <h3>Из чего состоит единый свод правил</h3>
+    <div class="grid2">
+      <div class="box"><h4>🧬 Метамодель</h4><p class="bs">Какие типы элементов бывают (возможность, процесс, приложение, сущность, узел) и какие связи между ними разрешены. Без неё один пишет «сервис», другой «система», третий «модуль» — про одно и то же.</p></div>
+      <div class="box"><h4>📖 Единый словарь</h4><p class="bs">«Заказ» значит одно и то же у бизнеса, аналитика и в базе. Если в разных частях компании слово значит разное, это записано явно.</p></div>
+      <div class="box"><h4>🗄 Репозиторий</h4><p class="bs">Одно место, где лежит модель. Часто — «архитектура как код»: описания в текстовых файлах рядом с кодом, из них автоматически рисуются схемы.</p></div>
+      <div class="box"><h4>🔑 Правила владения</h4><p class="bs">У каждого элемента есть хозяин. Изменилось в проде — изменилось в модели, и это проверяется, а не остаётся на совести.</p></div>
+    </div>
+    <div class="lyx-def"><b>Метамодель</b> (metamodel) — модель того, как устроена модель: список типов элементов и разрешённых связей между ними. Например: «приложение обслуживает процесс», «приложение хранит сущность», «приложение развёрнуто на узле».</div>
+    <div class="lyx-life">правила настольной игры. Фишки и поле у всех одинаковые, и ходить можно только по правилам. Без правил каждый двигает фишки как хочет, и партию невозможно ни продолжить, ни проверить.</div>
+    <h3>Пример артефакта: описание сервиса в репозитории</h3>
+    <p>Так может выглядеть описание сервиса заказов в формате «архитектура как код». Формат условный — у каждой компании свой, — но смысл один.</p>
+    <pre class="json" style="font-size:12.5px">id: order-api
+title: Сервис заказов
+type: application-component     # тип из метамодели
+owner: team-checkout            # команда-хозяин
+supports:                       # связь с бизнес-слоем
+  - process: checkout           # «Оформление заказа»
+  - process: return             # «Возврат товара»
+data:                           # связь со слоем данных
+  - entity: order               # «Заказ»
+    role: master                # главная запись — здесь
+  - entity: client              # «Клиент»
+    role: read-copy             # копия; мастер — CRM
+runs-on:                        # связь с технологиями
+  - node: k8s-prod
+  - node: db-01
+criticality: 1                  # по самой важной возможности</pre>
+    <div class="lgrid">
+      <b>id и type</b><div>Единый идентификатор и тип из метамодели. По id на сервис ссылаются все остальные описания — опечатка ловится при сборке.</div>
+      <b>owner</b><div>Хозяин. Ночью дежурный знает, кому звонить, а Олег — кого звать на ревью постановки.</div>
+      <b>supports</b><div>Связь вверх, с процессами. Отсюда строится анализ влияния из главы 5.</div>
+      <b>data + role</b><div>Какие сущности хранит и в какой роли — мастер или копия. Это прямой ответ на первый тупик Олега: «где правильный телефон».</div>
+      <b>runs-on</b><div>Связь вниз, с техникой. Упал db-01 — список затронутых сервисов строится запросом, а не по памяти.</div>
+      <b>criticality</b><div>Выводится из важности возможности. По ней назначают время восстановления и дежурства.</div>
+    </div>
+    <div class="note"><b>Честно про аббревиатуру.</b> SEAF — не общепринятый мировой термин. Эту роль обычно играют <a href="https://en.wikipedia.org/wiki/TOGAF" target="_blank" rel="noopener">TOGAF</a> вместе с языком описания <a href="https://pubs.opengroup.org/architecture/archimate3-doc/" target="_blank" rel="noopener">ArchiMate</a>; в научных статьях встречается <a href="https://www.researchgate.net/publication/376730029_Introducing_the_Sectoral_Enterprise_Architecture_Framework_SEAF" target="_blank" rel="noopener">Sectoral Enterprise Architecture Framework</a>. В крупных компаниях чаще заводят свой внутренний свод правил под своим названием. Если аббревиатура пришла из материалов конкретной компании — это почти наверняка их внутренний framework. Суть от названия не меняется.</div>
+
+    <h3>Частая путаница: слоёв четыре, а коробок на схеме шесть</h3>
     <p>Рядом с четырьмя слоями на схемах стоят ещё две коробки: <b>SEAF</b> и <b>управление требованиями</b>. Это <b>не слои</b>. Разница по клику.</p>
     <div id="lay-cross" class="numlist"></div>
+    <div class="lyx-req"><b>Как это звучит в требованиях</b>
+      <div class="lyx-rq">Новый сервис регистрируется в репозитории архитектуры до выхода в прод: хозяин, поддерживаемые процессы, хранимые данные с ролью (мастер или копия), где развёрнут. Без регистрации конвейер не выкатывает сервис в прод.</div>
+    </div>
+    <div class="lyx-mis"><h4>Частые ошибки</h4><ul>
+      <li>Модель ради модели: красиво нарисовали, но ни одно решение по ней не принимают — и её перестают обновлять.</li>
+      <li>Метамодель на 80 типов элементов. Люди путаются и пишут в свободном поле что попало.</li>
+      <li>Обновление модели — отдельная ручная работа «потом». «Потом» не наступает.</li>
+    </ul></div>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">проверочный список</span> на какие вопросы отвечает описание архитектуры</h2>
-    <p>Нет ответа — значит, решение ещё не принято, и его примет за вас случай. Нажмите на строку.</p>
+  <!-- ─── глава 10 ─── -->
+  <div class="card lyx-ch" id="lyx-ch10">
+    <h2><span class="tag">глава 10 · Конвей и Team Topologies</span> как устройство команд становится устройством системы</h2>
+    <p>В «Ботинке» решили: доставкой за 2 часа займутся «все понемногу». Через два месяца Кирилл замечает, что схема системы подозрительно похожа на схему отделов. Это не совпадение.</p>
+    <div class="lyx-def"><b>Закон Конвея</b> (1967): организации проектируют системы, которые копируют структуру общения внутри самой организации. Проще: <b>границы в программе пройдут там же, где границы между людьми</b>.</div>
+    <div class="lyx-life">три бригады строят один дом, и каждая отвечает за свой подъезд. Получится три подъезда с разной плиткой и стыками там, где бригады не договорились. Даже если на чертеже был один дом.</div>
+    <h3>Интерактив: выберите, как поделены люди</h3>
+    <p>Выберите оргструктуру и посмотрите, что из неё вырастет.</p>
+    <div class="seg" id="lay-conway-pick">
+      <button class="on" data-c="layers">Отделы по слоям</button>
+      <button data-c="flow">Команды по направлениям</button>
+      <button data-c="geo">Команды по офисам</button>
+    </div>
+    <div id="lay-conway"></div>
+    <div class="lyx-def"><b>Обратный манёвр Конвея</b> (inverse Conway maneuver) — сначала решить, какие границы нужны системе, а потом собрать команды так, чтобы их границы совпали с нужными. Закон нельзя отменить, но им можно пользоваться.</div>
+    <div class="lyx-life">хотите, чтобы в квартире была отдельная кухня, — ставите стену до того, как расставили мебель. Иначе кухня «растечётся» по гостиной, как бы вы её ни называли.</div>
+
+    <h3>Team Topologies: четыре типа команд и три способа общения</h3>
+    <div class="lyx-def"><b>Team Topologies</b> — подход к устройству команд из книги Мэттью Скелтона и Мануэля Паиса (2019). Главная идея: команда — это единица поставки, а устройство команд и их общения проектируют так же осознанно, как архитектуру, чтобы изменения текли быстро.</div>
+    <div class="lyx-def"><b>Когнитивная нагрузка команды</b> (cognitive load) — сколько всего команда должна держать в голове, чтобы делать свою работу: предметную область, технологии, инфраструктуру, чужие системы. Если нагрузка больше, чем помещается в 5–9 голов, команда ошибается и работает медленно.</div>
+    <div class="grid2" style="margin-top:12px">
+      <div class="box" style="border-color:var(--nt)"><h4>🌊 Потоковая команда</h4><p class="bs">(stream-aligned team) Отвечает за поток изменений одной части бизнеса «от идеи до продакшена»: сама проектирует, пишет, выкатывает и дежурит. Основной тип — таких команд большинство.</p><div class="lyx-life" style="font-size:12.5px">семейный ресторан, где одна бригада и готовит, и подаёт, и читает отзывы гостей.</div></div>
+      <div class="box" style="border-color:var(--ok)"><h4>🧱 Платформенная команда</h4><p class="bs">(platform team) Делает внутренний продукт для других команд — окружения, конвейер сборки, мониторинг, — чтобы потоковые команды брали всё это сами, без заявок и ожидания.</p><div class="lyx-life" style="font-size:12.5px">коммунальные службы. Чтобы включить свет, вы не зовёте электрика — просто нажимаете выключатель.</div></div>
+      <div class="box" style="border-color:var(--dt)"><h4>🧮 Команда сложной подсистемы</h4><p class="bs">(complicated-subsystem team) Держит часть, где нужны редкие знания: математику маршрутов, распознавание, движок цен. Остальные пользуются результатом, не вникая в формулы.</p><div class="lyx-life" style="font-size:12.5px">кондитер в ресторане. Торты требуют отдельного мастерства, и учить этому каждого повара нет смысла.</div></div>
+      <div class="box" style="border-color:var(--warn)"><h4>🧭 Команда-помощник</h4><p class="bs">(enabling team) Временно помогает другим освоить новое — наблюдаемость, тестирование — и уходит. Работу за них не делает.</p><div class="lyx-life" style="font-size:12.5px">инструктор в автошколе. Он сидит рядом, пока вы учитесь, а потом вы ездите сами.</div></div>
+    </div>
+    <div class="grid3" style="margin-top:12px">
+      <div class="box"><h4>🤝 Сотрудничество</h4><p class="bs">(collaboration) Две команды тесно работают вместе над новым, границы размыты. Хорошо на время поиска решения, дорого навсегда.</p></div>
+      <div class="box"><h4>🔌 Как услуга</h4><p class="bs">(X-as-a-Service) Одна команда даёт, другая пользуется по понятному контракту, почти без встреч. Обычный режим для платформы.</p></div>
+      <div class="box"><h4>🧭 Содействие</h4><p class="bs">(facilitating) Одна команда помогает другой научиться. Режим команды-помощника.</p></div>
+    </div>
+
+    <h3>Живая модель: меняете команды — меняется архитектура</h3>
+    <p>Выберите, как поделены люди, добавьте типы команд и режим общения. Модель сразу покажет, какая архитектура вырастет и во что обойдётся фича «доставка за 2 часа». Потом нажмите «▶ Провести фичу» и посмотрите, через какие команды она пройдёт.</p>
+    <div class="lyx-tt-bar"><span class="lab">люди</span>
+      <div class="seg" id="lyx-tt-org">
+        <button class="on" data-o="layers">По слоям</button>
+        <button data-o="geo">По офисам</button>
+        <button data-o="stream">По потокам ценности</button>
+      </div>
+    </div>
+    <div class="lyx-tt-bar"><span class="lab">добавить</span>
+      <div class="seg lyx-tg" id="lyx-tt-tg">
+        <button data-t="pl">🧱 Платформа</button>
+        <button data-t="cs">🧮 Команда маршрутов</button>
+        <button data-t="en">🧭 Команда-помощник</button>
+      </div>
+    </div>
+    <div class="lyx-tt-bar"><span class="lab">Доставка ↔ Платформа</span>
+      <div class="seg" id="lyx-tt-mode">
+        <button data-x="collab">🤝 Сотрудничество</button>
+        <button class="on" data-x="xaas">🔌 Как услуга</button>
+      </div>
+    </div>
+    <div class="form-row">
+      <button class="act" id="lyx-tt-run">▶ Провести фичу «доставка за 2 часа»</button>
+      <button class="ghost" id="lyx-tt-reset">⟲ Сначала</button>
+    </div>
+    <div class="lyx-tt-kpi" id="lyx-tt-kpi"></div>
+    <div class="lyx-tt">
+      <div class="lyx-tt-pan"><h4>Команды и как они общаются</h4><div id="lyx-tt-teams"></div></div>
+      <div class="lyx-tt-pan"><h4>Архитектура, которая вырастет</h4><div id="lyx-tt-arch"></div></div>
+    </div>
+    <div class="lyx-log" id="lyx-tt-log"></div>
+    <div class="console" id="lyx-tt-msg"></div>
+    <div class="note"><b>Что заложено в модель.</b> Фича требует: выбор слота в корзине, сервис слотов со своей базой, расчёт времени в пути для курьеров и выкатку нового сервиса с мониторингом. Каждая передача работы между командами — это очередь и ожидание. Числа условные, но соотношения типичные.</div>
+    <div class="note warn"><b>Что вы увидите и почему.</b> «По слоям» фича режет все четыре отдела и ждёт в четырёх очередях. «По потокам» её делает одна команда — но без платформы эта команда тонет в инфраструктуре, а без команды маршрутов — в математике: нагрузка «перегруз». Режим «сотрудничество» с платформой полезен на месяц, пока шаблон сервиса ещё не готов, но навсегда он съедает время обеих команд. Лучший результат — когда у потоковой команды остаётся только её предмет, а всё остальное она берёт как услугу.</div>
+    <div class="lyx-req"><b>Как это звучит в требованиях аналитика</b>
+      <div class="lyx-rq">Владелец сервиса слотов — команда «Доставка». Расчёт времени в пути предоставляет команда «Маршруты» через API /eta по своему контракту (ответ до 200 мс). Изменения контракта — через заявку, срок реакции — 3 рабочих дня.</div>
+    </div>
+    <div class="lyx-mis"><h4>Частые ошибки</h4><ul>
+      <li>Переименовать отделы в «потоковые команды», ничего не поменяв в том, кто за что отвечает.</li>
+      <li>Платформа превращается в ещё один отдел с очередью заявок вместо самообслуживания.</li>
+      <li>Вечное «сотрудничество» вместо контракта: две команды годами синхронизируются на встречах.</li>
+      <li>Команда-помощник делает работу за других — и остаётся навсегда.</li>
+    </ul></div>
+  </div>
+
+  <!-- ─── глава 11 ─── -->
+  <div class="card lyx-ch" id="lyx-ch11">
+    <h2><span class="tag">глава 11 · управление</span> архитектурное управление: как 14 команд не растаскивают систему в разные стороны</h2>
+    <p>В «Ботинке» 14 команд. Каждая за месяц принимает десятки технических решений. Если никто не следит, через год в компании пять видов баз данных, три брокера и четыре способа логировать, а дежурный ночью не знает ни одного из них целиком. Борис из команды доставки как раз хочет взять для слотов MongoDB.</p>
+    <div class="lyx-def"><b>Архитектурное управление</b> (architecture governance) — правила и процедуры, по которым в компании принимают, проверяют и записывают архитектурные решения. Цель — чтобы сотни решений разных команд складывались в одну систему, а не в зоопарк.</div>
+    <div class="lyx-life">правила дорожного движения. Есть правила (ПДД), стандарты на автомобили, экзамен и техосмотр, реестр номеров. Без них каждый ездит, как удобно ему, — пока все не встретятся на одном перекрёстке.</div>
+    <div class="lyx-gov5">
+      <div class="box"><h4>📜 Принципы</h4><p class="bs">Короткие правила, по которым принимают решения: «данные — актив, у каждой сущности один хозяин».</p></div>
+      <div class="box"><h4>📐 Стандарты и каталог</h4><p class="bs">Какие технологии разрешены. Часто в виде техрадара с кольцами «Использовать», «Пробовать», «Оценивать», «Не брать» (Adopt, Trial, Assess, Hold).</p></div>
+      <div class="box"><h4>🏛 Архитектурный комитет</h4><p class="bs">(Architecture Board) Группа архитекторов и техлидов, которая принимает решения, выходящие за одну команду, и выдаёт исключения из стандартов.</p></div>
+      <div class="box"><h4>🔍 Архитектурное ревью</h4><p class="bs">Проверка решения до реализации: соответствует ли принципам, отвечает ли на ключевые вопросы, какие риски.</p></div>
+      <div class="box"><h4>🗂 Реестр решений</h4><p class="bs">Журнал принятых решений (ADR): что решили, почему, что отвергли и когда пересмотреть.</p></div>
+    </div>
+    <div class="lyx-def"><b>Архитектурный принцип</b> — правило, которое помогает выбирать между вариантами. В TOGAF у принципа четыре части: название, формулировка, обоснование и следствия.</div>
+    <div class="lyx-def"><b>Исключение</b> (в TOGAF — dispensation) — разрешение отступить от стандарта в конкретном случае, со сроком и владельцем. Исключение — нормальная часть процесса, а не поражение: без него стандарты превращаются в запреты, которые обходят.</div>
+    <h3>Артефакт 1: принцип</h3>
+    <pre class="json" style="font-size:12.5px">П-5. Сначала стандартные технологии
+
+Формулировка:  Новые системы строим на технологиях из каталога
+               со статусом «Использовать». Остальное — только
+               через исключение, одобренное архитектурным комитетом.
+Обоснование:   Каждую технологию надо уметь обновлять, бэкапить
+               и чинить ночью. Пять разных баз — пять наборов
+               знаний у дежурных.
+Следствия:     • каталог технологий пересматриваем раз в квартал;
+               • у каждого исключения есть срок и владелец;
+               • обучение новой технологии — до внедрения, не после.</pre>
+    <div class="note good"><b>Главное в принципе — следствия.</b> Принцип без следствий («мы за качество») — лозунг: по нему нельзя ни принять, ни отклонить ни одно решение. Проверка простая: если с принципом никто не может не согласиться, он ничего не решает.</div>
+    <h3>Артефакт 2: запись в реестре решений</h3>
+    <pre class="json" style="font-size:12.5px">ADR-0042. Хранение слотов доставки
+Статус:       принято, 14.09.2026
+Контекст:     Слоты — расписание на 14 дней по 120 зонам Москвы,
+              до 300 резервирований в секунду в пик.
+              Команда предлагала MongoDB (заявка АР-117).
+Варианты:     1) PostgreSQL, расписание в поле JSONB
+              2) MongoDB
+Решение:      вариант 1.
+Обоснование:  укладывается в нагрузку; принцип П-5;
+              бэкапы и дежурства уже настроены.
+Последствия:  + в проде не появляется новая технология
+              − структуру расписания сложнее менять
+Пересмотр:    если слотов станет больше 50 млн.</pre>
+    <div class="note"><b>ADR</b> (Architecture Decision Record) — короткая запись о решении: контекст, варианты, выбор и его цена. Ценнее всего через год, когда новый разработчик спросит «почему не MongoDB?». Подробнее — в разделе «Документирование архитектуры». <button class="ghost" data-goto="docs">К документированию</button></div>
+
+    <h3>Интерактив: путь одного решения</h3>
+    <p>Два сценария одной истории. Пройдите оба до конца: по правилам и в обход.</p>
+    <div class="seg" id="lyx-gov-sc">
+      <button class="on" data-s="ok">✅ По правилам</button>
+      <button data-s="bad">⚠ В обход: «потом согласуем»</button>
+    </div>
+    <div class="skbar">
+      <button class="ghost" id="lyx-gov-prev">←</button>
+      <button class="act" id="lyx-gov-next">Дальше →</button>
+      <span class="skstep" id="lyx-gov-lab"></span>
+    </div>
+    <div id="lyx-gov-out"></div>
+
+    <h3>Проверочный список ревью: на какие вопросы отвечает описание архитектуры</h3>
+    <p>С этим списком архитектурный комитет смотрит на любое крупное решение. Нет ответа — значит, решение ещё не принято, и его примет за вас случай. Нажмите на строку.</p>
     <div id="lay-q"></div>
+    <div class="lyx-req"><b>Как это звучит в требованиях</b>
+      <div class="lyx-rq">Хранение слотов — по решению ADR-0042 (PostgreSQL). Отклонение от стандарта технологий возможно только через исключение архитектурного комитета, с датой пересмотра.</div>
+      <div class="lyx-rq">Регламент: заявка на архитектурное ревью рассматривается не дольше 5 рабочих дней. Решения внутри одной команды, не нарушающие принципов, команда принимает сама и только записывает в реестр.</div>
+    </div>
+    <div class="lyx-mis"><h4>Частые ошибки</h4><ul>
+      <li>Комитет как бутылочное горлышко: ревью длится шесть недель — и все начинают его обходить.</li>
+      <li>Принципы-лозунги без следствий.</li>
+      <li>Реестр решений, который никто не читает, потому что его не найти.</li>
+      <li>Ревью после релиза, когда менять уже поздно и дорого.</li>
+    </ul></div>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">тренажёр</span> отнесите решение к слою</h2>
-    <p>Двенадцать решений из жизни проекта. Ошибётесь — прочитаете разбор, это и есть смысл.</p>
-    <p style="color:var(--muted);font-size:13.5px">Разложено <b id="lay-score">0</b> из <span id="lay-total">0</span>.</p>
-    <div id="lay-sort"></div>
+  <!-- ─── глава 12 ─── -->
+  <div class="card lyx-ch" id="lyx-ch12">
+    <h2><span class="tag">глава 12 · место аналитика</span> где на этой карте системный аналитик и что он производит</h2>
+    <p>Вернёмся к Олегу. Он не рисует карту возможностей и не выбирает серверы. Его дом — <b>слои приложений и данных</b>. Одной ногой он стоит в бизнесе: переводит процессы и правила в требования к системе. Технологий он касается через нефункциональные требования: называет числа, а не выбирает железо. И он держит нитки трассировки, которые связывают требование с целью наверху и с сервисом внизу.</p>
+    <div class="lyx-life">переводчик на переговорах. Он не решает, о чём договариваться, и не подписывает контракт. Но если он перевёл неточно, стороны подпишут разное, и каждая будет права.</div>
+    <h3>Интерактив: артефакты аналитика по слоям</h3>
+    <div class="seg" id="lyx-sa-pick"></div>
+    <div id="lyx-sa-out"></div>
+    <div class="lyx-def"><b>Матрица трассировки требований</b> (requirements traceability matrix) — таблица, в которой у каждого требования записано, откуда оно (цель, возможность, процесс) и куда ушло (сервис, API, тест). По ней видно, что каждое требование кому-то нужно и каждое проверено.</div>
+    <div class="lyx-life">квитанции к покупкам. По каждой видно, за что заплатили и где это лежит. Без них в конце месяца деньги кончились, а на что — непонятно.</div>
+    <h3>Пример: цепочка от цели компании до сервера</h3>
+    <pre class="json" style="font-size:12.5px">Цель компании   30 % заказов по Москве — с доставкой в день заказа к концу 2027
+ └ Возможность  3.2 «Доставка заказов»                         (карта возможностей)
+   └ Процесс    «Оформить экспресс-доставку», шаг 4             (BPMN)
+     └ ФТ-31    покупатель выбирает двухчасовой слот в корзине (постановка Олега)
+       └ API    POST /delivery-slots/{id}/reservations          (спецификация OpenAPI)
+         └ Данные «Слот доставки», «Резерв слота»               (логическая модель)
+           └ Узлы k8s-prod, db-01                               (схема развёртывания)</pre>
+    <div class="table-wrap">
+      <table class="db">
+        <thead><tr><th>Требование</th><th>Возможность</th><th>Процесс, шаг</th><th>Сервис / API</th><th>Проверка</th></tr></thead>
+        <tbody>
+          <tr><td>ФТ-31 выбор слота в корзине</td><td>3.2</td><td>Оформить экспресс-доставку, 4</td><td>delivery: POST …/reservations</td><td>ТК-88, ТК-89</td></tr>
+          <tr><td>ФТ-32 резерв держится 15 минут</td><td>3.2</td><td>тот же, 5</td><td>delivery: снятие просроченных резервов</td><td>ТК-90</td></tr>
+          <tr><td>ФТ-33 Анна видит «курьер выехал»</td><td>3.2</td><td>Доставить курьером, 2</td><td>notify: событие «Заказ передан курьеру»</td><td>ТК-91</td></tr>
+          <tr><td>НФТ-3 ответ ≤ 300 мс у 95 % при 300 запросах/с</td><td>3.2</td><td>—</td><td>delivery</td><td>нагрузочный тест НТ-4</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <h3>Как это звучит: плохо и хорошо</h3>
+    <div class="grid2">
+      <div><div class="lyx-rq bad">«Система должна быстро показывать слоты».</div><div class="lyx-rq">«Список слотов на 2 дня для одной зоны отдаётся не дольше 300 мс у 95 % запросов при нагрузке 300 запросов в секунду».</div></div>
+      <div><div class="lyx-rq bad">«Интеграция со складом».</div><div class="lyx-rq">«Сервис доставки получает событие „Заказ собран“ через брокер. При недоступности брокера события не теряются; задержка передачи — не больше 5 минут».</div></div>
+      <div><div class="lyx-rq bad">«Хранить телефон клиента».</div><div class="lyx-rq">«Мастер-система телефона — CRM. Остальные системы хранят копию только для чтения и обновляют её по событию „Телефон клиента изменён“ не позже чем через 1 минуту».</div></div>
+      <div><div class="lyx-rq bad">«Использовать Kafka».</div><div class="lyx-rq">«События о заказе доставляются получателю хотя бы один раз, даже если получатель был недоступен до 24 часов». Выбор брокера — решение архитектора.</div></div>
+    </div>
+    <h3>Эпилог: задача про телефон, решённая за день</h3>
+    <p>Через полгода Олегу снова приходит похожая задача. Теперь у «Ботинка» есть карта.</p>
+    <div class="steps">
+      <div class="step done"><b>10:00.</b> Открывает репозиторий: мастер-система телефона — CRM, хозяин — команда «Клиенты».</div>
+      <div class="step done"><b>10:15.</b> Анализ влияния по связям: телефон используют вход по СМС, рассылки и поддержка. Хозяева всех трёх позваны на ревью.</div>
+      <div class="step done"><b>10:30.</b> Бизнес-правило БП-7 уже записано: менять номер только с кодом на старый номер.</div>
+      <div class="step done"><b>11:00.</b> В стандартах есть формат E.164 и ограничение шлюза по длине полей.</div>
+      <div class="step done"><b>18:00.</b> Постановка готова. Три дня превратились в один не потому, что Олег стал быстрее печатать. Хозяева вопросов теперь записаны.</div>
+    </div>
+    <div class="lyx-mis"><h4>Частые ошибки аналитика</h4><ul>
+      <li>Требование без ссылки на цель: через полгода никто не помнит, зачем это поле.</li>
+      <li>Описан только свой сервис, а стык с соседом ничей.</li>
+      <li>НФТ-пожелания: «быстро», «надёжно» — без чисел и способа проверки.</li>
+      <li>Решать за архитектора: «использовать Kafka» вместо свойства, которое нужно бизнесу.</li>
+    </ul></div>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">проверка</span> пять вопросов</h2>
+  <!-- ─── глава 13 ─── -->
+  <div class="card lyx-ch" id="lyx-ch13">
+    <h2><span class="tag">глава 13 · проверь себя</span> от слоёв до команд</h2>
+    <h3>Часть 1. Основы</h3>
     <p style="color:var(--muted);font-size:13.5px">Решено <b id="lay-qscore">0</b> из <span id="lay-qtotal">0</span>.</p>
     <div id="lay-tasks"></div>
+    <h3>Часть 2. Роли, карты, TOGAF, команды и управление</h3>
+    <p style="color:var(--muted);font-size:13.5px">Решено <b id="lyx-q-score">0</b> из <span id="lyx-q-total">0</span>.</p>
+    <div id="lyx-q-tasks"></div>
   </div>
 
   <div class="nextbar">
@@ -85,50 +720,170 @@
 </section>
 
 <script>
-/* ═══ 0.1 Четыре тупика ═══ */
+/* ═══ карта раздела, переходы к главам, «зачем это» ═══ */
+(function(){
+  const root = document.getElementById('layers'); if(!root) return;
+  root.addEventListener('click', e => {
+    const b = e.target.closest('[data-lyx-to]'); if(!b) return;
+    const t = document.getElementById(b.dataset.lyxTo);
+    if(t && t.scrollIntoView) t.scrollIntoView({behavior:'smooth', block:'start'});
+  });
+  renderWhy('why-layers', {
+    task:'Понять, <b>как устроена компания вокруг вашей системы</b>: зачем она существует, какие процессы поддерживает, какие данные хранит, на чём работает — и кто за какой кусок отвечает.',
+    life:'Прежде чем сверлить стену в квартире, смотрят план дома: где проходит проводка, где стояк и чья это стена — ваша или соседа.',
+    no:['Простая задача превращается в неделю поиска: кто решает, чья запись главная, кого ещё заденет.',
+        'Каждая команда улучшает свой кусок, а компания получает пять баз, три брокера и дубли систем.',
+        'Ночью падает сервер, и полчаса уходит на выяснение, что на нём было, а не на починку.',
+        'Бюджет получает тот, кто громче просит, а не то, что важнее для стратегии.'],
+    yes:['Любой вопрос относится к слою, а у слоя есть хозяин — понятно, к кому идти.',
+         'Связи «цель → процесс → приложение → данные → сервер» записаны: анализ влияния занимает минуты.',
+         'Решения разных команд складываются в одну систему благодаря принципам, стандартам и реестру решений.',
+         'Аналитик пишет требования со ссылкой на цель — их легко защищать и легко резать при нехватке бюджета.'],
+    fix:[['скорость', 'Меньше времени на поиск хозяев и согласования, больше — на саму работу.'],
+         ['надёжность', 'Единые точки отказа видны на карте заранее, а не во время аварии.'],
+         ['деньги', 'Вложения идут в возможности, важные для стратегии, а дубли систем видны и сокращаются.']],
+    cost:'Карту надо вести: у каждого элемента хозяин, изменения в проде отражаются в модели. А медленное архитектурное управление тормозит команды.',
+    skip:'Стартап из пяти человек с одним продуктом: вся карта помещается в голове и на одной доске. Но уже при трёх командах без неё начинаются дубли и ничьи стыки.'
+  });
+})();
+
+/* ═══ глава 1: четыре тупика ═══ */
 (function(){
   renderNum('lay-dead', [
-    {t:'А где вообще лежит этот номер?', d:'Оказывается, в трёх местах: в личном кабинете, в базе банка и в системе рассылок. И они не всегда совпадают. <b>Какое из трёх правильное?</b> В коде ответа нет — это вопрос о том, кто владеет записью. Слой данных.'},
-    {t:'Кто ещё сломается, если я поменяю?', d:'Номером пользуются рассылки, вход по СМС и служба поддержки. Вы про них не знали, а они про вас — тем более. <b>Кто от кого зависит</b> — это описание связей между приложениями. Прикладной слой.'},
+    {t:'А где вообще лежит этот номер?', d:'Оказывается, в трёх местах: в личном кабинете сайта, в CRM и в сервисе рассылок. И они не всегда совпадают. <b>Какое из трёх правильное?</b> В коде ответа нет — это вопрос о том, кто владеет записью. Слой данных.'},
+    {t:'Кто ещё сломается, если я поменяю?', d:'Номером пользуются рассылки о статусе заказа, вход по СМС и служба поддержки. Вы про них не знали, а они про вас — тем более. <b>Кто от кого зависит</b> — это описание связей между приложениями. Прикладной слой.'},
     {t:'А менять-то вообще можно?', d:'Выясняется, что номер — способ входа, и по правилам безопасности менять его без подтверждения нельзя. Это не техническое ограничение, это <b>правило бизнеса</b>. Бизнес-слой.'},
     {t:'Почему на тестовом стенде работает, а в бою нет?', d:'Потому что в бою запрос идёт через ещё один шлюз, который режет длинные поля. <b>На чём всё работает</b> — технологический слой.'},
   ]);
 })();
 
-/* ═══ 0.2 Стопка слоёв ═══ */
+/* ═══ глава 2: три масштаба ═══ */
+(function(){
+  if(!document.getElementById('lyx-zm-pick')) return;
+  const Z = [
+    {n:'🏙 Предприятие', q:'Правильные ли вещи делает компания и в каком порядке?', hz:'3–5 лет', who:'архитектор предприятия (Вера) вместе с руководством',
+     inp:'стратегия компании, цели, бюджет, текущий ландшафт из 60 систем',
+     out:'карта возможностей, описание «как есть» и «как будет» по всем слоям, дорожная карта, принципы и стандарты',
+     ex:'«Для доставки за 2 часа нужна возможность „Управление курьерами“, которой у нас нет. Строим свою или берём партнёра? Старый сервис доставки не развиваем, а выводим к 2028 году».',
+     err:'Спуститься в детали одного проекта и перестать видеть компанию целиком.'},
+    {n:'🏘 Решение', q:'Как решить эту задачу бизнеса нашими и новыми системами?', hz:'проект: 3–18 месяцев', who:'архитектор решения (Кирилл)',
+     inp:'бизнес-требования от Марины, целевая картина и принципы от Веры',
+     out:'архитектура решения: какие системы меняем, новые интеграции, варианты и выбор, риски, оценка',
+     ex:'«Сайт показывает слоты из сервиса доставки. Склад передаёт заказ событием. Курьеров берём у партнёра через его API. Старый сервис доставки не трогаем, обходим».',
+     err:'Спроектировать решение наперекор целевой картине: завести ещё одну систему доставки, когда компания их сокращает.'},
+    {n:'🏠 Система', q:'Как устроить одну программу изнутри, чтобы она работала и менялась?', hz:'жизнь системы; главные решения — на годы', who:'системный архитектор или техлид, вместе с разработчиками и аналитиком',
+     inp:'архитектура решения, требования Олега (функциональные и нефункциональные)',
+     out:'модули и границы, модель данных, схемы компонентов, решения по надёжности и масштабу',
+     ex:'«Слот резервируем атомарно в базе, чтобы не продать его двоим. Пик в 18:00 — 300 запросов в секунду. Если API партнёра не отвечает, показываем обычную доставку».',
+     err:'Идеальная система, которая решает не ту задачу или дублирует соседнюю.'},
+  ];
+  dbSegment('lyx-zm', Z, (z, i) =>
+    '<div class="lyx-nest" style="margin-top:10px"><div class="' + (i === 0 ? 'on' : '') + '"><b>🏙 Предприятие «Ботинок»</b> — 60 систем, 14 команд, 5 областей возможностей' +
+      '<div class="' + (i === 1 ? 'on' : '') + '"><b>🏘 Решение «Доставка за 2 часа»</b> — сайт, сервис доставки, склад, партнёр-курьер' +
+        '<div class="' + (i === 2 ? 'on' : '') + '"><b>🏠 Система «Сервис слотов»</b> — модули, база, API</div>' +
+      '</div></div></div>' +
+    '<div class="lout" style="margin-top:10px"><h4>' + z.n + ': ' + z.q + '</h4><div class="lgrid">' +
+      '<b>горизонт</b><div>' + z.hz + '</div>' +
+      '<b>кто</b><div>' + z.who + '</div>' +
+      '<b>на входе</b><div>' + z.inp + '</div>' +
+      '<b>на выходе</b><div>' + z.out + '</div>' +
+      '<b>в «Ботинке»</b><div>' + z.ex + '</div>' +
+      '<b>типичная ошибка</b><div>' + z.err + '</div>' +
+    '</div></div>');
+})();
+
+/* ═══ глава 3: роли ═══ */
+(function(){
+  if(!document.getElementById('lyx-roles')) return;
+  renderCmp('lyx-roles-cmp', ['Роль', 'Главный вопрос', 'Горизонт', 'В «Ботинке»'], [
+    {cells:['<b>Архитектор предприятия</b><br><small>enterprise architect</small>', 'Правильные ли вещи делает компания в целом?', '3–5 лет', 'Вера'],
+     why:'<b>Производит:</b> карту возможностей, описание «как есть» и «как будет» по всем слоям, дорожную карту, принципы и стандарты, реестр приложений. <b>Решает:</b> какие возможности развивать, какие системы выводить, где дубли. <b>Не делает:</b> проект одной системы. <b>Типичный спор:</b> с продуктом, который хочет «свою систему, и быстро», когда в компании уже есть похожая.'},
+    {cells:['<b>Архитектор решения</b><br><small>solution architect</small>', 'Как решить эту задачу бизнеса в нашем ландшафте?', 'проект: 3–18 мес.', 'Кирилл'],
+     why:'<b>Производит:</b> архитектуру решения (её часто называют концепцией или HLD — high-level design, верхнеуровневый проект): какие системы меняем, новые интеграции, варианты с оценкой, риски, записи о решениях (ADR). <b>Решает:</b> как вписать задачу в существующие системы. <b>Не делает:</b> поля API и классы. <b>Типичный спор:</b> с командами — о сроках, с Верой — о стандартах.'},
+    {cells:['<b>Системный архитектор</b><br><small>software architect, часто техлид</small>', 'Как устроить эту систему внутри, чтобы она жила долго?', 'жизнь системы', 'техлид команды «Доставка»'],
+     why:'<b>Производит:</b> схемы контейнеров и компонентов (нотация C4), границы модулей, выбор шаблонов, решения по надёжности, масштабу и данным внутри системы. <b>Решает:</b> как система выдержит нагрузку и сбои. <b>Не делает:</b> выбор, нужна ли компании эта система. <b>Типичный спор:</b> с аналитиком — что требование дорогое или невыполнимое в срок.'},
+    {cells:['<b>Системный аналитик</b><br><small>system analyst</small>', 'Что именно должна делать система и как она общается с соседями?', 'фича, релиз', 'Олег'],
+     why:'<b>Производит:</b> функциональные и нефункциональные требования, сценарии использования, логическую модель данных, спецификации API и событий, диаграммы последовательности, маппинг полей. <b>Решает:</b> поведение системы с точностью до поля и кода ошибки. <b>Не делает:</b> выбор технологий и серверов. <b>Типичный спор:</b> с разработчиками — «а что будет, если…». Это хороший спор.'},
+    {cells:['<b>Бизнес-аналитик</b><br><small>business analyst</small>', 'Какая проблема у бизнеса и что поменять в процессе?', 'инициатива', 'Марина'],
+     why:'<b>Производит:</b> бизнес-требования (BRD — business requirements document), модели процессов «как есть» и «как будет», метрики успеха, анализ заинтересованных сторон. <b>Решает:</b> что нужно бизнесу и как понять, что получилось. <b>Не делает:</b> описание API и таблиц. <b>Типичный спор:</b> с заказчиком — «вам нужна кнопка или чтобы клиенты не уходили?»'},
+  ]);
+  const B = [
+    {id:'ea', n:'Архитектор предприятия'}, {id:'sol', n:'Архитектор решения'}, {id:'sys', n:'Системный архитектор'},
+    {id:'sa', n:'Системный аналитик'}, {id:'ba', n:'Бизнес-аналитик'},
+  ];
+  const ITEMS = [
+    {t:'Решить, развивать ли свой курьерский парк или работать с партнёрами ближайшие три года', s:'стратегический выбор', bucket:'ea',
+     why:'Решение на годы, оно меняет возможности, оргструктуру и системы всей компании. Это масштаб предприятия; вариант готовят для руководства.'},
+    {t:'Привязать все 60 систем «Ботинка» к карте возможностей и найти дубли', s:'ландшафт целиком', bucket:'ea',
+     why:'Весь ландшафт — работа архитектора предприятия. Три системы на одну возможность видно только с этой высоты.'},
+    {t:'Спроектировать, как доставка за 2 часа встанет в текущие системы: что доработать, какие интеграции добавить', s:'одна инициатива, несколько систем', bucket:'sol',
+     why:'Одна инициатива и несколько систем — ровно зона архитектора решения. Он опирается на целевую картину Веры и передаёт детали командам.'},
+    {t:'Сравнить два способа интеграции с курьерской службой и записать выбор в реестр решений', s:'выбор на стыке систем', bucket:'sol',
+     why:'Выбор между вариантами на стыке систем и его запись (ADR) — типичная работа архитектора решения.'},
+    {t:'Разбить сервис доставки на модули и решить, как устроена очередь задач внутри', s:'внутреннее устройство', bucket:'sys',
+     why:'Внутреннее устройство одной системы — масштаб системного архитектора или техлида команды.'},
+    {t:'Решить, как сервис слотов переживёт отказ своей базы и как будет масштабироваться в пик', s:'надёжность и масштаб', bucket:'sys',
+     why:'Надёжность и масштаб одной системы — системный архитектор. Аналитик приносит числа (НФТ), архитектор решает, как их достичь.'},
+    {t:'Описать API «зарезервировать слот»: поля, коды ошибок, примеры запросов', s:'поведение системы', bucket:'sa',
+     why:'Поведение системы с точностью до поля — главный артефакт системного аналитика. Архитектор решения этого не опишет, и это не его работа.'},
+    {t:'Описать сущности «Слот» и «Резерв», их атрибуты и переходы статусов', s:'модель данных', bucket:'sa',
+     why:'Логическая модель данных — зона системного аналитика. Физическую схему таблиц потом делает разработчик.'},
+    {t:'Выяснить у директора по логистике, зачем бизнесу именно 2 часа и как измерить успех', s:'проблема и цель', bucket:'ba',
+     why:'Проблема, цель и метрика успеха — бизнес-аналитик. Без этого все остальные строят «что-то про доставку».'},
+    {t:'Смоделировать, как сейчас собирают заказ на складе, и найти, где теряется время', s:'процесс «как есть»', bucket:'ba',
+     why:'Процесс «как есть» и поиск потерь — бизнес-анализ. Системный аналитик подключится, когда станет ясно, что менять в системе.'},
+  ];
+  renderSort('lyx-roles', ITEMS, B, 'lyx-roles-score', 'lyx-roles-total');
+  Progress.register('lyx-roles-score', ITEMS.length, 'Слои: чья это задача');
+})();
+
+/* ═══ глава 4: стопка слоёв ═══ */
 (function(){
   const L = [
     {id:'biz', n:'Бизнес-архитектура', en:'Business',
      q:'Что компания делает и как устроена',
      live:'Здесь решают, чем компания занимается, как устроена и какие у неё главные процессы. Проще: <b>зачем</b> мы всё это делаем и кто с кем работает.',
+     els:'бизнес-возможности, потоки ценности, бизнес-процессы, оргструктура и роли, продукты и услуги, бизнес-правила, цели и показатели',
      who:'Владелец продукта, руководитель направления',
      life:'В кафе: «мы про быстрый кофе с собой или про ужины с официантом?» Ответ меняет всё — от меню до планировки зала.',
      it:'«Менять номер телефона можно только с подтверждением по старому номеру» — это правило бизнеса, а не техники.',
+     ex:'возможность «Доставка заказов»; процесс «Возврат товара» из пяти шагов; отдел логистики; продукт «Экспресс-доставка за 299 ₽»',
+     art:'карта возможностей, модели процессов (BPMN), оргструктура, каталог продуктов, реестр бизнес-правил',
      bad:'Построили то, что было удобно строить, а не то, что было нужно. Выясняется это на приёмке.'},
     {id:'dat', n:'Информационная архитектура', en:'Data',
      q:'О чём вообще данные и кто ими владеет',
      live:'Здесь решают, как устроены данные и кто ими распоряжается. Проще: <b>о чём</b> мы храним записи и чья запись главная.',
+     els:'бизнес-сущности (клиент, заказ, товар) и связи между ними, мастер-системы (где главная запись), классы данных (персональные, платёжные), правила качества и хранения',
      who:'Архитектор данных, системный аналитик',
      life:'В кафе: «где лежит рецептура и кто имеет право её менять?» Если у каждой точки своя — сеть перестаёт быть сетью.',
      it:'«Главная запись о клиенте — в CRM, остальные держат копию для чтения». Переживёт и смену CRM, и переезд на микросервисы.',
+     ex:'«Клиент» — мастер в CRM; телефон Анны — персональные данные по закону № 152-ФЗ; «Заказ» живёт в сервисе заказов, склад держит копию',
+     art:'концептуальная и логическая модель данных, реестр мастер-данных, матрица «данные × системы» (кто создаёт, читает, меняет, удаляет), классификация данных',
      bad:'У записи нет хозяина. Две системы правят одно и то же, данные тихо расходятся. Замечают это через месяц, по отчётам.'},
     {id:'app', n:'Прикладная архитектура', en:'Application',
      q:'Какие программы есть и как они связаны',
      live:'Здесь решают, какие программы есть, как они связаны друг с другом и с процессами. Проще: <b>чем</b> мы это делаем.',
+     els:'приложения и сервисы, их функции, интеграции между ними, интерфейсы для людей и программ (API)',
      who:'Архитектор решения, разработчик',
      life:'В кафе: «какой программой принимаем заказы и как она связана со складом?»',
      it:'«Расчёт вознаграждения выносим в отдельный сервис со своей базой» — граница между частями системы. Почти весь остальной тренажёр про этот слой.',
+     ex:'сайт, сервис заказов, сервис платежей, складская система, CRM; заказы уходят на склад событием через брокер',
+     art:'реестр приложений (60 систем «Ботинка» с хозяевами), схема интеграций, диаграммы C4, спецификации API',
      bad:'Границы провели не там. Одна задача — четыре правки и четыре согласования.'},
     {id:'tec', n:'Технологическая архитектура', en:'Technology',
      q:'На чём всё это работает',
      live:'Облачные сервисы, ИТ-инфраструктура, промежуточное ПО, сети и связь, обработка данных, стандарты железа и софта. Проще: <b>на чём</b>.',
+     els:'серверы и облака, сети, базы данных и брокеры как платформы, среды (тест, прод), стандарты технологий',
      who:'Технический директор, платформенная команда, DevOps',
      life:'В кафе: «какие холодильники, какой интернет, где стоит сервер».',
      it:'«Очереди сообщений во всей компании — на одной технологии». Ценность не в технологии, а в том, что она одна и её умеют обслуживать.',
+     ex:'кластер Kubernetes k8s-prod, серверы баз данных db-01 и db-02, брокер Kafka, сервер склада srv-wms-1 прямо на складе',
+     art:'схема развёртывания, сетевая схема, каталог технологий (техрадар), план мощностей',
      bad:'Этот слой замечают только в аварии. Поэтому решают тут либо после первого простоя, либо после разговора о том, сколько простой стоит.'},
   ];
   const stack = document.getElementById('lay-stack');
   const out = document.getElementById('lay-out');
+  if(!stack || !out) return;
   stack.innerHTML = L.map((l,i) =>
     '<div class="lrow" data-i="'+i+'">' +
       '<div class="lnum">'+(i+1)+'</div>' +
@@ -143,9 +898,12 @@
       '<div class="lout"><h4>'+l.n+' — '+l.q.toLowerCase()+'</h4>' +
       '<div style="font-size:13px;color:var(--muted)">'+l.live+'</div>' +
       '<div class="lgrid">' +
+        '<b>что здесь живёт</b><div>'+l.els+'</div>' +
         '<b>кто отвечает</b><div>'+l.who+'</div>' +
         '<b>из жизни</b><div>'+l.life+'</div>' +
         '<b>в ИТ</b><div>'+l.it+'</div>' +
+        '<b>в «Ботинке»</b><div>'+l.ex+'</div>' +
+        '<b>артефакты</b><div>'+l.art+'</div>' +
         '<b>если ошиблись</b><div>'+l.bad+'</div>' +
       '</div></div>';
   }
@@ -155,105 +913,7 @@
   show(0);
 })();
 
-/* ═══ 0.3 Закон Конвея ═══ */
-(function(){
-  const C = {
-    layers: {
-      org:'ОТДЕЛЫ ПО СЛОЯМ\n\n  [ фронтенд ]   [ бэкенд ]   [ база данных ]\n       12 чел        18 чел         6 чел\n\n  общаются через руководителей, раз в спринт',
-      sys:'ЧТО ВЫРАСТЕТ\n\n  задача «поменять номер телефона»\n        │\n        ├─► очередь фронтенда   ждём 2 недели\n        ├─► очередь бэкенда     ждём 2 недели\n        └─► очередь базы        ждём 1 неделю\n\n  Система: [ фронт ] ─► [ бэк ] ─► [ база ]\n  Границы прошли по слоям, а не по делу.',
-      v:'bad', msg:'Любая задача проходит через три очереди. Пять недель на изменение, которое пишется за день.'
-    },
-    flow: {
-      org:'КОМАНДЫ ПО НАПРАВЛЕНИЯМ\n\n  [ Заказы ]   [ Платежи ]   [ Доставка ]\n   фронт+бэк    фронт+бэк     фронт+бэк\n   +своя база   +своя база    +своя база\n\n  общаются внутри себя, каждый день',
-      sys:'ЧТО ВЫРАСТЕТ\n\n  задача «поменять номер телефона»\n        │\n        └─► команда «Клиенты» делает целиком\n\n  Система: [ Заказы ]  [ Платежи ]  [ Доставка ]\n  Границы прошли по делу.\n  Каждая команда выкатывает сама.',
-      v:'good', msg:'Задача делается одной командой и никого не ждёт. Это то, ради чего затевают микросервисы.'
-    },
-    geo: {
-      org:'КОМАНДЫ ПО ОФИСАМ\n\n  [ Москва ]        [ Новосибирск ]\n   26 человек        14 человек\n\n  разница 4 часа, общий созвон раз в неделю',
-      sys:'ЧТО ВЫРАСТЕТ\n\n  Между московской и сибирской частями —\n  толстая стена с формальным договором\n  и длинным согласованием.\n\n  Внутри каждой части всё срастётся,\n  даже то, что по замыслу должно быть раздельным.\n\n  Граница прошла по часовым поясам.',
-      v:'warn', msg:'Ни хорошо, ни плохо — но граница появится именно здесь. Если она вам не нужна, оргструктуру придётся менять.'
-    },
-  };
-  const pick = document.getElementById('lay-conway');
-  const seg = document.getElementById('lay-conway-pick');
-  function show(k){
-    const c = C[k];
-    pick.innerHTML =
-      '<div class="grid2">' +
-        '<pre class="json" style="font-size:12px">'+esc(c.org)+'</pre>' +
-        '<pre class="json" style="font-size:12px">'+esc(c.sys)+'</pre>' +
-      '</div>' +
-      '<div class="note '+(c.v==='good'?'good':c.v==='bad'?'warn':'')+'" style="margin-top:10px"><b>Итог:</b> '+c.msg+'</div>';
-  }
-  seg.addEventListener('click', e => {
-    const b = e.target.closest('button[data-c]'); if(!b) return;
-    [...seg.children].forEach(x => x.classList.toggle('on', x === b));
-    show(b.dataset.c);
-  });
-  show('layers');
-})();
-
-/* ═══ 0.4 Сквозные вещи ═══ */
-(function(){
-  renderNum('lay-cross', [
-    {t:'Чем слой отличается от сквозной вещи', d:'У <b>слоя</b> есть собственный предмет: процессы, данные, приложения, железо. Его можно описать отдельно, у него есть хозяин и свои документы. У <b>сквозной вещи</b> своего предмета нет — она существует, чтобы остальные четыре не разъехались. Поэтому считать их слоями нельзя: у них потом ищут хозяина и не находят.'},
-    {t:'Управление требованиями — что это и зачем', d:'Следит, чтобы решение каждого слоя всё ещё отвечало тому, что нужно бизнесу и пользователю. Работа размазана по всем четырём слоям, поэтому своего слоя у неё нет.<br><br><b>Что будет без него:</b> задача изменилась полгода назад, а решение продолжают доделывать по инерции — и заметить это некому. Это самый частый способ потратить полгода команды впустую, и он не выглядит как ошибка: все работают, тикеты закрываются.'},
-  ]);
-})();
-
-/* ═══ 0.4a SEAF: два случая ═══ */
-(function(){
-  const C = {
-    night: {
-      title:'🌙 02:40. Упал сервер srv-prod-14. Дежурный поднят по звонку.',
-      bad:'БЕЗ ЕДИНЫХ ПРАВИЛ\n\n  Вопрос: что сейчас не работает у клиентов?\n\n  02:40  смотрим: упал srv-prod-14\n  02:41  что на нём крутилось? списка нет\n  02:45  пишем в чат разработки\n  02:58  отвечает тот, кто помнит\n  03:10  выясняем, что это выдача кредитов\n  03:12  начинаем чинить\n\n  32 минуты ушло на выяснение,\n  а не на починку.',
-      good:'С ЕДИНЫМИ ПРАВИЛАМИ\n\n  Вопрос тот же. Открываем карту:\n\n  srv-prod-14\n     └─ сервис loan-api\n          └─ данные «Заявка»\n               └─ процесс «Выдача кредита»\n\n  02:40  упал srv-prod-14\n  02:41  видим: встала выдача кредитов\n  02:42  пишем клиентам, начинаем чинить\n\n  2 минуты.',
-      msg:'Связь «железо → бизнес-процесс» записана заранее. Её не нужно вспоминать в три часа ночи.'
-    },
-    change: {
-      title:'✏️ Бизнес: «хотим поменять процесс выдачи кредита. Что придётся трогать?»',
-      bad:'БЕЗ ЕДИНЫХ ПРАВИЛ\n\n  Ответ: «надо собрать совещание».\n\n  день 1   собираем всех, кто может знать\n  день 3   встреча, вспоминаем вслух\n  день 8   всплывает забытая интеграция\n  день 20  в разработке всплывает ещё одна\n\n  Оценка срока была дана на второй день\n  и оказалась неверной.',
-      good:'С ЕДИНЫМИ ПРАВИЛАМИ\n\n  Открываем карту сверху вниз:\n\n  процесс «Выдача кредита»\n     ├─ loan-api ──── данные «Заявка»\n     ├─ scoring ───── данные «Оценка»\n     └─ notify ────── данные «Уведомление»\n          └─ всё это на srv-prod-14 и srv-prod-15\n\n  Список затронутого — за пять минут.\n  Оценка срока опирается на факт.',
-      msg:'Связь «бизнес-процесс → сервисы → данные → железо» читается сверху вниз так же легко, как снизу вверх.'
-    },
-  };
-  const seg = document.getElementById('seaf-pick');
-  const out = document.getElementById('seaf-out');
-  function show(k){
-    const c = C[k];
-    out.innerHTML =
-      '<div class="lout"><h4>'+c.title+'</h4>' +
-      '<div class="grid2" style="margin-top:9px">' +
-        '<pre class="json" style="font-size:12px">'+esc(c.bad)+'</pre>' +
-        '<pre class="json" style="font-size:12px">'+esc(c.good)+'</pre>' +
-      '</div>' +
-      '<div class="note good" style="margin-top:10px"><b>В чём разница:</b> '+c.msg+'</div></div>';
-  }
-  seg.addEventListener('click', e => {
-    const b = e.target.closest('button[data-c]'); if(!b) return;
-    [...seg.children].forEach(x => x.classList.toggle('on', x === b));
-    show(b.dataset.c);
-  });
-  show('night');
-})();
-
-/* ═══ 0.5 Десять вопросов ═══ */
-(function(){
-  renderNum('lay-q', [
-    {t:'Какую проблему решает система?', d:'<b>Главный вопрос: без него остальные девять бессмысленны.</b> Ответ формулируется словами бизнеса. «Клиенты уходят, потому что не понимают, за что списали деньги» — это проблема. «Нужен микросервис расчётов» — это уже чей-то ответ на непроизнесённую проблему.'},
-    {t:'Какие компоненты составляют систему и как они связаны?', d:'Границы и связи. Здесь принимают самые дорогие решения: где провести шов между частями, кто кого зовёт, ждать ответа или нет. Разделы «Как резать» и «Как сервисы говорят».'},
-    {t:'Какие данные обрабатываются и как организовано их движение?', d:'Кто владеет какой записью, как чужие данные попадают к вам, что можно держать копией у себя. Разделы «Данные и владение», «Согласованность», «Outbox и CDC».'},
-    {t:'Какие процессы и функции поддерживаются системой?', d:'Связь с бизнес-слоем. Если процесс на бумаге проходит четыре отдела, а в системе — один экран, кто-то из двоих врёт. Обычно бумага.'},
-    {t:'С какими внешними системами она взаимодействует?', d:'Каждая чужая система — это чужое расписание работы, чужой формат и чужая скорость изменений. Отсюда защитные прослойки и поведение при отказе: разделы «Карта контекстов» и «Устойчивость».'},
-    {t:'Как обеспечиваются производительность, безопасность и надёжность?', d:'Ответ засчитывается, только если в нём есть число и способ проверить: «ответ не дольше 400 мс у 95 клиентов из 100», а не «быстро». Разбирается в следующем разделе.'},
-    {t:'Как система будет развиваться и адаптироваться к изменениям?', d:'Самый забываемый вопрос. Система, которую нельзя менять по частям, мертва, даже если сегодня работает. Отсюда версии договорённостей, флаги, постепенная замена: разделы «Релизы» и «Рефакторинг легаси».'},
-    {t:'Какие ключевые заинтересованные стороны участвуют в проекте?', d:'У архитектурного решения всегда есть тот, кому оно неудобно. Если среди участников нет ни одного, кто возражал, — значит, с ними просто не поговорили. Возражение придёт потом, на приёмке.'},
-    {t:'Какие этапы внедрения предусмотрены?', d:'Архитектура, которую нельзя включать по частям, — это план на «большой рубильник», а он не срабатывает никогда. Разделы «Релизы» и «Рефакторинг легаси».'},
-    {t:'Как оценивается успешность и эффективность системы?', d:'Признак, по которому поймут, что решение было верным. Без него спор «микросервисы или монолит» не имеет конца: обе стороны правы, потому что не договорились, что считать выигрышем.'},
-  ]);
-})();
-
-/* ═══ 0.6 Отнесите решение к слою ═══ */
+/* ═══ глава 4: отнесите решение к слою ═══ */
 (function(){
   const B = [
     {id:'biz', n:'Бизнес'},
@@ -263,7 +923,7 @@
     {id:'cro', n:'Сквозное'},
   ];
   const ITEMS = [
-    {t:'Комиссию снижаем с 15 % до 10 % для мастеров с рейтингом выше 4,8', s:'решение владельца продукта', bucket:'biz',
+    {t:'Комиссию снижаем с 15 % до 10 % для продавцов-партнёров с рейтингом выше 4,8', s:'решение владельца продукта', bucket:'biz',
      why:'Правило, по которому компания зарабатывает. Простой признак бизнес-слоя: решение можно принять и записать, вообще не зная, на чём написана система.'},
     {t:'Главная запись о клиенте — в CRM, остальные держат копию для чтения', s:'кто владеет данными', bucket:'dat',
      why:'Кто владеет записью и куда идёт копирование. Переживёт и смену CRM, и переезд на микросервисы, потому что отвечает на вопрос «чей это факт», а не «в какой базе лежит».'},
@@ -291,8 +951,945 @@
   renderSort('lay-sort', ITEMS, B, 'lay-score', 'lay-total');
   Progress.register('lay-score', ITEMS.length, 'Слои предприятия');
 })();
+</script>
 
-/* ═══ 0.7 Проверка ═══ */
+<script>
+/* ═══ глава 5: живая модель трассировки ═══ */
+(function(){
+  const svg = document.getElementById('lyx-tr-svg'); if(!svg) return;
+  const RM = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const LANES = ['Возможности', 'Процессы', 'Приложения', 'Данные', 'Технологии'];
+  const LN1 = ['возможность', 'процесс', 'приложение', 'данные', 'технология'];
+  const N = [
+    {id:'c1', l:0, n:'Продажа|кроссовок', d:'Возможность «Продажа кроссовок»: покупатель выбирает, оформляет и оплачивает заказ.'},
+    {id:'c2', l:0, n:'Доставка|заказов', d:'Возможность «Доставка заказов»: от склада до двери Анны.'},
+    {id:'c3', l:0, n:'Обслуживание|клиентов', d:'Возможность «Обслуживание клиентов»: возвраты, уведомления, поддержка.'},
+    {id:'p1', l:1, n:'Оформить|заказ', d:'Процесс: корзина → проверка остатка → заказ создан.', a:'не может оформить заказ', aw:'заказ создан, но подтверждение придёт позже'},
+    {id:'p2', l:1, n:'Принять|оплату', d:'Процесс: оплата картой через банк-эквайер.', a:'не может оплатить заказ', aw:'оплата проходит с задержкой'},
+    {id:'p3', l:1, n:'Собрать|на складе', d:'Процесс: склад получает заказ, собирает и упаковывает.', a:'заказ не собирают — срок доставки срывается', aw:'склад узнаёт о заказе с опозданием'},
+    {id:'p4', l:1, n:'Доставить|курьером', d:'Процесс: курьер забирает посылку и везёт покупателю.', a:'курьер не получает заказ', aw:'курьер получает заказ позже обычного'},
+    {id:'p5', l:1, n:'Оформить|возврат', d:'Процесс: заявка на возврат → приём товара → возврат денег.', a:'не может вернуть товар', aw:'возврат оформляется медленнее'},
+    {id:'p6', l:1, n:'Сообщить|статус', d:'Процесс: СМС и письма «заказ собран», «курьер выехал».', a:'не получает СМС и письма о заказе', aw:'СМС о статусе приходят с опозданием'},
+    {id:'a1', l:2, n:'Сайт|«Ботинка»', d:'Сайт: витрина, корзина, страница оплаты, личный кабинет.'},
+    {id:'a2', l:2, n:'Сервис|заказов', d:'Сервис заказов: создаёт заказ, хранит статус, публикует события в брокер.'},
+    {id:'a3', l:2, n:'Сервис|платежей', d:'Сервис платежей: списания и возвраты денег через банк.'},
+    {id:'a4', l:2, n:'Складская|система WMS', d:'Складская система (WMS, warehouse management system): остатки, резервы, сборка.'},
+    {id:'a5', l:2, n:'Сервис|доставки', d:'Сервис доставки: слоты, курьеры, отправления.'},
+    {id:'a6', l:2, n:'CRM и|рассылки', d:'CRM и рассылки: карточка клиента, СМС и письма.'},
+    {id:'d1', l:3, n:'Клиент', d:'Данные «Клиент»: имя, телефон, адреса. Мастер — CRM.'},
+    {id:'d2', l:3, n:'Заказ', d:'Данные «Заказ»: состав, сумма, статус.'},
+    {id:'d3', l:3, n:'Платёж', d:'Данные «Платёж»: суммы, статусы, ссылки на операции банка.'},
+    {id:'d4', l:3, n:'Остаток|на складе', d:'Данные «Остаток»: сколько пар каждой модели лежит на складе.'},
+    {id:'d5', l:3, n:'Отправление', d:'Данные «Отправление»: трек-номер, курьер, слот.'},
+    {id:'t1', l:4, n:'Кластер|k8s-prod', d:'Кластер Kubernetes: здесь работают пять из шести приложений.'},
+    {id:'t2', l:4, n:'БД|db-01', d:'Сервер баз данных db-01: «Клиент», «Заказ», «Отправление».'},
+    {id:'t3', l:4, n:'БД|db-02', d:'Сервер баз данных db-02: платежи держат отдельно, чтобы сузить круг систем с доступом к платёжным данным.'},
+    {id:'t4', l:4, n:'Сервер склада|srv-wms-1', d:'Сервер складской системы стоит прямо на складе.'},
+    {id:'t5', l:4, n:'Брокер|Kafka', d:'Брокер сообщений Kafka: события о заказах для доставки и рассылок.'},
+    {id:'t6', l:4, n:'Банк-|эквайер', d:'Внешний банк, который проводит оплату картой.'},
+  ];
+  /* [верхний, нижний, мягкая (асинхронная) связь] — «верхнему нужен нижний» */
+  const E = [
+    ['c1','p1'],['c1','p2'],['c2','p3'],['c2','p4'],['c3','p5'],['c3','p6'],
+    ['p1','a1'],['p1','a2'],['p1','a4'],['p2','a1'],['p2','a3'],['p3','a4'],['p3','a2'],['p4','a5'],['p5','a1'],['p5','a2'],['p5','a3'],['p6','a6'],
+    ['a1','d1'],['a2','d2'],['a2','d1'],['a3','d3'],['a4','d4'],['a5','d5'],['a6','d1'],
+    ['d1','t2'],['d2','t2'],['d3','t3'],['d4','t4'],['d5','t2'],
+    ['a1','t1'],['a2','t1'],['a3','t1'],['a5','t1'],['a6','t1'],['a4','t4'],['a3','t6'],
+    ['a2','t5',1],['a5','t5',1],['a6','t5',1],
+  ];
+  const byId = {}; N.forEach(n => byId[n.id] = n);
+  /* раскладка */
+  const LH = 89, W0 = 14, WW = 872, NH = 50;
+  LANES.forEach((_, l) => {
+    const row = N.filter(n => n.l === l), slot = WW / row.length, w = Math.min(160, slot - 14);
+    row.forEach((n, i) => { n.w = w; n.x = W0 + slot * i + (slot - w) / 2; n.y = 4 + l * LH + 28; });
+  });
+  let html = '';
+  LANES.forEach((t, l) => {
+    html += '<rect class="ln" x="4" y="' + (4 + l * LH) + '" width="892" height="' + (LH - 5) + '" rx="10"></rect>';
+  });
+  E.forEach((e, k) => {
+    const u = byId[e[0]], v = byId[e[1]];
+    const x1 = u.x + u.w / 2, y1 = u.y + NH, x2 = v.x + v.w / 2, y2 = v.y;
+    html += '<path class="e' + (e[2] ? ' soft' : '') + '" data-lyx-e="' + k + '" d="M' + x1.toFixed(1) + ' ' + y1 + ' C' + x1.toFixed(1) + ' ' + (y1 + 26) + ',' + x2.toFixed(1) + ' ' + (y2 - 26) + ',' + x2.toFixed(1) + ' ' + y2 + '"></path>';
+  });
+  LANES.forEach((t, l) => { html += '<text class="lt" x="14" y="' + (4 + l * LH + 19) + '">' + t + '</text>'; });
+  N.forEach(n => {
+    const p = n.n.split('|'), cx = (n.x + n.w / 2).toFixed(1);
+    html += '<g class="nd" data-lyx-n="' + n.id + '" tabindex="0" role="button" aria-label="' + esc(p.join(' ')) + '">' +
+      '<rect x="' + n.x.toFixed(1) + '" y="' + n.y + '" width="' + n.w.toFixed(1) + '" height="' + NH + '" rx="9"></rect>' +
+      (p.length > 1
+        ? '<text x="' + cx + '" y="' + (n.y + 21) + '" text-anchor="middle">' + esc(p[0]) + '</text><text x="' + cx + '" y="' + (n.y + 39) + '" text-anchor="middle">' + esc(p[1]) + '</text>'
+        : '<text x="' + cx + '" y="' + (n.y + 30) + '" text-anchor="middle">' + esc(p[0]) + '</text>') +
+    '</g>';
+  });
+  svg.innerHTML = html;
+  const G = {}; svg.querySelectorAll('[data-lyx-n]').forEach(g => G[g.getAttribute('data-lyx-n')] = g);
+  const P = [...svg.querySelectorAll('[data-lyx-e]')];
+  const msgEl = document.getElementById('lyx-tr-msg'), logEl = document.getElementById('lyx-tr-log'), msEl = document.getElementById('lyx-tr-ms');
+  const sel = document.getElementById('lyx-tr-sel'), modeBar = document.getElementById('lyx-tr-mode');
+  sel.innerHTML = '<option value="">— или выберите узел из списка —</option>' + LANES.map((t, l) =>
+    '<optgroup label="' + t + '">' + N.filter(n => n.l === l).map(n => '<option value="' + n.id + '">' + esc(n.n.replace('|', ' ')) + '</option>').join('') + '</optgroup>').join('');
+
+  const MS = [
+    'Сверху вниз. В режиме «Связи» выберите возможность «Доставка заказов»: что ей нужно на каждом слое?',
+    'Снизу вверх. В режиме «Отказ» уроните сервер склада srv-wms-1: какие возможности встанут?',
+    'Поиск. Найдите узел технологий, отказ которого НЕ останавливает продажу кроссовок.',
+  ];
+  const done = [false, false, false];
+  function drawMs(){ msEl.innerHTML = MS.map((t, i) => '<div class="' + (done[i] ? 'done' : '') + '">' + t + '</div>').join(''); }
+  function complete(i){
+    if(done[i]) return;
+    done[i] = true; drawMs();
+    Progress.report('lyx-tr', done.filter(Boolean).length);
+  }
+  Progress.register('lyx-tr', 3, 'Слои: трассировка');
+
+  let mode = 'link', timers = [];
+  const nm = id => byId[id].n.replace('|', ' ');
+  function clearT(){ timers.forEach(clearTimeout); timers = []; }
+  function clean(){
+    Object.values(G).forEach(g => g.setAttribute('class', 'nd'));
+    P.forEach(p => p.setAttribute('class', 'e' + (E[+p.getAttribute('data-lyx-e')][2] ? ' soft' : '')));
+  }
+  function reset(){
+    clearT(); clean(); sel.value = ''; logEl.innerHTML = '';
+    msg(msgEl, '', mode === 'link'
+      ? 'Режим «Связи». Нажмите на любой узел схемы: подсветится всё, что ему нужно, и всё, что от него зависит.'
+      : 'Режим «Отказ». Нажмите на узел — он «упадёт», и волна пойдёт вверх по связям.');
+  }
+  function walk(start, dir){ /* dir: 'down' — что нужно; 'up' — кто зависит */
+    const seen = new Set(), q = [start];
+    while(q.length){
+      const x = q.shift();
+      E.forEach(e => {
+        const nx = dir === 'down' ? (e[0] === x ? e[1] : null) : (e[1] === x ? e[0] : null);
+        if(nx && !seen.has(nx)){ seen.add(nx); q.push(nx); }
+      });
+    }
+    return seen;
+  }
+  const countBy = set => LANES.map((_, l) => [...set].filter(id => byId[id].l === l).length);
+  function link(id){
+    clearT(); logEl.innerHTML = '';
+    const down = walk(id, 'down'), up = walk(id, 'up');
+    Object.entries(G).forEach(([k, g]) => g.setAttribute('class', 'nd ' + (k === id ? 'on src' : (down.has(k) || up.has(k)) ? 'on' : 'dim')));
+    P.forEach(p => {
+      const e = E[+p.getAttribute('data-lyx-e')];
+      const onD = (e[0] === id || down.has(e[0])) && down.has(e[1]);
+      const onU = (e[1] === id || up.has(e[1])) && up.has(e[0]);
+      p.setAttribute('class', 'e' + (e[2] ? ' soft' : '') + (onD || onU ? ' on' : ' dim'));
+    });
+    const cd = countBy(down), cu = countBy(up), n = byId[id];
+    const part = c => c.map((v, l) => v ? LANES[l].toLowerCase() + ': ' + v : '').filter(Boolean).join(', ');
+    msg(msgEl, 'ok', '<b>' + esc(nm(id)) + '.</b> ' + n.d +
+      '<br><b>Нужно ему (ниже):</b> ' + (down.size ? part(cd) : 'ничего — это нижний слой') +
+      '<br><b>Зависят от него (выше):</b> ' + (up.size ? part(cu) : 'никто — это верхний слой'));
+    if(id === 'c2') complete(0);
+  }
+  function fail(id){
+    clearT(); clean(); logEl.innerHTML = '';
+    const st = {}; st[id] = 'bad';
+    const rank = {warn:1, bad:2};
+    let ch = true;
+    while(ch){
+      ch = false;
+      E.forEach(e => {
+        const v = st[e[1]]; if(!v) return;
+        const c = (v === 'bad' && !e[2]) ? 'bad' : 'warn';
+        if((rank[st[e[0]]] || 0) < rank[c]){ st[e[0]] = c; ch = true; }
+      });
+    }
+    const src = byId[id];
+    const lanes = []; for(let l = src.l; l >= 0; l--) lanes.push(l);
+    const lines = [];
+    function paintLane(l){
+      N.filter(n => n.l === l && st[n.id]).forEach(n => G[n.id].setAttribute('class', 'nd ' + st[n.id] + (n.id === id ? ' src' : '')));
+      P.forEach(p => {
+        const e = E[+p.getAttribute('data-lyx-e')];
+        if(byId[e[0]].l === l && st[e[0]] && st[e[1]]){
+          const c = (st[e[1]] === 'bad' && !e[2]) ? 'bad' : 'warn';
+          p.setAttribute('class', 'e' + (e[2] ? ' soft' : '') + ' ' + c);
+        }
+      });
+      const hit = N.filter(n => n.l === l && st[n.id] && n.id !== id);
+      if(l === src.l) lines.push('<span class="bad">💥 отказал узел «' + esc(nm(id)) + '»</span>');
+      else if(hit.length){
+        const b = hit.filter(n => st[n.id] === 'bad').map(n => esc(nm(n.id)));
+        const w = hit.filter(n => st[n.id] === 'warn').map(n => esc(nm(n.id)));
+        lines.push('↑ <b>' + LANES[l].toLowerCase() + ':</b> ' +
+          (b.length ? '<span class="bad">остановлено — ' + b.join(', ') + '</span>' : '') + (b.length && w.length ? '; ' : '') +
+          (w.length ? '<span class="warn">с задержкой — ' + w.join(', ') + '</span>' : ''));
+      }
+      logEl.innerHTML = lines.map(x => '<div>' + x + '</div>').join('');
+    }
+    function finish(){
+      const caps = N.filter(n => n.l === 0);
+      const bad = caps.filter(n => st[n.id] === 'bad'), warn = caps.filter(n => st[n.id] === 'warn');
+      const anna = N.filter(n => n.l === 1 && st[n.id]).map(n => st[n.id] === 'bad' ? n.a : n.aw);
+      const kind = bad.length ? 'err' : warn.length ? 'warn' : 'ok';
+      msg(msgEl, kind, '<b>Итог отказа «' + esc(nm(id)) + '».</b> ' +
+        (bad.length ? 'Встали возможности: ' + bad.map(n => esc(nm(n.id))).join(', ') + '. ' : '') +
+        (warn.length ? 'С задержкой: ' + warn.map(n => esc(nm(n.id))).join(', ') + '. ' : '') +
+        (!bad.length && !warn.length ? 'Ни одна возможность не пострадала. ' : '') +
+        (anna.length ? '<br><b>Что видит Анна:</b> ' + anna.join('; ') + '.' : ''));
+      if(id === 't4') complete(1);
+      if(src.l === 4 && st.c1 !== 'bad') complete(2);
+    }
+    if(RM){ lanes.forEach(paintLane); finish(); return; }
+    lanes.forEach((l, k) => timers.push(setTimeout(() => { paintLane(l); if(k === lanes.length - 1) finish(); }, k * 420)));
+  }
+  function act(id){
+    if(!byId[id]) return;
+    sel.value = id;
+    if(mode === 'link') link(id); else fail(id);
+  }
+  svg.addEventListener('click', e => { const g = e.target.closest('[data-lyx-n]'); if(g) act(g.getAttribute('data-lyx-n')); });
+  svg.addEventListener('keydown', e => {
+    if(e.key !== 'Enter' && e.key !== ' ') return;
+    const g = e.target.closest('[data-lyx-n]'); if(!g) return;
+    e.preventDefault(); act(g.getAttribute('data-lyx-n'));
+  });
+  sel.addEventListener('change', () => { if(sel.value) act(sel.value); else reset(); });
+  modeBar.addEventListener('click', e => {
+    const b = e.target.closest('button[data-m]'); if(!b) return;
+    [...modeBar.children].forEach(x => x.classList.toggle('on', x === b));
+    mode = b.dataset.m; reset();
+  });
+  document.getElementById('lyx-tr-reset').addEventListener('click', reset);
+  drawMs(); reset();
+})();
+
+/* ═══ глава 6: карта возможностей и тепловая карта ═══ */
+(function(){
+  const host = document.getElementById('lyx-cm'); if(!host) return;
+  const D = [
+    {n:'1. Клиенты и маркетинг', c:[
+      {id:'1.1', n:'Привлечение покупателей', m:3, i:4, cost:40, apps:'рекламный кабинет, CRM, сервис рассылок', d:'Реклама, акции, рассылки: как покупатели узнают о «Ботинке».', note:'Самая дорогая клетка карты: 40 млн ₽ в год при средней зрелости. Это просьба маркетинга. Прежде чем добавлять деньги, стоит проверить, какие каналы окупаются.'},
+      {id:'1.2', n:'Программа лояльности', m:2, i:3, cost:6, apps:'CRM', d:'Баллы, уровни, персональные предложения.', note:'Средняя важность, низкая зрелость. Полезно, но не горит.'},
+      {id:'1.3', n:'Поддержка покупателей', m:2, i:4, cost:12, apps:'старый helpdesk, CRM, чат-бот — три системы', d:'Ответы на вопросы, жалобы, статусы заказов.', note:'Три системы на одну возможность — дубли. Беда не столько в деньгах, сколько в разрозненности: лечится объединением систем.'},
+    ]},
+    {n:'2. Продажи', c:[
+      {id:'2.1', n:'Витрина и каталог', m:4, i:5, cost:18, apps:'сайт, мобильное приложение, сервис каталога', d:'Карточки товаров, поиск, фильтры.', note:'Важно и хорошо работает. Беречь и развивать понемногу.'},
+      {id:'2.2', n:'Оформление заказа', m:4, i:5, cost:15, apps:'сайт, сервис заказов', d:'Корзина и создание заказа.', note:'Важно и работает хорошо. Главное — не сломать при доработках доставки.'},
+      {id:'2.3', n:'Приём оплаты', m:5, i:5, cost:9, apps:'сервис платежей, банк-эквайер', d:'Оплата картой и возвраты денег.', note:'Образцовая клетка: важно и отлично работает. Не трогать без нужды.'},
+      {id:'2.4', n:'Ценообразование и акции', m:1, i:4, cost:3, apps:'таблицы Excel и ручная загрузка на сайт', d:'Цены, скидки, промокоды.', note:'Важность 4, зрелость 1: цены меняют вручную в таблицах, и ошибки стоят денег каждый день. Сильный кандидат на вложения.'},
+    ]},
+    {n:'3. Логистика', c:[
+      {id:'3.1', n:'Управление складом', m:3, i:4, cost:14, apps:'складская система WMS', d:'Приёмка, хранение, резервы, сборка.', note:'Работает прилично, важно. Для доставки за 2 часа понадобится ускорить сборку, но это не главный разрыв.'},
+      {id:'3.2', n:'Доставка заказов', m:1, i:5, cost:22, apps:'устаревший сервис доставки, звонки курьерам, таблицы', d:'Слоты, курьеры, передача заказа покупателю.', note:'Главная клетка года. Стратегия «доставка за 2 часа» делает её важнейшей, а сейчас она на уровне звонков и таблиц. Разрыв максимальный.'},
+      {id:'3.3', n:'Возвраты', m:2, i:3, cost:7, apps:'сайт, сервис заказов, ручная обработка на складе', d:'Приём и учёт возвращённого товара.', note:'Средняя важность. Сначала стоит упростить сам процесс, потом автоматизировать.'},
+    ]},
+    {n:'4. Закупки и ассортимент', c:[
+      {id:'4.1', n:'Работа с поставщиками', m:3, i:2, cost:5, apps:'почта, учётная система', d:'Договоры, заказы поставщикам, приёмка партий.', note:'Не стратегично и работает сносно. Держать как есть.'},
+      {id:'4.2', n:'Планирование ассортимента', m:2, i:3, cost:4, apps:'аналитические отчёты', d:'Что и сколько закупать к сезону.', note:'Средняя важность. Кандидат на следующий год.'},
+    ]},
+    {n:'5. Управление компанией', c:[
+      {id:'5.1', n:'Финансы и отчётность', m:4, i:2, cost:11, apps:'бухгалтерская система, отчёты', d:'Учёт, налоги, управленческая отчётность.', note:'Новую бухгалтерию просят финансы. Но зрелость уже 4, а важность для стратегии 2. Хорошее желание, но не в этом году.'},
+      {id:'5.2', n:'Управление персоналом', m:3, i:1, cost:8, apps:'самописная кадровая система', d:'Найм, кадровый учёт, отпуска.', note:'8 млн ₽ в год при важности 1: самописная кадровая система. Кандидат на замену готовым сервисом и сокращение затрат.'},
+    ]},
+  ];
+  const ALL = []; D.forEach(g => g.c.forEach(c => ALL.push(c)));
+  const byId = {}; ALL.forEach(c => byId[c.id] = c);
+  const mix = (v, p) => p ? 'background:color-mix(in srgb, var(' + v + ') ' + p + '%, var(--surface))' : '';
+  function cat(c){
+    if(c.i >= 4 && c.m <= 2) return {n:'Вкладывать', v:'--danger', p:24};
+    if(c.i >= 4) return {n:'Беречь', v:'--ok', p:18};
+    if(c.i <= 2 && c.cost >= 8) return {n:'Сокращать затраты', v:'--warn', p:26};
+    return {n:'Держать как есть', v:'--line', p:0};
+  }
+  const LENS = {
+    m:{st:c => mix(c.m <= 2 ? '--danger' : c.m === 3 ? '--warn' : '--ok', [0, 28, 14, 22, 14, 28][c.m]), lab:c => 'зрелость ' + c.m + ' из 5',
+       leg:[['--danger',28,'1 — вручную, с ошибками'],['--danger',14,'2'],['--warn',22,'3'],['--ok',14,'4'],['--ok',28,'5 — отлично']]},
+    i:{st:c => mix('--accent', c.i * 8), lab:c => 'важность ' + c.i + ' из 5',
+       leg:[['--accent',8,'1 — не для стратегии'],['--accent',24,'3'],['--accent',40,'5 — ключевая']]},
+    cost:{st:c => mix('--warn', Math.min(46, Math.round(c.cost * 1.15))), lab:c => c.cost + ' млн ₽/год',
+       leg:[['--warn',5,'до 5 млн'],['--warn',17,'около 15 млн'],['--warn',46,'40 млн']]},
+    inv:{st:c => { const k = cat(c); return mix(k.v, k.p); }, lab:c => cat(c).n,
+       leg:[['--danger',24,'Вкладывать: важно, но плохо'],['--ok',18,'Беречь: важно и хорошо'],['--warn',26,'Сокращать затраты: не важно, но дорого'],['--line',0,'Держать как есть']]},
+  };
+  let lens = 'm', cur = null, task = false;
+  const pickSel = [];
+  const seen = new Set(['m']);
+  const out = document.getElementById('lyx-cm-out'), leg = document.getElementById('lyx-cm-leg'), cmsg = document.getElementById('lyx-cm-msg');
+  const lensBar = document.getElementById('lyx-cm-lens');
+  Progress.register('lyx-cap', 3, 'Слои: карта возможностей');
+  function draw(){
+    const L = LENS[lens];
+    host.innerHTML = D.map(g => '<div class="lyx-cm-dom"><h5>' + g.n + '</h5>' + g.c.map(c =>
+      '<button class="lyx-cm-c' + (cur === c.id ? ' cur' : '') + (pickSel.includes(c.id) ? ' sel' : '') + '" data-lyx-c="' + c.id + '" style="' + L.st(c) + '">' +
+        c.id + ' ' + c.n + '<small>' + L.lab(c) + '</small></button>').join('') + '</div>').join('');
+    leg.innerHTML = L.leg.map(x => '<span><i style="' + (mix(x[0], x[1]) || 'background:var(--surface)') + '"></i>' + x[2] + '</span>').join('');
+  }
+  function detail(c){
+    const k = cat(c);
+    out.innerHTML = '<div class="lout" style="margin-top:10px"><h4>' + c.id + ' ' + c.n + '</h4>' +
+      '<div style="font-size:13px;color:var(--muted)">' + c.d + '</div><div class="lgrid">' +
+      '<b>зрелость</b><div>' + c.m + ' из 5</div>' +
+      '<b>важность</b><div>' + c.i + ' из 5</div>' +
+      '<b>затраты</b><div>' + c.cost + ' млн ₽ в год</div>' +
+      '<b>системы</b><div>' + c.apps + '</div>' +
+      '<b>сводная линза</b><div>' + k.n + '</div>' +
+      '<b>вывод Веры</b><div>' + c.note + '</div></div></div>';
+  }
+  host.addEventListener('click', e => {
+    const b = e.target.closest('[data-lyx-c]'); if(!b) return;
+    const c = byId[b.dataset.lyxC]; if(!c) return;
+    cur = c.id;
+    if(task){
+      const at = pickSel.indexOf(c.id);
+      if(at >= 0) pickSel.splice(at, 1);
+      else { pickSel.push(c.id); if(pickSel.length > 2) pickSel.shift(); }
+      msg(cmsg, '', 'Выбрано: ' + (pickSel.length ? pickSel.map(id => id + ' ' + byId[id].n).join(' и ') : 'ничего') + '. ' + (pickSel.length === 2 ? 'Нажмите «Проверить выбор».' : 'Выберите ещё.'));
+    }
+    detail(c); draw();
+  });
+  lensBar.addEventListener('click', e => {
+    const b = e.target.closest('button[data-l]'); if(!b) return;
+    [...lensBar.children].forEach(x => x.classList.toggle('on', x === b));
+    lens = b.dataset.l; seen.add(lens); draw();
+    if(seen.size === 4) Progress.report('lyx-cap', 1);
+  });
+  document.getElementById('lyx-cm-task').addEventListener('click', () => {
+    task = true; pickSel.length = 0; draw();
+    msg(cmsg, 'warn', '<b>Задание.</b> Бюджет — на две крупные доработки. Нажмите на две клетки, куда вы бы вложились, и проверьте. Подсказка: включите линзу «Куда вкладывать» — но и там выбор не очевиден.');
+  });
+  document.getElementById('lyx-cm-check').addEventListener('click', () => {
+    if(!task){ msg(cmsg, 'warn', 'Сначала нажмите «🎯 Задание», потом выберите две клетки.'); return; }
+    if(pickSel.length < 2){ msg(cmsg, 'warn', 'Нужно выбрать две клетки. Сейчас выбрано: ' + pickSel.length + '.'); return; }
+    const s = new Set(pickSel);
+    if(s.has('3.2') && s.has('2.4')){
+      msg(cmsg, 'ok', '<b>Верно.</b> 3.2 «Доставка заказов» (важность 5, зрелость 1) и 2.4 «Ценообразование» (важность 4, зрелость 1) — самые большие разрывы между «нужно стратегии» и «есть сейчас». 1.3 «Поддержка» тоже красная, но её беда — три системы-дубля: это лечится объединением, а не новыми деньгами. Просьбы маркетинга (1.1) и финансов (5.1) громкие, но на карте видно, что там не горит.');
+      Progress.report('lyx-cap', 3);
+    } else if(s.has('1.3') && (s.has('3.2') || s.has('2.4'))){
+      msg(cmsg, 'warn', '<b>Почти.</b> Одна клетка верная. Но 1.3 «Поддержка» больна не бедностью, а дублями: три системы на одну возможность. Это лечат объединением систем, а новыми деньгами — нет. Посмотрите, у какой ещё красной клетки разрыв между важностью и зрелостью больше.');
+    } else if(s.has('1.1') || s.has('5.1')){
+      msg(cmsg, 'err', '<b>Это просьбы громких отделов.</b> 1.1 уже тратит 40 млн ₽ при средней зрелости, 5.1 работает хорошо и не нужна стратегии. Включите линзу «Куда вкладывать» и ищите, где важность высокая, а зрелость низкая.');
+    } else {
+      msg(cmsg, 'err', '<b>Не то.</b> Ищите клетки, где важность для стратегии 4–5, а зрелость 1–2, и из них — с самым большим разрывом.');
+    }
+  });
+  draw();
+  msg(cmsg, '', 'Переключайте линзы и нажимайте на клетки. Потом возьмите задание.');
+  renderNum('lyx-cm-how', [
+    {t:'Собрать области первого уровня', d:'Обычно их 6–12. Берут из стратегии, продуктов и потока ценности клиента, а <b>не</b> из оргструктуры: отделы переименуют через год, а области останутся.'},
+    {t:'Разложить каждую область на возможности второго уровня', d:'Обычно по 3–10. Третий уровень добавляют только там, где идёт работа, — иначе карта раздувается до сотен клеток.'},
+    {t:'Проверить каждую клетку на три «не»', d:'Не процесс (нет цепочки шагов), не отдел, не система. «Работа в учётной системе» — не возможность, «Бухгалтерский учёт» — возможность.'},
+    {t:'Привязать приложения к возможностям', d:'Сразу видны дубли: три системы на одну возможность — кандидат на объединение. Ноль систем — всё делается вручную.'},
+    {t:'Оценить по линзам вместе с владельцами', d:'Зрелость, важность, затраты оценивают с руководителями направлений, а не в кабинете архитектора. Иначе карту не признают.'},
+    {t:'Раскрасить, показать и обновлять', d:'Карту показывают руководству перед распределением бюджета и обновляют раз в год или при смене стратегии. Методика подробно описана, например, в руководстве BIZBOK от Business Architecture Guild.'},
+  ]);
+})();
+</script>
+
+<script>
+/* ═══ глава 7: колесо TOGAF ADM ═══ */
+(function(){
+  const svg = document.getElementById('lyx-adm-svg'); if(!svg) return;
+  const PH = [
+    {id:'P', b:'P', s:'Подготовка', n:'Предварительная фаза', en:'Preliminary',
+     d:'Компания готовится делать архитектуру вообще: кто за неё отвечает и с какими полномочиями, какие принципы берём, как подгоняем TOGAF под себя, где храним модели.',
+     q:'Кто архитекторы и что они решают? Какие принципы? Какие инструменты и репозиторий?',
+     a:'принципы архитектуры (Architecture Principles), подогнанный под компанию фреймворк (Tailored Architecture Framework), модель организации архитектурной работы (Organizational Model for Enterprise Architecture), начальное наполнение архитектурного репозитория (Architecture Repository)',
+     x:'В «Ботинке» это сделали год назад: создали архитектурный комитет, записали 8 принципов (среди них П-5 «Сначала стандартные технологии»), завели репозиторий с 60 системами.',
+     sa:'Почти не участвует. Но принципы отсюда потом ограничивают его постановки — их стоит прочитать.'},
+    {id:'A', b:'A', s:'Видение', n:'Видение архитектуры', en:'Architecture Vision',
+     d:'Запускается конкретный цикл. Определяют рамки: какую проблему решаем, для кого, какие цели и ограничения, кто заинтересованные стороны. Рисуют «как будет» крупными мазками и получают согласие спонсора.',
+     q:'Зачем? Что считаем успехом? Кого затронет? Какие риски и ограничения?',
+     a:'видение архитектуры (Architecture Vision), утверждённое задание на архитектурную работу (Statement of Architecture Work), карта заинтересованных сторон, план коммуникаций (Communications Plan), оценка готовности (Capability Assessment). Вход фазы — запрос на архитектурную работу (Request for Architecture Work) от спонсора.',
+     x:'Спонсор — директор по логистике. Цель: 30 % заказов по Москве с доставкой в день заказа к концу 2027 года. Рамки: только Москва и только заказы с московского склада. Ограничение — бюджет из главы 6.',
+     sa:'Олег ещё не подключён. Марина помогает сформулировать цели и метрики успеха.'},
+    {id:'B', b:'B', s:'Бизнес', n:'Бизнес-архитектура', en:'Business Architecture',
+     d:'Описывают бизнес-слой «как есть» и «как будет»: возможности, потоки ценности, процессы, оргструктуру, продукты. Ищут разрывы между ними.',
+     q:'Какие возможности нужны? Каких нет? Какие процессы поменяются и кто их будет выполнять?',
+     a:'бизнес-часть документа определения архитектуры (Architecture Definition Document), бизнес-требования в спецификации архитектурных требований (Architecture Requirements Specification), анализ разрывов (gap analysis)',
+     x:'Разрыв: нет возможности «Управление курьерами в реальном времени». Новый процесс «Оформить экспресс-доставку». Новая роль — диспетчер слотов в отделе логистики.',
+     sa:'Фазу ведёт Марина. Олег начинает читать модели процессов «как будет» — это вход для его будущих требований.'},
+    {id:'C', b:'C', s:'Данные+ПО', n:'Архитектура информационных систем', en:'Information Systems Architectures (Data и Application)',
+     d:'Описывают данные и приложения «как есть» и «как будет»: какие сущности нужны и где их мастер; какие приложения поддержат новые процессы, какие доработать, какие вывести; какие появятся интеграции.',
+     q:'Чья запись главная? Какую систему дорабатываем, какую выводим? Где новые интеграции?',
+     a:'разделы данных и приложений в Architecture Definition Document, модели данных, реестр приложений, схемы интеграций, новые требования в Architecture Requirements Specification',
+     x:'Новые сущности «Слот доставки» и «Резерв слота», мастер — сервис доставки. Старый сервис доставки выводим. Склад передаёт событие «Заказ собран» через брокер.',
+     sa:'Главная фаза для Олега: логическая модель данных, список интеграций, первые требования к API. Он работает вместе с Кириллом.'},
+    {id:'D', b:'D', s:'Технологии', n:'Технологическая архитектура', en:'Technology Architecture',
+     d:'Технологический слой: на чём всё будет работать, какие платформы, серверы и сети, что из стандартов подходит, чего не хватает.',
+     q:'Хватает ли мощностей? Нужна ли новая технология? Что с надёжностью и безопасностью?',
+     a:'технологические разделы Architecture Definition Document, схема развёртывания, требования к технологиям',
+     x:'Сервис слотов — в существующем кластере k8s-prod, база — PostgreSQL по стандарту (решение ADR-0042 из главы 11). Новое — защищённый канал к API курьерского партнёра.',
+     sa:'Олег даёт числа: сколько запросов в пик, сколько слотов, какое время ответа нужно. Без них технологическую архитектуру проектируют на глаз.'},
+    {id:'E', b:'E', s:'Решения', n:'Возможности и решения', en:'Opportunities and Solutions',
+     d:'Сводят разрывы всех слоёв в список работ, объединяют их в проекты и решают: делать самим, покупать или брать у партнёра. Определяют переходные архитектуры — промежуточные ступени.',
+     q:'Какие проекты? Что покупаем, что делаем сами? В каком порядке, чтобы на каждой ступени всё работало?',
+     a:'черновик дорожной карты (Architecture Roadmap), переходные архитектуры (Transition Architectures), стратегия внедрения и миграции (Implementation and Migration Strategy)',
+     x:'Ступень 1: слоты на сайте, курьеры партнёра, старый сервис доставки ещё жив. Ступень 2: свой диспетчер, все заказы — через новый сервис. Ступень 3: старый сервис выключен.',
+     sa:'Олег оценивает объём требований по ступеням — это вход для оценки сроков.'},
+    {id:'F', b:'F', s:'Миграция', n:'Планирование миграции', en:'Migration Planning',
+     d:'Детальный план перехода: приоритеты, стоимость и выгода каждого проекта, зависимости, сроки. План согласуют с руководством и портфелем проектов.',
+     q:'Что раньше? Что от чего зависит? Сколько стоит и когда окупится?',
+     a:'итоговая дорожная карта (Architecture Roadmap), план внедрения и миграции (Implementation and Migration Plan), модель управления внедрением (Implementation Governance Model)',
+     x:'Три проекта на 12 месяцев. Первые слоты — через 4 месяца и только в двух районах Москвы, чтобы проверить спрос.',
+     sa:'Косвенно: его оценки и зависимости между требованиями попадают в план.'},
+    {id:'G', b:'G', s:'Надзор', n:'Управление внедрением', en:'Implementation Governance',
+     d:'Проекты строят. Архитекторы следят, чтобы построили задуманное: заключают с проектами архитектурный контракт, проводят проверки соответствия, разбирают споры и исключения.',
+     q:'Соответствует ли реализация архитектуре? Какие отклонения допустимы? Кто разрешает исключения?',
+     a:'архитектурный контракт (Architecture Contract), оценки соответствия (Compliance Assessments), запросы на изменение (Change Requests)',
+     x:'На проверке выяснилось, что сайт кеширует слоты на 10 минут — нарушение требования АТ-14 («не дольше 60 секунд»). Исправили до релиза.',
+     sa:'Олег проверяет, что реализация соответствует постановке, и приходит на проверки соответствия как автор требований.'},
+    {id:'H', b:'H', s:'Изменения', n:'Управление изменениями архитектуры', en:'Architecture Change Management',
+     d:'Архитектура построена, но мир меняется: новые технологии, законы, идеи бизнеса. Здесь следят за изменениями и решают: мелочь — поправить, крупное — запустить новый цикл ADM.',
+     q:'Что изменилось? Это мелкая правка или новый цикл? Работает ли то, что построили?',
+     a:'запросы на изменение архитектуры (Change Requests), новый запрос на архитектурную работу (Request for Architecture Work), обновлённые принципы и стандарты',
+     x:'Через год партнёр-курьер поднял цены на 40 %. Это повод для нового цикла: снова фаза A — не пора ли свой курьерский парк?',
+     sa:'Олег сообщает об изменениях, которые видит в требованиях: «третий запрос за месяц про доставку в Подмосковье — может, это новая возможность?»'},
+    {id:'R', b:'⟳', s:'Требования', n:'Управление требованиями', en:'Requirements Management',
+     d:'Не фаза, а постоянный процесс в центре колеса. Требования рождаются и меняются в любой фазе; их записывают, оценивают влияние изменений и направляют в нужную фазу.',
+     q:'Какие требования изменились? На что это влияет? В какую фазу вернуться?',
+     a:'обновления спецификации архитектурных требований (Architecture Requirements Specification), оценка влияния изменения требований (Requirements Impact Assessment)',
+     x:'Юристы потребовали хранить согласие Анны на СМС. Требование пришло во время фазы D, но затронуло данные — Кирилл вернулся в фазу C и добавил сущность «Согласие».',
+     sa:'Самая «аналитическая» часть ADM. Трассировка требований и анализ влияния — ровно то, что Олег делает каждый день, только здесь на уровне всей компании.'},
+  ];
+  const cx = 200, cy = 272, R = 168, r = 74;
+  const pt = (rad, deg) => { const a = deg * Math.PI / 180; return [(cx + rad * Math.cos(a)).toFixed(1), (cy + rad * Math.sin(a)).toFixed(1)]; };
+  let h = '<line class="ar" x1="200" y1="58" x2="200" y2="102"></line><path class="ar" d="M194 94 L200 104 L206 94"></path>';
+  h += '<g class="ph" data-lyx-ph="0" tabindex="0" role="button" aria-label="Предварительная фаза"><rect x="118" y="8" width="164" height="50" rx="25"></rect>' +
+       '<text x="200" y="31" text-anchor="middle" class="s" style="font-weight:700;fill:var(--ink)">Подготовка</text>' +
+       '<text x="200" y="49" text-anchor="middle" class="s">Preliminary</text></g>';
+  for(let k = 0; k < 8; k++){
+    const a0 = -112.5 + 45 * k + 1.3, a1 = a0 + 45 - 2.6, am = (a0 + a1) / 2;
+    const o0 = pt(R, a0), o1 = pt(R, a1), i1 = pt(r, a1), i0 = pt(r, a0), m = pt((R + r) / 2, am);
+    const p = PH[k + 1];
+    h += '<g class="ph" data-lyx-ph="' + (k + 1) + '" tabindex="0" role="button" aria-label="Фаза ' + p.b + ': ' + p.n + '">' +
+      '<path d="M' + o0 + ' A' + R + ' ' + R + ' 0 0 1 ' + o1 + ' L' + i1 + ' A' + r + ' ' + r + ' 0 0 0 ' + i0 + ' Z"></path>' +
+      '<text x="' + m[0] + '" y="' + (+m[1] - 2) + '" text-anchor="middle">' + p.b + '</text>' +
+      '<text x="' + m[0] + '" y="' + (+m[1] + 17) + '" text-anchor="middle" class="s">' + p.s + '</text></g>';
+  }
+  h += '<g class="ph" data-lyx-ph="9" tabindex="0" role="button" aria-label="Управление требованиями"><circle cx="' + cx + '" cy="' + cy + '" r="' + (r - 8) + '"></circle>' +
+       '<text x="' + cx + '" y="' + (cy - 3) + '" text-anchor="middle" class="s" style="font-weight:700;fill:var(--ink)">Управление</text>' +
+       '<text x="' + cx + '" y="' + (cy + 15) + '" text-anchor="middle" class="s" style="font-weight:700;fill:var(--ink)">требованиями</text></g>';
+  svg.innerHTML = h;
+  const gs = [...svg.querySelectorAll('[data-lyx-ph]')];
+  const pick = document.getElementById('lyx-adm-pick'), out = document.getElementById('lyx-adm-out'), lab = document.getElementById('lyx-adm-lab');
+  pick.innerHTML = PH.map((p, i) => '<button data-lyx-pi="' + i + '" title="' + esc(p.n) + '">' + (i === 9 ? '⟳ Требования' : p.b) + '</button>').join('');
+  const seen = new Set();
+  let cur = -1, timer = null;
+  Progress.register('lyx-adm', PH.length, 'Слои: колесо TOGAF ADM');
+  function paint(){
+    gs.forEach(g => {
+      const i = +g.getAttribute('data-lyx-ph');
+      g.setAttribute('class', 'ph' + (seen.has(i) ? ' seen' : '') + (i === cur ? ' on' : ''));
+    });
+    [...pick.children].forEach((b, i) => b.classList.toggle('on', i === cur));
+    lab.textContent = cur < 0 ? 'фаз: 10 · изучено ' + seen.size : (cur + 1) + ' из 10 · изучено ' + seen.size;
+    if(cur < 0){
+      out.innerHTML = '<div class="console" style="margin-top:9px"><span class="ic">ℹ</span><span>Нажмите на фазу, на кнопку с буквой или «Дальше →». Колесо идёт по часовой стрелке от A до H; предварительная фаза — один раз в начале, управление требованиями — всё время в центре.</span></div>';
+      return;
+    }
+    const p = PH[cur];
+    out.innerHTML = '<div class="lout" style="margin-top:9px"><h4>' + (cur === 0 ? 'Предварительная фаза' : cur === 9 ? 'В центре колеса' : 'Фаза ' + p.b) + ' · ' + p.n +
+      ' <span style="font:500 11px var(--mono);color:var(--faint)">' + p.en + '</span></h4><div class="lgrid">' +
+      '<b>что происходит</b><div>' + p.d + '</div>' +
+      '<b>главные вопросы</b><div>' + p.q + '</div>' +
+      '<b>артефакты</b><div>' + p.a + '</div>' +
+      '<b>в «Ботинке»</b><div>' + p.x + '</div>' +
+      '<b>где аналитик</b><div>' + p.sa + '</div></div></div>';
+  }
+  function go(i){
+    cur = clamp(i, 0, PH.length - 1); seen.add(cur);
+    Progress.report('lyx-adm', seen.size);
+    if(seen.size === PH.length && typeof confetti === 'function') confetti(20);
+    paint();
+  }
+  function stop(){ if(timer){ clearInterval(timer); timer = null; } const b = document.getElementById('lyx-adm-play'); if(b) b.textContent = '▶ Пройти цикл'; }
+  svg.addEventListener('click', e => { const g = e.target.closest('[data-lyx-ph]'); if(g){ stop(); go(+g.getAttribute('data-lyx-ph')); } });
+  svg.addEventListener('keydown', e => {
+    if(e.key !== 'Enter' && e.key !== ' ') return;
+    const g = e.target.closest('[data-lyx-ph]'); if(!g) return;
+    e.preventDefault(); stop(); go(+g.getAttribute('data-lyx-ph'));
+  });
+  pick.addEventListener('click', e => { const b = e.target.closest('button[data-lyx-pi]'); if(b){ stop(); go(+b.dataset.lyxPi); } });
+  document.getElementById('lyx-adm-next').addEventListener('click', () => { stop(); go(cur < PH.length - 1 ? cur + 1 : cur); });
+  document.getElementById('lyx-adm-prev').addEventListener('click', () => { stop(); if(cur > 0) go(cur - 1); });
+  document.getElementById('lyx-adm-play').addEventListener('click', e => {
+    if(timer){ stop(); return; }
+    e.currentTarget.textContent = '⏸ Пауза';
+    go(cur < 0 || cur >= PH.length - 1 ? 0 : cur + 1);
+    timer = setInterval(() => { if(cur >= PH.length - 1){ stop(); return; } go(cur + 1); }, 2200);
+  });
+  paint();
+})();
+
+/* ═══ глава 8: ArchiMate — связи и пошаговое чтение схемы ═══ */
+(function(){
+  const svg = document.getElementById('lyx-am-svg'); if(!svg) return;
+  renderCmp('lyx-am-rel', ['Связь', 'Как читать', 'Пример в «Ботинке»'], [
+    {cells:['<b>Обслуживание</b><br><small>serving</small>', '«А служит Б». Сплошная линия с открытой стрелкой', 'Сервис «Приём заказов» обслуживает процесс «Оформить заказ»'],
+     why:'Главный мост между слоями: нижний служит верхнему. Технологии служат приложениям, приложения — процессам. Если связь обслуживания обрывается, процесс остаётся без поддержки.'},
+    {cells:['<b>Реализация</b><br><small>realization</small>', '«А воплощает Б». Пунктир с полым треугольником', 'Сервис заказов реализует сервис «Приём заказов»'],
+     why:'Связывает обещание и исполнителя (сервис и компонент), понятие и его цифровую форму (бизнес-объект и объект данных), программу и файл (компонент и артефакт).'},
+    {cells:['<b>Назначение</b><br><small>assignment</small>', '«А выполняет Б» или «Б развёрнут на А». Линия с точкой у начала', 'Покупатель выполняет «Оформить заказ»; образ развёрнут на кластере'],
+     why:'Кто делает работу и где живёт программа. Точка — у того, кто выполняет или на ком развёрнуто.'},
+    {cells:['<b>Доступ</b><br><small>access</small>', '«А читает или пишет Б». Точечная линия', 'Сервис заказов пишет таблицу orders'],
+     why:'Кто трогает данные. Стрелка к объекту — пишет, от объекта — читает. По этим связям строят матрицу «данные × системы».'},
+    {cells:['<b>Композиция и агрегация</b><br><small>composition, aggregation</small>', '«Б — часть А». Линия с ромбом у целого', 'Модуль корзины — часть сайта'],
+     why:'Композиция: часть не живёт без целого (закрасили ромб). Агрегация: часть может входить в несколько целых (ромб пустой).'},
+    {cells:['<b>Поток и триггер</b><br><small>flow, triggering</small>', '«А передаёт Б» и «А запускает Б»', 'Оплата принята → запускает сборку'],
+     why:'Динамика: передача данных или ценности и порядок шагов. Поток — пунктир со стрелкой, триггер — сплошная со стрелкой.'},
+    {cells:['<b>Специализация</b><br><small>specialization</small>', '«А — вид Б». Полый треугольник', 'Экспресс-доставка — вид доставки'],
+     why:'Как «наследование»: частный случай общего понятия.'},
+    {cells:['<b>Влияние</b><br><small>influence</small>', '«А помогает или мешает Б». Пунктир, можно с «+» или «−»', 'Цель «доставка за 2 часа» влияет на требование к слотам'],
+     why:'Используется в слое мотивации: цели, драйверы, принципы, требования.'},
+    {cells:['<b>Ассоциация</b><br><small>association</small>', '«Как-то связаны». Простая линия', 'Покупатель связан с продуктом'],
+     why:'Самая слабая связь. Если на схеме одни ассоциации — это не ArchiMate, а рисунок, и он не отвечает ни на один вопрос.'},
+  ]);
+  const W = 190, H = 58;
+  const EL = [
+    {id:'actor', c:'b', x:40, y:52, n:'Покупатель', k:'бизнес-актор'},
+    {id:'proc', c:'b', x:365, y:52, n:'Оформить заказ', k:'бизнес-процесс'},
+    {id:'bobj', c:'b', x:690, y:52, n:'Заказ', k:'бизнес-объект'},
+    {id:'asrv', c:'a', x:365, y:180, n:'Приём заказов', k:'сервис приложения'},
+    {id:'acmp', c:'a', x:365, y:282, n:'Сервис заказов', k:'компонент'},
+    {id:'dobj', c:'a', x:690, y:282, n:'Таблица orders', k:'объект данных'},
+    {id:'tsrv', c:'t', x:365, y:410, n:'Хостинг контейнеров', k:'техн. сервис'},
+    {id:'node', c:'t', x:365, y:516, n:'Кластер k8s-prod', k:'узел'},
+    {id:'art', c:'t', x:40, y:516, n:'order-service:2.4', k:'артефакт'},
+  ];
+  /* t: as — назначение, rz — реализация, sv — обслуживание, ac — доступ */
+  const RL = [
+    {id:'r1', a:'actor', b:'proc', t:'as', d:'M230 81 L363 81', lx:297, ly:72, l:'назначение', mid:1},
+    {id:'r2', a:'proc', b:'bobj', t:'ac', d:'M555 81 L688 81', lx:622, ly:72, l:'доступ', mid:1},
+    {id:'r3', a:'asrv', b:'proc', t:'sv', d:'M460 180 L460 112', lx:470, ly:152, l:'обслуживает'},
+    {id:'r4', a:'acmp', b:'asrv', t:'rz', d:'M460 282 L460 240', lx:470, ly:266, l:'реализует'},
+    {id:'r5', a:'acmp', b:'dobj', t:'ac', d:'M555 311 L688 311', lx:622, ly:302, l:'доступ', mid:1},
+    {id:'r6', a:'dobj', b:'bobj', t:'rz', d:'M785 282 L785 112', lx:795, ly:200, l:'реализует'},
+    {id:'r7', a:'tsrv', b:'acmp', t:'sv', d:'M460 410 L460 342', lx:470, ly:382, l:'обслуживает'},
+    {id:'r8', a:'node', b:'tsrv', t:'rz', d:'M460 516 L460 470', lx:470, ly:498, l:'реализует'},
+    {id:'r9', a:'node', b:'art', t:'as', d:'M365 545 L232 545', lx:298, ly:536, l:'назначение', mid:1},
+    {id:'r10', a:'art', b:'acmp', t:'rz', d:'M135 516 L135 311 L363 311', lx:145, ly:430, l:'реализует'},
+  ];
+  const mk = on => {
+    const c = on ? ' on' : '', s = on ? '-on' : '';
+    return '<marker id="lyx-am-open' + s + '" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="12" markerHeight="12" markerUnits="userSpaceOnUse" orient="auto"><path class="mk' + c + '" d="M1 1 L11 6 L1 11"></path></marker>' +
+      '<marker id="lyx-am-fill' + s + '" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="12" markerHeight="12" markerUnits="userSpaceOnUse" orient="auto"><path class="mk f' + c + '" d="M1 1 L11 6 L1 11 Z"></path></marker>' +
+      '<marker id="lyx-am-tri' + s + '" viewBox="0 0 14 14" refX="13" refY="7" markerWidth="14" markerHeight="14" markerUnits="userSpaceOnUse" orient="auto"><path class="mk h' + c + '" d="M1 1 L13 7 L1 13 Z"></path></marker>' +
+      '<marker id="lyx-am-dot' + s + '" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse"><circle class="mk f' + c + '" cx="5" cy="5" r="4"></circle></marker>';
+  };
+  let h = '<defs>' + mk(false) + mk(true) + '</defs>' +
+    '<rect class="band b" x="4" y="6" width="892" height="134" rx="10"></rect><text class="bl" x="14" y="26">Бизнес</text>' +
+    '<rect class="band a" x="4" y="146" width="892" height="206" rx="10"></rect><text class="bl" x="14" y="166">Приложения</text>' +
+    '<rect class="band t" x="4" y="358" width="892" height="236" rx="10"></rect><text class="bl" x="14" y="378">Технологии</text>';
+  RL.forEach(r => {
+    h += '<path class="rel" data-lyx-r="' + r.id + '" d="' + r.d + '"></path>' +
+         '<text class="rl" data-lyx-rl="' + r.id + '" x="' + r.lx + '" y="' + r.ly + '"' + (r.mid ? ' text-anchor="middle"' : '') + '>' + r.l + '</text>';
+  });
+  EL.forEach(e => {
+    h += '<g class="el ' + e.c + '" data-lyx-el="' + e.id + '"><rect x="' + e.x + '" y="' + e.y + '" width="' + W + '" height="' + H + '" rx="' + (e.k.indexOf('сервис') >= 0 ? 26 : 6) + '"></rect>' +
+      '<text x="' + (e.x + W / 2) + '" y="' + (e.y + 25) + '" text-anchor="middle">' + esc(e.n) + '</text>' +
+      '<text class="k" x="' + (e.x + W / 2) + '" y="' + (e.y + 45) + '" text-anchor="middle">' + esc(e.k) + '</text></g>';
+  });
+  svg.innerHTML = h;
+  const ST = [
+    {r:'r1', t:'Покупатель выполняет процесс «Оформить заказ»',
+     d:'Связь <b>назначение</b> (assignment): сплошная линия с точкой у исполнителя и стрелкой к работе. Читается «кто делает». Актор — живой участник: Анна или любой покупатель. Если бы заказ оформлял оператор колл-центра, здесь стоял бы он.'},
+    {r:'r2', t:'Процесс создаёт бизнес-объект «Заказ»',
+     d:'Связь <b>доступ</b> (access): точечная линия. Стрелка к объекту — процесс его создаёт или меняет; от объекта — только читает. Бизнес-объект — понятие бизнеса («Заказ»), а не таблица в базе.'},
+    {r:'r3', t:'Сервис приложения обслуживает процесс',
+     d:'Главный мост между слоями — связь <b>обслуживание</b> (serving): сплошная линия с открытой стрелкой. «Приём заказов» — не программа, а <b>обещание</b> программы: «я умею принимать заказы». Процессу неважно, какая программа выполняет обещание.'},
+    {r:'r4', t:'Компонент реализует сервис',
+     d:'Связь <b>реализация</b> (realization): пунктир с полым треугольником. «Сервис заказов» — конкретная программа, которая выполняет обещание «Приём заказов». Завтра её перепишут — обещание останется тем же, и процесс этого не заметит.'},
+    {r:'r5', t:'Компонент пишет таблицу orders',
+     d:'Снова <b>доступ</b>, но в слое приложений. Объект данных — то, что лежит в базе. Такие связи — основа матрицы «данные × системы»: кто создаёт, читает, меняет и удаляет запись.'},
+    {r:'r6', t:'Таблица реализует бизнес-объект',
+     d:'<b>Реализация</b> между слоями: строка в таблице orders — цифровая форма бизнес-понятия «Заказ». Именно такая связь отвечает на первый тупик Олега: где лежит «правильный» заказ или телефон.'},
+    {r:'r7', t:'Технологический сервис обслуживает компонент',
+     d:'<b>Обслуживание</b> снизу вверх: «хостинг контейнеров» служит сервису заказов. Программе нужен не конкретный сервер, а услуга «запусти меня и держи живым».'},
+    {r:'r8', t:'Кластер реализует хостинг',
+     d:'<b>Реализация</b> в слое технологий: конкретный узел — кластер k8s-prod — выполняет обещание «хостинг контейнеров». Переедем в облако — поменяется узел, а сервис для приложений останется прежним.'},
+    {r:'r9', t:'Образ развёрнут на кластере',
+     d:'<b>Назначение</b> в слое технологий читается «где развёрнуто». Артефакт — это файл: образ контейнера order-service версии 2.4. Точка — у кластера, на котором он работает.'},
+    {r:'r10', t:'Образ реализует компонент',
+     d:'Последний мостик: файл order-service:2.4 — физическое воплощение компонента «Сервис заказов». Цепочка замкнулась: <b>процесс ← сервис приложения ← компонент ← образ ← кластер</b>. По таким цепочкам инструменты моделирования сами строят анализ влияния из главы 5.', ok:true},
+  ];
+  const rels = [...svg.querySelectorAll('[data-lyx-r]')], rls = [...svg.querySelectorAll('[data-lyx-rl]')], els = [...svg.querySelectorAll('[data-lyx-el]')];
+  const byR = {}; RL.forEach(r => byR[r.id] = r);
+  const out = document.getElementById('lyx-am-out'), lab = document.getElementById('lyx-am-lab');
+  const MK = {as:['dot','fill'], rz:[null,'tri'], sv:[null,'open'], ac:[null,'open']};
+  let cur = -1, timer = null;
+  Progress.register('lyx-am', 1, 'Слои: схема ArchiMate');
+  function paint(){
+    const st = cur >= 0 ? ST[cur] : null, rr = st ? byR[st.r] : null;
+    rels.forEach(p => {
+      const r = byR[p.getAttribute('data-lyx-r')], on = rr && r.id === rr.id;
+      p.setAttribute('class', 'rel' + (r.t === 'rz' ? ' dash' : r.t === 'ac' ? ' dot' : '') + (on ? ' on' : rr ? ' dim' : ''));
+      const m = MK[r.t], s = on ? '-on' : '';
+      if(m[0]) p.setAttribute('marker-start', 'url(#lyx-am-' + m[0] + s + ')'); else p.removeAttribute('marker-start');
+      p.setAttribute('marker-end', 'url(#lyx-am-' + m[1] + s + ')');
+    });
+    rls.forEach(t => { const on = rr && t.getAttribute('data-lyx-rl') === rr.id; t.setAttribute('class', 'rl' + (on ? ' on' : rr ? ' dim' : '')); });
+    els.forEach(g => {
+      const id = g.getAttribute('data-lyx-el'), e = EL.find(x => x.id === id), on = rr && (rr.a === id || rr.b === id);
+      g.setAttribute('class', 'el ' + e.c + (on ? ' on' : rr ? ' dim' : ''));
+    });
+    lab.textContent = cur < 0 ? 'связей: ' + ST.length : 'шаг ' + (cur + 1) + ' из ' + ST.length;
+    out.innerHTML = st
+      ? '<div class="skout" style="margin-top:9px"><h4>Шаг ' + (cur + 1) + '. ' + st.t + '</h4><div class="note' + (st.ok ? ' good' : '') + '" style="margin:0">' + st.d + '</div></div>'
+      : '<div class="console" style="margin-top:9px"><span class="ic">ℹ</span><span>Нажмите «Дальше →» или «▶ Прочитать». Прямоугольники со скруглёнными углами — сервисы (обещания), обычные — то, что их выполняет, и данные.</span></div>';
+    if(cur === ST.length - 1) Progress.report('lyx-am', 1);
+  }
+  function stop(){ if(timer){ clearInterval(timer); timer = null; } const b = document.getElementById('lyx-am-play'); if(b) b.textContent = '▶ Прочитать'; }
+  document.getElementById('lyx-am-next').addEventListener('click', () => { stop(); if(cur < ST.length - 1){ cur++; paint(); } });
+  document.getElementById('lyx-am-prev').addEventListener('click', () => { stop(); if(cur > -1){ cur--; paint(); } });
+  document.getElementById('lyx-am-reset').addEventListener('click', () => { stop(); cur = -1; paint(); });
+  document.getElementById('lyx-am-play').addEventListener('click', e => {
+    if(timer){ stop(); return; }
+    if(cur >= ST.length - 1) cur = -1;
+    e.currentTarget.textContent = '⏸ Пауза';
+    timer = setInterval(() => { if(cur >= ST.length - 1){ stop(); return; } cur++; paint(); }, 2200);
+  });
+  paint();
+})();
+</script>
+
+<script>
+/* ═══ глава 9: SEAF — два случая ═══ */
+(function(){
+  const C = {
+    night: {
+      title:'🌙 02:40. Упал сервер srv-prod-14. Дежурный поднят по звонку.',
+      bad:'БЕЗ ЕДИНЫХ ПРАВИЛ\n\n  Вопрос: что сейчас не работает у клиентов?\n\n  02:40  смотрим: упал srv-prod-14\n  02:41  что на нём крутилось? списка нет\n  02:45  пишем в чат разработки\n  02:58  отвечает тот, кто помнит\n  03:10  выясняем, что это оформление заказов\n  03:12  начинаем чинить\n\n  32 минуты ушло на выяснение,\n  а не на починку.',
+      good:'С ЕДИНЫМИ ПРАВИЛАМИ\n\n  Вопрос тот же. Открываем карту:\n\n  srv-prod-14\n     └─ сервис order-api\n          └─ данные «Заказ»\n               └─ процесс «Оформление заказа»\n\n  02:40  упал srv-prod-14\n  02:41  видим: встал приём заказов\n  02:42  пишем клиентам, начинаем чинить\n\n  2 минуты.',
+      msg:'Связь «железо → бизнес-процесс» записана заранее. Её не нужно вспоминать в три часа ночи.'
+    },
+    change: {
+      title:'✏️ Бизнес: «хотим поменять процесс возврата товара. Что придётся трогать?»',
+      bad:'БЕЗ ЕДИНЫХ ПРАВИЛ\n\n  Ответ: «надо собрать совещание».\n\n  день 1   собираем всех, кто может знать\n  день 3   встреча, вспоминаем вслух\n  день 8   всплывает забытая интеграция\n  день 20  в разработке всплывает ещё одна\n\n  Оценка срока была дана на второй день\n  и оказалась неверной.',
+      good:'С ЕДИНЫМИ ПРАВИЛАМИ\n\n  Открываем карту сверху вниз:\n\n  процесс «Возврат товара»\n     ├─ order-api ──── данные «Заказ»\n     ├─ payments ───── данные «Платёж»\n     └─ notify ─────── данные «Уведомление»\n          └─ всё это на srv-prod-14 и srv-prod-15\n\n  Список затронутого — за пять минут.\n  Оценка срока опирается на факт.',
+      msg:'Связь «бизнес-процесс → сервисы → данные → железо» читается сверху вниз так же легко, как снизу вверх.'
+    },
+  };
+  const seg = document.getElementById('seaf-pick');
+  const out = document.getElementById('seaf-out');
+  if(!seg || !out) return;
+  function show(k){
+    const c = C[k];
+    out.innerHTML =
+      '<div class="lout"><h4>'+c.title+'</h4>' +
+      '<div class="grid2" style="margin-top:9px">' +
+        '<pre class="json" style="font-size:12px">'+esc(c.bad)+'</pre>' +
+        '<pre class="json" style="font-size:12px">'+esc(c.good)+'</pre>' +
+      '</div>' +
+      '<div class="note good" style="margin-top:10px"><b>В чём разница:</b> '+c.msg+'</div></div>';
+  }
+  seg.addEventListener('click', e => {
+    const b = e.target.closest('button[data-c]'); if(!b) return;
+    [...seg.children].forEach(x => x.classList.toggle('on', x === b));
+    show(b.dataset.c);
+  });
+  show('night');
+})();
+
+/* ═══ глава 9: сквозные вещи ═══ */
+(function(){
+  renderNum('lay-cross', [
+    {t:'Чем слой отличается от сквозной вещи', d:'У <b>слоя</b> есть собственный предмет: процессы, данные, приложения, железо. Его можно описать отдельно, у него есть хозяин и свои документы. У <b>сквозной вещи</b> своего предмета нет — она существует, чтобы остальные четыре не разъехались. Поэтому считать их слоями нельзя: у них потом ищут хозяина и не находят.'},
+    {t:'Управление требованиями — что это и зачем', d:'Следит, чтобы решение каждого слоя всё ещё отвечало тому, что нужно бизнесу и пользователю. Работа размазана по всем четырём слоям, поэтому своего слоя у неё нет. В колесе TOGAF ADM (глава 7) оно стоит в центре — по той же причине.<br><br><b>Что будет без него:</b> задача изменилась полгода назад, а решение продолжают доделывать по инерции — и заметить это некому. Это самый частый способ потратить полгода команды впустую, и он не выглядит как ошибка: все работают, тикеты закрываются.'},
+  ]);
+})();
+
+/* ═══ глава 10: закон Конвея ═══ */
+(function(){
+  const C = {
+    layers: {
+      org:'ОТДЕЛЫ ПО СЛОЯМ\n\n  [ фронтенд ]   [ бэкенд ]   [ база данных ]\n       12 чел        18 чел         6 чел\n\n  общаются через руководителей, раз в спринт',
+      sys:'ЧТО ВЫРАСТЕТ\n\n  задача «поменять номер телефона»\n        │\n        ├─► очередь фронтенда   ждём 2 недели\n        ├─► очередь бэкенда     ждём 2 недели\n        └─► очередь базы        ждём 1 неделю\n\n  Система: [ фронт ] ─► [ бэк ] ─► [ база ]\n  Границы прошли по слоям, а не по делу.',
+      v:'bad', msg:'Любая задача проходит через три очереди. Пять недель на изменение, которое пишется за день.'
+    },
+    flow: {
+      org:'КОМАНДЫ ПО НАПРАВЛЕНИЯМ\n\n  [ Заказы ]   [ Платежи ]   [ Доставка ]\n   фронт+бэк    фронт+бэк     фронт+бэк\n   +своя база   +своя база    +своя база\n\n  общаются внутри себя, каждый день',
+      sys:'ЧТО ВЫРАСТЕТ\n\n  задача «поменять номер телефона»\n        │\n        └─► команда «Клиенты» делает целиком\n\n  Система: [ Заказы ]  [ Платежи ]  [ Доставка ]\n  Границы прошли по делу.\n  Каждая команда выкатывает сама.',
+      v:'good', msg:'Задача делается одной командой и никого не ждёт. Это то, ради чего затевают микросервисы.'
+    },
+    geo: {
+      org:'КОМАНДЫ ПО ОФИСАМ\n\n  [ Москва ]        [ Новосибирск ]\n   26 человек        14 человек\n\n  разница 4 часа, общий созвон раз в неделю',
+      sys:'ЧТО ВЫРАСТЕТ\n\n  Между московской и сибирской частями —\n  толстая стена с формальным договором\n  и длинным согласованием.\n\n  Внутри каждой части всё срастётся,\n  даже то, что по замыслу должно быть раздельным.\n\n  Граница прошла по часовым поясам.',
+      v:'warn', msg:'Ни хорошо, ни плохо — но граница появится именно здесь. Если она вам не нужна, оргструктуру придётся менять.'
+    },
+  };
+  const pick = document.getElementById('lay-conway');
+  const seg = document.getElementById('lay-conway-pick');
+  if(!pick || !seg) return;
+  function show(k){
+    const c = C[k];
+    pick.innerHTML =
+      '<div class="grid2">' +
+        '<pre class="json" style="font-size:12px">'+esc(c.org)+'</pre>' +
+        '<pre class="json" style="font-size:12px">'+esc(c.sys)+'</pre>' +
+      '</div>' +
+      '<div class="note '+(c.v==='good'?'good':c.v==='bad'?'warn':'')+'" style="margin-top:10px"><b>Итог:</b> '+c.msg+'</div>';
+  }
+  seg.addEventListener('click', e => {
+    const b = e.target.closest('button[data-c]'); if(!b) return;
+    [...seg.children].forEach(x => x.classList.toggle('on', x === b));
+    show(b.dataset.c);
+  });
+  show('layers');
+})();
+
+/* ═══ глава 10: живая модель Team Topologies ═══ */
+(function(){
+  const teamsEl = document.getElementById('lyx-tt-teams'); if(!teamsEl) return;
+  const RM = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const st = {org:'layers', pl:false, cs:false, en:false, mode:'xaas'};
+  const archEl = document.getElementById('lyx-tt-arch'), kpiEl = document.getElementById('lyx-tt-kpi');
+  const logEl = document.getElementById('lyx-tt-log'), msgEl = document.getElementById('lyx-tt-msg');
+  const orgBar = document.getElementById('lyx-tt-org'), tgBar = document.getElementById('lyx-tt-tg'), modeBar = document.getElementById('lyx-tt-mode');
+  let timers = [];
+  Progress.register('lyx-tt', 3, 'Слои: команды и архитектура');
+  const LOADTXT = ['', 'низкая', 'средняя', 'высокая', 'перегруз'];
+  const RISKTXT = ['низкий', 'низкий', 'средний', 'высокий', 'высокий'];
+  function model(){
+    if(st.org === 'layers') return {
+      teams:[{id:'fe', n:'Фронтенд', k:'отдел по слою'}, {id:'be', n:'Бэкенд', k:'отдел по слою'}, {id:'db', n:'Базы данных', k:'отдел по слою'}, {id:'ops', n:'Эксплуатация', k:'отдел по слою'}],
+      links:[['bad','фронт → бэк: заявки'], ['bad','бэк → БД: заявки'], ['bad','все → эксплуатация: релизное окно']],
+      hops:[['fe','Фронтенд: сверстали выбор слота. Нужен API — задача в очередь бэкенда', 1],
+            ['be','Бэкенд: API слотов и расчёт времени. Нужна таблица — задача в очередь отдела баз данных', 2],
+            ['db','Базы данных: таблица слотов и миграция. Возвращаем бэкенду', 1],
+            ['be','Бэкенд: доделали и отдали на выкатку', 1],
+            ['ops','Эксплуатация: выкатка в общем релизном окне раз в две недели', 1]],
+      load:2, loadNote:' (у каждого отдела — узкая, но все ждут всех)', risk:3, deploy:false,
+      arch:'<div class="lyx-tt-a"><div class="lyx-tt-box">Весь интерфейс<small>отдел фронтенда</small></div>' +
+           '<div class="lyx-tt-box">Вся бизнес-логика — один большой бэкенд<small>отдел бэкенда</small></div>' +
+           '<div class="lyx-tt-box">Одна общая база на всех<small>отдел баз данных</small></div>' +
+           '<div class="lyx-tt-box bad">Общий релиз раз в две недели<small>эксплуатация</small></div></div>' +
+           '<p style="font-size:12.5px;color:var(--muted);margin:8px 0 0">Слоёная система: любая фича режет все четыре слоя.</p>'
+    };
+    if(st.org === 'geo') return {
+      teams:[{id:'msk', n:'Москва', k:'офис: сайт, заказы, оплата'}, {id:'nsk', n:'Новосибирск', k:'офис: склад, доставка'}],
+      links:[['bad','созвон раз в неделю, разница 4 часа']],
+      hops:[['msk','Москва: выбор слота в корзине. Слоты считает Новосибирск — пишем им', 1],
+            ['nsk','Новосибирск: слоты и курьеры. Ответы на вопросы — через день из-за разницы во времени', 2],
+            ['msk','Москва: стыкуем по договору, находим расхождение в формате времени', 1],
+            ['nsk','Новосибирск: правим формат, совместный релиз двух офисов', 0.5]],
+      load:3, loadNote:' (каждый офис делает всё сразу)', risk:2, deploy:false,
+      arch:'<div class="lyx-tt-a"><div class="lyx-tt-row"><div class="lyx-tt-box">Москва: сайт + заказы + оплата<small>один большой блок</small></div>' +
+           '<div class="lyx-tt-box">Новосибирск: склад + доставка<small>второй большой блок</small></div></div>' +
+           '<div class="lyx-tt-box bad">Между ними — толстый договор и выгрузка раз в час</div></div>' +
+           '<p style="font-size:12.5px;color:var(--muted);margin:8px 0 0">Граница прошла по часовым поясам, а не по смыслу.</p>'
+    };
+    const teams = [{id:'buy', n:'🛒 Покупка', k:'потоковая', t:'st'}, {id:'dlv', n:'🚚 Доставка', k:'потоковая', t:'st'}, {id:'cli', n:'👤 Клиенты', k:'потоковая', t:'st'}];
+    if(st.pl) teams.push({id:'pl', n:'🧱 Платформа', k:'платформенная', t:'pl'});
+    if(st.cs) teams.push({id:'cs', n:'🧮 Маршруты', k:'сложной подсистемы', t:'cs'});
+    if(st.en) teams.push({id:'en', n:'🧭 Помощники', k:'помощник · временно', t:'en'});
+    const links = [['good','Покупка ↔ Доставка: контракт виджета']];
+    if(st.pl) links.push(st.mode === 'xaas' ? ['good','Платформа → все: как услуга'] : ['','Платформа ↔ Доставка: сотрудничество']);
+    else links.push(['bad','у каждой команды свой кластер и конвейер']);
+    if(st.cs) links.push(['good','Маршруты → Доставка: API как услуга']);
+    if(st.en) links.push(['','Помощники → Доставка: содействие, 6 недель']);
+    const hops = [['dlv','Доставка: сервис слотов со своей базой и API резервирования', 1.5]];
+    if(!st.pl) hops.push(['dlv','Доставка: сама поднимает окружение, конвейер сборки и мониторинг', 1.5]);
+    else if(st.mode === 'collab') hops.push(['pl','Платформа: совместные созвоны и ручная настройка окружения вместе с Доставкой', 0.5], ['dlv','Доставка: ждёт, пока настройку закончат', 0.5]);
+    else hops.push(['pl','Платформа: Доставка берёт готовый шаблон сервиса из каталога — самообслуживание, без ожидания', 0, 1]);
+    if(st.cs) hops.push(['cs','Маршруты: отдают готовый API расчёта времени в пути', 0, 1]);
+    else hops.push(['dlv','Доставка: сама пишет расчёт времени в пути — нужны математики, которых в команде нет', 1.5]);
+    if(st.en) hops.push(['en','Помощники: две недели учат Доставку трассировке и алертам, потом уходят', 0, 1]);
+    hops.push(['buy','Покупка: встраивает виджет слота в корзину по контракту Доставки и выкатывает сама', 0.5]);
+    const load = 1 + (st.pl ? 0 : 2) + (st.pl && st.mode === 'collab' ? 1 : 0) + (st.cs ? 0 : 1);
+    const risk = Math.max(1, 2 + (st.pl ? 0 : 1) - (st.en ? 1 : 0));
+    const arch = '<div class="lyx-tt-a"><div class="lyx-tt-row">' +
+        '<div class="lyx-tt-box good">🛒 Покупка<small>каталог · корзина · заказы · своя БД</small></div>' +
+        '<div class="lyx-tt-box good">🚚 Доставка<small>слоты · курьеры · своя БД</small></div>' +
+        '<div class="lyx-tt-box good">👤 Клиенты<small>профиль · лояльность · уведомления</small></div></div>' +
+      (st.cs ? '<div class="lyx-tt-box cs">🧮 Движок маршрутов · API /eta<small>команда «Маршруты»; для Доставки — как услуга</small></div>'
+             : '<div class="lyx-tt-box bad">Расчёт маршрутов внутри сервиса доставки<small>математика перемешана со слотами</small></div>') +
+      (st.pl ? '<div class="lyx-tt-box pl">🧱 Платформа: шаблон сервиса, конвейер, мониторинг<small>' + (st.mode === 'xaas' ? 'самообслуживание' : 'пока — через совместную работу') + '</small></div>'
+             : '<div class="lyx-tt-row"><div class="lyx-tt-box bad">свой кластер ×3</div><div class="lyx-tt-box bad">свой конвейер ×3</div><div class="lyx-tt-box bad">свой мониторинг ×3</div></div>') +
+      (st.en ? '<div class="lyx-tt-box en">🧭 Помощники: трассировка и алерты — временно рядом с Доставкой</div>' : '') + '</div>' +
+      '<p style="font-size:12.5px;color:var(--muted);margin:8px 0 0">Вертикальные срезы по потокам ценности: у каждой команды свой сервис и своя база.</p>';
+    return {teams, links, hops, load, loadNote:' (у команды «Доставка»)', risk, deploy:true, arch};
+  }
+  function stats(m){
+    let hand = 0, prev = null, weeks = 0;
+    m.hops.forEach(h => { weeks += h[2]; if(h[3]) return; if(prev && h[0] !== prev) hand++; prev = h[0]; });
+    return {hand, weeks};
+  }
+  const isBest = () => st.org === 'stream' && st.pl && st.mode === 'xaas' && st.cs;
+  function drawTeams(hot){
+    const m = model();
+    teamsEl.innerHTML = '<div class="lyx-tt-teams">' + m.teams.map(t =>
+      '<div class="lyx-tt-team' + (t.t ? ' ' + t.t : '') + (hot === t.id ? ' hot' : '') + '"><b>' + t.n + '</b><span class="k">' + t.k + '</span>' +
+      (hot === t.id ? '<br><span class="lyx-tt-tok">📦 фича здесь</span>' : '') + '</div>').join('') + '</div>' +
+      '<div class="lyx-tt-links">' + m.links.map(l => '<span class="' + l[0] + '">' + l[1] + '</span>').join('') + '</div>';
+  }
+  function kpi(m){
+    const s = stats(m);
+    const k = (l, v, c) => '<div class="lyx-tt-k ' + c + '"><div class="l">' + l + '</div><div class="v">' + v + '</div></div>';
+    kpiEl.innerHTML =
+      k('Передач работы между командами', s.hand, s.hand <= 1 ? 'good' : s.hand >= 3 ? 'bad' : 'wq') +
+      k('Срок фичи', fmt(s.weeks) + ' нед.', s.weeks <= 2.5 ? 'good' : s.weeks >= 4.5 ? 'bad' : 'wq') +
+      k('Когнитивная нагрузка', LOADTXT[Math.min(4, m.load)], m.load <= 1 ? 'good' : m.load >= 3 ? 'bad' : 'wq') +
+      k('Выкатка', m.deploy ? 'своя' : 'общая', m.deploy ? 'good' : 'bad') +
+      k('Риск инцидента', RISKTXT[Math.min(4, m.risk)], m.risk <= 1 ? 'good' : m.risk >= 3 ? 'bad' : 'wq');
+    return s;
+  }
+  function advice(m, s){
+    if(st.org === 'layers') return ['err', 'Фича режет все четыре отдела: ' + s.hand + ' передачи, ' + fmt(s.weeks) + ' недель, общий релиз. Архитектура выросла слоёной — по закону Конвея. Попробуйте «По потокам ценности».'];
+    if(st.org === 'geo') return ['warn', 'Граница системы прошла между офисами. Фича ходит туда-обратно через часовые пояса: ' + s.hand + ' передачи. Попробуйте «По потокам ценности».'];
+    if(!st.pl) return ['warn', 'Передач почти нет, но команда «Доставка» тонет в инфраструктуре: свой кластер, свой конвейер, свой мониторинг — и так у каждой команды. Нагрузка — «' + LOADTXT[Math.min(4, m.load)] + '». Добавьте платформенную команду.'];
+    if(st.mode === 'collab') return ['warn', 'Сотрудничество с платформой полезно на месяц, пока шаблон сервиса ещё не готов. Навсегда оно съедает время обеих команд и добавляет передачи. Переключите на «как услугу».'];
+    if(!st.cs) return ['warn', 'Команде «Доставка» приходится самой писать математику маршрутов. Это редкие знания: вынесите их в команду сложной подсистемы «Маршруты».'];
+    return ['ok', 'Лучшая конфигурация: у «Доставки» остаётся только её предмет, платформа и маршруты — как услуга, одна передача работы, выкатка своя. ' + (st.en ? 'Помощники снизили риск инцидентов и уйдут через шесть недель.' : 'Можно добавить команду-помощника, чтобы снизить риск инцидентов после выкатки.')];
+  }
+  function refresh(){
+    timers.forEach(clearTimeout); timers = [];
+    const m = model(), s = kpi(m);
+    drawTeams(null); archEl.innerHTML = m.arch; logEl.innerHTML = '';
+    const a = advice(m, s);
+    const note = st.org !== 'stream' && (st.pl || st.cs || st.en) ? '<br><i>Платформа, маршруты и помощники имеют смысл, когда есть потоковые команды: сейчас они не учитываются.</i>' : '';
+    msg(msgEl, '', '<b>Прогноз:</b> ' + a[1] + note + '<br>Нажмите «▶ Провести фичу», чтобы увидеть путь по командам.');
+  }
+  function run(){
+    timers.forEach(clearTimeout); timers = [];
+    const m = model(), s = kpi(m);
+    logEl.innerHTML = '';
+    let wk = 0;
+    const lines = [];
+    function step(i){
+      const h = m.hops[i], from = wk; wk += h[2];
+      drawTeams(h[0]);
+      lines.push('<div>' + (h[2] ? 'нед. ' + fmt(from) + '–' + fmt(wk) : 'сразу') + ' · <b>' + esc(h[1]) + '</b></div>');
+      logEl.innerHTML = lines.join('');
+    }
+    function end(){
+      const a = advice(m, s);
+      msg(msgEl, a[0], '<b>Фича готова за ' + fmt(s.weeks) + ' нед., передач работы: ' + s.hand + '.</b> ' + a[1]);
+      Progress.report('lyx-tt', 1);
+      if(st.org === 'stream') Progress.report('lyx-tt', 2);
+      if(isBest()) Progress.report('lyx-tt', 3);
+    }
+    if(RM){ m.hops.forEach((_, i) => step(i)); end(); return; }
+    m.hops.forEach((_, i) => timers.push(setTimeout(() => { step(i); if(i === m.hops.length - 1) end(); }, i * 750)));
+  }
+  orgBar.addEventListener('click', e => {
+    const b = e.target.closest('button[data-o]'); if(!b) return;
+    [...orgBar.children].forEach(x => x.classList.toggle('on', x === b));
+    st.org = b.dataset.o; refresh();
+  });
+  tgBar.addEventListener('click', e => {
+    const b = e.target.closest('button[data-t]'); if(!b) return;
+    st[b.dataset.t] = !st[b.dataset.t]; b.classList.toggle('on', st[b.dataset.t]); refresh();
+  });
+  modeBar.addEventListener('click', e => {
+    const b = e.target.closest('button[data-x]'); if(!b) return;
+    [...modeBar.children].forEach(x => x.classList.toggle('on', x === b));
+    st.mode = b.dataset.x; refresh();
+  });
+  document.getElementById('lyx-tt-run').addEventListener('click', run);
+  document.getElementById('lyx-tt-reset').addEventListener('click', () => {
+    st.org = 'layers'; st.pl = st.cs = st.en = false; st.mode = 'xaas';
+    [...orgBar.children].forEach(x => x.classList.toggle('on', x.dataset.o === 'layers'));
+    [...tgBar.children].forEach(x => x.classList.remove('on'));
+    [...modeBar.children].forEach(x => x.classList.toggle('on', x.dataset.x === 'xaas'));
+    refresh();
+  });
+  refresh();
+})();
+
+/* ═══ глава 11: путь одного решения ═══ */
+(function(){
+  if(!document.getElementById('lyx-gov-out')) return;
+  let sc = 'ok';
+  const done = new Set();
+  const A = [
+    {t:'Шаг 1. Борис хочет MongoDB', a:['Заявка на архитектурное ревью АР-117', 'Команда:  Доставка', 'Что:      хранить слоты доставки в MongoDB', 'Почему:   «расписания удобно хранить документами»'],
+     d:'Борис не ставит базу сам, а подаёт короткую заявку. Это не бюрократия ради бюрократии: база — решение на годы. Её будут бэкапить, обновлять и чинить ночью дежурные из другой команды.'},
+    {t:'Шаг 2. Сверка с принципами и стандартами', a:['Принцип П-5 «Сначала стандартные технологии»', 'Каталог: PostgreSQL — «Использовать» (Adopt)', '         MongoDB    — «Оценивать» (Assess), в проде нет', '→ заявка = отклонение от стандарта'],
+     d:'Кирилл сверяет заявку с записанными правилами. Отклонение — не запрет: это значит, что решение выходит за одну команду и его рассматривает комитет.'},
+    {t:'Шаг 3. Варианты и их цена', a:['A. PostgreSQL, расписание в поле JSONB', '   + дежурные умеют, бэкапы настроены', '   − структуру расписания сложнее менять', 'B. MongoDB', '   + удобная модель документов', '   − нет бэкапов по стандарту, никто не дежурит, нужно обучение'],
+     d:'Кирилл и техлид «Доставки» готовят два варианта с честной ценой. Удобство для разработчика — реальный плюс, но его сравнивают с тем, во что обойдётся эксплуатация.'},
+    {t:'Шаг 4. Архитектурный комитет', a:['Состав: Вера, Кирилл, техлиды трёх команд, дежурный инженер эксплуатации', 'Срок по регламенту: до 5 рабочих дней (рассмотрели за 3)', 'Решение: вариант A. Исключение для MongoDB не выдаётся', 'Пересмотр: если слотов станет больше 50 млн'],
+     d:'Комитет смотрит на решение глазами всей компании, а не одной команды. Важная деталь — срок: решение за три дня, а не за шесть недель. Иначе комитет начнут обходить.'},
+    {t:'Шаг 5. Запись в реестр решений', a:['ADR-0042. Хранение слотов доставки', 'Статус: принято · Решение: PostgreSQL + JSONB', 'Отвергнуто: MongoDB — нет эксплуатации и бэкапов по стандарту'],
+     d:'Решение записано вместе с отвергнутым вариантом и причиной. Через год новый разработчик не будет заново поднимать тот же спор — он прочитает ADR.'},
+    {t:'Шаг 6. Контроль при внедрении', a:['Архитектурный контракт: сервис доставки использует только базы из каталога', 'Проверка в конвейере: манифест развёртывания сверяется с каталогом технологий', 'Ревью после первого релиза: реализация соответствует ADR-0042'], ok:true,
+     d:'Решение не только принято, но и проверяется автоматически. Это фаза G из колеса ADM, только в масштабе одной команды.'},
+  ];
+  const B = [
+    {t:'Шаг 1. «Потом согласуем»', a:['Борис поднимает MongoDB в кластере сам, в тот же день', 'Команда рада: быстро и удобно'],
+     d:'Короткий выигрыш: никаких заявок и ожидания. Счёт за него придёт позже и не этой команде.'},
+    {t:'Через 3 месяца: зоопарк', a:['В компании 4 разные СУБД на 6 командах', 'У каждой — свой способ бэкапа. Или никакого'], warn:true,
+     d:'Так поступил не только Борис. Каждое решение было разумным для своей команды, а вместе они дали зоопарк, который никто не умеет обслуживать целиком.'},
+    {t:'Через 5 месяцев: ночь', a:['03:10  упал узел MongoDB', '03:20  дежурный впервые видит эту базу', '04:40  бэкапа нет — слоты за сутки потеряны', '       212 заказов без времени доставки'], warn:true,
+     d:'Дежурный — из другой команды и учился на PostgreSQL. Потеря данных — прямое следствие отсутствия стандарта на бэкапы для этой базы.'},
+    {t:'Через 6 месяцев: счёт', a:['Миграция слотов в PostgreSQL: 2 месяца работы команды', 'Фича «доставка за 2 часа» стоит на паузе'], warn:true,
+     d:'Сэкономили три дня на ревью — потратили два месяца на переделку и репутацию перед покупателями.'},
+    {t:'Вывод', a:['Комитет — страховка, а не бюрократия', 'Но медленный комитет обходят все', 'Лекарство: быстрый регламент + решения внутри команды — без комитета, по принципам'], ok:true,
+     d:'Правильная реакция — не «наказать Бориса», а сделать правильный путь быстрым и удобным: срок ревью в регламенте, понятный каталог, шаблоны.'},
+  ];
+  Progress.register('lyx-gov', 2, 'Слои: архитектурное управление');
+  const api = dbStepper('lyx-gov', () => sc === 'ok' ? A : B, () => {
+    done.add(sc); Progress.report('lyx-gov', done.size);
+    return '<div class="note ' + (sc === 'ok' ? 'good' : 'warn') + '" style="margin-top:10px">' + (sc === 'ok'
+      ? '<b>Итог по правилам:</b> 3 дня на ревью, стандартная база, дежурные умеют её чинить, решение записано. ' + (done.has('bad') ? 'Оба сценария пройдены.' : 'Теперь пройдите сценарий «в обход».')
+      : '<b>Итог в обход:</b> три сэкономленных дня стоили двух месяцев переделки и потерянных данных. ' + (done.has('ok') ? 'Оба сценария пройдены.' : 'Теперь пройдите сценарий «по правилам».')) + '</div>';
+  });
+  const seg = document.getElementById('lyx-gov-sc');
+  seg.addEventListener('click', e => {
+    const b = e.target.closest('button[data-s]'); if(!b) return;
+    [...seg.children].forEach(x => x.classList.toggle('on', x === b));
+    sc = b.dataset.s; if(api) api.reset();
+  });
+})();
+
+/* ═══ глава 11: десять вопросов ревью ═══ */
+(function(){
+  renderNum('lay-q', [
+    {t:'Какую проблему решает система?', d:'<b>Главный вопрос: без него остальные девять бессмысленны.</b> Ответ формулируется словами бизнеса. «Клиенты уходят, потому что не понимают, за что списали деньги» — это проблема. «Нужен микросервис расчётов» — это уже чей-то ответ на непроизнесённую проблему.'},
+    {t:'Какие компоненты составляют систему и как они связаны?', d:'Границы и связи. Здесь принимают самые дорогие решения: где провести шов между частями, кто кого зовёт, ждать ответа или нет. Разделы «Как резать» и «Как сервисы говорят».'},
+    {t:'Какие данные обрабатываются и как организовано их движение?', d:'Кто владеет какой записью, как чужие данные попадают к вам, что можно держать копией у себя. Разделы «Данные и владение», «Согласованность», «Outbox и CDC».'},
+    {t:'Какие процессы и функции поддерживаются системой?', d:'Связь с бизнес-слоем. Если процесс на бумаге проходит четыре отдела, а в системе — один экран, кто-то из двоих врёт. Обычно бумага.'},
+    {t:'С какими внешними системами она взаимодействует?', d:'Каждая чужая система — это чужое расписание работы, чужой формат и чужая скорость изменений. Отсюда защитные прослойки и поведение при отказе: разделы «Карта контекстов» и «Устойчивость».'},
+    {t:'Как обеспечиваются производительность, безопасность и надёжность?', d:'Ответ засчитывается, только если в нём есть число и способ проверить: «ответ не дольше 400 мс у 95 клиентов из 100», а не «быстро». Разбирается в следующем разделе.'},
+    {t:'Как система будет развиваться и адаптироваться к изменениям?', d:'Самый забываемый вопрос. Система, которую нельзя менять по частям, мертва, даже если сегодня работает. Отсюда версии договорённостей, флаги, постепенная замена: разделы «Релизы» и «Рефакторинг легаси».'},
+    {t:'Какие ключевые заинтересованные стороны участвуют в проекте?', d:'У архитектурного решения всегда есть тот, кому оно неудобно. Если среди участников нет ни одного, кто возражал, — значит, с ними просто не поговорили. Возражение придёт потом, на приёмке.'},
+    {t:'Какие этапы внедрения предусмотрены?', d:'Архитектура, которую нельзя включать по частям, — это план на «большой рубильник», а он не срабатывает никогда. Разделы «Релизы» и «Рефакторинг легаси».'},
+    {t:'Как оценивается успешность и эффективность системы?', d:'Признак, по которому поймут, что решение было верным. Без него спор «микросервисы или монолит» не имеет конца: обе стороны правы, потому что не договорились, что считать выигрышем.'},
+  ]);
+})();
+
+/* ═══ глава 12: артефакты аналитика по слоям ═══ */
+(function(){
+  if(!document.getElementById('lyx-sa-pick')) return;
+  const S = [
+    {n:'🏢 Бизнес', role:'Вместе с бизнес-аналитиком разбирает процесс «как будет» до шагов, где участвует система. Выписывает бизнес-правила и термины.',
+     art:'глоссарий, реестр бизнес-правил, модель процесса «как будет» (BPMN) с отмеченными шагами системы, пользовательские истории',
+     with:'Марина (бизнес-аналитик), владелец процесса', err:'Автоматизировать процесс, который никто не упростил: семь лишних шагов, реализованных идеально.',
+     ex:['БП-7. Номер телефона меняется только после ввода кода,', '      отправленного на старый номер.', 'Источник: политика безопасности', 'Владелец: служба безопасности']},
+    {n:'🗃 Данные', role:'Ведёт логическую модель: сущности, атрибуты, связи, статусы. Записывает, где мастер каждой сущности и кто держит копии. Делает маппинг полей между системами.',
+     art:'логическая модель данных (ER-диаграмма), описание атрибутов с типами и обязательностью, модель статусов, маппинг полей, матрица «данные × системы»',
+     with:'архитектор решения, хозяева систем-мастеров, разработчики', err:'Нарисовать таблицы вместо сущностей и не сказать, где мастер.',
+     ex:['Слот доставки', '  id        UUID, обязательно', '  зона      код зоны, обязательно', '  начало    дата-время с часовым поясом', '  ёмкость   целое ≥ 0', '  занято    целое от 0 до ёмкости', '  статус    открыт → заполнен → закрыт', 'Мастер: сервис доставки. Копии дольше 60 с запрещены (АТ-14)']},
+    {n:'🧩 Приложения', role:'Главный дом аналитика. Описывает, что система делает: сценарии, функции, интерфейсы для людей и программ, интеграции с соседями и поведение при их отказе.',
+     art:'функциональные требования, сценарии использования, спецификация API (OpenAPI), контракты событий, диаграммы последовательности, описание экранов и полей',
+     with:'разработчики, тестировщики, аналитики соседних систем', err:'Описать только «хороший путь» и забыть, что делать при ошибке и недоступности соседа.',
+     ex:['POST /delivery-slots/{id}/reservations', '→ 201 Created   {"reservationId": "…", "expiresAt": "…"}', '→ 409 Conflict  слот уже заполнен', '→ 404 Not Found слот не найден', 'Резерв держится 15 минут, потом снимается сам.']},
+    {n:'🖥 Технологии', role:'Не выбирает серверы и базы. Формулирует нефункциональные требования с числами и способом проверки: нагрузка, время ответа, доступность, объёмы, сроки хранения. Узнаёт ограничения среды.',
+     art:'нефункциональные требования (НФТ), профиль нагрузки, требования к хранению и аудиту',
+     with:'системный архитектор, эксплуатация, безопасность', err:'НФТ-пожелания без чисел: «быстро», «надёжно», «масштабируемо».',
+     ex:['НФТ-3. Резервирование слота', '  ≤ 300 мс у 95 % запросов', '  при 300 запросах в секунду (пик 18:00–19:00)', 'Проверка: нагрузочный тест НТ-4 перед релизом']},
+    {n:'🔗 Сквозное', role:'Держит нитки: у каждого требования есть источник (цель, возможность, процесс) и проверка. При изменении делает анализ влияния: какие требования, сервисы и тесты задеты.',
+     art:'матрица трассировки, раздел «анализ влияния» в постановке, журнал изменений требований',
+     with:'все роли; чаще всего архитектор решения и тестировщики', err:'Требование без источника: через полгода никто не помнит, зачем оно.',
+     ex:['ФТ-31 ← процесс «Оформить экспресс-доставку», шаг 4', '      ← возможность 3.2 ← цель «30 % в день заказа»', 'ФТ-31 → API POST …/reservations → тесты ТК-88, ТК-89']},
+  ];
+  dbSegment('lyx-sa', S, s =>
+    '<div class="lout" style="margin-top:10px"><h4>' + s.n + ': что здесь делает системный аналитик</h4><div class="lgrid">' +
+      '<b>что делает</b><div>' + s.role + '</div>' +
+      '<b>артефакты</b><div>' + s.art + '</div>' +
+      '<b>с кем работает</b><div>' + s.with + '</div>' +
+      '<b>частая ошибка</b><div>' + s.err + '</div>' +
+    '</div><pre class="json" style="font-size:12.5px;margin-top:10px">' + esc(s.ex.join('\n')) + '</pre></div>');
+})();
+
+/* ═══ глава 13: проверка, часть 1 (основы) ═══ */
 (function(){
   renderTasks('lay-tasks', [
     {q:'Сколько слоёв в архитектуре предприятия и какие?',
@@ -337,5 +1934,43 @@
      why:'Польза именно такая. «Где правильный номер телефона клиента» не решается в коде — это вопрос владения данными, и адресат у него другой. Умение сказать «это вопрос не ко мне» экономит недели хождения по кругу.'},
   ], 'lay-qscore', 'lay-qtotal');
   Progress.register('lay-qscore', 5, 'Слои: проверка');
+})();
+
+/* ═══ глава 13: проверка, часть 2 ═══ */
+(function(){
+  const Q = [
+    {q:'Что из этого — бизнес-возможность?',
+     opts:[{t:'«Доставка заказов»', ok:true}, {t:'«Отдел логистики»'}, {t:'«Принять заказ → собрать → передать курьеру»'}, {t:'«Сервис доставки v2»'}],
+     why:'Возможность — что компания умеет, без «как» и «кем». Отдел — оргструктура, цепочка шагов — процесс, сервис — приложение. Проверка: переживёт ли формулировка реорганизацию и замену программ? «Доставка заказов» переживёт.'},
+    {q:'Кто решает, строить ли собственный курьерский парк на ближайшие три года или работать с партнёрами?',
+     opts:[{t:'Архитектор предприятия вместе с руководством', ok:true}, {t:'Архитектор решения проекта «доставка за 2 часа»'}, {t:'Системный аналитик сервиса доставки'}, {t:'Техлид команды доставки'}],
+     why:'Решение на годы, оно меняет возможности, оргструктуру и системы всей компании — это масштаб предприятия. Архитектор решения потом встроит выбранный вариант в проект.'},
+    {q:'Упал сервер склада. Трассировка показала: встали «Продажа» и «Доставка», а «Обслуживание клиентов» работает. Как это использовать?',
+     opts:[{t:'Сразу сказать поддержке, что именно не работает у клиентов, и чинить с правильным приоритетом', ok:true}, {t:'Никак: чинить надо сервер, а не читать схемы'}, {t:'Перезапустить все сервисы подряд'}, {t:'Дождаться, пока клиенты напишут, что не работает'}],
+     why:'Связь «сервер → процессы → возможности» записана заранее, и дежурный не тратит полчаса на выяснение. Приоритет починки и текст для клиентов понятны через минуту.'},
+    {q:'На тепловой карте у возможности важность 5, а зрелость 1. Что это обычно значит?',
+     opts:[{t:'Кандидат на вложения: стратегии она нужна, а работает плохо', ok:true}, {t:'Её пора выводить из эксплуатации'}, {t:'Всё в порядке, трогать не надо'}, {t:'Надо сократить на неё затраты'}],
+     why:'Самый большой разрыв между «нужно» и «есть». Но карта — повод для разговора: иногда низкая зрелость лечится не деньгами, а объединением дублей, как у «Поддержки покупателей».'},
+    {q:'В какой фазе TOGAF ADM заключают архитектурный контракт и проверяют проекты на соответствие архитектуре?',
+     opts:[{t:'G — управление внедрением', ok:true}, {t:'A — видение архитектуры'}, {t:'E — возможности и решения'}, {t:'Предварительная фаза'}],
+     why:'Фаза G (Implementation Governance): проекты строят, архитекторы следят, чтобы построили задуманное. Без неё архитектура остаётся красивым документом.'},
+    {q:'Почему управление требованиями нарисовано в центре колеса ADM?',
+     opts:[{t:'Требования меняются в любой фазе, и работа с ними идёт всё время, связывая все фазы', ok:true}, {t:'Это самая первая фаза, с неё начинают'}, {t:'Это последняя фаза, ей заканчивают цикл'}, {t:'Это просто украшение схемы'}],
+     why:'Это не фаза, а постоянный процесс. Требование может прийти в фазе D и заставить вернуться в C — управление требованиями это замечает и направляет.'},
+    {q:'На схеме ArchiMate сервис приложения «Приём заказов» соединён с процессом «Оформить заказ». Какая связь правильная?',
+     opts:[{t:'Обслуживание (serving): сервис служит процессу', ok:true}, {t:'Композиция: сервис — часть процесса'}, {t:'Назначение: сервис выполняет процесс'}, {t:'Ассоциация: просто связаны'}],
+     why:'Обслуживание — главный мост между слоями: нижний служит верхнему. Процесс выполняет актор (назначение), а программа лишь помогает — обслуживает.'},
+    {q:'Команда «Доставка» тратит половину времени на настройку кластера, конвейера и мониторинга. Что предложит Team Topologies?',
+     opts:[{t:'Платформенную команду, которая даёт это как услугу, по самообслуживанию', ok:true}, {t:'Нанять в «Доставку» ещё пять человек'}, {t:'Разделить «Доставку» на фронтенд и бэкенд'}, {t:'Постоянное сотрудничество «Доставки» со всеми командами'}],
+     why:'Беда — когнитивная нагрузка: команда держит в голове чужой предмет. Платформа в режиме «как услуга» снимает его, и «Доставка» занимается доставкой. Новые люди нагрузку не снимают — только добавляют координации.'},
+    {q:'Архитектурный комитет рассматривает заявки шесть недель. Команды начали ставить технологии без спроса. Что чинить в первую очередь?',
+     opts:[{t:'Скорость ревью: срок в регламенте, а решения внутри команды — без комитета, по принципам', ok:true}, {t:'Ужесточить наказание за обход комитета'}, {t:'Отменить комитет совсем'}, {t:'Запретить командам любые новые технологии'}],
+     why:'Медленный контроль обходят — это закономерность, а не плохие люди. Лечат делегированием и сроками: команды решают своё сами по принципам, а на комитет идёт только то, что выходит за одну команду.'},
+    {q:'Олег пишет постановку на доработку сервиса слотов. Что из этого — его артефакт?',
+     opts:[{t:'Спецификация API резервирования и логическая модель «Слота»', ok:true}, {t:'Карта бизнес-возможностей компании'}, {t:'Выбор между PostgreSQL и MongoDB'}, {t:'Дорожная карта инициатив на три года'}],
+     why:'Поведение системы с точностью до поля и логическая модель данных — артефакты системного аналитика. Карта возможностей и дорожная карта — у архитектора предприятия, выбор СУБД — у архитекторов через комитет.'},
+  ];
+  renderTasks('lyx-q-tasks', Q, 'lyx-q-score', 'lyx-q-total');
+  Progress.register('lyx-q-score', Q.length, 'Слои: проверка, часть 2');
 })();
 </script>
