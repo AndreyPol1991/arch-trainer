@@ -1,46 +1,213 @@
 <!-- ==================== 2. МОНОЛИТ ==================== -->
 <section class="panel" id="mono" data-accent="mn" role="tabpanel">
-  <p class="lead"><b>Монолит — это когда весь код собирается в одну программу и запускается одним куском.</b> И всё. Это не оценка «хорошо» или «плохо»: внутри монолита может быть идеальный порядок, а может быть свалка. Большинство систем должны начинаться отсюда — и многим тут и место.</p>
+  <style>
+    .mnx-ch{scroll-margin-top:150px}
+    .mnx-map{display:grid; grid-template-columns:repeat(auto-fill,minmax(215px,1fr)); gap:8px; margin-top:12px}
+    .mnx-map button{display:flex; gap:9px; align-items:flex-start; text-align:left; appearance:none; border:1px solid var(--line); background:var(--surface-2); color:var(--ink); font:inherit; font-size:13px; line-height:1.35; padding:9px 11px; border-radius:9px; cursor:pointer}
+    .mnx-map button:hover{border-color:var(--accent)}
+    .mnx-map .n{flex:none; width:22px; height:22px; border-radius:50%; background:var(--accent); color:var(--surface); font:700 11px var(--mono); display:grid; place-items:center}
+    .mnx-map small{display:block; color:var(--muted); font-size:11.5px; margin-top:2px}
+    .mnx-def{border:1px solid color-mix(in srgb,var(--accent) 40%,var(--line)); background:color-mix(in srgb,var(--accent) 6%,var(--surface)); border-radius:10px; padding:11px 14px; margin:12px 0 0; font-size:14px}
+    .mnx-def > b:first-child{color:var(--accent)}
+    .mnx-life{border-left:3px solid var(--ok); background:var(--ok-bg); border-radius:0 9px 9px 0; padding:9px 13px; margin:10px 0 0; font-size:13.5px; color:var(--ink)}
+    .mnx-life::before{content:"Из жизни: "; font-weight:700; color:var(--ok)}
+    .mnx-h3{margin:22px 0 6px; font-size:14.5px}
+    .mnx-wrap{overflow-x:auto; -webkit-overflow-scrolling:touch; margin-top:12px; padding-bottom:4px}
+    .mnx-bar{display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin:10px 0}
+    .mnx-bar .seg{margin:0}
+    .mnx-lbl{font:600 11px var(--mono); color:var(--faint); text-transform:uppercase; letter-spacing:.03em}
+    .mnx-kpis{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:8px; margin-top:12px}
+    .mnx-kpi{border:1px solid var(--line); border-radius:10px; background:var(--surface-2); padding:8px 10px}
+    .mnx-kpi .l{font:500 11.5px var(--sans); color:var(--muted)}
+    .mnx-kpi .v{font:700 18px var(--mono); font-variant-numeric:tabular-nums; color:var(--ink)}
+    .mnx-kpi.good .v{color:var(--ok)} .mnx-kpi.bad .v{color:var(--danger)} .mnx-kpi.wq .v{color:var(--warn)}
+    .mnx-log{font:500 12px/1.55 var(--mono); color:var(--muted); background:var(--surface); border:1px solid var(--line); border-radius:9px; padding:8px 10px; margin-top:10px; max-height:200px; overflow:auto}
+    .mnx-log div{white-space:pre-wrap}
+    .mnx-log .ok{color:var(--ok)} .mnx-log .bad{color:var(--danger)} .mnx-log .warn{color:var(--warn)} .mnx-log .new{color:var(--ink); font-weight:700}
+    .mnx-go{display:flex; flex-wrap:wrap; gap:8px; margin-top:12px}
+    .mnx-case{border:1px solid var(--line); border-radius:12px; background:var(--surface-2); padding:12px 14px}
+    .mnx-case h4{margin:0 0 4px; font-size:14px}
+    .mnx-case .src{font:500 11.5px var(--mono); color:var(--faint); margin-top:6px}
+    .mnx-case ul{margin:6px 0 0; padding-left:18px; font-size:13px; color:var(--ink)}
+    .mnx-case li{margin:3px 0}
+    .mnx-req{font:500 12.5px/1.5 var(--mono); background:var(--surface); border:1px dashed color-mix(in srgb,var(--accent) 50%,var(--line)); border-radius:9px; padding:9px 12px; margin-top:10px; white-space:pre-wrap; color:var(--ink)}
+
+    /* путь запроса через слои */
+    .mnx-pt{min-width:680px}
+    .mnx-pt-nodes{display:grid; grid-template-columns:repeat(5,1fr); gap:10px}
+    .mnx-pt-node{border:1.5px solid var(--line); border-radius:10px; background:var(--surface); padding:8px 6px; text-align:center; opacity:.55; transition:opacity .2s, border-color .2s, box-shadow .2s, background .2s}
+    .mnx-pt-node .i{font-size:18px; line-height:1.15}
+    .mnx-pt-node .n{font:700 12px/1.25 var(--mono); color:var(--ink); word-break:break-word}
+    .mnx-pt-node .s{font:500 11px/1.3 var(--sans); color:var(--muted)}
+    .mnx-pt-node .st{font:600 11px/1.3 var(--mono); margin-top:4px; min-height:14px; color:var(--muted)}
+    .mnx-pt-node.lit{opacity:.85}
+    .mnx-pt-node.on{opacity:1; border-color:var(--accent); box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 20%,transparent)}
+    .mnx-pt-node.good{opacity:1; border-color:var(--ok)} .mnx-pt-node.good .st{color:var(--ok)}
+    .mnx-pt-node.bad{opacity:1; border-color:var(--danger); background:var(--danger-bg)} .mnx-pt-node.bad .st{color:var(--danger)}
+    .mnx-pt-track{position:relative; height:34px; margin:8px 0 2px}
+    .mnx-pt-track::before{content:""; position:absolute; left:10%; right:10%; top:50%; border-top:2px dashed var(--line)}
+    .mnx-pt-pkt{position:absolute; top:50%; left:10%; transform:translate(-50%,-50%); white-space:nowrap; font:600 11px var(--mono); padding:4px 9px; border-radius:12px; background:var(--accent); color:var(--surface); transition:left .75s ease; z-index:1; max-width:44%; overflow:hidden; text-overflow:ellipsis}
+    .mnx-pt-pkt.ret{background:var(--ok)} .mnx-pt-pkt.bad{background:var(--danger)} .mnx-pt-pkt.still{transition:none}
+    .mnx-pt-txrow{display:grid; grid-template-columns:repeat(5,1fr); gap:10px}
+    .mnx-pt-tx{grid-column:3 / 6; border:1.5px dashed var(--line); border-radius:9px; padding:5px 10px; font:600 11.5px var(--mono); color:var(--faint); text-align:center; transition:border-color .2s, background .2s}
+    .mnx-pt-tx.open{border-color:var(--warn); color:var(--warn); background:var(--warn-bg)}
+    .mnx-pt-tx.commit{border-style:solid; border-color:var(--ok); color:var(--ok); background:var(--ok-bg)}
+    .mnx-pt-tx.rollback, .mnx-pt-tx.lost{border-style:solid; border-color:var(--danger); color:var(--danger); background:var(--danger-bg)}
+    .mnx-pt-db{display:grid; grid-template-columns:repeat(auto-fill,minmax(190px,1fr)); gap:8px; margin-top:10px}
+    .mnx-pt-tb{border:1px solid var(--line); border-radius:9px; background:var(--surface); padding:7px 9px; font:500 12px/1.5 var(--mono); transition:border-color .2s}
+    .mnx-pt-tb.hl{border-color:var(--accent)}
+    .mnx-pt-tb h5{margin:0 0 4px; font:700 10.5px var(--mono); color:var(--faint); text-transform:uppercase; letter-spacing:.03em}
+    .mnx-pt-tb .rw{display:flex; justify-content:space-between; gap:6px; color:var(--ink)}
+    .mnx-pt-tb .dr{color:var(--warn); font-style:italic}
+    .mnx-pt-tb .cm{color:var(--ok); font-weight:700}
+    .mnx-pt-tb .rb{color:var(--danger); text-decoration:line-through}
+    .mnx-pt-tb .em{color:var(--faint); font-style:italic}
+    .mnx-code{font:600 12px/1.45 var(--mono); background:var(--surface-2); border:1px solid var(--line); border-radius:8px; padding:8px 10px; margin-top:10px; white-space:pre-wrap; color:var(--ink); overflow-x:auto}
+
+    /* калькулятор задержки */
+    .mnx-lat{display:flex; flex-direction:column; gap:9px; margin-top:12px}
+    .mnx-lat-row{display:grid; grid-template-columns:170px 1fr 120px; gap:8px; align-items:center; font-size:12.5px}
+    @media (max-width:560px){ .mnx-lat-row{grid-template-columns:1fr; gap:3px} }
+    .mnx-lat-tr{height:16px; border-radius:8px; background:var(--surface-3); overflow:hidden}
+    .mnx-lat-tr i{display:block; height:100%; min-width:2px; background:var(--ok); border-radius:8px; transition:width .3s}
+    .mnx-lat-tr i.net{background:var(--danger)} .mnx-lat-tr i.mid{background:var(--warn)}
+    .mnx-lat-v{font:700 12.5px var(--mono); text-align:right; font-variant-numeric:tabular-nums}
+    @media (max-width:560px){ .mnx-lat-v{text-align:left} }
+
+    /* масштабирование */
+    .mnx-sc-svg{display:block; width:100%; min-width:660px; height:auto}
+    .mnx-sc-svg .bx{fill:var(--surface-2); stroke:var(--line); stroke-width:1.5; transition:fill .2s, stroke .2s}
+    .mnx-sc-svg .bx.warm{stroke:var(--warn); fill:var(--warn-bg)}
+    .mnx-sc-svg .bx.hot{stroke:var(--danger); fill:var(--danger-bg)}
+    .mnx-sc-svg .bx.dead{stroke:var(--danger); stroke-dasharray:6 4; fill:var(--surface)}
+    .mnx-sc-svg .bx.good{stroke:var(--ok)}
+    .mnx-sc-svg .tt{fill:var(--ink); font:700 13px var(--sans)}
+    .mnx-sc-svg .ts{fill:var(--muted); font:500 11.5px var(--mono)}
+    .mnx-sc-svg .ln{stroke:var(--line); stroke-width:1.5; fill:none}
+    .mnx-sc-svg .ln.on{stroke:color-mix(in srgb,var(--accent) 60%,var(--line))}
+    .mnx-sc-svg .lb{fill:var(--surface); stroke:var(--line)}
+    .mnx-sc-svg .lf{fill:var(--ok); transition:width .3s}
+    .mnx-sc-svg .lf.w{fill:var(--warn)} .mnx-sc-svg .lf.h{fill:var(--danger)}
+    .mnx-sc-svg .dot{fill:var(--accent)} .mnx-sc-svg .dot.bad{fill:var(--danger)} .mnx-sc-svg .dot.lost{fill:var(--warn)}
+    .mnx-sc-svg .hid{display:none}
+
+    /* выкладка */
+    .mnx-dp{min-width:640px; display:grid; grid-template-columns:120px 1fr 1fr 140px; gap:12px; align-items:stretch}
+    .mnx-dp-col{display:flex; flex-direction:column; gap:8px; justify-content:center}
+    .mnx-dp-col h5{margin:0; font:700 10.5px var(--mono); color:var(--faint); text-transform:uppercase; letter-spacing:.03em}
+    .mnx-dp-box{border:1.5px solid var(--line); border-radius:10px; background:var(--surface); padding:8px 10px; font-size:12px; color:var(--muted); transition:border-color .2s, background .2s, opacity .2s, box-shadow .2s; min-height:48px}
+    .mnx-dp-box b{display:block; color:var(--ink); font-size:12.5px}
+    .mnx-dp-box.v1{border-color:var(--nt)} .mnx-dp-box.v2{border-color:var(--ok)}
+    .mnx-dp-box.on{box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 18%,transparent)}
+    .mnx-dp-box.off{opacity:.45; border-style:dashed}
+    .mnx-dp-box.bad{border-color:var(--danger); background:var(--danger-bg)}
+    .mnx-dp-box.warm{border-color:var(--warn); background:var(--warn-bg)}
+    .mnx-dp-tr{display:flex; height:24px; border-radius:12px; overflow:hidden; border:1px solid var(--line); margin-top:10px; background:var(--surface-3)}
+    .mnx-dp-tr span{display:grid; place-items:center; font:700 11px var(--mono); color:var(--surface); transition:flex-basis .6s ease; flex:0 0 0; white-space:nowrap; overflow:hidden}
+    .mnx-dp-tr .b{background:var(--nt)} .mnx-dp-tr .g{background:var(--ok)} .mnx-dp-tr .x{background:var(--danger)}
+
+    /* граф зависимостей */
+    .mnx-g-svg{display:block; width:100%; min-width:680px; height:auto}
+    .mnx-g-svg .ar{fill:color-mix(in srgb,var(--c) 8%,var(--surface)); stroke:color-mix(in srgb,var(--c) 45%,var(--line)); stroke-width:1.2}
+    .mnx-g-svg .al{fill:color-mix(in srgb,var(--c) 75%,var(--ink)); font:700 11px var(--mono)}
+    .mnx-g-svg .nd{cursor:pointer}
+    .mnx-g-svg .nd rect{fill:var(--surface); stroke:color-mix(in srgb,var(--c) 55%,var(--line)); stroke-width:1.5; transition:fill .2s, stroke .2s}
+    .mnx-g-svg .nd text{fill:var(--ink); font:600 11.5px var(--mono); pointer-events:none}
+    .mnx-g-svg .nd.off{display:none}
+    .mnx-g-svg .nd.cyc rect{stroke:var(--warn); stroke-width:2.5; stroke-dasharray:5 3}
+    .mnx-g-svg .nd.sel rect{stroke:var(--accent); stroke-width:3; fill:color-mix(in srgb,var(--accent) 14%,var(--surface))}
+    .mnx-g-svg .nd.hit rect{fill:var(--danger-bg); stroke:var(--danger)}
+    .mnx-g-svg .e{stroke:var(--faint); stroke-width:1.3; fill:none; opacity:.75}
+    .mnx-g-svg .e.x{stroke:var(--danger); opacity:.55}
+    .mnx-g-svg .e.new{stroke:var(--accent); stroke-width:2.6; opacity:1; stroke-dasharray:6 4; animation:mnx-dash 1s linear 2}
+    .mnx-g-svg .e.hit{stroke:var(--danger); stroke-width:2.4; opacity:1}
+    .mnx-g-svg .e.dim{opacity:.12}
+    .mnx-g-svg .ah{fill:var(--faint)} .mnx-g-svg .ah.x{fill:var(--danger)} .mnx-g-svg .ah.a{fill:var(--accent)}
+    @keyframes mnx-dash{to{stroke-dashoffset:-20}}
+    .mnx-g-leg{display:flex; flex-wrap:wrap; gap:6px 14px; font:500 12px var(--sans); color:var(--muted); margin-top:8px}
+    .mnx-g-leg i{display:inline-block; width:22px; height:0; border-top:2px solid var(--faint); vertical-align:middle; margin-right:5px}
+    .mnx-g-leg i.x{border-top-color:var(--danger)} .mnx-g-leg i.n{border-top:2.5px dashed var(--accent)} .mnx-g-leg i.c{width:14px; height:10px; border:2px dashed var(--warn); border-radius:3px}
+
+    @media (prefers-reduced-motion:reduce){
+      .mnx-pt-pkt, .mnx-dp-tr span, .mnx-lat-tr i, .mnx-sc-svg .lf{transition:none}
+      .mnx-g-svg .e.new{animation:none}
+    }
+  </style>
+
+  <p class="lead"><b>Монолит — это когда весь код собирается в одну программу и запускается одним куском.</b> И всё. Это не оценка «хорошо» или «плохо»: внутри монолита может быть идеальный порядок, а может быть свалка. Большинство систем должны начинаться отсюда — и многим тут и место. Весь раздел — один год из жизни магазина «Ботинок»: разработчик Борис делает первый коммит в январе, а к декабрю его аккуратная программа превращается в «большой ком грязи». Проживём этот год по месяцам — и посмотрим, где монолит силён, где он ломается и как его лечить без переписывания.</p>
 
   <div class="card">
     <h2><span class="tag">зачем это</span> зачем вообще начинать с монолита</h2>
     <div id="why-mono"></div>
   </div>
 
+  <!-- ─── карта раздела ─── -->
   <div class="card">
-    <h2><span class="tag">с самого начала</span> что значит «одна программа»</h2>
-    <p>Начнём с того, что это вообще такое. Без схем и терминов.</p>
-    <div class="note good"><b>Житейски.</b> Монолит — это <b>универсальный магазин под одной крышей</b>. Продукты, одежда, аптека, касса — всё в одном здании, один директор, один склад, один график работы. Захотели поменять вывеску на аптеке — закрываете весь магазин на час, потому что электрик один и рубильник общий.</div>
-    <p>В программах ровно то же самое, и «одна программа» — это буквально три вещи одновременно:</p>
-    <div id="mono-three" class="numlist"></div>
+    <h2><span class="tag">карта раздела</span> один год одного монолита, двенадцать глав</h2>
+    <p>Читайте по порядку: каждая глава опирается на предыдущую, а месяцы идут друг за другом. Кнопка переносит к главе. Четыре главы — живые модели: их можно запускать, ломать и чинить.</p>
+    <div class="mnx-map" id="mnx-map">
+      <button data-mnx-ch="mnx-ch1"><span class="n">1</span><span>Январь: первый коммит<small>что такое монолит; одна сборка, один запуск, одна база</small></span></button>
+      <button data-mnx-ch="mnx-ch2"><span class="n">2</span><span>Февраль: слои<small>контроллер, сервис, репозиторий; проводник по коду</small></span></button>
+      <button data-mnx-ch="mnx-ch3"><span class="n">3</span><span>Март: Анна оформляет заказ<small>живая модель: путь через слои, транзакция, откат</small></span></button>
+      <button data-mnx-ch="mnx-ch4"><span class="n">4</span><span>Апрель: почему он быстрый<small>вызов в памяти против сетевого — калькулятор</small></span></button>
+      <button data-mnx-ch="mnx-ch5"><span class="n">5</span><span>Май: распродажа<small>живая модель: копии, сессии, кеш, узкое место</small></span></button>
+      <button data-mnx-ch="mnx-ch6"><span class="n">6</span><span>Июнь: выкладка<small>одна кнопка, простой, сине-зелёная — проигрыватель</small></span></button>
+      <button data-mnx-ch="mnx-ch7"><span class="n">7</span><span>Лето: команда растёт<small>день разработчика, релизный поезд</small></span></button>
+      <button data-mnx-ch="mnx-ch8"><span class="n">8</span><span>Осень: паутина связей<small>живая модель: граф зависимостей по месяцам</small></span></button>
+      <button data-mnx-ch="mnx-ch9"><span class="n">9</span><span>Декабрь: большой ком грязи<small>виды монолитов, признаки болезни</small></span></button>
+      <button data-mnx-ch="mnx-ch10"><span class="n">10</span><span>Как лечить без переписывания<small>модули, владельцы таблиц, душитель</small></span></button>
+      <button data-mnx-ch="mnx-ch11"><span class="n">11</span><span>Кто так живёт<small>Stack Overflow, Shopify, Basecamp; когда монолит — верный ответ</small></span></button>
+      <button data-mnx-ch="mnx-ch12"><span class="n">12</span><span>Проверь себя<small>задания и разборы</small></span></button>
+    </div>
+  </div>
 
-    <h3 style="margin:18px 0 6px;font-size:14px">Три признака — три рычага</h3>
+  <!-- ═══════════ ГЛАВА 1 ═══════════ -->
+  <div class="card mnx-ch" id="mnx-ch1">
+    <h2><span class="tag">глава 1 · январь</span> первый коммит: что такое монолит и что значит «одна программа»</h2>
+    <p>Январь. <b>Борис</b> — единственный разработчик магазина кроссовок «Ботинок». Владелец хочет сайт к весне: каталог, корзина, заказ, бонусные баллы. Борис создаёт один проект <code class="inl">shop</code>, одну базу <code class="inl">shop_db</code> и делает первый коммит. Никакого «архитектурного решения» он не принимает — он просто пишет программу. И программа получается монолитом: так выглядит почти любая система в первый день жизни.</p>
+    <div class="mnx-def"><b>Монолит</b> (monolith, monolithic application) — приложение, которое собирается в один артефакт, запускается как один процесс (или несколько одинаковых копий этого процесса) и хранит данные в одной общей базе. Это слово про то, <b>как система собирается и выкатывается</b>, а не про то, хорош ли её код.</div>
+    <div class="mnx-life">монолит — это <b>универсальный магазин под одной крышей</b>. Продукты, одежда, аптека, касса — всё в одном здании, один директор, один склад, один график работы. Удобно: из аптеки в продукты — два шага, без улицы. Но захотели поменять вывеску на аптеке — закрываете весь магазин на час, потому что электрик один и рубильник общий.</div>
+    <div class="mnx-def"><b>Артефакт сборки</b> (build artifact) — готовый к запуску файл, который получается из исходного кода. У Бориса это <code class="inl">shop.jar</code>: в нём скомпилированный код всех частей магазина и все библиотеки.</div>
+    <div class="mnx-def"><b>Процесс</b> (process) — запущенная программа. У процесса своя память и свои потоки. Два процесса не видят памяти друг друга: общаться они могут только через сеть, файлы или общую базу.</div>
+
+    <h3 class="mnx-h3">Что значит «одна программа» — буквально, в командах</h3>
+    <p>«Одна программа» — это буквально три вещи одновременно. Раскройте каждую: там вывод настоящих команд.</p>
+    <div id="mono-three" class="numlist"></div>
+    <div class="note good"><b>Проще говоря.</b> Монолит — это когда «выкатить заказы» и «выкатить весь магазин» — одно и то же действие. Других вариантов просто нет: заказы не существуют отдельно от остального.</div>
+
+    <h3 class="mnx-h3">Три признака — три рычага</h3>
     <p>Самое полезное, что стоит понять про монолит: <b>почти все остальные стили получаются, если у монолита отключить один из трёх признаков</b>. Попробуйте — снимайте галочки и смотрите, во что он превращается.</p>
     <div id="mono-flags" class="grid3" style="margin:10px 0"></div>
     <div id="mono-res"></div>
+
+    <div class="note warn"><b>Частая путаница.</b> «Монолит», «плохой код» и «легаси» — три разных слова. Монолит — это способ сборки и выкатки. Плохой код бывает и в микросервисах. Легаси — это система, которую страшно трогать, в любом стиле. Когда в разговоре говорят «у нас монолит» с интонацией «у нас беда», почти всегда имеют в виду не монолит, а <b>отсутствие границ внутри него</b>. К этому мы придём в главе 8.</div>
+    <h3 class="mnx-h3">Как это звучит у аналитика</h3>
+    <p>В архитектурном разделе требований монолит описывают прямо и без стыда. Например:</p>
+    <div class="mnx-req">АР-1. Система поставляется как одно приложение (один артефакт
+      развёртывания) с одной реляционной базой данных.
+АР-2. Масштабирование — горизонтальное: запуск N одинаковых экземпляров
+      за балансировщиком нагрузки. Экземпляр не хранит состояние
+      пользователя в своей памяти.
+АР-3. Операции, меняющие несколько сущностей (заказ, остаток, бонусы),
+      выполняются в одной транзакции базы данных.</div>
+    <p style="margin-top:10px">Каждая из этих трёх строк появится в истории Бориса ещё раз — и каждая окажется не формальностью.</p>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">проводник по коду</span> откройте монолит и посмотрите, что внутри</h2>
-    <p>Настоящий проект интернет-магазина. Нажимайте на файлы слева — справа будет их содержимое и разбор, что здесь важного.</p>
-    <div class="grid2" style="align-items:start">
-      <div id="mc-tree" class="lstack"></div>
-      <div id="mc-file"></div>
+  <!-- ═══════════ ГЛАВА 2 ═══════════ -->
+  <div class="card mnx-ch" id="mnx-ch2">
+    <h2><span class="tag">глава 2 · февраль</span> слои: как Борис раскладывает код по полочкам</h2>
+    <p>Февраль. Кода стало несколько тысяч строк, и Борис раскладывает его так, как учат в каждом учебнике по Spring: <b>по слоям</b>. Запрос приходит сверху, проходит через слои и уходит в базу.</p>
+    <div class="mnx-def"><b>Слоистая архитектура</b> (layered architecture) — код делится на слои по технической роли, и каждый слой обращается только к слою под собой. Классическая тройка: представление → бизнес-логика → доступ к данным, а под ними база.</div>
+    <div class="mnx-life">ресторан. Официант принимает заказ и приносит блюдо, но не готовит. Повар готовит по рецепту, но не ходит в зал и не ездит на склад. Кладовщик выдаёт продукты, но не знает рецептов. Каждый делает своё и разговаривает только с соседом по цепочке.</div>
+    <div class="grid2" style="margin-top:12px">
+      <div class="box"><h4>🎛 Контроллер (controller)</h4><p class="bs">Принимает HTTP-запрос, проверяет, что данные правильной формы (число — это число, размер не пустой), вызывает сервис и превращает результат в ответ. <b>Правил бизнеса не содержит.</b> Официант.</p></div>
+      <div class="box"><h4>⚙ Сервис (service)</h4><p class="bs">Бизнес-правила: «нельзя продать больше, чем на складе», «бонусами можно оплатить не больше 30 % заказа». Здесь начинается и заканчивается транзакция. Повар.</p></div>
+      <div class="box"><h4>🗂 Репозиторий (repository)</h4><p class="bs">Единственное место, где живёт SQL: «найди заказ», «сохрани», «уменьши остаток». Сервис не знает, как устроены таблицы, — он просит репозиторий. Кладовщик.</p></div>
+      <div class="box"><h4>🗄 База данных</h4><p class="bs">Хранит таблицы, следит за ограничениями (остаток не меньше нуля) и даёт транзакции: либо все изменения, либо ни одного. Склад.</p></div>
     </div>
-  </div>
+    <div class="mnx-def"><b>Объект передачи данных</b> (DTO, data transfer object) — простая «коробка с полями», в которой данные уходят наружу, например в ответ браузеру. Внутренняя модель (сущность <code class="inl">Order</code> со всеми связями) наружу не показывается — отдаётся её упрощённая копия.</div>
 
-  <div class="card">
-    <h2><span class="tag">день разработчика</span> почему в монолите всё быстро — и когда это кончается</h2>
-    <p>Одна и та же задача: «добавить в заказ поле „комментарий"». Посмотрите, как она проходит при разном размере команды.</p>
-    <div class="seg" id="mono-day">
-      <button class="on" data-d="small">👤 Команда из четырёх человек</button>
-      <button data-d="big">👥 Четыре команды по восемь</button>
-    </div>
-    <div id="mono-day-out"></div>
-  </div>
-
-  <div class="card">
-    <h2><span class="tag">схема</span> как он устроен</h2>
+    <h3 class="mnx-h3">Схема: как он устроен</h3>
     <p>Классический монолит режется <b>по слоям</b>: контроллеры сверху, сервисы посередине, репозитории снизу, одна база под всем. Бизнес-возможности при этом размазаны горизонтально: «Заказы» живут кусочками в каждом слое.</p>
     <div class="flow" style="flex-direction:column;align-items:stretch;gap:6px">
       <div class="fnode d" style="min-width:auto">Контроллеры &nbsp;·&nbsp; OrderController · PaymentController · CatalogController<span class="fs">слой представления</span></div>
@@ -52,10 +219,238 @@
       <div class="fnode b" style="min-width:auto">Одна база данных — все таблицы видны всем<span class="fs">и это главный источник будущей боли</span></div>
     </div>
     <div class="note warn"><b>Ключевая деталь, из-за которой монолиты «портятся»:</b> в слоёной нарезке ничто не мешает <code class="inl">OrderService</code> дёрнуть <code class="inl">PaymentRepo</code> напрямую, а отчёту — сделать <code class="inl">JOIN</code> по семи чужим таблицам. Компилятор это разрешает, ревью пропускает, и через два года каждая таблица используется двенадцатью местами. Вынести что-либо после этого физически невозможно — не потому что монолит, а потому что <b>не было границ</b>.</div>
+    <div class="note good"><b>Проще говоря.</b> Слои отвечают на вопрос «<b>какого рода</b> этот код» — HTTP, правила или SQL. Но не отвечают на вопрос «<b>к какой части бизнеса</b> он относится». Поэтому «Заказы» размазаны по всем трём слоям, а стен между «Заказами» и «Бонусами» нет вовсе. Слои — это этажи здания без перегородок между квартирами.</div>
+
+    <h3 class="mnx-h3">Проводник по коду: откройте монолит и посмотрите, что внутри</h3>
+    <p>Настоящий проект интернет-магазина. Нажимайте на файлы слева — справа будет их содержимое и разбор, что здесь важного.</p>
+    <div class="grid2" style="align-items:start">
+      <div id="mc-tree" class="lstack"></div>
+      <div id="mc-file"></div>
+    </div>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">интерактив</span> релизный поезд: почему монолит замедляется от размера команды</h2>
+  <!-- ═══════════ ГЛАВА 3 ═══════════ -->
+  <div class="card mnx-ch" id="mnx-ch3">
+    <h2><span class="tag">глава 3 · март · живая модель</span> Анна оформляет заказ: путь запроса через слои</h2>
+    <p>Март. Сайт открылся. <b>Анна</b> выбирает кроссовки 42 размера за 7 990 ₽, решает списать 500 бонусных баллов и нажимает «Оформить заказ». Для неё проходит доля секунды. Внутри монолита за это время запрос проходит все слои, меняет три таблицы и либо сохраняет всё, либо не сохраняет ничего. Посмотрим на это по шагам — а потом начнём ломать.</p>
+    <div class="mnx-def"><b>Транзакция</b> (transaction) — несколько действий с базой, которые считаются одним: либо проходят все, либо не проходит ни одно. Начинается командой <code class="inl">BEGIN</code>, заканчивается <code class="inl">COMMIT</code> (подтвердить всё) или <code class="inl">ROLLBACK</code> (отменить всё).</div>
+    <div class="mnx-life">покупка квартиры у нотариуса. Деньги ушли продавцу и квартира перешла покупателю — в одну минуту, одной подписью. Не бывает так, чтобы деньги ушли, а квартира осталась у продавца: если что-то пошло не так, отменяется вся сделка.</div>
+    <div class="mnx-def"><b>Откат</b> (rollback) — отмена всех изменений незавершённой транзакции. База возвращает данные к виду «как до <code class="inl">BEGIN</code>», будто ничего и не начиналось.</div>
+    <div class="mnx-def"><b>Исключение</b> (exception) — сигнал «дальше так нельзя». Оно прерывает метод и «всплывает» вверх по цепочке вызовов — из репозитория в сервис, из сервиса в контроллер, — пока кто-нибудь его не поймает.</div>
+    <div class="mnx-life">пожарная тревога в офисе. Сработал датчик на третьем этаже, а работа останавливается во всём здании, и все идут к выходу по одному и тому же маршруту. В монолите «маршрут к выходу» заранее известен: исключение поднимается по слоям, по дороге транзакция откатывается, а у выхода контроллер превращает его в понятный ответ.</div>
+
+    <p style="margin-top:14px">Выберите сценарий и жмите «Дальше» или ▶. Пакет летит между слоями. Под схемой — рамка транзакции и три таблицы: <b>жёлтым курсивом</b> — черновик, который видит только эта транзакция; <b>зелёным</b> — подтверждённые данные; <b>зачёркнутым красным</b> — то, что откатили.</p>
+    <div class="mnx-bar"><span class="mnx-lbl">сценарий</span>
+      <div class="seg" id="mnx-pt-sc">
+        <button class="on" data-s="ok">✓ Всё хорошо</button>
+        <button data-s="val">Контроллер: кривые данные</button>
+        <button data-s="stock">Сервис: товар кончился</button>
+        <button data-s="bonus">Сервис: не хватает бонусов</button>
+        <button data-s="dup">Репозиторий: двойной клик</button>
+        <button data-s="conn">База: связь оборвалась</button>
+        <button data-s="crash">Процесс упал</button>
+      </div>
+    </div>
+    <div class="mnx-bar">
+      <button class="ghost" id="mnx-pt-prev">←</button>
+      <button class="act" id="mnx-pt-next">Дальше →</button>
+      <button class="ghost" id="mnx-pt-play">▶</button>
+      <button class="ghost" id="mnx-pt-reset">⟲</button>
+      <span class="skstep" id="mnx-pt-lab"></span>
+    </div>
+    <div class="mnx-wrap">
+      <div class="mnx-pt">
+        <div class="mnx-pt-nodes" id="mnx-pt-nodes"></div>
+        <div class="mnx-pt-track" id="mnx-pt-track"></div>
+        <div class="mnx-pt-txrow"><div class="mnx-pt-tx" id="mnx-pt-tx">транзакция не открыта</div></div>
+      </div>
+    </div>
+    <div class="mnx-pt-db" id="mnx-pt-db"></div>
+    <div class="mnx-code" id="mnx-pt-code"></div>
+    <div class="skout" style="margin-top:10px">
+      <h4 id="mnx-pt-t"></h4>
+      <div class="lgrid">
+        <b>что происходит</b><div id="mnx-pt-what"></div>
+        <b>почему так</b><div id="mnx-pt-why"></div>
+      </div>
+    </div>
+    <div class="mnx-log" id="mnx-pt-log"></div>
+    <div class="note"><b>Как читать схему.</b> Пять блоков — пять участников: браузер Анны, контроллер, сервис, репозитории и база. Контроллер, сервис и репозиторий — это <b>один процесс</b> <code class="inl">shop.jar</code>: пакет между ними перелетает за наносекунды, это обычный вызов метода. Настоящая сеть — только слева (от браузера) и справа (до базы). Рамка «транзакция» растянута от сервиса до базы: именно сервис её открывает и закрывает.</div>
+    <div class="note warn"><b>Ловушка Spring, о которой стоит знать.</b> По умолчанию <code class="inl">@Transactional</code> откатывает транзакцию только на <b>непроверяемых</b> исключениях (наследниках <code class="inl">RuntimeException</code>) и ошибках (<code class="inl">Error</code>). Проверяемое исключение (<code class="inl">Exception</code>, которое обязательно объявлять в <code class="inl">throws</code>) по умолчанию приведёт к <b>COMMIT</b> всего, что успели сделать. Лечится явным <code class="inl">@Transactional(rollbackFor = Exception.class)</code> или привычкой бросать непроверяемые исключения. И второе: <code class="inl">@Transactional</code> срабатывает только при вызове метода <b>снаружи</b> объекта — вызов своего же метода через <code class="inl">this</code> транзакцию не откроет.</div>
+    <div class="note good"><b>Проще говоря.</b> В монолите «всё или ничего» стоит одно слово над методом. Сломалось на любом шаге — база сама вернёт остаток, удалит черновик заказа и вернёт бонусы. В главе 4 и на вкладке про саги видно, во что это превращается, когда заказы, склад и бонусы живут в разных сервисах: вместо одного слова — компенсации, повторы и разбор «застрявших» заказов.</div>
+    <div class="mnx-go"><button class="ghost" data-goto="saga">Как то же самое делают без общей транзакции — саги</button><button class="ghost" data-goto="db">Что база делает при COMMIT — базы данных</button></div>
+  </div>
+
+  <!-- ═══════════ ГЛАВА 4 ═══════════ -->
+  <div class="card mnx-ch" id="mnx-ch4">
+    <h2><span class="tag">глава 4 · апрель · калькулятор</span> почему монолит быстрый: вызов в памяти против сетевого</h2>
+    <p>Апрель. Борис начитался статей и приходит к аналитику <b>Олегу</b>: «Давай распилим магазин на сервисы, так же все делают». Олег не спорит, а открывает калькулятор. Первое, что он хочет понять: <b>что станет со скоростью</b>, если каждый вызов метода между частями магазина превратится в запрос по сети.</p>
+    <div class="mnx-def"><b>Вызов в памяти</b> (in-process call) — один метод вызывает другой внутри того же процесса. Процессор просто переходит к другому куску кода. Занимает единицы наносекунд, а часто и вовсе ничего: компилятор встраивает маленький метод прямо в место вызова.</div>
+    <div class="mnx-def"><b>Сетевой вызов</b> (remote call, RPC) — запрос в другой процесс через сеть: упаковать данные, отправить, дождаться, пока другая сторона распакует, выполнит, упакует ответ и пришлёт обратно. Даже внутри одного дата-центра это сотни микросекунд и миллисекунды.</div>
+    <div class="mnx-def"><b>Сериализация</b> (serialization) — превращение объекта в байты (например, в JSON), чтобы отправить его по сети. На другой стороне — обратное превращение, <b>десериализация</b>. В монолите её нет вовсе: методы передают друг другу ссылку на один и тот же объект в памяти.</div>
+    <div class="mnx-life">вызов в памяти — спросить коллегу за соседним столом: «Сколько осталось ботинок?» — и услышать ответ через секунду. Сетевой вызов — написать письмо в офис в другом городе: запечатать в конверт, отправить, ждать, пока там вскроют, найдут ответ, запечатают и пришлют. И иногда письмо теряется.</div>
+
+    <h3 class="mnx-h3">Ориентиры: порядки величин</h3>
+    <p>Точные цифры зависят от железа, языка и сети. Но <b>порядки</b> стабильны уже много лет, и именно они решают дело.</p>
+    <div class="table-wrap"><table class="db">
+      <thead><tr><th>Действие</th><th>Порядок времени</th><th>Если растянуть вызов метода (5 нс) до 1 секунды</th></tr></thead>
+      <tbody>
+        <tr><td>Вызов метода в том же процессе</td><td>≈ 1–5 нс</td><td>1 секунда</td></tr>
+        <tr><td>Чтение из оперативной памяти</td><td>≈ 100 нс</td><td>20 секунд</td></tr>
+        <tr><td>Туда-обратно по сети внутри дата-центра</td><td>≈ 0,1–0,5 мс</td><td>от шести часов до суток</td></tr>
+        <tr><td>Запрос к базе по индексу (со своей сетью)</td><td>≈ 0,5–2 мс</td><td>от суток до пяти дней</td></tr>
+        <tr><td>HTTP + JSON к соседнему сервису</td><td>≈ 1–5 мс</td><td>от двух дней до двух недель</td></tr>
+        <tr><td>Запрос на другой континент</td><td>≈ 70–150 мс</td><td>от полугода до года</td></tr>
+      </tbody>
+    </table></div>
+    <p style="margin-top:8px;font-size:12.5px;color:var(--muted)">Ориентиры восходят к известному списку «задержки, которые должен знать каждый программист» (Джефф Дин, Питер Норвиг) и к сегодняшним замерам в облаках. Это порядок, а не обещание: у вас может быть в 2–3 раза быстрее или медленнее — но не в тысячу.</p>
+
+    <h3 class="mnx-h3">Калькулятор: что станет с запросом Анны</h3>
+    <p>Оформление заказа внутри монолита — это цепочка вызовов между частями: заказы спрашивают склад, склад — каталог, заказы — бонусы, бонусы — клиентов. Сколько таких вызовов на один запрос? В реальных системах — от единиц до десятков. Двигайте ползунки.</p>
+    <div class="slider-row"><label for="mnx-lat-n">Вызовов между частями на один запрос</label><input type="range" id="mnx-lat-n" min="1" max="60" value="12"><span class="sv" id="mnx-lat-n-v">12</span></div>
+    <div class="slider-row"><label for="mnx-lat-rtt">Сеть туда-обратно внутри дата-центра</label><input type="range" id="mnx-lat-rtt" min="1" max="50" value="5"><span class="sv" id="mnx-lat-rtt-v">0,5 мс</span></div>
+    <div class="slider-row"><label for="mnx-lat-kb">Размер данных в одном вызове</label><input type="range" id="mnx-lat-kb" min="1" max="200" value="4"><span class="sv" id="mnx-lat-kb-v">4 КБ</span></div>
+    <div class="slider-row"><label for="mnx-lat-p">Шанс, что один сетевой вызов не удастся</label><input type="range" id="mnx-lat-p" min="0" max="40" value="2"><span class="sv" id="mnx-lat-p-v">0,1 %</span></div>
+    <div class="seg" id="mnx-lat-mode">
+      <button class="on" data-m="seq">Вызовы идут друг за другом</button>
+      <button data-m="par">Половину удалось распараллелить</button>
+    </div>
+    <div class="mnx-lat" id="mnx-lat-bars"></div>
+    <div class="mnx-kpis" id="mnx-lat-kpi"></div>
+    <div class="console" id="mnx-lat-msg"></div>
+    <div class="note"><b>Что заложено в расчёт.</b> Вызов в памяти — 5 нс (с запасом). Сетевой вызов — время сети туда-обратно плюс упаковка и распаковка JSON: примерно 0,02 мс на килобайт с обеих сторон вместе, плюс 0,1 мс на установку заголовков, пул соединений и работу фреймворка. Сбой: хотя бы один из N вызовов не удался — это 1 − (1 − p)<sup>N</sup>. Повторы и таймауты здесь не учтены: они добавляют и время, и сложность.</div>
+    <div class="note good"><b>Проще говоря.</b> Превратить вызов метода в сетевой — это не «поменять одну строку». Это заменить наносекунды на миллисекунды (в сотни тысяч раз медленнее) и «не может не дойти» на «иногда не доходит». Монолит быстр не потому, что он умный, а потому, что <b>его части разговаривают шёпотом через стол</b>, а не письмами. Этим же объясняется главное правило распределённых систем: «не распределяйте, пока не вынуждены».</div>
+    <div class="note warn"><b>Что Олег ответил Борису.</b> «Скорость мы потеряем точно, а выиграем — независимые выкладки, которые нам, одной команде, пока не нужны. Давай вернёмся к вопросу, когда нас станет много». Это честный ответ: сервисы делят не ради скорости, а ради <b>независимости команд</b>. Почему сеть ещё и ненадёжна, а не только медленна, — на вкладке про устойчивость.</div>
+    <div class="mnx-go"><button class="ghost" data-goto="micro">Что меняется, когда вызов становится сетевым — микросервисы</button><button class="ghost" data-goto="resil">Почему сеть подводит — устойчивость</button></div>
+  </div>
+
+  <!-- ═══════════ ГЛАВА 5 ═══════════ -->
+  <div class="card mnx-ch" id="mnx-ch5">
+    <h2><span class="tag">глава 5 · май · живая модель</span> распродажа: как масштабируют монолит и где он упирается</h2>
+    <p>Май. Первая большая распродажа. В обычный день к магазину приходит 200 запросов в секунду, а в обед распродажи — полторы тысячи. Одна копия <code class="inl">shop.jar</code> на одном сервере начинает отвечать по пять секунд, потом выдаёт ошибки. Что делает Борис? Сначала — самое простое.</p>
+    <div class="mnx-def"><b>Вертикальное масштабирование</b> (scale up) — поставить машину мощнее: больше процессоров, больше памяти. В коде ничего менять не нужно.</div>
+    <div class="mnx-def"><b>Горизонтальное масштабирование</b> (scale out) — запустить несколько <b>одинаковых</b> копий монолита на разных машинах и раздавать им запросы. Монолит при этом не делится на части: каждая копия умеет всё.</div>
+    <div class="mnx-life">кафе не справляется с очередью. Вертикально — нанять одного суперповара, который работает вдвое быстрее (такого ещё поискать, и если он заболеет, кафе встанет). Горизонтально — поставить ещё две одинаковые кухни с обычными поварами по одному рецепту.</div>
+    <div class="mnx-def"><b>Балансировщик нагрузки</b> (load balancer) — программа перед копиями, которая принимает все запросы и раздаёт их копиям по правилу: по кругу, наименее загруженной и т. п. Покупатель видит один адрес магазина.</div>
+    <div class="mnx-def"><b>Сессия</b> (session) — то, что сервер помнит о покупателе между запросами: кто вошёл, что лежит в корзине. Если сессия хранится <b>в памяти копии</b>, другая копия о ней ничего не знает.</div>
+    <div class="mnx-def"><b>Липкая сессия</b> (sticky session) — балансировщик всегда отправляет одного покупателя на одну и ту же копию, чтобы та «помнила» его корзину. <b>Общее хранилище сессий</b> (shared session store) — сессии лежат не в памяти копии, а в отдельном быстром хранилище (обычно Redis), куда ходят все копии. Такая копия называется <b>приложением без состояния</b> (stateless): её можно убить и заменить в любой момент.</div>
+    <div class="mnx-life">липкая сессия — ходить только к «своему» парикмахеру, потому что лишь он помнит вашу стрижку. Заболел — и никто не знает, как вас стричь. Общее хранилище — карта клиента в общей базе салона: любой мастер открывает её и продолжает с того же места.</div>
+    <div class="mnx-def"><b>Узкое место</b> (bottleneck) — самая слабая часть цепочки, которая первой упирается в предел и ограничивает всю систему. Усилить всё остальное бесполезно, пока не расширили её.</div>
+    <div class="mnx-def"><b>Пул соединений</b> (connection pool) — запас заранее открытых соединений с базой внутри каждой копии. У каждой копии свой пул, а у базы — общий предел: в PostgreSQL по умолчанию не больше 100 соединений одновременно (настройка <code class="inl">max_connections</code>).</div>
+
+    <h3 class="mnx-h3">Живая модель: крутите нагрузку и чините узкие места</h3>
+    <p>Слева покупатели, дальше балансировщик, копии монолита, хранилище сессий, кеш и база. Внутри каждого блока — полоска загрузки. Нажмите «▶ Пустить поток», чтобы увидеть бегущие запросы (зелёные — успешные, оранжевые — корзина потерялась, красные — ошибка). Задача: выдержать <b>2 000 запросов в секунду</b> так, чтобы ошибок было меньше 1 %, а корзины не терялись.</p>
+    <div class="mnx-bar"><span class="mnx-lbl">быстрый выбор</span>
+      <button class="ghost" data-mnx-sc="200">Обычный день · 200</button>
+      <button class="ghost" data-mnx-sc="1500">Обед распродажи · 1 500</button>
+      <button class="ghost" data-mnx-sc="2500">Чёрная пятница · 2 500</button>
+    </div>
+    <div class="slider-row"><label for="mnx-sc-rps">Запросов в секунду</label><input type="range" id="mnx-sc-rps" min="100" max="3000" step="100" value="200"><span class="sv" id="mnx-sc-rps-v">200</span></div>
+    <div class="slider-row"><label for="mnx-sc-n">Копий монолита за балансировщиком</label><input type="range" id="mnx-sc-n" min="1" max="8" value="1"><span class="sv" id="mnx-sc-n-v">1</span></div>
+    <div class="slider-row"><label for="mnx-sc-pool">Пул соединений у каждой копии</label><input type="range" id="mnx-sc-pool" min="5" max="40" value="20"><span class="sv" id="mnx-sc-pool-v">20</span></div>
+    <div class="mnx-bar"><span class="mnx-lbl">где хранится корзина</span>
+      <div class="seg" id="mnx-sc-sess">
+        <button class="on" data-v="mem">В памяти копии</button>
+        <button data-v="sticky">Липкие сессии</button>
+        <button data-v="shared">Общее хранилище (Redis)</button>
+      </div>
+    </div>
+    <div class="mnx-bar"><span class="mnx-lbl">добавить</span>
+      <div class="seg" id="mnx-sc-opt">
+        <button data-v="cache">🗃 Кеш каталога</button>
+      </div>
+    </div>
+    <div class="mnx-bar">
+      <button class="act" id="mnx-sc-run">▶ Пустить поток</button>
+      <button class="act danger" id="mnx-sc-kill">💥 Уронить копию №1</button>
+      <button class="act okk" id="mnx-sc-heal">🔧 Поднять копию №1</button>
+      <button class="ghost" id="mnx-sc-reset">⟲ Сначала</button>
+    </div>
+    <div class="mnx-wrap"><div id="mnx-sc-host"></div></div>
+    <div class="mnx-kpis" id="mnx-sc-kpi"></div>
+    <div class="console" id="mnx-sc-msg"></div>
+    <div class="note"><b>Что заложено в модель.</b> Одна копия монолита выдерживает до 450 запросов в секунду — дальше кончается процессор. Каждый запрос без кеша делает 2 запроса к базе; с кешем каталога — в среднем 0,8 (просмотры каталога берутся из кеша). База выдерживает 3 000 запросов в секунду. Предел соединений у базы — 100. Липкие сессии распределяют покупателей неровно: самая загруженная копия получает примерно на 30 % больше средней. Хранилище сессий добавляет к каждому запросу около 0,5 мс. Цифры условные, но соотношения — как в жизни.</div>
+    <div class="grid2" style="margin-top:12px">
+      <div class="box"><h4>Что масштабируется легко</h4><p class="bs">Копии монолита — если он <b>не хранит состояние в памяти</b>. Тогда добавить копию — это просто запустить ещё один такой же <code class="inl">shop.jar</code>. Всё, что помнит покупателя, живёт снаружи: сессии в Redis, файлы в хранилище, данные в базе.</p></div>
+      <div class="box"><h4>Что упирается первым</h4><p class="bs"><b>Общая база.</b> Копий можно запустить сколько угодно, а база одна: её процессор, её диск, её предел соединений. Поэтому следующие шаги почти всегда про базу: кеш, реплики для чтения, пул соединений перед базой (например, PgBouncer), оптимизация запросов.</p></div>
+      <div class="box"><h4>Чем платим за «масштабируется целиком»</h4><p class="bs">Нагружен только каталог, а размножать приходится весь магазин: вместе с отчётами, админкой и их памятью. Обычно это дешевле, чем кажется: память стоит меньше, чем команда, обслуживающая десять сервисов. Но если одна часть требует в 100 раз больше ресурсов, её выделение становится разумным.</p></div>
+      <div class="box"><h4>Как это звучит в требованиях</h4><p class="bs">«Приложение не хранит пользовательское состояние в памяти экземпляра; потеря любого экземпляра не приводит к потере корзины. Система выдерживает 2 000 запросов/с при 95-м перцентиле времени ответа не более 300 мс и доле ошибок не более 0,1 %».</p></div>
+    </div>
+    <div class="note good"><b>Проще говоря.</b> Монолит прекрасно масштабируется вширь — копиями за балансировщиком. Условие одно: копия должна быть «одноразовой» и ничего не помнить сама. А узкое место почти всегда оказывается не в монолите, а в том, что у всех копий общее, — в базе.</div>
+    <div class="mnx-go"><button class="ghost" data-goto="lb">Балансировщики подробно</button><button class="ghost" data-goto="cache">Кеш подробно</button><button class="ghost" data-goto="scale">Масштабирование подробно</button></div>
+  </div>
+
+  <!-- ═══════════ ГЛАВА 6 ═══════════ -->
+  <div class="card mnx-ch" id="mnx-ch6">
+    <h2><span class="tag">глава 6 · июнь · проигрыватель</span> выкладка: одна кнопка, простой и сине-зелёная схема</h2>
+    <p>Июнь. Магазин живёт на двух копиях. Борис выкатывает новую версию по пятницам в 23:00, «чтобы никто не заметил»: останавливает всё, кладёт новый <code class="inl">shop.jar</code>, запускает. Минута-две ошибок. Однажды новая версия не стартовала из-за опечатки в настройках — и магазин лежал сорок минут, пока Борис искал старый файл. Владелец попросил: «Больше никаких ночных выкладок и никаких простоев».</p>
+    <div class="mnx-def"><b>Выкладка</b> (deployment, развёртывание) — замена работающей версии программы на новую у живых пользователей. У монолита выкладывается всегда весь артефакт целиком.</div>
+    <div class="mnx-def"><b>Простой</b> (downtime) — время, когда система не обслуживает покупателей. При выкладке «остановить → заменить → запустить» простой равен времени запуска новой версии: у большого Java-монолита это десятки секунд, иногда минуты.</div>
+    <div class="mnx-def"><b>Прогрев</b> (warm-up) — первые минуты после запуска, когда программа работает медленнее обычного: кеши пусты, соединения с базой ещё открываются, компилятор ещё не оптимизировал горячий код.</div>
+    <div class="mnx-def"><b>Поэтапная замена</b> (rolling update) — копии обновляются по одной: одну выводят из-под нагрузки, обновляют, проверяют и возвращают, потом следующую. Простоя нет, но какое-то время работают <b>две версии сразу</b>.</div>
+    <div class="mnx-def"><b>Сине-зелёная выкладка</b> (blue-green deployment) — рядом с работающим «синим» окружением поднимают полное «зелёное» с новой версией, проверяют его и одним переключением балансировщика переводят туда весь поток. Синее остаётся живым — на случай отката.</div>
+    <div class="mnx-life">кафе с двумя залами. Пока гости ужинают в синем зале, в зелёном накрывают столы по новому меню и повар пробует блюда. Готово — гостей пересаживают за минуту. Потёк потолок в новом зале — гостей так же за минуту возвращают в старый, он ещё накрыт.</div>
+    <div class="mnx-def"><b>Откат выкладки</b> (rollback) — возврат к предыдущей версии, если новая сломана. В схеме «одна кнопка» это новая выкладка старого файла, в сине-зелёной — переключение балансировщика обратно.</div>
+
+    <p style="margin-top:14px">Выберите способ и пройдите по шагам. Сверху — балансировщик, два окружения и база; под ними — полоса «куда идёт поток покупателей». Нагрузка — 300 запросов в секунду.</p>
+    <div class="mnx-bar"><span class="mnx-lbl">способ</span>
+      <div class="seg" id="mnx-dp-mode">
+        <button class="on" data-m="stop">Одна кнопка: стоп → старт</button>
+        <button data-m="roll">По очереди (rolling)</button>
+        <button data-m="bg">Сине-зелёная</button>
+        <button data-m="bgfail">Сине-зелёная, версия с ошибкой</button>
+      </div>
+    </div>
+    <div class="mnx-bar">
+      <button class="ghost" id="mnx-dp-prev">←</button>
+      <button class="act" id="mnx-dp-next">Дальше →</button>
+      <button class="ghost" id="mnx-dp-play">▶</button>
+      <button class="ghost" id="mnx-dp-reset">⟲</button>
+      <span class="skstep" id="mnx-dp-lab"></span>
+    </div>
+    <div class="mnx-wrap"><div class="mnx-dp" id="mnx-dp-scene"></div></div>
+    <div class="mnx-dp-tr" id="mnx-dp-tr"><span class="b"></span><span class="g"></span><span class="x"></span></div>
+    <div class="mnx-kpis" id="mnx-dp-kpi"></div>
+    <div class="skout" style="margin-top:10px">
+      <h4 id="mnx-dp-t"></h4>
+      <div class="lgrid">
+        <b>что происходит</b><div id="mnx-dp-what"></div>
+        <b>почему так</b><div id="mnx-dp-why"></div>
+      </div>
+    </div>
+    <h3 class="mnx-h3">Три способа рядом</h3>
+    <div class="table-wrap"><table class="db">
+      <thead><tr><th></th><th>Одна кнопка</th><th>По очереди</th><th>Сине-зелёная</th></tr></thead>
+      <tbody>
+        <tr><td>Простой</td><td>да, время запуска</td><td>нет</td><td>нет</td></tr>
+        <tr><td>Две версии одновременно</td><td>нет</td><td>да, минуты</td><td>секунды, в момент переключения</td></tr>
+        <tr><td>Откат</td><td>новая выкладка старой версии, минуты</td><td>ещё один проход по копиям</td><td>переключить обратно, секунды</td></tr>
+        <tr><td>Нужно железа</td><td>×1</td><td>×1 и одна запасная копия</td><td>×2 на время выкладки</td></tr>
+        <tr><td>Главная сложность</td><td>ночные выкладки и страх</td><td>совместимость версий</td><td>база данных общая для обоих цветов</td></tr>
+      </tbody>
+    </table></div>
+    <div class="note warn"><b>Где сине-зелёная схема ломается у монолита.</b> Окружений два, а <b>база одна</b>. Если новая версия переименовала колонку, старая после отката не сможет работать. Поэтому изменения схемы делают в два шага: сначала только добавляют новое (старая версия его не замечает), выкатывают код, и лишь потом, отдельной выкладкой, удаляют старое. Это правило «расширить → сузить» (expand / contract) подробно разобрано на вкладке про релизы.</div>
+    <div class="note good"><b>Проще говоря.</b> «Монолит выкатывается целиком» не значит «монолит выкатывается с простоем». Простой — это свойство способа выкладки, а не архитектуры. Две копии за балансировщиком и дисциплина со схемой базы — и монолит выкатывается днём, без ночных смен, с откатом за секунды.</div>
+    <div class="mnx-go"><button class="ghost" data-goto="release">Стратегии выкладки подробно</button><button class="ghost" data-goto="cicd">Конвейер «одна кнопка» — CI/CD</button></div>
+  </div>
+
+  <!-- ═══════════ ГЛАВА 7 ═══════════ -->
+  <div class="card mnx-ch" id="mnx-ch7">
+    <h2><span class="tag">глава 7 · лето</span> команда растёт: почему в монолите всё быстро — и когда это кончается</h2>
+    <p>Июль — август. Бизнес идёт в гору. К Борису пришли <b>Вика</b> и ещё двое, к осени в том же коде работают четыре команды: каталог, заказы, склад и маркетинг. Код почти не изменился — изменилось число людей, которые его правят. И вот тут у монолита появляется первая настоящая проблема.</p>
+    <div class="mnx-def"><b>Релизный поезд</b> (release train) — все изменения всех команд уезжают в прод одним общим выпуском. Опоздал к поезду — ждёшь следующего. Сломал вагон — стоит весь поезд.</div>
+    <div class="mnx-def"><b>Конфликт слияния</b> (merge conflict) — две команды поменяли один и тот же кусок кода по-разному, и система контроля версий не может сама решить, чья правка верна. Разбирают люди, вручную.</div>
+    <div class="mnx-life">общая кухня в коммуналке. Пока в квартире живёт одна семья, готовить удобно. Когда семей четыре, начинаются очереди к плите, чужие кастрюли на вашей конфорке и споры, кто разбил тарелку.</div>
+
+    <h3 class="mnx-h3">День разработчика: одна задача — разный размер команды</h3>
+    <p>Одна и та же задача: «добавить в заказ поле „комментарий"». Посмотрите, как она проходит при разном размере команды.</p>
+    <div class="seg" id="mono-day">
+      <button class="on" data-d="small">👤 Команда из четырёх человек</button>
+      <button data-d="big">👥 Четыре команды по восемь</button>
+    </div>
+    <div id="mono-day-out"></div>
+
+    <h3 class="mnx-h3">Релизный поезд: почему монолит замедляется от размера команды</h3>
     <p>Монолит выкатывается целиком. Значит, релиз — это <b>общий поезд</b>: если чья-то фича сломала тесты, поезд стоит у всех. Покрутите ручки и посмотрите, что происходит с потоком поставки.</p>
     <div class="slider-row"><label for="rt-teams">Команд, пишущих в кодовую базу</label><input type="range" id="rt-teams" min="1" max="20" value="3"><span class="sv" id="rt-teams-v">3</span></div>
     <div class="slider-row"><label for="rt-fail">Шанс, что правка одной команды ломает сборку</label><input type="range" id="rt-fail" min="0" max="40" value="8"><span class="sv" id="rt-fail-v">8 %</span></div>
@@ -72,31 +467,162 @@
       <span class="meter bad">Радиус поражения отката: <b id="rt-blast">—</b></span>
     </div>
     <div class="console" id="rt-msg"></div>
+    <div class="note good"><b>Проще говоря.</b> Шанс, что поезд уйдёт вовремя, — это произведение шансов всех вагонов. Десять команд, каждая с вероятностью 95 % не сломать сборку, — и зелёным уходит только 60 % релизов (0,95<sup>10</sup> ≈ 0,6). Проблема не в коде, а в том, что риски команд <b>перемножаются</b>, потому что у них одна сборка на всех.</div>
+    <div class="note"><b>Закон Конвея</b> (Мелвин Конвей, 1968): организации проектируют системы, повторяющие структуру своих коммуникаций. Пока команда одна — одна программа естественна. Когда команд четыре и каждая хочет выкатываться в своём ритме, код начинает «тянуть» в сторону четырёх частей. Вопрос лишь в том, будут это аккуратные модули или четыре лагеря в одной свалке.</div>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">баланс</span> монолит честно</h2>
+  <!-- ═══════════ ГЛАВА 8 ═══════════ -->
+  <div class="card mnx-ch" id="mnx-ch8">
+    <h2><span class="tag">глава 8 · осень · живая модель</span> паутина связей: как растёт граф зависимостей</h2>
+    <p>Сентябрь — ноябрь. Каждый месяц в магазине появляется что-то новое: отчёты для Олега, скидки, уведомления, бонусная программа, «с этим товаром покупают». Каждая доработка добавляет в код пару «быстрых» связей: «тут проще взять чужой репозиторий напрямую», «тут вызову их сервис, а они — мой». По отдельности каждая связь безобидна и проходит ревью. Посмотрим, во что они складываются за год.</p>
+    <div class="mnx-def"><b>Зависимость</b> (dependency) — класс A использует класс B: вызывает его методы, получает его объекты. Если B поменяется, A может сломаться. На схеме — стрелка от A к B.</div>
+    <div class="mnx-def"><b>Граф зависимостей</b> (dependency graph) — все классы и все стрелки между ними на одной картинке. По нему видно, кто на кого опирается и что заденет правка.</div>
+    <div class="mnx-def"><b>Связность</b> (coupling) — насколько части системы зависят <b>друг от друга</b>. Мало стрелок между частями — связность низкая, и это хорошо: часть можно менять, не трогая остальные.</div>
+    <div class="mnx-life">старая ёлочная гирлянда, где лампочки соединены последовательно: перегорела одна — погасла вся. Высокая связность. Новая гирлянда с параллельным подключением: одна лампочка не горит, остальные светят. Низкая связность.</div>
+    <div class="mnx-def"><b>Зацепление</b> (cohesion) — насколько то, что лежит <b>внутри одной части</b>, относится к одному делу. Высокое зацепление: всё про заказы — в модуле заказов, и почти все стрелки его классов ведут к соседям по модулю. Низкое: в модуле свалено разное, и его классы больше общаются с чужими, чем со своими.</div>
+    <div class="mnx-life">ящик с инструментами. Хороший: в ящике «сантехника» — только ключи, прокладки и лён, всё для одной работы. Плохой: в ящике лежат отвёртка, половник, зарядка и квитанция за свет — вроде всё нужное, но чтобы починить кран, придётся обойти все ящики в доме.</div>
+    <div class="note warn"><b>Осторожно с переводом.</b> В русских книгах эти слова путают: «связность», «связанность», «сцепление», «зацепление» разные авторы ставят то к coupling, то к cohesion. В этом тренажёре: <b>связность = coupling</b> (связи между частями, хотим поменьше), <b>зацепление = cohesion</b> (единство внутри части, хотим побольше). Если сомневаетесь в разговоре — называйте английское слово.</div>
+    <div class="mnx-def"><b>Циклическая зависимость</b> (dependency cycle) — A зависит от B, а B (прямо или через цепочку) — от A. Такие классы нельзя ни понять, ни поменять, ни вынести по отдельности: они слиплись в один ком.</div>
+
+    <h3 class="mnx-h3">Живая модель: двенадцать месяцев одного кода</h3>
+    <p>Двигайте месяц или нажмите ▶. Цветные области — части бизнеса (заказы, каталог, склад…). Серые стрелки — связи внутри своей части, <b>красные</b> — связи в чужую часть, пунктир — новые в этом месяце. Классы в <b>оранжевой пунктирной рамке</b> попали в цикл. <b>Нажмите на любой класс</b> — подсветится всё, что может сломаться, если его поменять.</p>
+    <div class="mnx-bar"><span class="mnx-lbl">как писали</span>
+      <div class="seg" id="mnx-g-mode">
+        <button class="on" data-m="mess">Как у Бориса: «так быстрее»</button>
+        <button data-m="mod">Если бы с первого дня были границы модулей</button>
+      </div>
+    </div>
+    <div class="slider-row"><label for="mnx-g-m">Месяц</label><input type="range" id="mnx-g-m" min="1" max="12" value="1"><span class="sv" id="mnx-g-m-v">январь</span></div>
+    <div class="mnx-bar">
+      <button class="act" id="mnx-g-play">▶ Прожить год</button>
+      <button class="ghost" id="mnx-g-clear">Снять выделение</button>
+    </div>
+    <div class="note" id="mnx-g-ev" style="margin-top:4px"></div>
+    <div class="mnx-wrap"><div id="mnx-g-host"></div></div>
+    <div class="mnx-g-leg"><span><i></i>связь внутри своей части</span><span><i class="x"></i>связь в чужую часть</span><span><i class="n"></i>появилась в этом месяце</span><span><i class="c"></i>класс в цикле</span></div>
+    <div class="mnx-kpis" id="mnx-g-kpi"></div>
+    <div class="console" id="mnx-g-msg"></div>
+    <div class="note"><b>Как считаются метрики.</b> <b>Связность</b> — доля стрелок, которые ведут в чужую часть. <b>Зацепление</b> — для каждой части: сколько её стрелок остаются внутри неё; показано среднее по частям. <b>Лазейки</b> — стрелки в чужую часть мимо её фасада: прямо в чужой репозиторий, сущность или вспомогательный класс. <b>Радиус изменения</b> — если поменять класс, сколько других классов зависят от него прямо или через цепочку; показан средний по всем классам. В режиме с границами внутренняя правка останавливается на фасаде: чужие части видят только его, а он не менялся. Это упрощённые версии настоящих метрик (у Роберта Мартина это входящие и исходящие зависимости и нестабильность пакета), но смысл тот же.</div>
+    <div class="note good"><b>Проще говоря.</b> Ни одна стрелка не была ошибкой в отдельности: каждую добавили ради срочной задачи, и каждая работала. Ком грязи не проектируют — он <b>нарастает</b>, по стрелке в неделю. А момент, когда «любое изменение задевает всё», наступает не в какой-то день, а плавно: радиус изменения растёт, пока однажды правка поля в заказе не роняет отчёт, о котором вы не знали.</div>
+    <div class="note warn"><b>Что меняют границы модулей</b> (режим «если бы с первого дня»). Возможности бизнеса те же, классов столько же. Но в чужую часть можно ходить только через её <b>фасад</b> — один публичный класс, а о событиях вроде «заказ оформлен» части узнают через <b>события внутри процесса</b>, а не прямым вызовом. Стрелок в чужие части меньше, циклов нет, радиус изменения остаётся маленьким. Это и есть модульный монолит — следующая вкладка.</div>
+  </div>
+
+  <!-- ═══════════ ГЛАВА 9 ═══════════ -->
+  <div class="card mnx-ch" id="mnx-ch9">
+    <h2><span class="tag">глава 9 · декабрь</span> большой ком грязи: виды монолитов и признаки, что пора лечить</h2>
+    <p>Декабрь. Олег приносит простую задачу: разрешить покупателю указать второй телефон для курьера. Борис оценивает её в неделю. Владелец не понимает: «Одно поле же!» Борис показывает: на таблицу клиентов смотрят четырнадцать мест в коде, и три из них он видит впервые. Год назад такая задача заняла бы полдня. Код не стал монолитом — он был им с января. Он стал <b>комом грязи</b>.</p>
+    <div class="mnx-def"><b>Большой ком грязи</b> (big ball of mud) — система без различимой внутренней структуры, где всё связано со всем. Название дали Брайан Фут и Джозеф Йодер в одноимённой статье 1997 года: «беспорядочно устроенные, расползающиеся, неряшливые джунгли кода, скреплённого изолентой». Они же заметили главное: на практике это <b>фактически стандартная архитектура</b> программ — не потому, что её выбирают, а потому, что к ней скатываются.</div>
+    <div class="mnx-life">гараж, в который двадцать лет «временно» ставили вещи. Каждую ставили разумно — туда, где было место. Никто не устраивал беспорядок нарочно. Но теперь, чтобы достать велосипед, нужно вынести половину гаража.</div>
+
+    <h3 class="mnx-h3">Виды монолитов: не все монолиты одинаковы</h3>
+    <div class="grid3">
+      <div class="box"><h4>1 · Одномодульный (слоистый)</h4><p class="bs">То, что у Бориса: одна сборка, код разложен по техническим слоям, границ между частями бизнеса нет. Прекрасен на старте, склонен скатываться в ком грязи по мере роста. Лечится заведением модулей.</p></div>
+      <div class="box"><h4>2 · Модульный монолит</h4><p class="bs">Одна сборка и один процесс, но внутри — модули по бизнес-возможностям с жёсткими границами: чужие классы видны только через фасад, нарушения ловит автоматическая проверка при сборке. Почти вся польза микросервисов без сети.</p><button class="ghost" data-goto="modular" style="margin-top:6px">К модульному монолиту</button></div>
+      <div class="box" style="border-color:var(--danger)"><h4>3 · Распределённый монолит</h4><p class="bs">Худший вариант: система уже разрезана на сервисы, общается по сети, но сервисы нельзя выкатывать по отдельности, они делят базу или падают цепочкой. Сложность распределённой системы получена, независимость — нет.</p><button class="ghost" data-goto="micro" style="margin-top:6px">Разбор на вкладке «Микросервисы»</button></div>
+    </div>
+    <div id="mnx-kinds" style="margin-top:12px"></div>
+    <p style="margin-top:6px;font-size:12.5px;color:var(--muted)">Нажмите на строку таблицы — раскроется пояснение.</p>
+
+    <h3 class="mnx-h3">Диагноз: признаки, что монолит пора лечить</h3>
+    <p>Важно: ни один из признаков не означает «надо на микросервисы». Все они означают «границ внутри нет». Границы можно завести и не разрезая процесс — об этом следующая глава и следующая вкладка. Нажимайте на признак, чтобы раскрыть разбор.</p>
+    <div id="mud-list" class="numlist"></div>
+    <div class="note good"><b>Проще говоря.</b> Болеет не «монолитность», а отсутствие стен. Если вы разрежете ком грязи на сервисы, получите не микросервисы, а ком грязи с сетевыми задержками — тот самый распределённый монолит.</div>
+  </div>
+
+  <!-- ═══════════ ГЛАВА 10 ═══════════ -->
+  <div class="card mnx-ch" id="mnx-ch10">
+    <h2><span class="tag">глава 10 · лечение</span> как лечить монолит без переписывания</h2>
+    <p>Январь следующего года. У Бориса два соблазна. Первый — «перепишем всё с нуля, на этот раз правильно». Второй — «распилим на микросервисы». Олег предлагает третий путь: <b>навести порядок внутри</b>, не останавливая магазин ни на день.</p>
+    <div class="mnx-def"><b>Рефакторинг</b> (refactoring) — изменение внутреннего устройства кода без изменения его поведения снаружи. Покупатели ничего не замечают, а код становится проще менять.</div>
+    <div class="mnx-life">ремонт в квартире, где продолжают жить. Не сносят дом, а переделывают по комнате: пока ремонтируют кухню, готовят в гостиной. Каждый вечер в квартире можно жить.</div>
+    <div class="note warn"><b>Почему не «переписать с нуля».</b> Старый код содержит годы исправленных ошибок и учтённых особых случаев, которых нет ни в одной документации. Новая система годами догоняет старую, а бизнес всё это время ждёт. Джоэл Спольски в эссе 2000 года «Things You Should Never Do» назвал полное переписывание «худшей стратегической ошибкой, которую может сделать софтверная компания», на примере Netscape. Переписывают по частям, а не целиком.</div>
+    <h3 class="mnx-h3">Семь шагов лечения</h3>
+    <p>Шаги идут в таком порядке не случайно: каждый опирается на предыдущий и сам по себе приносит пользу. Можно остановиться на любом. Нажимайте, чтобы раскрыть.</p>
+    <div id="mnx-cure"></div>
+    <div class="mnx-go"><button class="ghost" data-goto="modular">Шаги 2–6 подробно — модульный монолит</button><button class="ghost" data-goto="legacy">Шаг 7 подробно — работа с легаси и душитель</button><button class="ghost" data-goto="bc">Где проводить границы — ограниченные контексты</button></div>
+
+    <h3 class="mnx-h3">Монолит честно: что выигрываем и чем платим</h3>
     <div id="mono-pm"></div>
-    <div class="note good"><b>Правило Фаулера, которое стоит запомнить дословно:</b> «Почти во всех случаях успешные микросервисные системы начинались как монолит, который стал слишком большим и был разбит. Почти во всех случаях системы, построенные микросервисными с нуля, попадали в серьёзные неприятности». Причина проста: чтобы правильно нарезать границы, надо сначала узнать домен, а на старте его никто не знает.</div>
+    <div class="note good"><b>Правило Фаулера, которое стоит запомнить дословно:</b> «Почти во всех случаях успешные микросервисные системы начинались как монолит, который стал слишком большим и был разбит. Почти во всех случаях системы, построенные микросервисными с нуля, попадали в серьёзные неприятности». Причина проста: чтобы правильно нарезать границы, надо сначала узнать домен, а на старте его никто не знает. (Мартин Фаулер, «MonolithFirst», 2015.)</div>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">решение</span> когда монолит — правильный ответ</h2>
+  <!-- ═══════════ ГЛАВА 11 ═══════════ -->
+  <div class="card mnx-ch" id="mnx-ch11">
+    <h2><span class="tag">глава 11 · кто так живёт</span> большие монолиты в реальном мире — и когда монолит правильный ответ</h2>
+    <p>Борису кажется, что монолит — удел маленьких. Олег показывает ему несколько известных компаний, которые сознательно живут на монолите при огромной нагрузке или большом числе разработчиков. Факты взяты из инженерных блогов самих компаний; год указан, потому что с тех пор многое могло поменяться.</p>
+    <div class="grid2">
+      <div class="mnx-case">
+        <h4>Stack Overflow</h4>
+        <ul>
+          <li>Одно приложение на ASP.NET, основные данные — в Microsoft SQL Server, кеш — Redis.</li>
+          <li>В 2016 году: 11 веб-серверов IIS, 4 сервера SQL Server; около 209 миллионов HTTP-запросов в сутки, из них около 66 миллионов — загрузки страниц.</li>
+          <li>Инженер Ник Крейвер писал, что вся сеть сайтов вопросов и ответов может работать на одном веб-сервере — они это нечаянно проверяли; но делать так он не советовал.</li>
+        </ul>
+        <div class="src">Nick Craver, «Stack Overflow: The Architecture — 2016 Edition»</div>
+      </div>
+      <div class="mnx-case">
+        <h4>Shopify</h4>
+        <ul>
+          <li>Ядро — монолит на Ruby on Rails, одна из крупнейших Rails-кодовых баз: к 2020 году больше 2,8 млн строк Ruby и 500 тысяч коммитов, над ним работали сотни разработчиков.</li>
+          <li>С 2017 года — проект «компонентизации»: около 6 000 классов переложили из слоёв (модели, контроллеры) в компоненты по бизнесу — заказы, доставка, склад, биллинг.</li>
+          <li>Цель — модульный монолит, а не микросервисы. Границы проверяет собственный инструмент Packwerk (открыт в 2020 году).</li>
+        </ul>
+        <div class="src">Kirsten Westeinde, «Deconstructing the Monolith», 2019; Philip Müller, «Under Deconstruction: The State of Shopify's Monolith», 2020</div>
+      </div>
+      <div class="mnx-case">
+        <h4>Basecamp (37signals)</h4>
+        <ul>
+          <li>Дэвид Хайнемайер Ханссон (создатель Ruby on Rails) в 2016 году написал эссе «The Majestic Monolith» — «величественный монолит».</li>
+          <li>Basecamp 3 работал в браузере, как мобильные приложения для iOS и Android, как настольные для Windows и Mac и через почту — и всё это делали 12 программистов.</li>
+          <li>Главный довод: маленькой команде не нужна распределённость; первое правило распределённых вычислений — «не распределяйте вычисления».</li>
+        </ul>
+        <div class="src">DHH, «The Majestic Monolith», Signal v. Noise, 29 февраля 2016</div>
+      </div>
+      <div class="mnx-case">
+        <h4>Amazon Prime Video — обратный переезд</h4>
+        <ul>
+          <li>В 2023 году команда сервиса проверки качества видеопотоков описала, как перенесла его из набора распределённых компонентов (AWS Step Functions и Lambda) в одно приложение.</li>
+          <li>Стоимость инфраструктуры этого сервиса упала более чем на 90 %, а масштабироваться он стал лучше.</li>
+          <li>Важно: это один сервис внутри большой системы, а не отказ Amazon от сервисов вообще. Урок в другом: границы процессов — не бесплатны, и их можно двигать в обе стороны.</li>
+        </ul>
+        <div class="src">Prime Video Tech, «Scaling up the Prime Video audio/video monitoring service and reducing costs by 90%», 2023</div>
+      </div>
+    </div>
+    <div class="note good"><b>Проще говоря.</b> У всех четырёх — одна мысль: размер и нагрузка сами по себе не повод дробить систему. Stack Overflow держит огромный трафик на горстке серверов, Shopify — сотни разработчиков в одной кодовой базе, но <b>с границами внутри</b>. Повод дробить — независимость команд и разные требования частей, а не мода.</div>
+
+    <h3 class="mnx-h3">Решение: когда монолит — правильный ответ</h3>
     <p>Отметьте пункты, верные для вашей ситуации. Чем больше отмечено — тем дороже вам обойдётся распределённость.</p>
     <div id="mono-check"></div>
     <div class="console" id="mono-check-msg">Отметьте то, что похоже на правду.</div>
+
+    <h3 class="mnx-h3">Как это звучит в требованиях: НФТ для монолита</h3>
+    <p>Аналитику не нужно писать «сделайте монолит». Нужно записать свойства, которые делают монолит здоровым, — так, чтобы их можно было проверить.</p>
+    <div class="mnx-req">НФТ-1. Выкладка новой версии выполняется без простоя: во время
+       выкладки не менее 99,9 % запросов покупателей завершаются успешно.
+НФТ-2. Откат на предыдущую версию занимает не более 5 минут.
+НФТ-3. Экземпляр приложения не хранит состояние пользователя в памяти;
+       отказ любого экземпляра не приводит к потере корзины.
+НФТ-4. Сборка и автотесты одного изменения — не дольше 15 минут.
+НФТ-5. Каждая таблица базы данных имеет одного модуля-владельца;
+       другие модули обращаются к её данным только через API модуля.
+НФТ-6. Изменения схемы БД обратно совместимы с предыдущей версией
+       приложения (порядок «расширить → сузить»).</div>
+    <div class="note"><b>Почему именно так.</b> Каждое требование закрывает одну беду из истории Бориса: НФТ-1 и НФТ-2 — ночные выкладки из главы 6, НФТ-3 — потерянные корзины из главы 5, НФТ-4 — релизный поезд из главы 7, НФТ-5 — паутину из главы 8, НФТ-6 — откат при общей базе. Хорошее нефункциональное требование всегда можно проверить числом или автоматической проверкой.</div>
   </div>
 
-  <div class="card">
-    <h2><span class="tag">диагноз</span> «большой ком грязи»: признаки, что монолит пора лечить</h2>
-    <p>Важно: ни один из признаков не означает «надо на микросервисы». Все они означают «границ внутри нет». Границы можно завести и не разрезая процесс — об этом следующая вкладка.</p>
-    <div id="mud-list" class="numlist"></div>
-  </div>
-
-  <div class="card">
-    <h2><span class="tag">задание</span> когда монолит, а когда нет</h2>
+  <!-- ═══════════ ГЛАВА 12 ═══════════ -->
+  <div class="card mnx-ch" id="mnx-ch12">
+    <h2><span class="tag">глава 12 · проверь себя</span> задания: когда монолит, а когда нет</h2>
+    <p>Три блока. Первый — классические вопросы о выборе. Второй — по главам этого раздела. Третий — отличить болезнь монолита от болезни «без границ».</p>
+    <h3 class="mnx-h3">Блок 1. Выбор</h3>
     <p>Решено <b id="mono-score">0</b> из <span id="mono-total">0</span>.</p>
     <div id="mono-tasks"></div>
+    <h3 class="mnx-h3">Блок 2. По главам</h3>
+    <p>Решено <b id="mnx-q-score">0</b> из <span id="mnx-q-total">0</span>.</p>
+    <div id="mnx-q-tasks"></div>
+    <h3 class="mnx-h3">Блок 3. Кто виноват: монолит или отсутствие границ?</h3>
+    <p>Для каждой беды выберите настоящую причину. Решено <b id="mnx-sort-score">0</b> из <span id="mnx-sort-total">0</span>.</p>
+    <div id="mnx-sort"></div>
   </div>
 
   <div class="nextbar">
@@ -104,7 +630,6 @@
     <button data-goto="modular">К модульному монолиту</button>
   </div>
 </section>
-
 <script>
 /* ═══ 2.1 Релизный поезд ═══ */
 (function(){
@@ -574,5 +1099,1063 @@
     const r = e.target.closest('.lrow'); if(r) show(+r.dataset.i);
   });
   show(0);
+})();
+</script>
+
+<script>
+/* ═══ МОНОЛИТ — повествование (mnx-) ═══ */
+/* ─── карта, виды монолитов, шаги лечения ─── */
+(function(){
+  const map = document.getElementById('mnx-map');
+  if(!map) return;
+  map.addEventListener('click', e => {
+    const b = e.target.closest('button[data-mnx-ch]'); if(!b) return;
+    const t = document.getElementById(b.getAttribute('data-mnx-ch'));
+    if(t && t.scrollIntoView) t.scrollIntoView({behavior:'smooth', block:'start'});
+  });
+
+  renderCmp('mnx-kinds', ['', 'Одномодульный', 'Модульный', 'Распределённый монолит'], [
+    {cells:['Сборок и процессов', 'одна / один', 'одна / один', 'много / много'],
+     why:'Первые два — настоящие монолиты: один артефакт, один процесс (или копии одного процесса). Третий снаружи выглядит как сервисы: у каждого своя сборка и свой процесс. Отличие от настоящих микросервисов — в следующих строках.'},
+    {cells:['Границы между частями бизнеса', 'нет', 'есть, проверяются при сборке', 'на словах есть, по делу нет'],
+     why:'В модульном монолите чужой класс нельзя импортировать мимо фасада: сборка упадёт. В распределённом монолите граница проведена сетью, но через неё ходят за чужими данными так часто и так подробно, что части не могут жить друг без друга.'},
+    {cells:['Вызов между частями', 'метод, наносекунды', 'метод через фасад', 'сеть, миллисекунды'],
+     why:'Распределённый монолит платит сетью за каждый вызов, но не получает независимости. Это видно по «болтливости»: одна операция покупателя порождает десятки сетевых вызовов между сервисами.'},
+    {cells:['Общая транзакция', 'да', 'да, лучше внутри модуля', 'нет — саги или дыры'],
+     why:'Модульный монолит может использовать общую транзакцию, но хороший тон — держать её в границах одного модуля, чтобы модуль можно было вынести. В распределённом монолите транзакции нет, а саг часто тоже нет — отсюда «потерянные» заказы.'},
+    {cells:['Выкатить одну часть', 'нельзя', 'нельзя, но тесты по модулям', 'формально можно, по факту — только все вместе'],
+     why:'Главный признак распределённого монолита: «выкатываем сервис заказов — не забудьте выкатить склад и оплату, иначе сломается». Независимой выкладки нет, хотя сервисов много.'},
+    {cells:['Кому подходит', 'старт, одна команда', 'почти всем по умолчанию', 'никому — это антипаттерн'],
+     why:'Одномодульный монолит хорош, пока код помещается в одну голову. Модульный — разумное состояние по умолчанию на годы. В распределённый монолит попадают, когда режут ком грязи на сервисы, не наведя порядка внутри.'},
+  ]);
+
+  renderNum('mnx-cure', [
+    {t:'Нарисовать карту: кто от кого зависит и кто пишет в какие таблицы',
+     d:'Граф зависимостей строят инструменты анализа кода (для Java — например, jdeps или плагины IDE). Для таблиц — поиск по коду и журнал запросов базы. Итог — список «таблица → кто пишет, кто читает».<br><br><b>Из жизни:</b> прежде чем разбирать гараж, выносят всё во двор и смотрят, что вообще есть.<br><b>Польза сама по себе:</b> впервые видно, какие правки опасны.'},
+    {t:'Провести границы по бизнес-возможностям, а не по слоям',
+     d:'Части — это «Заказы», «Каталог», «Склад», «Бонусы», а не «контроллеры» и «репозитории». Где именно резать, подскажут слова бизнеса: если «заказ» у склада и у бухгалтерии значит разное — это разные части. Подробно — ограниченные контексты.<br><br><b>Из жизни:</b> в гараже раскладывают по делу — «для велосипеда», «для дачи», — а не по материалу «всё железное сюда».'},
+    {t:'Переложить код по модулям (package by feature)',
+     d:'Всё про заказы — в пакет <code class="inl">shop.orders</code>, внутри свои контроллер, сервис и репозиторий. Поведение не меняется: это чистый рефакторинг, его можно делать по одному классу в день, между обычными задачами.<br><br><b>Польза сама по себе:</b> новичок, которому дали задачу про бонусы, открывает одну папку, а не весь проект.'},
+    {t:'Завести фасады и запретить всё остальное',
+     d:'У модуля есть публичная часть — фасад и объекты для обмена (DTO), — а всё остальное скрыто. Нарушение роняет сборку: в Java это ArchUnit или Spring Modulith, в Ruby — Packwerk. Старые нарушения сначала заносят в «список исключений», который разрешено только уменьшать.<br><br><b>Проще говоря:</b> вместо «не лезьте в чужое, пожалуйста» появляется замок на двери.'},
+    {t:'Дать каждой таблице одного владельца',
+     d:'В таблицу заказов пишет только модуль заказов. Остальные читают через его фасад. Тяжёлые отчёты Олега уходят на реплику или в отдельную витрину данных. Это самый трудный шаг: именно общие таблицы держат ком грязи слепленным.<br><br><b>Из жизни:</b> у каждой полки в гараже есть хозяин, и чужую полку без спроса не разбирают.'},
+    {t:'Развязать циклы событиями внутри процесса',
+     d:'Вместо «заказы вызывают бонусы, а бонусы — заказы» заказы публикуют событие «заказ оформлен», а бонусы и уведомления на него подписаны. Всё это по-прежнему в одном процессе и может жить в одной транзакции, но стрелка назад исчезает.<br><br><b>Проще говоря:</b> не звонить соседу, а повесить объявление в подъезде — кому надо, прочитает.'},
+    {t:'Только теперь — выносить, если действительно нужно',
+     d:'Модуль с другим профилем (нагрузка ×100, особые требования к безопасности, свой темп изменений) выносится в отдельный сервис. Делают это постепенно, шаблоном «душитель» (strangler fig): новый сервис забирает функции по одной, запросы к ним перенаправляются, старый код отмирает. С чистой границей модуля это недели, а не годы.<br><br><b>Из жизни:</b> фикус-душитель обвивает старое дерево и постепенно заменяет его — дерево ни дня не стоит без кроны.'},
+  ]);
+})();
+
+/* ─── глава 3: путь запроса через слои (живая модель) ─── */
+(function(){
+  const nodesEl = document.getElementById('mnx-pt-nodes');
+  if(!nodesEl) return;
+  const $ = id => document.getElementById(id);
+  const panel = document.getElementById('mono');
+  const RM = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const raf = window.requestAnimationFrame ? window.requestAnimationFrame.bind(window) : (f => setTimeout(f, 16));
+  const caf = window.cancelAnimationFrame ? window.cancelAnimationFrame.bind(window) : clearTimeout;
+  const N = [
+    {i:'👩', n:'Браузер Анны', s:'за сетью'},
+    {i:'🎛', n:'OrderController', s:'контроллер'},
+    {i:'⚙', n:'OrderService', s:'сервис · @Transactional'},
+    {i:'🗂', n:'Репозитории', s:'Stock · Order · Bonus'},
+    {i:'🗄', n:'PostgreSQL', s:'база shop_db'},
+  ];
+  const X = [10, 30, 50, 70, 90];
+  const ORD = '№1041 · Анна · 7 490 ₽ · r-7f3a';
+  const TX = {none:'транзакция не открыта', open:'транзакция открыта: BEGIN … изменения видит только она', commit:'COMMIT ✓ — все изменения стали видны всем разом', rollback:'ROLLBACK ✕ — все изменения отменены', lost:'связь оборвалась — база сама отменяет транзакцию'};
+
+  /* ── сборщик шагов: база, транзакция и журнал переносятся со шага на шаг ── */
+  function mk(init){
+    const L = []; let db = JSON.parse(JSON.stringify(init)), tx = 'none', log = [];
+    const api = {
+      add(p){
+        db = JSON.parse(JSON.stringify(db));
+        ['stock','orders','bonus'].forEach(k => db[k].f = false);
+        if(p.db) p.db(db);
+        if(p.tx) tx = p.tx;
+        if(p.log) log = log.concat([p.log]);
+        L.push(Object.assign({}, p, {db:db, tx:tx, logs:log.slice()}));
+        return api;
+      },
+      list(){ return L; }
+    };
+    return api;
+  }
+  const T0 = () => ({stock:{c:3, d:null, x:null}, orders:{c:[], d:null, x:null}, bonus:{c:800, d:null, x:null}});
+  function commit(db){ ['stock','bonus'].forEach(k => { if(db[k].d !== null){ db[k].c = db[k].d; db[k].d = null; db[k].f = true; } });
+    if(db.orders.d){ db.orders.c = db.orders.c.concat([db.orders.d]); db.orders.d = null; db.orders.f = true; } }
+  function rollback(db){ ['stock','orders','bonus'].forEach(k => { if(db[k].d !== null){ db[k].x = db[k].d; db[k].d = null; } }); }
+
+  const REQ = qty => 'POST /api/orders HTTP/1.1\nContent-Type: application/json\nIdempotency-Key: r-7f3a\n\n{ "sku": "SNK-42", "qty": ' + qty + ', "useBonus": 500 }';
+  const s0 = (b, stock, bonus, extra) => b.add({t:'Исходное состояние', on:[],
+    code:'stock:    SNK-42 → остаток ' + stock + '\nbonuses:  Анна → ' + bonus + ' баллов\norders:   ' + (extra || 'заказов Анны нет'),
+    what:'Анна на странице товара и сейчас нажмёт «Оформить заказ». Под схемой — три таблицы, которые затронет покупка.',
+    why:'Правило магазина: данные всегда <b>согласованы</b>. Уменьшился остаток — значит, есть заказ. Списаны бонусы — значит, есть заказ. Следите, выполняется ли правило на каждом шаге.',
+    log:['', '— ' + (extra ? 'повторное нажатие: первый заказ уже в базе' : 'начало')]});
+  const s1 = (b, qty) => b.add({t:'1. Браузер отправляет запрос', fly:[0,1,'POST /api/orders'], on:[0,1], st:{0:'отправила', 1:'принял JSON'},
+    code:REQ(qty),
+    what:'Браузер Анны отправляет HTTP-запрос по сети. Балансировщик передаёт его одной из копий <code class="inl">shop.jar</code>, и внутри неё запрос попадает в контроллер заказов.',
+    why:'Это один из двух настоящих сетевых участков пути. Здесь запрос может потеряться, а браузер об этом не узнает. Поэтому к запросу приложен ключ <code class="inl">Idempotency-Key</code>: если Анна нажмёт кнопку дважды, магазин поймёт, что это один и тот же заказ.',
+    log:['', '+0 мс     → POST /api/orders (сеть от Анны, 20–50 мс)']});
+  const s2 = b => b.add({t:'2. Контроллер проверяет форму данных', at:1, pk:'@Valid ✓', on:[1], st:{1:'форма в порядке'},
+    code:'@PostMapping("/api/orders")\npublic ResponseEntity<OrderDto> checkout(\n        @Valid @RequestBody CheckoutRequest req,\n        @RequestHeader("Idempotency-Key") String key) {\n    // qty ≥ 1, sku не пустой, useBonus ≥ 0  →  ✓',
+    what:'Контроллер превращает JSON в объект <code class="inl">CheckoutRequest</code> и проверяет его по аннотациям: количество не меньше 1, артикул не пустой.',
+    why:'Контроллер проверяет только <b>форму</b> данных, а не бизнес-правила. «Есть ли товар на складе» он не знает и знать не должен. Ошибки формы отсекаются до того, как открыта транзакция и занято соединение с базой.',
+    log:['', '+0,01 мс  контроллер: форма запроса в порядке']});
+  const s3 = b => b.add({t:'3. Вызов сервиса — и транзакция открыта', fly:[1,2,'checkout(cmd)'], on:[1,2], st:{2:'BEGIN'}, tx:'open',
+    code:'orderService.checkout(cmd, key);   // обычный вызов метода, наносекунды\n\n// Spring видит @Transactional над checkout():\n//   1) берёт соединение из пула\n//   2) отправляет в базу BEGIN',
+    what:'Контроллер вызывает сервис — обычный вызов метода в той же памяти. Но метод помечен <code class="inl">@Transactional</code>, и Spring перед входом в него берёт соединение из пула и открывает транзакцию.',
+    why:'Транзакцию открывает именно сервис: только он знает, какие действия — одно целое («уменьшить остаток + создать заказ + списать бонусы»). Контроллер этого не знает, а репозиторий видит только свою таблицу.',
+    log:['', '+0,3 мс   вызов checkout() в памяти → BEGIN (соединение из пула)']});
+  const s4 = (b, from, to) => b.add({t:'4. Резервируем пару на складе', fly:[3,4,'UPDATE stock …'], on:[2,3,4], st:{3:'stockRepo.reserve', 4:'1 строка'}, hl:['stock'],
+    db:d => { d.stock.d = to; },
+    code:'stockRepo.reserve("SNK-42", 1);\n\nUPDATE stock SET qty = qty - 1\n WHERE sku = \'SNK-42\' AND qty >= 1;      → изменена 1 строка',
+    what:'Сервис просит репозиторий склада уменьшить остаток, репозиторий отправляет в базу SQL. Условие <code class="inl">qty >= 1</code> не даст продать то, чего нет. Остаток стал ' + to + ' — но пока только в черновике этой транзакции.',
+    why:'Другие покупатели всё ещё видят ' + from + ': черновик незавершённой транзакции никому не виден (изоляция). Строка остатка теперь заперта: второй покупатель той же пары в эту миллисекунду подождёт.',
+    log:['', '+0,9 мс   UPDATE stock → 1 строка (черновик: ' + from + ' → ' + to + ')']});
+  const s5 = b => b.add({t:'5. Создаём заказ', fly:[3,4,'INSERT INTO orders …'], on:[2,3,4], st:{3:'orderRepo.insert', 4:'1 строка'}, hl:['orders'],
+    db:d => { d.orders.d = ORD; },
+    code:'orderRepo.insert(order);\n\nINSERT INTO orders (id, client, sku, total, request_key)\nVALUES (1041, \'Анна\', \'SNK-42\', 7490, \'r-7f3a\');   → 1 строка',
+    what:'Репозиторий заказов вставляет строку. Сумма — 7 990 ₽ минус 500 бонусов = 7 490 ₽. В колонке <code class="inl">request_key</code> — ключ из заголовка запроса.',
+    why:'На колонке <code class="inl">request_key</code> стоит ограничение уникальности: второй заказ с тем же ключом база не пустит. Это страховка от двойного клика. Заказ пока тоже черновик.',
+    log:['', '+1,6 мс   INSERT orders → 1 строка (черновик: заказ №1041)']});
+  const s6 = (b, from) => b.add({t:'6. Списываем бонусы', fly:[3,4,'UPDATE bonuses …'], on:[2,3,4], st:{3:'bonusRepo.spend', 4:'1 строка'}, hl:['bonus'],
+    db:d => { d.bonus.d = from - 500; },
+    code:'bonusRepo.spend("Анна", 500);\n\nUPDATE bonuses SET balance = balance - 500\n WHERE client = \'Анна\' AND balance >= 500;   → 1 строка',
+    what:'Списываем 500 баллов, условие <code class="inl">balance >= 500</code> не даст уйти в минус. ' + from + ' → ' + (from - 500) + ', в черновике.',
+    why:'Сейчас в базе три изменения в трёх разных таблицах, и все три — черновик. Погасни свет прямо сейчас — база при запуске выбросит их все: незавершённая транзакция следов не оставляет.',
+    log:['', '+2,2 мс   UPDATE bonuses → 1 строка (черновик: ' + from + ' → ' + (from - 500) + ')']});
+  const fin = (b, k, code, what, why) => b.add({t:'Итог', on:[], k:k, code:code, what:what, why:why});
+  const rbStep = (b, what, why, at) => b.add({t:'Откат: ROLLBACK', fly:[2,4,'ROLLBACK'], on:[2,4], bad:[at], st:{2:'исключение → откат', 4:'черновик выброшен'}, tx:'rollback', k:'bad', hl:['stock','orders','bonus'],
+    db:rollback,
+    code:'// исключение вылетело из checkout() →\n// Spring ловит его на выходе из метода и отправляет в базу:\nROLLBACK;\n  → все изменения этой транзакции выброшены\n  → блокировка строки снята, соединение вернулось в пул\n  → исключение летит дальше, в контроллер',
+    what:what, why:why, log:['bad', '+2,4 мс   ROLLBACK ✕ — всё, что успели, отменено']});
+
+  const SC = {
+    ok(){ const b = mk(T0()); s0(b, 3, 800); s1(b, 1); s2(b); s3(b); s4(b, 3, 2); s5(b); s6(b, 800);
+      b.add({t:'7. COMMIT: всё сразу становится правдой', fly:[2,4,'COMMIT'], on:[2,4], good:[4], st:{2:'метод завершился', 4:'журнал на диске'}, tx:'commit', k:'good', hl:['stock','orders','bonus'],
+        db:commit,
+        code:'// checkout() завершился без исключений → Spring отправляет:\nCOMMIT;\n  1) база записывает изменения в журнал (WAL) на диск\n  2) черновик становится видимым всем — разом\n  3) блокировка строки остатка снята\n  4) соединение вернулось в пул',
+        what:'Сервис закончил работу без ошибок, и Spring отправляет <code class="inl">COMMIT</code>. База надёжно пишет изменения в журнал и делает все три видимыми <b>одновременно</b>. Нет момента, когда остаток уже уменьшен, а заказа ещё нет.',
+        why:'Это атомарность: три изменения в трёх таблицах стали правдой как одно. В монолите она стоит одно слово <code class="inl">@Transactional</code> — потому что все таблицы в одной базе, а весь код в одном процессе.',
+        log:['ok', '+3,1 мс   COMMIT ✓ (журнал на диске, изменения видны всем)']});
+      b.add({t:'8. Ответ Анне', fly:[1,0,'201 Created', 'ret'], on:[0,1], good:[0], st:{0:'«Заказ №1041 оформлен»'}, k:'good',
+        code:'HTTP/1.1 201 Created\nLocation: /api/orders/1041\nContent-Type: application/json\n\n{ "orderId": 1041, "total": 7490, "bonusLeft": 300 }',
+        what:'Сервис вернул объект заказа, контроллер превратил его в HTTP-ответ <code class="inl">201 Created</code>. Анна видит «Заказ №1041 оформлен».',
+        why:'Внутри магазина всё заняло около 3 миллисекунд, и почти всё — разговор с базой. Вызовы между контроллером, сервисом и репозиториями вместе заняли микросекунды. Дольше всего Анна ждала сеть между своим телефоном и магазином.',
+        log:['ok', '+3,4 мс   ← 201 Created, заказ №1041']});
+      fin(b, 'good', 'stock    3 → 2      ✓\norders   + №1041    ✓\nbonuses  800 → 300  ✓\n\nтри таблицы — одна транзакция — один COMMIT',
+        'Три таблицы изменились вместе. Правило «остаток ↔ заказ ↔ бонусы» соблюдено.',
+        'Попробуйте другие сценарии: в каждом что-то ломается на своём шаге. Посмотрите, что при этом остаётся в базе.');
+      return b.list(); },
+
+    val(){ const b = mk(T0()); s0(b, 3, 800); s1(b, 0);
+      b.add({t:'2. Контроллер: форма неверна', at:1, pk:'@Valid ✕', on:[1], bad:[1], st:{1:'qty = 0 ✕'}, k:'bad',
+        code:'@Valid CheckoutRequest req     // qty = 0 — нарушено @Min(1)\n\n→ MethodArgumentNotValidException\n→ сервис НЕ вызван, транзакция НЕ открыта',
+        what:'Из-за сбоя на странице в запросе оказалось <code class="inl">qty: 0</code>. Проверка <code class="inl">@Valid</code> не проходит, Spring бросает исключение ещё до вызова сервиса.',
+        why:'Транзакция не открыта, соединение с базой не взято, база не тронута. Проверять форму на входе — самый дешёвый способ поймать ошибку.',
+        log:['bad', '+0,01 мс  контроллер: qty = 0 — форма неверна']});
+      b.add({t:'3. Ответ 400 Bad Request', fly:[1,0,'400 Bad Request','bad'], on:[0,1], bad:[0], st:{0:'«Проверьте количество»'}, k:'bad',
+        code:'HTTP/1.1 400 Bad Request\nContent-Type: application/problem+json\n\n{ "type": "https://shop.example/problems/validation",\n  "title": "Некорректный запрос", "status": 400,\n  "detail": "qty: должно быть не меньше 1" }',
+        what:'Общий обработчик ошибок (<code class="inl">@RestControllerAdvice</code>) превращает исключение в понятный ответ по стандарту RFC 9457 — «детали проблемы».',
+        why:'Код 4xx значит «ошибка в запросе, повторять бесполезно». Браузер покажет Анне подсказку, а не «что-то пошло не так».',
+        log:['bad', '+0,1 мс   ← 400 Bad Request']});
+      fin(b, 'good', 'stock    3      не тронут\norders   —      не тронут\nbonuses  800    не тронут\n\nбаза даже не узнала о запросе',
+        'Ошибка поймана на входе. База, транзакция и сервис вообще не участвовали.',
+        'Это и есть смысл слоя контроллера: отсечь «мусор» до того, как он дойдёт до правил и данных.');
+      return b.list(); },
+
+    stock(){ const b = mk(Object.assign(T0(), {stock:{c:0, d:null, x:null}})); s0(b, 0, 800); s1(b, 1); s2(b); s3(b);
+      b.add({t:'4. Остатка нет: 0 строк', fly:[3,4,'UPDATE stock …'], on:[2,3,4], bad:[2], st:{3:'0 строк', 2:'OutOfStockException'}, hl:['stock'], k:'bad',
+        code:'UPDATE stock SET qty = qty - 1\n WHERE sku = \'SNK-42\' AND qty >= 1;     → изменено 0 строк\n\nif (updated == 0) throw new OutOfStockException("SNK-42");',
+        what:'Последнюю пару минуту назад купил Борис. Условие <code class="inl">qty >= 1</code> не выполнилось, база изменила 0 строк. Сервис видит это и бросает <code class="inl">OutOfStockException</code>.',
+        why:'Проверка «есть ли товар» и уменьшение остатка сделаны <b>одной командой</b>. Если сначала прочитать остаток, а потом отдельно уменьшить, два покупателя могут одновременно увидеть «1» и оба купить.',
+        log:['bad', '+0,9 мс   UPDATE stock → 0 строк: товара нет']});
+      rbStep(b, 'Исключение вылетает из метода сервиса. Spring ловит его на выходе и откатывает транзакцию. Отменять нечего, но соединение возвращается в пул.',
+        '<code class="inl">OutOfStockException</code> — наследник <code class="inl">RuntimeException</code>, поэтому Spring откатывает транзакцию автоматически.', 2);
+      b.add({t:'Ответ 409 Conflict', fly:[1,0,'409 Conflict','bad'], on:[0,1], bad:[0], st:{0:'«Товар закончился»'}, k:'bad',
+        code:'HTTP/1.1 409 Conflict\nContent-Type: application/problem+json\n\n{ "title": "Товар закончился", "status": 409,\n  "detail": "SNK-42: нет в наличии" }',
+        what:'Обработчик ошибок превращает <code class="inl">OutOfStockException</code> в ответ <code class="inl">409 Conflict</code>. Анна видит «Товар закончился».',
+        why:'Бизнес-ошибка — это не сбой. Её не нужно писать в журнал как аварию, и повторять запрос бессмысленно.', log:['bad', '+2,6 мс   ← 409 Conflict']});
+      fin(b, 'good', 'stock    0      без изменений\norders   —      без изменений\nbonuses  800    без изменений', 'Продаж больше, чем товара, не случилось. Бонусы Анны на месте.', 'Одна атомарная команда в базе + исключение + откат — и никакого особого кода «на случай, если товара нет».');
+      return b.list(); },
+
+    bonus(){ const b = mk(Object.assign(T0(), {bonus:{c:300, d:null, x:null}})); s0(b, 3, 300); s1(b, 1); s2(b); s3(b); s4(b, 3, 2); s5(b);
+      b.add({t:'6. Бонусов не хватает', fly:[3,4,'UPDATE bonuses …'], on:[2,3,4], bad:[2], st:{3:'0 строк', 2:'NotEnoughBonusException'}, hl:['bonus'], k:'bad',
+        code:'UPDATE bonuses SET balance = balance - 500\n WHERE client = \'Анна\' AND balance >= 500;   → изменено 0 строк\n\nthrow new NotEnoughBonusException(300, 500);',
+        what:'У Анны всего 300 баллов, а списать нужно 500. База изменила 0 строк, сервис бросает исключение. А ведь остаток уже уменьшен и заказ уже создан — в черновике.',
+        why:'Вот ради этого момента и существует транзакция. Без неё в базе остались бы «пара продана» и «заказ есть», а оплата бонусами не прошла — данные рассогласованы.',
+        log:['bad', '+2,2 мс   UPDATE bonuses → 0 строк: баллов не хватает']});
+      rbStep(b, 'Spring откатывает транзакцию: база выбрасывает <b>все</b> изменения — и остаток, и черновик заказа. Смотрите на таблицы: зачёркнутое откатилось.',
+        'Борис не писал никакого кода «вернуть пару на склад» или «удалить заказ». Это сделала база по одной команде ROLLBACK.', 2);
+      b.add({t:'Ответ 422', fly:[1,0,'422 Unprocessable Content','bad'], on:[0,1], bad:[0], st:{0:'«Не хватает баллов»'}, k:'bad',
+        code:'HTTP/1.1 422 Unprocessable Content\nContent-Type: application/problem+json\n\n{ "title": "Недостаточно бонусов", "status": 422,\n  "detail": "Доступно 300, запрошено 500" }',
+        what:'Анна видит понятное сообщение и может оформить заказ, списав 300 баллов.', why:'Код 422 — запрос правильной формы, но выполнить его по правилам нельзя.', log:['bad', '+2,6 мс   ← 422 Unprocessable Content']});
+      fin(b, 'good', 'stock    2 → 3  откат ✓\norders   №1041  откат ✓\nbonuses  300    без изменений\n\nправило «остаток ↔ заказ ↔ бонусы» соблюдено',
+        'Сбой на шестом шаге отменил первые пять. Данные такие, будто Анна и не нажимала кнопку.',
+        'В микросервисах склад, заказы и бонусы жили бы в разных базах. Откатить «чужой» остаток было бы нельзя — пришлось бы писать компенсацию: «верни пару», «отмени заказ», и решать, что делать, если сама компенсация не прошла.');
+      return b.list(); },
+
+    dup(){ const b = mk({stock:{c:2, d:null, x:null}, orders:{c:[ORD], d:null, x:null}, bonus:{c:300, d:null, x:null}});
+      s0(b, 2, 300, ORD); s1(b, 1); s2(b); s3(b); s4(b, 2, 1);
+      b.add({t:'5. Такой заказ уже есть', fly:[3,4,'INSERT INTO orders …'], on:[2,3,4], bad:[3], st:{4:'нарушен UNIQUE', 3:'DuplicateKeyException'}, hl:['orders'], k:'bad',
+        code:'INSERT INTO orders (…, request_key) VALUES (…, \'r-7f3a\');\n\nERROR: duplicate key value violates unique constraint\n       "orders_request_key_key"   (SQLSTATE 23505)\n\n→ Spring: DuplicateKeyException (разновидность\n          DataIntegrityViolationException)',
+        what:'Телефон Анны «подвис», ответ на первый клик не дошёл, и она нажала снова. Запрос пришёл с тем же ключом <code class="inl">r-7f3a</code>. Уникальный ключ в базе не пустил второй заказ.',
+        why:'Правильнее проверять ключ в самом начале. Но уникальное ограничение в базе — последняя линия обороны: оно сработает, даже если два клика придут одновременно и обе проверки «ключа ещё нет» пройдут параллельно.',
+        log:['bad', '+1,6 мс   INSERT orders → нарушен уникальный ключ']});
+      rbStep(b, 'Откат возвращает остаток к 2: вторую пару Анна не «купила».', 'Без транзакции уменьшение остатка осталось бы в базе, и магазин «потерял» бы пару на каждом двойном клике.', 3);
+      b.add({t:'Ответ: тот же заказ', fly:[1,0,'200 OK · №1041','ret'], on:[0,1], good:[0], st:{0:'«Заказ №1041 оформлен»'}, k:'good',
+        code:'HTTP/1.1 200 OK\nContent-Type: application/json\n\n{ "orderId": 1041, "total": 7490, "bonusLeft": 300 }\n\n// обработчик нашёл заказ по ключу и вернул его',
+        what:'Обработчик ошибки находит уже созданный заказ по ключу и возвращает его. Анна видит ровно тот же ответ, как если бы первый дошёл.',
+        why:'Это и называется <b>идемпотентностью</b>: повтор запроса не создаёт второго эффекта.', log:['ok', '+2,8 мс   ← 200 OK: существующий заказ №1041']});
+      fin(b, 'good', 'stock    2      (откат ✓)\norders   №1041  один, без дубля ✓\nbonuses  300    не тронуты', 'Двойной клик не создал второй заказ и не «съел» вторую пару.', 'Ключ идемпотентности + уникальное ограничение + транзакция — тройка, которая делает повторы безопасными.');
+      return b.list(); },
+
+    conn(){ const b = mk(T0()); s0(b, 3, 800); s1(b, 1); s2(b); s3(b); s4(b, 3, 2); s5(b); s6(b, 800);
+      b.add({t:'7. COMMIT не дошёл', fly:[2,4,'COMMIT ✕','bad'], on:[2,4], bad:[4], st:{4:'сессия оборвана', 2:'I/O error'}, tx:'lost', k:'bad', hl:['stock','orders','bonus'],
+        db:rollback,
+        code:'COMMIT;   ✕  соединение сброшено (сеть моргнула)\n\nбаза: клиент пропал посреди транзакции →\n      транзакция прервана, черновик выброшен\nприложение: исключение «I/O error», итог неизвестен',
+        what:'Между приложением и базой моргнула сеть, и <code class="inl">COMMIT</code> не дошёл. База видит, что клиент исчез посреди транзакции, и сама её отменяет.',
+        why:'Незавершённая транзакция никогда не «наполовину сохраняется»: у базы есть только два исхода, и без COMMIT исход — отмена.',
+        log:['bad', '+3,1 мс   COMMIT ✕ связь оборвалась → база отменила транзакцию']});
+      b.add({t:'Ответ 503 и честное «не знаю»', fly:[1,0,'503 Service Unavailable','bad'], on:[0,1], bad:[0], st:{0:'«Попробуйте ещё раз»'}, k:'warn',
+        code:'HTTP/1.1 503 Service Unavailable\nRetry-After: 2\n\n// ВАЖНО: если связь рвётся ПОСЛЕ того, как база получила COMMIT,\n// но ДО ответа — заказ сохранён, а приложение этого не знает.',
+        what:'Приложение не знает, дошёл ли COMMIT. Честный ответ — «не удалось, повторите». Анна нажимает ещё раз с тем же ключом.',
+        why:'Если бы COMMIT успел дойти, повтор наткнулся бы на уникальный ключ и вернул уже созданный заказ (сценарий «двойной клик»). Если не успел — заказ создастся заново. Оба исхода правильные — благодаря ключу идемпотентности.',
+        log:['warn', '+3,3 мс   ← 503: повторите запрос']});
+      fin(b, 'good', 'stock    3      (отменено базой)\norders   —      (отменено базой)\nbonuses  800    (отменено базой)', 'Сбой связи не оставил половинчатых данных. Неопределённость «сохранилось или нет» закрыта ключом идемпотентности.', 'Даже в монолите база — отдельный процесс за сетью. Эта сеть бывает ненадёжной, и в требованиях это стоит учитывать.');
+      return b.list(); },
+
+    crash(){ const b = mk(T0()); s0(b, 3, 800); s1(b, 1); s2(b); s3(b); s4(b, 3, 2); s5(b);
+      b.add({t:'6. Отчёт Олега съел всю память', at:2, pk:'OutOfMemoryError', on:[1,2,3], bad:[1,2,3], st:{1:'процесс убит', 2:'процесс убит', 3:'процесс убит'}, k:'bad',
+        code:'// в том же процессе в ту же секунду:\nreportService.yearlyOrders();     // 4 млн заказов в список в памяти\n\njava.lang.OutOfMemoryError: Java heap space\n→ процесс shop.jar завершён (контейнер убит по лимиту памяти)',
+        what:'В ту же секунду Олег запустил в админке отчёт «все заказы за год». Он загрузил миллионы строк в память и исчерпал её. Процесс <code class="inl">shop.jar</code> упал целиком — с контроллером, сервисом и незавершённой покупкой Анны.',
+        why:'Отчёт и заказы живут в <b>одном процессе</b> и делят одну память. Это «общая судьба» монолита: сбой в самой второстепенной части роняет самую главную.',
+        log:['bad', '+2,0 мс   OutOfMemoryError: процесс shop.jar упал']});
+      b.add({t:'База видит обрыв и откатывает', at:4, pk:'ROLLBACK', on:[4], good:[4], st:{4:'клиент пропал → откат'}, tx:'lost', k:'warn', hl:['stock','orders'],
+        db:rollback,
+        code:'база: соединение №7 закрыто со стороны клиента\n      → незавершённая транзакция отменена\n      → блокировка строки stock снята',
+        what:'Соединение упавшего процесса закрылось. База отменяет его незавершённую транзакцию: остаток и черновик заказа исчезают.',
+        why:'Данные спасла транзакция: никаких «полупокупок». Но покупатели этого не видят — для них магазин просто ответил ошибкой.',
+        log:['warn', '+2,1 мс   база: клиент пропал — транзакция отменена']});
+      b.add({t:'Ошибка у Анны — и у всех на этой копии', fly:[1,0,'502 Bad Gateway','bad'], on:[0], bad:[0], st:{0:'«Сервис недоступен»'}, k:'bad',
+        code:'балансировщик → копия №1: соединение сброшено\n← 502 Bad Gateway\n\n// та же ошибка у ВСЕХ, кого обслуживала эта копия:\n// каталог, корзина, оплата — всё',
+        what:'Балансировщик не получил ответа от упавшей копии и вернул Анне <code class="inl">502 Bad Gateway</code>. Такую же ошибку получили все покупатели, чьи запросы обрабатывала эта копия.',
+        why:'Лечится не «распилом», а изоляцией тяжёлого: отчёты — на реплику и в отдельный процесс или хотя бы с ограничением памяти и постраничной выборкой. Про изоляцию ресурсов — вкладка об устойчивости (переборки).',
+        log:['bad', '+30 мс    ← 502 Bad Gateway (и у всех на этой копии)']});
+      fin(b, 'warn', 'stock    3      (отменено базой)\norders   —      (отменено базой)\nbonuses  800    не тронуты\n\nданные целы, но магазин отвечал ошибками',
+        'Транзакция сохранила данные, но не спасла доступность: один процесс — одна судьба.',
+        'Это главный честный минус монолита. Вторая копия за балансировщиком (глава 5) снижает ущерб, а отделение тяжёлых отчётов убирает причину.');
+      return b.list(); },
+  };
+
+  let sc = 'ok', steps = [], i = 0, timer = null, rafId = 0;
+  const done = new Set();
+  Progress.register('mnx-path', 4, 'Монолит: путь заказа через слои');
+
+  nodesEl.innerHTML = N.map((n, k) => '<div class="mnx-pt-node" data-k="' + k + '"><div class="i">' + n.i + '</div><div class="n">' + esc(n.n) + '</div><div class="s">' + esc(n.s) + '</div><div class="st"></div></div>').join('');
+  const nodes = [...nodesEl.children];
+
+  function scal(t, unit){
+    if(t.d !== null) return '<span>' + t.c + '</span> → <span class="dr">' + t.d + ' (черновик)</span>';
+    if(t.x !== null) return '<span class="rb">' + t.x + '</span> → <span>' + t.c + '</span> <span class="em">откат</span>';
+    return '<span' + (t.f ? ' class="cm"' : '') + '>' + t.c + unit + '</span>';
+  }
+  function paint(){
+    caf(rafId);
+    const s = steps[i];
+    const lit = new Set(); for(let k = 0; k <= i; k++) (steps[k].on || []).forEach(x => lit.add(x));
+    const on = new Set(s.on || []), good = new Set(s.good || []), bad = new Set(s.bad || []);
+    nodes.forEach((el, k) => {
+      el.className = 'mnx-pt-node' + (bad.has(k) ? ' bad' : good.has(k) ? ' good' : on.has(k) ? ' on' : lit.has(k) ? ' lit' : '');
+      el.querySelector('.st').textContent = (s.st && s.st[k]) || '';
+    });
+    const tr = $('mnx-pt-track'); tr.innerHTML = '';
+    if(s.fly || s.at !== undefined){
+      const p = document.createElement('span');
+      const kind = s.fly ? (s.fly[3] || '') : (s.k === 'bad' ? 'bad' : '');
+      p.className = 'mnx-pt-pkt' + (kind ? ' ' + kind : '');
+      p.textContent = s.fly ? (s.fly[0] > s.fly[1] ? '← ' + s.fly[2] : s.fly[2] + ' →') : s.pk;
+      const a = s.fly ? X[s.fly[0]] : X[s.at], z = s.fly ? X[s.fly[1]] : X[s.at];
+      p.style.left = a + '%';
+      tr.appendChild(p);
+      if(a !== z){
+        if(RM){ p.classList.add('still'); p.style.left = z + '%'; }
+        else rafId = raf(() => { rafId = raf(() => { p.style.left = z + '%'; }); });
+      }
+    }
+    const tx = $('mnx-pt-tx'); tx.className = 'mnx-pt-tx ' + s.tx; tx.textContent = TX[s.tx] || '';
+    const hl = new Set(s.hl || []), d = s.db;
+    const ord = d.orders;
+    let oh = ord.c.map(o => '<div class="' + (ord.f && o === ord.c[ord.c.length - 1] ? 'cm' : '') + '">' + esc(o) + '</div>').join('');
+    if(ord.d) oh += '<div class="dr">' + esc(ord.d) + ' (черновик)</div>';
+    if(ord.x) oh += '<div class="rb">' + esc(ord.x) + '</div>';
+    if(!oh) oh = '<div class="em">заказов Анны нет</div>';
+    $('mnx-pt-db').innerHTML =
+      '<div class="mnx-pt-tb' + (hl.has('stock') ? ' hl' : '') + '"><h5>stock · остатки</h5><div class="rw"><span>SNK-42</span><span>' + scal(d.stock, ' шт.') + '</span></div></div>' +
+      '<div class="mnx-pt-tb' + (hl.has('orders') ? ' hl' : '') + '"><h5>orders · заказы</h5>' + oh + '</div>' +
+      '<div class="mnx-pt-tb' + (hl.has('bonus') ? ' hl' : '') + '"><h5>bonuses · баллы</h5><div class="rw"><span>Анна</span><span>' + scal(d.bonus, '') + '</span></div></div>';
+    $('mnx-pt-code').textContent = s.code || '';
+    $('mnx-pt-t').textContent = s.t;
+    $('mnx-pt-what').innerHTML = s.what || '';
+    $('mnx-pt-why').innerHTML = s.why || '';
+    $('mnx-pt-lab').textContent = 'шаг ' + (i + 1) + ' из ' + steps.length;
+    $('mnx-pt-log').innerHTML = s.logs.map(l => '<div class="' + (l[0] || '') + '">' + esc(l[1]) + '</div>').join('');
+    if(i === steps.length - 1 && !done.has(sc)){ done.add(sc); Progress.report('mnx-path', Math.min(4, done.size)); }
+  }
+  function stop(){ if(timer){ clearInterval(timer); timer = null; } $('mnx-pt-play').textContent = '▶'; }
+  function load(k){ stop(); sc = SC[k] ? k : 'ok'; steps = SC[sc](); i = 0; paint(); }
+  function go(dl){ const n = Math.max(0, Math.min(steps.length - 1, i + dl)); if(n !== i){ i = n; paint(); } }
+  $('mnx-pt-sc').addEventListener('click', e => {
+    const b = e.target.closest('button[data-s]'); if(!b) return;
+    [...$('mnx-pt-sc').children].forEach(x => x.classList.toggle('on', x === b));
+    load(b.dataset.s);
+  });
+  $('mnx-pt-next').addEventListener('click', () => { stop(); go(1); });
+  $('mnx-pt-prev').addEventListener('click', () => { stop(); go(-1); });
+  $('mnx-pt-reset').addEventListener('click', () => { stop(); i = 0; paint(); });
+  $('mnx-pt-play').addEventListener('click', () => {
+    if(timer){ stop(); return; }
+    if(i >= steps.length - 1){ i = 0; paint(); }
+    $('mnx-pt-play').textContent = '⏸';
+    timer = setInterval(() => {
+      if(document.hidden || (panel && !panel.classList.contains('active')) || i >= steps.length - 1){ stop(); return; }
+      go(1);
+    }, 2300);
+  });
+  document.addEventListener('visibilitychange', () => { if(document.hidden) stop(); });
+  load('ok');
+})();
+
+/* ─── глава 4: вызов в памяти против сетевого ─── */
+(function(){
+  const nEl = document.getElementById('mnx-lat-n');
+  if(!nEl) return;
+  const $ = id => document.getElementById(id);
+  let mode = 'seq';
+  Progress.register('mnx-lat', 1, 'Монолит: вызов в памяти против сети');
+  const f1 = x => String(x).replace('.', ',');
+  function t(ms){
+    if(ms < 0.001) return f1(Math.round(ms * 1e6)) + ' нс';
+    if(ms < 1) return f1((ms * 1000).toFixed(ms < 0.01 ? 2 : 1)) + ' мкс';
+    if(ms < 1000) return f1(ms.toFixed(ms < 10 ? 2 : 1)) + ' мс';
+    return f1((ms / 1000).toFixed(2)) + ' с';
+  }
+  function human(sec){
+    if(sec < 120) return Math.round(sec) + ' с';
+    if(sec < 7200) return Math.round(sec / 60) + ' мин';
+    if(sec < 172800) return f1((sec / 3600).toFixed(1)) + ' ч';
+    if(sec < 86400 * 60) return Math.round(sec / 86400) + ' дн.';
+    return f1((sec / 86400 / 365).toFixed(1)) + ' г.';
+  }
+  const W = ms => clamp((Math.log10(Math.max(ms, 1e-6)) + 6) / 10 * 100, 1, 100);
+  function calc(){
+    const n = +nEl.value, rtt = +$('mnx-lat-rtt').value / 10, kb = +$('mnx-lat-kb').value, p = +$('mnx-lat-p').value / 20;
+    $('mnx-lat-n-v').textContent = n;
+    $('mnx-lat-rtt-v').textContent = f1(rtt.toFixed(1)) + ' мс';
+    $('mnx-lat-kb-v').textContent = kb + ' КБ';
+    $('mnx-lat-p-v').textContent = f1(p.toFixed(2)) + ' %';
+    const mem = n * 0.000005;
+    const eff = mode === 'par' ? Math.ceil(n / 2) + (Math.floor(n / 2) > 0 ? 1 : 0) : n;
+    const ser = 0.02 * kb + 0.1;
+    const net = eff * (rtt + ser);
+    const fail = 1 - Math.pow(1 - p / 100, n);
+    const ratio = net / mem;
+    $('mnx-lat-bars').innerHTML = [
+      ['В монолите: вызовы в памяти', mem, ''],
+      ['По сети: сама сеть', eff * rtt, 'mid'],
+      ['По сети: JSON и обвязка', eff * ser, 'mid'],
+      ['По сети: итого', net, 'net'],
+      ['Бюджет страницы — для сравнения', 200, 'mid'],
+    ].map(r => '<div class="mnx-lat-row"><span>' + r[0] + '</span><div class="mnx-lat-tr"><i class="' + r[2] + '" style="width:' + W(r[1]).toFixed(1) + '%"></i></div><span class="mnx-lat-v">' + t(r[1]) + '</span></div>').join('') +
+      '<div style="font-size:11.5px;color:var(--faint)">Шкала логарифмическая: от 1 нс до 10 с, каждая десятая часть полосы — в 10 раз больше.</div>';
+    const share = net / 200 * 100;
+    $('mnx-lat-kpi').innerHTML = [
+      ['В памяти', t(mem), 'good'], ['По сети', t(net), share > 50 ? 'bad' : share > 15 ? 'wq' : ''],
+      ['Медленнее в', '×' + Math.round(ratio).toLocaleString('ru-RU'), 'bad'],
+      ['Шанс сбоя запроса', f1((fail * 100).toFixed(fail < 0.01 ? 2 : 1)) + ' %', fail > 0.01 ? 'bad' : fail > 0.001 ? 'wq' : ''],
+      ['Доля бюджета 200 мс', Math.round(share) + ' %', share > 50 ? 'bad' : share > 15 ? 'wq' : 'good'],
+    ].map(k => '<div class="mnx-kpi ' + k[2] + '"><div class="l">' + k[0] + '</div><div class="v">' + k[1] + '</div></div>').join('');
+    const scale = 'Если растянуть вызовы в памяти этого запроса до 1 секунды, сетевая версия длилась бы <b>' + human(ratio) + '</b>. ';
+    let kind = 'ok', txt;
+    if(share > 100) { kind = 'err'; txt = 'Одни только переговоры между частями съели <b>весь бюджет страницы</b>, а ведь ещё нужна база и сеть до Анны. Такую систему придётся переделывать: меньше вызовов, пакетные запросы, копии данных у себя.'; }
+    else if(share > 25) { kind = 'warn'; txt = 'Переговоры между частями съедают заметную долю бюджета страницы (' + Math.round(share) + ' %). При распиле придётся сокращать число вызовов: «болтливая» схема по сети не живёт.'; }
+    else { txt = 'Сеть здесь пока терпима по времени. Но посмотрите на шанс сбоя: каждый сетевой вызов добавляет свой риск, и их нужно защищать таймаутами и повторами.'; }
+    if(fail > 0.01) { kind = 'err'; txt += ' <b>Больше 1 % запросов</b> упадут хотя бы на одном вызове — без повторов и защиты это видно покупателям.'; }
+    msg($('mnx-lat-msg'), kind, scale + txt);
+  }
+  ['mnx-lat-n', 'mnx-lat-rtt', 'mnx-lat-kb', 'mnx-lat-p'].forEach(id => $(id).addEventListener('input', () => { calc(); Progress.report('mnx-lat', 1); }));
+  $('mnx-lat-mode').addEventListener('click', e => {
+    const b = e.target.closest('button[data-m]'); if(!b) return;
+    mode = b.dataset.m;
+    [...$('mnx-lat-mode').children].forEach(x => x.classList.toggle('on', x === b));
+    calc(); Progress.report('mnx-lat', 1);
+  });
+  calc();
+})();
+</script>
+
+<script>
+/* ─── глава 5: масштабирование монолита (живая модель) ─── */
+(function(){
+  const host = document.getElementById('mnx-sc-host');
+  if(!host) return;
+  const $ = id => document.getElementById(id);
+  const panel = document.getElementById('mono');
+  const RM = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const NS = 'http://www.w3.org/2000/svg';
+  const CAP = 450, DBCAP = 3000, MAXC = 100;
+  const WS = [1.3, 0.85, 1.1, 0.9, 1.15, 0.8, 1.05, 0.85];
+  const st = {sess:'mem', cache:false, dead:false};
+  let timer = null, dots = [], acc = 0, ticks = 0, M = null;
+  Progress.register('mnx-sc', 2, 'Монолит: масштабирование копиями');
+
+  const cy = i => 12 + i * 39;
+  let h = '<svg class="mnx-sc-svg" viewBox="0 0 760 330" role="img" aria-label="Схема: покупатели, балансировщик, копии монолита, хранилище сессий, кеш и база данных">';
+  h += '<path class="ln on" d="M100 165 H130"/>';
+  for(let i = 0; i < 8; i++){
+    const y = cy(i) + 15;
+    h += '<path class="ln" data-l="' + i + '" d="M230 165 L275 ' + y + '"/>';
+    h += '<path class="ln" data-d="' + i + '" d="M425 ' + y + ' L630 165"/>';
+    h += '<path class="ln" data-r="' + i + '" stroke-dasharray="3 4" d="M425 ' + y + ' L470 22"/>';
+    h += '<path class="ln" data-c="' + i + '" stroke-dasharray="3 4" d="M425 ' + y + ' L470 309"/>';
+  }
+  h += '<rect class="bx" x="10" y="135" width="90" height="60" rx="10"/><text class="tt" x="55" y="160" text-anchor="middle">👥 Покупатели</text><text class="ts" id="mnx-sc-t-u" x="55" y="180" text-anchor="middle"></text>';
+  h += '<rect class="bx" id="mnx-sc-lb" x="130" y="135" width="100" height="60" rx="10"/><text class="tt" x="180" y="160" text-anchor="middle">⚖ Балансир</text><text class="ts" id="mnx-sc-t-lb" x="180" y="180" text-anchor="middle"></text>';
+  for(let i = 0; i < 8; i++){
+    const y = cy(i);
+    h += '<g data-cp="' + i + '"><rect class="bx" x="275" y="' + y + '" width="150" height="30" rx="7"/>' +
+      '<text class="tt" x="284" y="' + (y + 20) + '" style="font-size:12px">№' + (i + 1) + '</text>' +
+      '<rect class="lb" x="312" y="' + (y + 10) + '" width="50" height="10" rx="3"/><rect class="lf" x="312" y="' + (y + 10) + '" width="0" height="10" rx="3"/>' +
+      '<text class="ts" x="368" y="' + (y + 20) + '"></text></g>';
+  }
+  h += '<g id="mnx-sc-redis"><rect class="bx good" x="470" y="2" width="120" height="40" rx="8"/><text class="tt" x="530" y="18" text-anchor="middle" style="font-size:12px">🧠 Redis: сессии</text><text class="ts" x="530" y="34" text-anchor="middle">+0,5 мс на запрос</text></g>';
+  h += '<g id="mnx-sc-cache"><rect class="bx good" x="470" y="289" width="120" height="40" rx="8"/><text class="tt" x="530" y="305" text-anchor="middle" style="font-size:12px">🗃 Кеш каталога</text><text class="ts" x="530" y="321" text-anchor="middle">60 % без базы</text></g>';
+  h += '<rect class="bx" id="mnx-sc-db" x="630" y="112" width="124" height="106" rx="10"/><text class="tt" x="692" y="134" text-anchor="middle">🗄 База</text>' +
+    '<rect class="lb" x="646" y="144" width="92" height="10" rx="3"/><rect class="lf" id="mnx-sc-dbf" x="646" y="144" width="0" height="10" rx="3"/>' +
+    '<text class="ts" id="mnx-sc-t-db1" x="692" y="172" text-anchor="middle"></text><text class="ts" id="mnx-sc-t-db2" x="692" y="190" text-anchor="middle"></text><text class="ts" id="mnx-sc-t-db3" x="692" y="208" text-anchor="middle"></text>';
+  h += '<g id="mnx-sc-dots"></g></svg>';
+  host.innerHTML = h;
+  const svg = host.querySelector('svg'), gDots = host.querySelector('#mnx-sc-dots');
+
+  function model(){
+    const rps = +$('mnx-sc-rps').value, n = +$('mnx-sc-n').value, pool = +$('mnx-sc-pool').value;
+    const alive = []; for(let i = 0; i < n; i++) if(!(st.dead && i === 0)) alive.push(i);
+    const connOk = Math.floor(MAXC / pool);
+    const conn = {}; alive.forEach((i, k) => { conn[i] = k < connOk; });
+    const w = {}; let sw = 0;
+    alive.forEach(i => { w[i] = st.sess === 'sticky' ? WS[i] : 1; sw += w[i]; });
+    const capEff = st.sess === 'shared' ? CAP * 0.97 : CAP;
+    const load = {}, util = {}, pf = {}; let served = 0;
+    alive.forEach(i => {
+      load[i] = rps * w[i] / sw; util[i] = load[i] / capEff;
+      const s = conn[i] ? Math.min(load[i], capEff) : 0;
+      pf[i] = load[i] > 0 ? 1 - s / load[i] : 0; served += s;
+    });
+    const q = st.cache ? 0.8 : 2;
+    const queries = served * q, dbU = queries / DBCAP;
+    const dbPass = queries > DBCAP ? DBCAP / queries : 1;
+    const ok = served * dbPass;
+    const err = rps > 0 ? 1 - ok / rps : 0;
+    const needConn = alive.length * pool, usedConn = Math.min(alive.length, connOk) * pool;
+    const lost = st.sess === 'mem' && alive.length > 1 ? (alive.length - 1) / alive.length : 0;
+    const killLoss = st.dead && st.sess !== 'shared' && n > 1 ? 1 / n : 0;
+    const maxU = alive.length ? Math.max(...alive.map(i => util[i])) : 0;
+    const f = u => 1 / (1 - Math.min(u, 0.95));
+    const lat = 40 * f(maxU) + 6 * q * f(dbU) + (st.sess === 'shared' ? 0.5 : 0);
+    return {rps, n, pool, alive, conn, connOk, w, sw, load, util, pf, capEff, q, queries, dbU, dbPass, err, needConn, usedConn, lost, killLoss, maxU, lat};
+  }
+  const P = x => Math.round(x * 100) + ' %';
+  function verdict(m){
+    if(!m.alive.length) return ['err', 'down', 'Магазин лежит: единственная копия упала. Одна копия — это не только предел мощности, но и <b>единственная точка отказа</b>. Минимум для боевого магазина — две копии.'];
+    if(m.needConn > MAXC) return ['err', 'conn', 'Узкое место — <b>соединения с базой</b>. Копиям нужно ' + m.needConn + ' соединений (' + m.alive.length + ' × ' + m.pool + '), а база даёт 100. Копии, которым не хватило соединений (' + (m.alive.length - m.connOk) + ' шт.), отвечают ошибкой на каждый запрос. Больше копий здесь только вредит. Уменьшите пул у каждой копии (обычно 10–20 хватает с запасом) или поставьте перед базой общий пул соединений (например, PgBouncer).'];
+    if(m.maxU > 1){
+      const avgU = m.rps / (m.alive.length * m.capEff);
+      if(st.sess === 'sticky' && avgU <= 1) return ['warn', 'sticky', 'В среднем копии справились бы (' + P(avgU) + ' мощности), но <b>липкие сессии</b> распределили покупателей неровно: самая загруженная копия получила ' + P(m.maxU) + ' своего предела и отбрасывает лишнее. Липкость мешает балансировщику выравнивать нагрузку.'];
+      return ['err', 'cpu', 'Узкое место — <b>процессор копий</b>: самая загруженная получает около ' + Math.round(Math.max(...m.alive.map(i => m.load[i]))) + ' запросов/с при пределе 450. Добавьте копий: с запасом 20 % нужно не меньше ' + Math.ceil(m.rps / (m.capEff * 0.8)) + '.'];
+    }
+    if(m.dbU > 1) return ['err', 'db', 'Узкое место — <b>база</b>: ' + Math.round(m.queries) + ' запросов/с при пределе 3 000. Копий хватает, но все они ходят в одну базу, и добавлять копии бесполезно. ' + (st.cache ? 'Дальше — реплики для чтения, оптимизация запросов, а затем разделение данных.' : 'Включите кеш каталога: большинство запросов — просмотры товаров, и их незачем каждый раз читать из базы.')];
+    if(m.lost > 0) return ['warn', 'sess', 'Мощности хватает, но <b>корзины теряются</b>: сессия лежит в памяти одной копии, а балансировщик «по кругу» отправляет следующий запрос покупателя на другую. Примерно ' + P(m.lost) + ' переходов попадают на копию, которая не знает о корзине. Нужны липкие сессии или, лучше, общее хранилище.'];
+    if(m.killLoss > 0) return ['warn', 'kill', 'Копия №1 упала, остальные справляются. Но покупатели, чьи сессии жили в её памяти (около ' + P(m.killLoss) + '), потеряли корзины и вход. С общим хранилищем сессий падение копии прошло бы незаметно.'];
+    if(m.dbU > 0.8 || m.maxU > 0.8) return ['warn', 'edge', 'Держится, но на грани: копии загружены на ' + P(m.maxU) + ', база — на ' + P(m.dbU) + '. Близко к пределу время ответа растёт очень быстро — оставляйте запас 20–30 %.'];
+    return ['ok', 'ok', 'Всё в порядке: копии загружены на ' + P(m.maxU) + ', база — на ' + P(m.dbU) + ', корзины не теряются.' + (m.alive.length === 1 ? ' Но копия одна: её падение — падение магазина.' : '')];
+  }
+  function paint(){
+    const m = M = model();
+    $('mnx-sc-rps-v').textContent = m.rps.toLocaleString('ru-RU');
+    $('mnx-sc-n-v').textContent = m.n;
+    $('mnx-sc-pool-v').textContent = m.pool;
+    svg.querySelector('#mnx-sc-t-u').textContent = m.rps.toLocaleString('ru-RU') + ' запр/с';
+    svg.querySelector('#mnx-sc-t-lb').textContent = st.sess === 'sticky' ? 'липкий' : 'по кругу';
+    const liveSet = new Set(m.alive);
+    for(let i = 0; i < 8; i++){
+      const g = svg.querySelector('[data-cp="' + i + '"]'), shown = i < m.n;
+      g.classList.toggle('hid', !shown);
+      ['data-l', 'data-d', 'data-r', 'data-c'].forEach(a => {
+        const ln = svg.querySelector('[' + a + '="' + i + '"]');
+        const vis = shown && (a === 'data-r' ? st.sess === 'shared' : a === 'data-c' ? st.cache : true);
+        ln.classList.toggle('hid', !vis);
+        ln.classList.toggle('on', vis && liveSet.has(i));
+      });
+      if(!shown) continue;
+      const bx = g.querySelector('.bx'), lf = g.querySelector('.lf'), tx = g.querySelector('.ts');
+      if(!liveSet.has(i)){ bx.setAttribute('class', 'bx dead'); lf.setAttribute('width', 0); tx.textContent = 'упала'; continue; }
+      const u = m.util[i], noConn = !m.conn[i];
+      bx.setAttribute('class', 'bx' + (noConn || u > 1 ? ' hot' : u > 0.8 ? ' warm' : ''));
+      lf.setAttribute('width', (Math.min(1, u) * 50).toFixed(1));
+      lf.setAttribute('class', 'lf' + (u > 1 ? ' h' : u > 0.8 ? ' w' : ''));
+      tx.textContent = noConn ? 'нет соедин.' : Math.round(u * 100) + ' %';
+    }
+    svg.querySelector('#mnx-sc-redis').classList.toggle('hid', st.sess !== 'shared');
+    svg.querySelector('#mnx-sc-cache').classList.toggle('hid', !st.cache);
+    const dbx = svg.querySelector('#mnx-sc-db');
+    dbx.setAttribute('class', 'bx' + (m.dbU > 1 || m.needConn > MAXC ? ' hot' : m.dbU > 0.8 ? ' warm' : ''));
+    const dbf = svg.querySelector('#mnx-sc-dbf');
+    dbf.setAttribute('width', (Math.min(1, m.dbU) * 92).toFixed(1));
+    dbf.setAttribute('class', 'lf' + (m.dbU > 1 ? ' h' : m.dbU > 0.8 ? ' w' : ''));
+    svg.querySelector('#mnx-sc-t-db1').textContent = Math.round(m.queries).toLocaleString('ru-RU') + ' / 3 000 в с';
+    svg.querySelector('#mnx-sc-t-db2').textContent = 'соедин.: ' + m.usedConn + ' / 100';
+    svg.querySelector('#mnx-sc-t-db3').textContent = m.needConn > MAXC ? 'просят ' + m.needConn + '!' : 'загрузка ' + P(m.dbU);
+    const over = m.maxU > 1 || m.dbU > 1 || !m.alive.length;
+    $('mnx-sc-kpi').innerHTML = [
+      ['Успешно, запр/с', Math.round(m.rps * (1 - m.err)).toLocaleString('ru-RU'), m.err < 0.01 ? 'good' : 'bad'],
+      ['Ошибок', (m.err * 100).toFixed(m.err > 0 && m.err < 0.01 ? 2 : 0).replace('.', ',') + ' %', m.err >= 0.01 ? 'bad' : m.err > 0 ? 'wq' : 'good'],
+      ['Время ответа', over ? '> 5 с' : Math.round(m.lat) + ' мс', over ? 'bad' : m.lat > 300 ? 'wq' : ''],
+      ['Соединений с базой', m.usedConn + ' / 100', m.needConn > MAXC ? 'bad' : ''],
+      ['Загрузка базы', P(m.dbU), m.dbU > 1 ? 'bad' : m.dbU > 0.8 ? 'wq' : ''],
+      ['Теряют корзину', P(Math.max(m.lost, m.killLoss)), m.lost + m.killLoss > 0 ? 'bad' : 'good'],
+    ].map(k => '<div class="mnx-kpi ' + k[2] + '"><div class="l">' + k[0] + '</div><div class="v">' + k[1] + '</div></div>').join('');
+    const v = verdict(m);
+    const goal = m.rps >= 2000 && m.err < 0.01 && m.lost === 0 && m.killLoss === 0;
+    msg($('mnx-sc-msg'), goal ? 'ok' : v[0], (goal ? '🎯 <b>Цель выполнена:</b> ' + m.rps.toLocaleString('ru-RU') + ' запросов в секунду, ошибок меньше 1 %, корзины на месте. ' : '') + v[2]);
+    if(['conn', 'db', 'sticky', 'sess', 'kill'].indexOf(v[1]) >= 0) Progress.report('mnx-sc', 1);
+    if(goal) Progress.report('mnx-sc', 2);
+  }
+
+  /* бегущие запросы */
+  function pickCopy(m){
+    let r = Math.random() * m.sw;
+    for(const i of m.alive){ r -= m.w[i]; if(r <= 0) return i; }
+    return m.alive[m.alive.length - 1];
+  }
+  function spawn(){
+    const m = M; if(!m) return;
+    const d = {pts:[[100, 165], [180, 165]], cls:'', t:0};
+    if(!m.alive.length){ d.cls = 'bad'; }
+    else {
+      const i = pickCopy(m); d.pts.push([350, cy(i) + 15]);
+      if(Math.random() < m.pf[i]) d.cls = 'bad';
+      else if(st.cache && Math.random() < 0.6) d.pts.push([530, 309]);
+      else { d.pts.push([692, 165]); if(Math.random() > m.dbPass) d.cls = 'bad'; }
+      if(!d.cls && Math.random() < Math.max(m.lost, m.killLoss)) d.cls = 'lost';
+    }
+    const c = document.createElementNS(NS, 'circle');
+    c.setAttribute('r', 4.5); c.setAttribute('class', 'dot' + (d.cls ? ' ' + d.cls : ''));
+    c.setAttribute('cx', 100); c.setAttribute('cy', 165);
+    gDots.appendChild(c); d.el = c; dots.push(d);
+  }
+  function step(){
+    if(document.hidden || (panel && !panel.classList.contains('active')) || ticks > 320){ stopRun(); return; }
+    ticks++;
+    acc += clamp(M ? M.rps / 500 : 1, 0.4, 4);
+    while(acc >= 1 && dots.length < 70){ spawn(); acc -= 1; }
+    if(acc >= 1) acc = 0;
+    dots = dots.filter(d => {
+      d.t += 1 / 9;
+      const seg = Math.floor(d.t), k = d.t - seg;
+      if(seg >= d.pts.length - 1){ d.el.remove(); return false; }
+      const a = d.pts[seg], b = d.pts[seg + 1];
+      d.el.setAttribute('cx', (a[0] + (b[0] - a[0]) * k).toFixed(1));
+      d.el.setAttribute('cy', (a[1] + (b[1] - a[1]) * k).toFixed(1));
+      return true;
+    });
+  }
+  function stopRun(){
+    if(timer){ clearInterval(timer); timer = null; }
+    dots.forEach(d => d.el.remove()); dots = []; acc = 0;
+    $('mnx-sc-run').textContent = '▶ Пустить поток';
+  }
+  $('mnx-sc-run').addEventListener('click', () => {
+    if(timer){ stopRun(); return; }
+    if(RM){ msg($('mnx-sc-msg'), '', 'Анимация отключена настройкой «уменьшить движение». Смотрите на полоски загрузки и цифры — они считаются так же.'); return; }
+    ticks = 0; timer = setInterval(step, 50);
+    $('mnx-sc-run').textContent = '⏸ Остановить';
+  });
+  ['mnx-sc-rps', 'mnx-sc-n', 'mnx-sc-pool'].forEach(id => $(id).addEventListener('input', paint));
+  document.getElementById('mnx-ch5').addEventListener('click', e => {
+    const b = e.target.closest('button[data-mnx-sc]'); if(!b) return;
+    $('mnx-sc-rps').value = b.dataset.mnxSc; paint();
+  });
+  $('mnx-sc-sess').addEventListener('click', e => {
+    const b = e.target.closest('button[data-v]'); if(!b) return;
+    st.sess = b.dataset.v;
+    [...$('mnx-sc-sess').children].forEach(x => x.classList.toggle('on', x === b));
+    paint();
+  });
+  $('mnx-sc-opt').addEventListener('click', e => {
+    const b = e.target.closest('button[data-v]'); if(!b) return;
+    st.cache = !st.cache; b.classList.toggle('on', st.cache); paint();
+  });
+  $('mnx-sc-kill').addEventListener('click', () => { st.dead = true; paint(); });
+  $('mnx-sc-heal').addEventListener('click', () => { st.dead = false; paint(); });
+  $('mnx-sc-reset').addEventListener('click', () => {
+    stopRun(); st.sess = 'mem'; st.cache = false; st.dead = false;
+    $('mnx-sc-rps').value = 200; $('mnx-sc-n').value = 1; $('mnx-sc-pool').value = 20;
+    [...$('mnx-sc-sess').children].forEach((x, k) => x.classList.toggle('on', k === 0));
+    [...$('mnx-sc-opt').children].forEach(x => x.classList.remove('on'));
+    paint();
+  });
+  document.addEventListener('visibilitychange', () => { if(document.hidden) stopRun(); });
+  paint();
+})();
+
+/* ─── глава 6: выкладка монолита (проигрыватель) ─── */
+(function(){
+  const scene = document.getElementById('mnx-dp-scene');
+  if(!scene) return;
+  const $ = id => document.getElementById(id);
+  const panel = document.getElementById('mono');
+  const NAMES = {lb:'⚖ Балансировщик', a:'Копия A', b:'Копия B', c:'Копия C', d:'Копия D', db:'🗄 База'};
+  const BASE = {lb:['on', 'шлёт на A и B'], a:['v1 on', 'v1 · работает'], b:['v1 on', 'v1 · работает'], c:['off', 'не используется'], d:['off', 'не используется'], db:['', 'схема v1']};
+  const K0 = {tr:[100, 0, 0], down:0, err:0, ver:'1', rb:'—', clock:'13:59'};
+  function build(list){
+    let box = JSON.parse(JSON.stringify(BASE)), k = Object.assign({}, K0);
+    return list.map(s => {
+      box = JSON.parse(JSON.stringify(box));
+      Object.keys(s.box || {}).forEach(x => { box[x] = s.box[x]; });
+      k = Object.assign({}, k); ['tr', 'down', 'err', 'ver', 'rb', 'clock'].forEach(x => { if(s[x] !== undefined) k[x] = s[x]; });
+      return Object.assign({}, s, {box:box}, k);
+    });
+  }
+  const BG = [
+    {t:'Исходно: синее окружение на v1', clock:'13:59', box:{c:['off', 'пусто'], d:['off', 'пусто']},
+     what:'Синее окружение — копии A и B на версии 1 — обслуживает всех покупателей. Зелёное (C и D) пустое.', why:'Цвета — просто имена двух одинаковых окружений. Какое из них «боевое», решает балансировщик.'},
+    {t:'Поднимаем зелёное с v2', clock:'14:00', box:{c:['warm v2', 'v2 · запуск'], d:['warm v2', 'v2 · запуск'], db:['', 'схема v1 + новая колонка']}, ver:'1 (v2 скрыта)',
+     what:'Рядом с синим поднимается зелёное окружение с версией 2. Покупатели его не видят: балансировщик по-прежнему шлёт всё на синее.', why:'Миграцию базы сделали заранее и только <b>расширяющую</b>: добавили колонку, ничего не удалили и не переименовали. Синяя версия новой колонки просто не замечает.'},
+    {t:'Проверяем зелёное', clock:'14:02', box:{c:['v2', 'v2 · проверки, прогрев'], d:['v2', 'v2 · проверки, прогрев']},
+     what:'Команда гоняет по зелёному проверочные сценарии через внутренний адрес: открыть каталог, оформить заказ, списать бонусы. Заодно прогреваются кеши.', why:'Проверить новую версию на настоящих серверах с настоящей базой до того, как её увидит хоть один покупатель, — главный плюс схемы.'},
+    {t:'Переключение: весь поток — на зелёное', clock:'14:05', box:{lb:['on', 'всё → C и D'], a:['v1', 'v1 · без трафика'], b:['v1', 'v1 · без трафика'], c:['v2 on', 'v2 · работает'], d:['v2 on', 'v2 · работает']}, tr:[0, 100, 0], ver:'2', rb:'переключить назад: секунды', k:'good',
+     what:'Одна команда балансировщику — и весь поток уходит на зелёное. Переключение занимает секунды; начатые на синем запросы спокойно доделываются.', why:'Две версии работают одновременно лишь мгновение, а не минуты, как при поэтапной замене.'},
+  ];
+  const MODES = {
+    stop: build([
+      {t:'Исходно: обе копии на v1', clock:'22:59:50', what:'Обе копии работают на версии 1. Балансировщик делит между ними 300 запросов в секунду.', why:'В этом способе второго окружения нет: обновляются те же самые копии.'},
+      {t:'23:00:00 · останавливаем всё', clock:'23:00:00', box:{lb:['bad', 'некуда отправить'], a:['bad', 'остановлена'], b:['bad', 'остановлена']}, tr:[0, 0, 100], ver:'0', k:'bad',
+       what:'Борис останавливает обе копии разом. Балансировщику некуда отправлять запросы — покупатели получают 502 и 503.', why:'С этой секунды магазин не работает: каждую секунду 300 покупателей видят ошибку.'},
+      {t:'23:00:05 · кладём новый shop.jar и мигрируем базу', clock:'23:00:05', box:{a:['bad', 'замена файла'], b:['bad', 'замена файла'], db:['warm', 'миграция → схема v2']}, down:5, err:1500, k:'bad',
+       what:'Новый файл копируется на серверы, запускается миграция базы.', why:'Миграция может держать блокировки таблиц — ещё одна причина, по которой «одна кнопка» обычно делается ночью.'},
+      {t:'23:00:40 · запускается v2', clock:'23:00:40', box:{a:['warm v2', 'v2 · старт…'], b:['warm v2', 'v2 · старт…'], db:['', 'схема v2']}, down:40, err:12000, k:'bad',
+       what:'Копии стартуют: поднимается контекст Spring, открываются соединения с базой, наполняются кеши. У большого монолита это десятки секунд.', why:'Время запуска и есть простой. Чем больше монолит, тем дольше старт — и тем дороже каждая выкладка.'},
+      {t:'23:01:10 · работает, но медленно', clock:'23:01:10', box:{lb:['on', 'шлёт на A и B'], a:['warm v2 on', 'v2 · прогрев'], b:['warm v2 on', 'v2 · прогрев']}, tr:[0, 90, 10], down:70, err:21000, ver:'2', k:'warn',
+       what:'Копии принимают запросы, но первые минуты работают медленно: кеши пусты, горячий код ещё не оптимизирован. Часть запросов не укладывается в таймаут.', why:'Прогрев — скрытая часть простоя. Его сглаживают «прогревочными» запросами до того, как пустить покупателей.'},
+      {t:'23:03 · выкладка окончена', clock:'23:03:00', box:{a:['v2 on', 'v2 · работает'], b:['v2 on', 'v2 · работает']}, tr:[0, 100, 0], err:22200, rb:'выложить v1 заново: снова простой', k:'warn',
+       what:'Итог: около 70 секунд полного простоя и примерно 22 тысячи неудачных запросов. Поэтому Борис и выкатывался ночью.', why:'Откатиться можно только новой выкладкой старого файла — с таким же простоем. А если новая версия не стартовала вовсе, простой длится, пока не найдут старый файл: у Бориса однажды вышло сорок минут.'},
+    ]),
+    roll: build([
+      {t:'Исходно: обе копии на v1', clock:'13:59:50', what:'Обе копии работают на версии 1 и делят поток пополам.', why:'Для поэтапной замены нужен запас мощности: одна копия должна выдерживать весь поток, пока вторая обновляется.'},
+      {t:'14:00:00 · A выводится из-под нагрузки', clock:'14:00:00', box:{lb:['on', 'шлёт только на B'], a:['v1 off', 'доделывает начатое'], b:['v1 on', 'v1 · весь поток']},
+       what:'Балансировщик перестаёт слать новые запросы на A. Копия доделывает уже начатые и только потом останавливается — это мягкая остановка (graceful shutdown).', why:'Без мягкой остановки покупатели, чьи запросы были «в полёте», получили бы ошибку. В Spring Boot её включают настройкой <code class="inl">server.shutdown=graceful</code>.'},
+      {t:'14:00:20 · A запускается на v2', clock:'14:00:20', box:{a:['warm v2', 'v2 · запуск, проверка готовности']},
+       what:'На A ставят новый файл и запускают. Пока A не ответит «готова» на проверку готовности, балансировщик на неё ничего не шлёт.', why:'Проверка готовности (readiness probe) — адрес вроде <code class="inl">/actuator/health/readiness</code>, который говорит «готова» только когда приложение подняло соединения и может работать.'},
+      {t:'14:00:55 · две версии одновременно', clock:'14:00:55', box:{lb:['on', 'шлёт на A и B'], a:['v2 on', 'v2 · работает'], b:['v1 on', 'v1 · работает']}, tr:[50, 50, 0], ver:'1 и 2', k:'warn',
+       what:'A прошла проверку, балансировщик снова шлёт на неё половину потока. Сейчас одновременно работают v1 и v2.', why:'Главная особенность способа. Обе версии пишут в одну базу, читают одни сессии и один кеш. Если v2 поменяла формат данных так, что v1 его не понимает, посреди выкладки начнутся странные ошибки.'},
+      {t:'14:01:00 · B выводится', clock:'14:01:00', box:{lb:['on', 'шлёт только на A'], b:['v1 off', 'доделывает начатое']}, tr:[0, 100, 0], ver:'2',
+       what:'Теперь весь поток держит A на v2, а B уходит на обновление.', why:'Порядок тот же: вывести, дождаться окончания запросов, обновить, проверить, вернуть.'},
+      {t:'14:01:40 · выкладка окончена', clock:'14:01:40', box:{lb:['on', 'шлёт на A и B'], b:['v2 on', 'v2 · работает']}, rb:'ещё один проход по копиям, ~2 мин', k:'good',
+       what:'Все копии на v2. Простоя не было, ошибок — практически ноль.', why:'Цена: несколько минут две версии рядом и откат, который тоже идёт по копиям, а не мгновенно.'},
+    ]),
+    bg: build(BG.concat([
+      {t:'Синее ждёт на случай отката', clock:'14:05–15:05', box:{a:['v1', 'v1 · резерв'], b:['v1', 'v1 · резерв']},
+       what:'Синее окружение не выключают ещё час: если в v2 найдётся беда, откат — одно переключение назад.', why:'За это платят двойным числом серверов на время выкладки. В облаке это недорого: машины арендуются на час.'},
+      {t:'Синее освобождается', clock:'15:05', box:{a:['off', 'выключена'], b:['off', 'выключена']}, rb:'—', k:'good',
+       what:'Синее выключают. При следующей выкладке оно станет «зелёным» для версии 3.', why:'Цвета просто меняются ролями. Простоя не было ни секунды.'},
+    ])),
+    bgfail: build(BG.concat([
+      {t:'14:06 · ошибки растут', clock:'14:06', box:{c:['bad v2', 'v2 · 30 % ошибок'], d:['bad v2', 'v2 · 30 % ошибок']}, tr:[0, 70, 30], err:5400, k:'bad',
+       what:'Через минуту мониторинг показывает: 30 % оформлений заказа падают. В v2 баг, который проверки не поймали.', why:'Сине-зелёная схема переключает всех сразу, и баг сразу видят все. Поэтому её часто совмещают с «канарейкой»: сначала на новую версию пускают 5 % покупателей.'},
+      {t:'14:07 · откат: переключаем обратно', clock:'14:07', box:{lb:['on', 'всё → A и B'], a:['v1 on', 'v1 · работает'], b:['v1 on', 'v1 · работает'], c:['v2', 'v2 · разбор ошибки'], d:['v2', 'v2 · разбор ошибки']}, tr:[100, 0, 0], err:10800, ver:'1', k:'good',
+       what:'Команда переключает балансировщик обратно на синее. Через секунды все снова на v1. Зелёное остаётся для разбора.', why:'Откат занял минуту, и почти вся она — время на решение, а не на технику. Это сработало только потому, что миграция была расширяющей: v1 спокойно живёт с новой колонкой.'},
+      {t:'Итог', clock:'14:08', k:'warn',
+       what:'Около 10 тысяч неудачных запросов за две минуты — против десятков минут простоя при откате «одной кнопкой».', why:'А если бы v2 удалила колонку, которую читает v1, переключение назад не спасло бы: синее тоже начало бы падать. Правило «расширить → сузить» — обязательная часть сине-зелёной схемы.'},
+    ])),
+  };
+  let mode = 'stop', i = 0, timer = null;
+  const done = new Set();
+  Progress.register('mnx-dep', 3, 'Монолит: способы выкладки');
+  const bx = (key, v) => '<div class="mnx-dp-box ' + v[0] + '"><b>' + NAMES[key] + '</b>' + v[1] + '</div>';
+  function paint(){
+    const L = MODES[mode], s = L[i];
+    scene.innerHTML =
+      '<div class="mnx-dp-col"><h5>вход</h5>' + bx('lb', s.box.lb) + '</div>' +
+      '<div class="mnx-dp-col"><h5>синее окружение</h5>' + bx('a', s.box.a) + bx('b', s.box.b) + '</div>' +
+      '<div class="mnx-dp-col"><h5>зелёное окружение</h5>' + bx('c', s.box.c) + bx('d', s.box.d) + '</div>' +
+      '<div class="mnx-dp-col"><h5>общая база</h5>' + bx('db', s.box.db) + '</div>';
+    const sp = $('mnx-dp-tr').children, lab = ['v1', 'v2', 'ошибки'];
+    s.tr.forEach((v, k) => { sp[k].style.flexBasis = v + '%'; sp[k].textContent = v >= 12 ? lab[k] + ' · ' + v + ' %' : ''; });
+    $('mnx-dp-kpi').innerHTML = [
+      ['Часы', s.clock, ''], ['Полный простой', s.down + ' с', s.down > 0 ? 'bad' : 'good'],
+      ['Неудачных запросов', s.err.toLocaleString('ru-RU'), s.err > 0 ? 'bad' : 'good'],
+      ['Версий в работе', s.ver, String(s.ver).indexOf('и') >= 0 ? 'wq' : ''], ['Откат займёт', s.rb, ''],
+    ].map(k => '<div class="mnx-kpi ' + k[2] + '"><div class="l">' + k[0] + '</div><div class="v" style="font-size:15px">' + k[1] + '</div></div>').join('');
+    $('mnx-dp-t').textContent = (i + 1) + '. ' + s.t;
+    $('mnx-dp-what').innerHTML = s.what;
+    $('mnx-dp-why').innerHTML = s.why;
+    $('mnx-dp-lab').textContent = 'шаг ' + (i + 1) + ' из ' + L.length;
+    if(i === L.length - 1 && !done.has(mode)){ done.add(mode); Progress.report('mnx-dep', Math.min(3, done.size)); }
+  }
+  function stop(){ if(timer){ clearInterval(timer); timer = null; } $('mnx-dp-play').textContent = '▶'; }
+  function go(dl){ const n = clamp(i + dl, 0, MODES[mode].length - 1); if(n !== i){ i = n; paint(); } }
+  $('mnx-dp-mode').addEventListener('click', e => {
+    const b = e.target.closest('button[data-m]'); if(!b || !MODES[b.dataset.m]) return;
+    [...$('mnx-dp-mode').children].forEach(x => x.classList.toggle('on', x === b));
+    stop(); mode = b.dataset.m; i = 0; paint();
+  });
+  $('mnx-dp-next').addEventListener('click', () => { stop(); go(1); });
+  $('mnx-dp-prev').addEventListener('click', () => { stop(); go(-1); });
+  $('mnx-dp-reset').addEventListener('click', () => { stop(); i = 0; paint(); });
+  $('mnx-dp-play').addEventListener('click', () => {
+    if(timer){ stop(); return; }
+    if(i >= MODES[mode].length - 1){ i = 0; paint(); }
+    $('mnx-dp-play').textContent = '⏸';
+    timer = setInterval(() => {
+      if(document.hidden || (panel && !panel.classList.contains('active')) || i >= MODES[mode].length - 1){ stop(); return; }
+      go(1);
+    }, 2400);
+  });
+  document.addEventListener('visibilitychange', () => { if(document.hidden) stop(); });
+  paint();
+})();
+</script>
+
+<script>
+/* ─── глава 8: граф зависимостей по месяцам (живая модель) ─── */
+(function(){
+  const host = document.getElementById('mnx-g-host');
+  if(!host) return;
+  const $ = id => document.getElementById(id);
+  const panel = document.getElementById('mono');
+  const MON = ['январь', 'февраль', 'март', 'апрель', 'май', 'июнь', 'июль', 'август', 'сентябрь', 'октябрь', 'ноябрь', 'декабрь'];
+  const AR = {
+    o:[12, 8, 'Заказы', '--mn'], c:[262, 8, 'Каталог', '--ms'], s:[512, 8, 'Склад', '--dt'],
+    r:[12, 130, 'Отчёты', '--warn'], p:[262, 130, 'Оплата и бонусы', '--nt'], k:[512, 130, 'Клиенты', '--ok'],
+    n:[12, 252, 'Уведомления', '--danger'], u:[262, 252, 'Общее', '--faint'], d:[512, 252, 'Скидки', '--accent'],
+  };
+  const SL = [[10, 30], [128, 30], [10, 72], [128, 72]];
+  /* id: [подпись, часть, слот, месяц появления, фасад?] */
+  const ND = {
+    oc:['OrderCtl', 'o', 0, 1], os:['OrderSvc', 'o', 1, 1, 1], or:['OrderRepo', 'o', 2, 1], oe:['Order', 'o', 3, 1],
+    cc:['CatalogCtl', 'c', 0, 1], ps:['ProductSvc', 'c', 1, 1, 1], pr:['ProductRepo', 'c', 2, 1],
+    ss:['StockSvc', 's', 0, 2, 1], sr:['StockRepo', 's', 2, 2],
+    rc:['ReportCtl', 'r', 0, 3], rs:['ReportSvc', 'r', 1, 3, 1],
+    pay:['PaymentSvc', 'p', 0, 4, 1], bs:['BonusSvc', 'p', 1, 10, 1], br:['BonusRepo', 'p', 3, 10],
+    ks:['ClientSvc', 'k', 0, 2, 1], kr:['ClientRepo', 'k', 2, 2], ke:['Client', 'k', 3, 2],
+    ns:['NotifySvc', 'n', 0, 5, 1], ml:['MailSender', 'n', 2, 5],
+    ut:['Utils', 'u', 1, 7, 1], ds:['DiscountSvc', 'd', 0, 4, 1],
+  };
+  const BASE = [[1,'oc','os'],[1,'os','or'],[1,'os','oe'],[1,'or','oe'],[1,'cc','ps'],[1,'ps','pr']];
+  const E = {
+    mess: BASE.concat([
+      [2,'ss','sr'],[2,'ks','kr'],[2,'kr','ke'],[2,'ks','ke'],[2,'os','ss'],[2,'os','kr'],
+      [3,'rc','rs'],[3,'rs','or'],[3,'rs','pr'],[3,'rs','kr'],
+      [4,'ds','kr'],[4,'os','ds'],[4,'ds','or'],[4,'pay','or'],[4,'os','pay'],
+      [5,'ns','ml'],[5,'os','ns'],[5,'ns','oe'],[5,'ns','kr'],
+      [6,'pay','os'],[6,'ss','or'],
+      [7,'os','ut'],[7,'ps','ut'],[7,'rs','ut'],[7,'ns','ut'],[7,'ut','oe'],[7,'ut','ke'],
+      [8,'ps','sr'],[8,'cc','os'],
+      [9,'ks','or'],[9,'ke','oe'],[9,'oe','ke'],
+      [10,'bs','br'],[10,'os','bs'],[10,'bs','os'],[10,'bs','kr'],[10,'rs','br'],
+      [11,'ps','os'],[11,'ss','ns'],[11,'ns','os'],[11,'ds','pr'],
+      [12,'rs','pay'],[12,'pay','kr'],[12,'ml','ut'],[12,'ds','ss'],
+    ]),
+    mod: BASE.concat([
+      [2,'ss','sr'],[2,'ks','kr'],[2,'kr','ke'],[2,'ks','ke'],[2,'os','ss'],[2,'os','ks'],
+      [3,'rc','rs'],[3,'rs','os'],[3,'rs','ps'],[3,'rs','ks'],
+      [4,'ds','ks'],[4,'os','ds'],[4,'os','pay'],
+      [5,'ns','ml'],[5,'ns','os'],[5,'ns','ks'],
+      [7,'os','ut'],[7,'ps','ut'],[7,'rs','ut'],[7,'ns','ut'],
+      [8,'ps','ss'],[8,'cc','os'],
+      [10,'bs','br'],[10,'os','bs'],[10,'bs','ks'],[10,'rs','bs'],
+      [11,'ns','ss'],[11,'ds','ps'],
+      [12,'rs','pay'],[12,'pay','ks'],[12,'ml','ut'],[12,'ds','ss'],
+    ]),
+  };
+  const EV = {
+    mess:['Первый коммит: заказы и каталог. Все стрелки — внутри своих частей, связность 0 %.',
+      'Склад и клиенты. OrderService сам ходит в ClientRepo — «так быстрее, чем просить сервис клиентов».',
+      'Отчёты для Олега: ReportSvc читает напрямую чужие репозитории — заказов, товаров, клиентов.',
+      'Скидки и оплата. Скидки читают историю заказов прямо из OrderRepo, оплата — тоже.',
+      'Уведомления. OrderSvc вызывает NotifySvc, а тот лезет в Order и ClientRepo.',
+      'Оплата вызывает OrderSvc, а OrderSvc — оплату. <b>Первый цикл</b>: эти два класса теперь не поменять по отдельности.',
+      'Появился Utils — «полезные функции для всех». Он знает про Order и Client, и от него зависят все.',
+      'Каталог показывает остатки прямо из StockRepo и «популярное» через OrderSvc.',
+      'История заказов в профиле: ClientSvc читает OrderRepo, а сущности Order и Client ссылаются друг на друга.',
+      'Бонусная программа: OrderSvc ↔ BonusSvc — ещё один цикл.',
+      '«С этим товаром покупают»: ProductSvc зовёт OrderSvc, уведомления о нехватке на складе замыкают ещё один круг.',
+      '<b>Большой ком грязи.</b> Нажмите на Order или ClientRepo и посмотрите, сколько всего может сломаться от одной правки.'],
+    mod:['Первый коммит: заказы и каталог. Все стрелки — внутри своих частей.',
+      'Склад и клиенты. Заказы спрашивают клиентов только через их фасад ClientSvc.',
+      'Отчёты берут данные только через фасады частей. Писать чуть дольше, зато видно, кто от кого зависит.',
+      'Скидки и оплата. Заказы сами передают скидкам нужные данные — стрелки назад у скидок нет.',
+      'Уведомления подписаны на событие «заказ оформлен»: заказы о них даже не знают.',
+      'Оплата сообщает о результате событием — цикла нет, новых стрелок тоже.',
+      'Общие функции — только без знаний о бизнесе (даты, деньги). Utils ни от кого не зависит.',
+      'Каталог спрашивает склад через фасад, «популярное» — через фасад заказов.',
+      'Заказ хранит только номер клиента, а не весь объект Client. Сущности не знают друг о друге.',
+      'Бонусы: заказы вызывают фасад бонусов; бонусы о заказах не знают.',
+      'Нехватку на складе склад объявляет событием; скидки спрашивают каталог через фасад.',
+      'Год прошёл. Классов и возможностей столько же, но правка внутри части задевает только эту часть. Нажмите на Order — сравните с режимом Бориса.'],
+  };
+  let mode = 'mess', month = 1, sel = null, timer = null;
+  const ach = new Set();
+  Progress.register('mnx-g', 3, 'Монолит: граф зависимостей');
+
+  const W = 96, H = 26;
+  const pos = id => { const n = ND[id], a = AR[n[1]], s = SL[n[2]]; return [a[0] + s[0], a[1] + s[1]]; };
+  let h = '<svg class="mnx-g-svg" viewBox="0 0 760 372" role="img" aria-label="Граф зависимостей классов монолита по частям бизнеса">' +
+    '<defs>' + [['mnx-ah', 'ah'], ['mnx-ahx', 'ah x'], ['mnx-aha', 'ah a']].map(m => '<marker id="' + m[0] + '" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="' + m[1] + '" d="M0 0 L10 5 L0 10 z"/></marker>').join('') + '</defs>';
+  Object.keys(AR).forEach(k => { const a = AR[k];
+    h += '<rect class="ar" style="--c:var(' + a[3] + ')" x="' + a[0] + '" y="' + a[1] + '" width="236" height="112" rx="10"/>' +
+      '<text class="al" style="--c:var(' + a[3] + ')" x="' + (a[0] + 10) + '" y="' + (a[1] + 18) + '">' + a[2] + '</text>'; });
+  h += '<g id="mnx-g-edges"></g>';
+  Object.keys(ND).forEach(id => { const p = pos(id), a = AR[ND[id][1]];
+    h += '<g class="nd" data-id="' + id + '" style="--c:var(' + a[3] + ')" tabindex="0" role="button" aria-label="' + ND[id][0] + '"><rect x="' + p[0] + '" y="' + p[1] + '" width="' + W + '" height="' + H + '" rx="6"/>' +
+      '<text x="' + (p[0] + W / 2) + '" y="' + (p[1] + 17) + '" text-anchor="middle">' + ND[id][0] + '</text></g>'; });
+  h += '</svg>';
+  host.innerHTML = h;
+  const gE = host.querySelector('#mnx-g-edges');
+  const gN = [...host.querySelectorAll('.nd')];
+
+  function state(){
+    const nodes = Object.keys(ND).filter(id => ND[id][3] <= month);
+    const edges = E[mode].filter(e => e[0] <= month);
+    return {nodes, edges};
+  }
+  const area = id => ND[id][1];
+  function cycles(nodes, edges){
+    /* узлы, лежащие в цикле: v достижим из самого себя */
+    const adj = {}; nodes.forEach(n => adj[n] = []); edges.forEach(e => adj[e[1]].push(e[2]));
+    const inCyc = new Set();
+    nodes.forEach(v => {
+      const seen = new Set(), stack = adj[v].slice();
+      while(stack.length){ const x = stack.pop(); if(x === v){ inCyc.add(v); break; } if(seen.has(x)) continue; seen.add(x); (adj[x] || []).forEach(y => stack.push(y)); }
+    });
+    return inCyc;
+  }
+  function blast(v, edges){
+    /* кто может сломаться, если поменять v: обратный обход по стрелкам.
+       В режиме с границами внутренняя правка останавливается на фасаде своей части. */
+    const rev = {}; edges.forEach(e => { (rev[e[2]] = rev[e[2]] || []).push(e[1]); });
+    const hit = new Set(), q = [v];
+    while(q.length){
+      const x = q.shift();
+      (rev[x] || []).forEach(y => {
+        if(hit.has(y) || y === v) return;
+        if(mode === 'mod' && area(y) !== area(v) && !(x === v && ND[v][4])) return;
+        hit.add(y); q.push(y);
+      });
+    }
+    return hit;
+  }
+  function metrics(S){
+    const cross = S.edges.filter(e => area(e[1]) !== area(e[2]));
+    const leak = cross.filter(e => !ND[e[2]][4]);
+    const coh = [];
+    Object.keys(AR).forEach(a => {
+      const inn = S.edges.filter(e => area(e[1]) === a && area(e[2]) === a).length;
+      const out = cross.filter(e => area(e[1]) === a || area(e[2]) === a).length;
+      if(inn + out) coh.push(inn / (inn + out));
+    });
+    const cyc = cycles(S.nodes, S.edges);
+    let sum = 0, worst = null, wv = -1;
+    S.nodes.forEach(v => { const b = blast(v, S.edges).size; sum += b; if(b > wv){ wv = b; worst = v; } });
+    const N1 = Math.max(1, S.nodes.length - 1);
+    return {cross:cross.length, leak:leak.length, coh:coh.length ? coh.reduce((a, b) => a + b, 0) / coh.length : 1, cyc, avg:sum / S.nodes.length / N1, worst, wv, N1};
+  }
+  function line(e, cls){
+    const a = pos(e[1]), b = pos(e[2]);
+    const ax = a[0] + W / 2, ay = a[1] + H / 2, bx = b[0] + W / 2, by = b[1] + H / 2;
+    const dx = bx - ax, dy = by - ay;
+    const t = Math.min(Math.abs(dx) > 0.01 ? (W / 2 + 2) / Math.abs(dx) : 9, Math.abs(dy) > 0.01 ? (H / 2 + 2) / Math.abs(dy) : 9);
+    const x1 = ax + dx * t, y1 = ay + dy * t, x2 = bx - dx * t, y2 = by - dy * t;
+    const mk = cls.indexOf('new') >= 0 ? 'mnx-aha' : cls.indexOf(' x') >= 0 || cls.indexOf('hit') >= 0 ? 'mnx-ahx' : 'mnx-ah';
+    return '<line class="' + cls + '" x1="' + x1.toFixed(1) + '" y1="' + y1.toFixed(1) + '" x2="' + x2.toFixed(1) + '" y2="' + y2.toFixed(1) + '" marker-end="url(#' + mk + ')"/>';
+  }
+  function paint(){
+    const S = state(), m = metrics(S);
+    if(sel && S.nodes.indexOf(sel) < 0) sel = null;
+    const hit = sel ? blast(sel, S.edges) : null;
+    const live = new Set(S.nodes);
+    gE.innerHTML = S.edges.map(e => {
+      let c = 'e' + (area(e[1]) !== area(e[2]) ? ' x' : '');
+      if(hit){ c += (hit.has(e[1]) && (hit.has(e[2]) || e[2] === sel)) ? ' hit' : ' dim'; }
+      else if(e[0] === month && month > 1) c += ' new';
+      return line(e, c);
+    }).join('');
+    gN.forEach(g => {
+      const id = g.getAttribute('data-id');
+      g.setAttribute('class', 'nd' + (!live.has(id) ? ' off' : '') + (m.cyc.has(id) ? ' cyc' : '') + (id === sel ? ' sel' : hit && hit.has(id) ? ' hit' : ''));
+    });
+    $('mnx-g-m').value = month;
+    $('mnx-g-m-v').textContent = MON[month - 1];
+    $('mnx-g-ev').innerHTML = '<b>' + MON[month - 1][0].toUpperCase() + MON[month - 1].slice(1) + '.</b> ' + EV[mode][month - 1];
+    const pc = x => Math.round(x * 100) + ' %';
+    const cr = S.edges.length ? m.cross / S.edges.length : 0;
+    $('mnx-g-kpi').innerHTML = [
+      ['Классов / связей', S.nodes.length + ' / ' + S.edges.length, ''],
+      ['Связность: стрелок в чужие части', pc(cr), cr > 0.6 ? 'bad' : cr > 0.3 ? 'wq' : 'good'],
+      ['Лазеек мимо фасада', m.leak, m.leak > 5 ? 'bad' : m.leak ? 'wq' : 'good'],
+      ['Зацепление (среднее)', pc(m.coh), m.coh < 0.4 ? 'bad' : m.coh < 0.6 ? 'wq' : 'good'],
+      ['Классов в циклах', m.cyc.size, m.cyc.size ? 'bad' : 'good'],
+      ['Радиус изменения, средний', pc(m.avg), m.avg > 0.4 ? 'bad' : m.avg > 0.15 ? 'wq' : 'good'],
+    ].map(k => '<div class="mnx-kpi ' + k[2] + '"><div class="l">' + k[0] + '</div><div class="v">' + k[1] + '</div></div>').join('');
+    const out = $('mnx-g-msg');
+    if(sel){
+      const areas = new Set([...hit].map(area)); areas.delete(area(sel));
+      msg(out, hit.size / m.N1 > 0.4 ? 'err' : hit.size / m.N1 > 0.15 ? 'warn' : 'ok',
+        'Меняем <b>' + ND[sel][0] + '</b>. Под угрозой ' + hit.size + ' из ' + m.N1 + ' других классов (' + pc(hit.size / m.N1) + ')' +
+        (areas.size ? ', в том числе в ' + areas.size + ' чужих частях магазина. Каждый из них надо проверить или прогнать его тесты.' : ' — только внутри своей части.') +
+        (mode === 'mod' && !ND[sel][4] ? ' Правка внутренняя: чужие части видят только фасад, и он не менялся.' : ''));
+    } else {
+      msg(out, m.avg > 0.4 ? 'err' : m.avg > 0.15 ? 'warn' : 'ok',
+        'В среднем правка одного класса задевает ' + pc(m.avg) + ' остальных. Хуже всего — <b>' + ND[m.worst][0] + '</b>: от него зависят ' + m.wv + ' классов. ' +
+        (m.avg > 0.4 ? 'Это и есть момент «любое изменение задевает всё».' : 'Пока правки остаются локальными.') + ' Нажмите на класс на схеме.');
+    }
+    if(month === 12){ ach.add('end'); }
+    if(month >= 9 && mode === 'mod') ach.add('mod');
+    Progress.report('mnx-g', ach.size);
+  }
+  function stop(){ if(timer){ clearInterval(timer); timer = null; } $('mnx-g-play').textContent = '▶ Прожить год'; }
+  $('mnx-g-m').addEventListener('input', e => { stop(); month = clamp(+e.target.value, 1, 12); paint(); });
+  $('mnx-g-mode').addEventListener('click', e => {
+    const b = e.target.closest('button[data-m]'); if(!b || !E[b.dataset.m]) return;
+    [...$('mnx-g-mode').children].forEach(x => x.classList.toggle('on', x === b));
+    mode = b.dataset.m; paint();
+  });
+  function choose(id){
+    if(!id || !ND[id] || ND[id][3] > month) return;
+    sel = sel === id ? null : id;
+    if(sel && month >= 9 && mode === 'mess') ach.add('click');
+    paint();
+  }
+  host.addEventListener('click', e => { const g = e.target.closest('.nd'); if(g) choose(g.getAttribute('data-id')); });
+  host.addEventListener('keydown', e => {
+    if(e.key !== 'Enter' && e.key !== ' ') return;
+    const g = e.target.closest && e.target.closest('.nd'); if(g){ e.preventDefault(); choose(g.getAttribute('data-id')); }
+  });
+  $('mnx-g-clear').addEventListener('click', () => { sel = null; paint(); });
+  $('mnx-g-play').addEventListener('click', () => {
+    if(timer){ stop(); return; }
+    sel = null; if(month >= 12) month = 1; paint();
+    $('mnx-g-play').textContent = '⏸ Пауза';
+    timer = setInterval(() => {
+      if(document.hidden || (panel && !panel.classList.contains('active')) || month >= 12){ stop(); return; }
+      month++; paint();
+    }, 1100);
+  });
+  document.addEventListener('visibilitychange', () => { if(document.hidden) stop(); });
+  paint();
+})();
+
+/* ─── глава 12: задания ─── */
+(function(){
+  if(!document.getElementById('mnx-q-tasks')) return;
+  renderTasks('mnx-q-tasks', [
+    {q:'Анна оформляет заказ. На шестом шаге выясняется, что бонусов не хватает, — а остаток уже уменьшен и заказ создан. Что окажется в базе?',
+     opts:[
+       {t:'Остаток уменьшен и заказ создан, бонусы не списаны — Борис должен вернуть пару вручную'},
+       {t:'Ничего не изменится: транзакция откатит и остаток, и черновик заказа', ok:true},
+       {t:'Заказ сохранится со статусом «ошибка оплаты»'},
+       {t:'Зависит от того, успел ли Spring сохранить остаток на диск'},
+     ],
+     why:'Все три изменения были внутри одной транзакции и до COMMIT оставались черновиком. Исключение вылетело из метода с <code class="inl">@Transactional</code>, Spring отправил ROLLBACK, и база выбросила всё разом. Никакого кода «вернуть пару» писать не нужно — это и есть главный подарок монолита с одной базой (глава 3).'},
+    {q:'Метод сервиса помечен <code class="inl">@Transactional</code> без настроек и бросает <b>проверяемое</b> исключение (наследник <code class="inl">Exception</code>, не <code class="inl">RuntimeException</code>). Что будет с уже сделанными изменениями?',
+     opts:[
+       {t:'Откат — любое исключение откатывает транзакцию'},
+       {t:'COMMIT того, что успели: по умолчанию откат только на непроверяемых исключениях и Error', ok:true},
+       {t:'Приложение упадёт целиком'},
+       {t:'Транзакция зависнет до таймаута'},
+     ],
+     why:'Известная ловушка Spring. Правило по умолчанию: откат на <code class="inl">RuntimeException</code> и <code class="inl">Error</code>, а на проверяемых исключениях — фиксация. Лечится <code class="inl">rollbackFor = Exception.class</code> или договорённостью бросать только непроверяемые исключения.'},
+    {q:'Олег считает: оформление заказа делает 12 вызовов между частями. В монолите это ~60 нс. Если распилить на сервисы и каждый вызов станет сетевым по ~1,5 мс, сколько добавится к одному запросу?',
+     opts:[
+       {t:'Около 1,5 мс — вызовы пойдут параллельно сами собой'},
+       {t:'Около 18 мс — если вызовы идут друг за другом', ok:true},
+       {t:'Около 60 мкс'},
+       {t:'Ничего: сеть внутри дата-центра бесплатна'},
+     ],
+     why:'12 × 1,5 мс = 18 мс — в сотни тысяч раз больше, чем 60 нс. Распараллелить можно только независимые вызовы, и это отдельная работа. А ещё каждый сетевой вызов может не удаться, и шанс сбоя складывается по всем двенадцати (глава 4).'},
+    {q:'Четыре копии монолита за балансировщиком «по кругу», корзина хранится в памяти копии. Что заметят покупатели?',
+     opts:[
+       {t:'Ничего — копии одинаковые'},
+       {t:'Корзина будет «мигать»: примерно 3 из 4 запросов попадут на копию, которая её не знает', ok:true},
+       {t:'Магазин будет в 4 раза медленнее'},
+       {t:'Ошибку 502 при каждом запросе'},
+     ],
+     why:'Сессия живёт в памяти одной копии, а балансировщик разбрасывает запросы по всем. Вероятность попасть на «чужую» копию — (N − 1)/N = 3/4. Лечится общим хранилищем сессий (лучше) или липкими сессиями (проще, но падение копии теряет корзины, и нагрузка распределяется неровно) — глава 5.'},
+    {q:'Борис поднял 8 копий, у каждой пул на 20 соединений. База — PostgreSQL с <code class="inl">max_connections = 100</code>. Что произойдёт?',
+     opts:[
+       {t:'Всё хорошо: чем больше копий, тем больше мощность'},
+       {t:'Копиям нужно 160 соединений, база даст 100 — часть копий будет отвечать ошибками', ok:true},
+       {t:'База автоматически увеличит предел'},
+       {t:'Копии поделят 100 соединений поровну, по 12 с половиной'},
+     ],
+     why:'Каждая копия держит свой пул, а предел соединений у базы общий. Больше копий — больше соединений, и в какой-то момент база перестаёт пускать новых. Лечится меньшим пулом на копию или общим пулом перед базой вроде PgBouncer.'},
+    {q:'Сине-зелёная выкладка. Новая версия одной миграцией переименовала колонку <code class="inl">phone</code> в <code class="inl">phone_main</code>. Через 10 минут нашли баг и переключили поток обратно на синее. Что будет?',
+     opts:[
+       {t:'Всё вернётся как было — синее окружение живое'},
+       {t:'Синяя версия начнёт падать: колонки phone в общей базе больше нет', ok:true},
+       {t:'База сама откатит миграцию при переключении'},
+       {t:'Балансировщик не даст переключиться обратно'},
+     ],
+     why:'Окружений два, а база одна. Переименование сломало обратную совместимость, и старая версия больше не может работать с базой. Правильно — «расширить → сузить»: добавить новую колонку, выкатить код, который пишет в обе, и только потом удалить старую (глава 6).'},
+    {q:'В графе зависимостей <code class="inl">OrderService → PaymentService</code> и <code class="inl">PaymentService → OrderService</code>. Как это называется и чем плохо?',
+     opts:[
+       {t:'Высокое зацепление — это хорошо'},
+       {t:'Циклическая зависимость: классы нельзя понять, поменять, протестировать или вынести по отдельности', ok:true},
+       {t:'Слоистая архитектура — так и задумано'},
+       {t:'Ничего страшного, если оба в одном процессе'},
+     ],
+     why:'Цикл склеивает классы в один ком. Любая правка в одном может сломать другой, а вынести «Оплату» в модуль или сервис, не трогая «Заказы», невозможно. Лечится событиями: оплата сообщает «платёж прошёл», а заказы подписаны (главы 8 и 10).'},
+    {q:'Какой признак говорит о <b>высокой связности</b> (coupling), а не о низком зацеплении (cohesion)?',
+     opts:[
+       {t:'Чтобы поменять поле клиента, пришлось править 14 классов в пяти частях магазина', ok:true},
+       {t:'В пакете «Разное» лежат отправка писем, расчёт налога и разбор CSV'},
+       {t:'Сборка идёт 40 минут'},
+       {t:'В команде восемь человек'},
+     ],
+     why:'Связность — про стрелки <b>между</b> частями: правка расходится по многим чужим местам. Пакет «Разное» — пример низкого зацепления: внутри одной части лежат несвязанные вещи. Долгая сборка и размер команды — не про то и не про другое.'},
+    {q:'Монолит превратился в ком грязи. Что разумно сделать первым?',
+     opts:[
+       {t:'Переписать всё с нуля на микросервисах'},
+       {t:'Нарисовать карту: граф зависимостей и кто пишет в какие таблицы', ok:true},
+       {t:'Запретить новые фичи на полгода'},
+       {t:'Разрезать по слоям: контроллеры в один сервис, репозитории в другой'},
+     ],
+     why:'Без карты лечение — наугад. Карта показывает, где резать, какие таблицы общие и какие циклы развязывать первыми. Переписывание с нуля — самая рискованная стратегия, а нарезка по слоям даёт распределённый монолит (глава 10).'},
+    {q:'Что верно про Stack Overflow по данным их инженеров на 2016 год?',
+     opts:[
+       {t:'Это сотни микросервисов в Kubernetes'},
+       {t:'Одно приложение на ASP.NET на небольшом числе серверов обслуживало сотни миллионов запросов в сутки', ok:true},
+       {t:'Сайт работает на бессерверных функциях'},
+       {t:'У них отдельный сервис на каждый тег'},
+     ],
+     why:'В 2016 году: 11 веб-серверов, 4 сервера SQL Server и около 209 миллионов HTTP-запросов в сутки. Инженеры писали, что при необходимости сеть сайтов может работать даже на одном веб-сервере. Размер нагрузки сам по себе не повод дробить систему (глава 11).'},
+  ], 'mnx-q-score', 'mnx-q-total');
+  Progress.register('mnx-q-score', 10, 'Монолит: вопросы по главам');
+
+  renderSort('mnx-sort', [
+    {t:'Утечка памяти в отчётах роняет оформление заказов', bucket:'mono', why:'Отчёты и заказы делят <b>один процесс</b> и одну память. Это прямое следствие монолитности — «общая судьба». Лечится изоляцией тяжёлого: отчёт на реплику, в отдельный процесс или с ограничением памяти.'},
+    {t:'Отчёт делает JOIN по таблицам пяти частей магазина', bucket:'bound', why:'В модульном монолите это запрещено: чужие таблицы читаются через API владельца. Причина — не одна база как таковая, а то, что у таблиц нет хозяев.'},
+    {t:'Чтобы выкатить исправление в каталоге, приходится выкатывать и заказы', bucket:'mono', why:'Один артефакт — одна выкладка. Никакие внутренние границы этого не меняют: модульный монолит тоже выкатывается целиком (зато тесты можно резать по модулям).'},
+    {t:'Правка поля клиента ломает выгрузку в бухгалтерию, о которой никто не знал', bucket:'bound', why:'Сущность «Клиент» используют напрямую двадцать мест. С фасадом и объектами обмена (DTO) внутреннее поле наружу бы не вышло.'},
+    {t:'Медленный SQL-запрос без индекса', bucket:'any', why:'Бывает в любой архитектуре: и в монолите, и в каждом из микросервисов. Лечится индексом, а не выбором стиля.'},
+    {t:'Цикл OrderService ↔ PaymentService', bucket:'bound', why:'Цикл — это отсутствие правил о направлении зависимостей. В модульном монолите проверка при сборке запрещает циклы между модулями.'},
+    {t:'Обновление версии Java — проект на всю систему', bucket:'mono', why:'Одна сборка — один рантайм на всех. В сервисах каждый обновляется в своём темпе.'},
+    {t:'Иногда теряется запрос между браузером и магазином', bucket:'any', why:'Сеть между покупателем и магазином есть при любом стиле. Лечится таймаутами, повторами и идемпотентностью.'},
+  ], [{id:'mono', n:'Следствие монолита'}, {id:'bound', n:'Нет границ внутри'}, {id:'any', n:'Бывает везде'}], 'mnx-sort-score', 'mnx-sort-total');
+  Progress.register('mnx-sort-score', 8, 'Монолит: кто виноват');
 })();
 </script>
