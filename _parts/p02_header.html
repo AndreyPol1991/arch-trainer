@@ -148,7 +148,7 @@ bridge.send({kind:'ready'});
 
 /* ---------- конфетти ---------- */
 function confetti(n){
-  if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if(!window.matchMedia || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   const c = document.createElement('canvas');
   c.className = 'conf'; c.width = innerWidth; c.height = innerHeight;
   document.body.appendChild(c);
