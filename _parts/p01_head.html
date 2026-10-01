@@ -46,21 +46,64 @@
 
   /* ---------- шапка ---------- */
   header.top{position:sticky; top:0; z-index:20; background:color-mix(in srgb, var(--ground) 88%, transparent); backdrop-filter:saturate(1.4) blur(8px); border-bottom:1px solid var(--line)}
-  .head-inner{max-width:1120px; margin:0 auto; padding:14px 20px 0}
-  .brand{display:flex; align-items:baseline; gap:12px; flex-wrap:wrap}
-  h1{font-size:22px; margin:0; letter-spacing:-.02em; font-weight:680}
-  .sub{color:var(--muted); font-size:14px; margin:2px 0 0}
-  .pbar-wrap{display:flex; align-items:center; gap:10px; margin-top:9px; flex-wrap:wrap}
+  .head-inner{max-width:1120px; margin:0 auto; padding:10px 20px 9px}
+  .topbar{display:flex; align-items:center; gap:14px}
+  .brand{flex:1; min-width:0}
+  h1{font-size:19px; margin:0; letter-spacing:-.02em; font-weight:680; white-space:nowrap}
+  .sub{color:var(--muted); font-size:13px; margin:1px 0 0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .pbar-wrap{display:flex; align-items:center; gap:10px; margin-top:8px; flex-wrap:wrap}
   .pbar{flex:1; min-width:180px; height:7px; background:var(--surface-3); border-radius:6px; overflow:hidden}
   .pfill{height:100%; width:0%; background:linear-gradient(90deg,var(--nt),var(--ms)); transition:width .4s ease}
   .plab{font:600 12px var(--mono); color:var(--muted); white-space:nowrap}
   .plab b{color:var(--ink)}
-  .tabs{display:flex; flex-wrap:wrap; gap:3px 2px; margin-top:11px}
-  .tab{appearance:none; border:0; background:transparent; color:var(--muted); font:inherit; font-size:12.5px; font-weight:560; padding:7px 10px; cursor:pointer; border-bottom:2.5px solid transparent; white-space:nowrap; border-radius:6px 6px 0 0; display:flex; align-items:center; gap:6px}
+
+  /* ---------- навигация: кнопка «Разделы», текущий раздел, выезжающая панель ---------- */
+  .navbtn{flex:none; display:flex; align-items:center; gap:7px; appearance:none; border:1px solid var(--line); background:var(--surface); color:var(--ink); font:600 13.5px var(--sans); padding:8px 12px; border-radius:9px; cursor:pointer}
+  .navbtn:hover{border-color:var(--nt)}
+  .navbtn .ham{font-size:16px; line-height:1}
+  .navcur{flex:0 1 380px; min-width:0; display:flex; align-items:stretch; gap:4px}
+  .navstep{flex:none; appearance:none; border:1px solid var(--line); background:var(--surface); color:var(--ink); font:600 15px var(--sans); width:36px; border-radius:9px; cursor:pointer}
+  .navstep:hover:not(:disabled){border-color:var(--nt)}
+  .navstep:disabled{opacity:.35; cursor:default}
+  .navwhere{flex:1; min-width:0; appearance:none; border:1px solid var(--line); background:var(--surface-2); color:var(--ink); border-radius:9px; padding:4px 10px; text-align:left; cursor:pointer; display:flex; flex-direction:column; justify-content:center}
+  .navwhere:hover{border-color:var(--nt)}
+  .navwhere .g{font:600 10.5px var(--mono); color:var(--faint); text-transform:uppercase; letter-spacing:.03em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .navwhere b{font:640 13.5px/1.25 var(--sans); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .navwhere > *{display:block; min-width:0; max-width:100%}
+  .topbar, .navcur{max-width:100%}
+  @media (max-width:760px){
+    .head-inner{padding:8px 12px 8px}
+    .brand, .navbtn .nl{display:none}
+    .navcur{flex:1 1 auto}
+    .pbar-wrap{margin-top:6px}
+  }
+
+  .nav-scrim{position:fixed; inset:0; z-index:44; background:rgba(8,12,20,.55); opacity:0; pointer-events:none; transition:opacity .2s}
+  .nav-scrim.open{opacity:1; pointer-events:auto}
+  .nav-drawer{position:fixed; top:0; left:0; bottom:0; z-index:45; width:min(340px, 88vw); background:var(--surface); border-right:1px solid var(--line); box-shadow:var(--shadow); overflow-y:auto; overscroll-behavior:contain; padding:0 10px 24px; transform:translateX(-102%); visibility:hidden; transition:transform .22s ease, visibility 0s linear .22s}
+  .nav-drawer.open{transform:none; visibility:visible; transition:transform .22s ease}
+  .nav-top{position:sticky; top:0; z-index:1; background:var(--surface); padding:0 0 4px; margin:0 -10px; padding-left:10px; padding-right:10px; border-bottom:1px solid var(--line)}
+  .nav-head{display:flex; align-items:center; gap:8px; padding:14px 4px 8px}
+  .nav-head b{font-size:16px}
+  .nav-count{font:500 12px var(--mono); color:var(--faint); flex:1}
+  .nav-x{appearance:none; border:1px solid var(--line); background:var(--surface-2); color:var(--ink); width:32px; height:32px; border-radius:8px; cursor:pointer; font-size:14px}
+  .nav-q{width:100%; font:inherit; font-size:14px; color:var(--ink); background:var(--surface-2); border:1px solid var(--line); border-radius:9px; padding:8px 11px; margin:0 0 6px}
+  .nav-q:focus{outline:2px solid var(--nt); outline-offset:1px}
+  .nav-group{margin-top:10px}
+  .nav-gt{font:650 11px var(--mono); color:var(--faint); text-transform:uppercase; letter-spacing:.04em; padding:6px 8px 4px}
+  .nav-empty{color:var(--faint); font-size:13px; padding:10px 8px}
+  .tab{appearance:none; border:0; border-left:3px solid transparent; background:transparent; color:var(--muted); font:inherit; font-size:13.5px; font-weight:540; line-height:1.3; padding:6px 10px 6px 9px; cursor:pointer; width:100%; text-align:left; border-radius:0 8px 8px 0; display:flex; align-items:center; gap:9px}
   .tab:hover{color:var(--ink); background:var(--surface-2)}
   .tab .dot{width:8px; height:8px; border-radius:50%; background:var(--tabcol); flex:none}
-  .tab[aria-selected="true"]{color:var(--ink); border-bottom-color:var(--tabcol)}
-  .tab:focus-visible{outline:2px solid var(--nt); outline-offset:2px}
+  .tab[aria-selected="true"]{color:var(--ink); font-weight:650; border-left-color:var(--tabcol); background:color-mix(in srgb, var(--tabcol) 13%, var(--surface))}
+  .tab[hidden]{display:none}
+  .tab:focus-visible, .navbtn:focus-visible, .navstep:focus-visible, .navwhere:focus-visible, .nav-x:focus-visible{outline:2px solid var(--nt); outline-offset:2px}
+  @media (min-width:1500px){
+    body{padding-left:300px}
+    .nav-drawer{width:300px; transform:none; visibility:visible; box-shadow:none; transition:none}
+    .nav-scrim, .navbtn, .nav-x{display:none}
+  }
+  @media (prefers-reduced-motion:reduce){ .nav-drawer, .nav-scrim{transition:none} }
 
   /* ---------- панели ---------- */
   .panel{display:none; padding-top:26px}

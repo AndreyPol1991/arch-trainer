@@ -1,14 +1,34 @@
 <header class="top">
   <div class="head-inner">
-    <div class="brand">
-      <h1>Архитектура ПО</h1>
-      <p class="sub">Интерактивный тренажёр — режем монолит, запускаем сагу, роняем сервисы и смотрим, что будет</p>
+    <div class="topbar">
+      <button class="navbtn" id="nav-open" type="button" aria-controls="nav-drawer" aria-expanded="false"><span class="ham" aria-hidden="true">☰</span><span class="nl">Разделы</span></button>
+      <div class="brand">
+        <h1>Архитектура ПО</h1>
+        <p class="sub">Интерактивный тренажёр — режем монолит, запускаем сагу, роняем сервисы и смотрим, что будет</p>
+      </div>
+      <div class="navcur">
+        <button class="navstep" id="nav-prev" type="button" aria-label="Предыдущий раздел">←</button>
+        <button class="navwhere" id="nav-where" type="button" aria-label="Открыть список разделов"><span class="g" id="nav-group"></span><b id="nav-title"></b></button>
+        <button class="navstep" id="nav-next" type="button" aria-label="Следующий раздел">→</button>
+      </div>
     </div>
     <div class="pbar-wrap">
       <div class="pbar"><div class="pfill" id="pg-fill"></div></div>
       <span class="plab">Прогресс: <b id="pg-lab">0%</b> · <span id="pg-pts">0 / 0</span></span>
     </div>
-    <nav class="tabs" role="tablist" aria-label="Разделы">
+  </div>
+</header>
+<div class="nav-scrim" id="nav-scrim"></div>
+<nav class="nav-drawer" id="nav-drawer" role="tablist" aria-label="Разделы">
+  <div class="nav-top">
+    <div class="nav-head">
+      <b>Разделы</b><span class="nav-count" id="nav-count"></span>
+      <button class="nav-x" id="nav-close" type="button" aria-label="Закрыть список">✕</button>
+    </div>
+    <input class="nav-q" id="nav-q" type="search" placeholder="Найти раздел: kafka, raft, sql…" aria-label="Поиск раздела">
+  </div>
+  <div class="nav-group">
+    <div class="nav-gt">🏠 Основы и стили</div>
       <button class="tab" role="tab" aria-selected="true"  data-tab="layers"  style="--tabcol:var(--nt)"><span class="dot"></span>0 · Слои предприятия</button>
       <button class="tab" role="tab" aria-selected="false" data-tab="zachem"  style="--tabcol:var(--nt)"><span class="dot"></span>1 · Зачем архитектура</button>
       <button class="tab" role="tab" aria-selected="false" data-tab="life"    style="--tabcol:var(--mn)"><span class="dot"></span>2 · Из жизни 🍕</button>
@@ -19,42 +39,66 @@
       <button class="tab" role="tab" aria-selected="false" data-tab="micro"   style="--tabcol:var(--ms)"><span class="dot"></span>7 · Микросервисы</button>
       <button class="tab" role="tab" aria-selected="false" data-tab="versus"  style="--tabcol:var(--mn)"><span class="dot"></span>8 · Монолит vs микро</button>
       <button class="tab" role="tab" aria-selected="false" data-tab="styles"  style="--tabcol:var(--ms)"><span class="dot"></span>9 · Стили архитектуры</button>
+  </div>
+  <div class="nav-group">
+    <div class="nav-gt">🧩 Домен и границы</div>
       <button class="tab" role="tab" aria-selected="false" data-tab="domains" style="--tabcol:var(--dt)"><span class="dot"></span>10 · Домены и поддомены</button>
       <button class="tab" role="tab" aria-selected="false" data-tab="estorm"  style="--tabcol:var(--dt)"><span class="dot"></span>11 · Event Storming 🟧</button>
       <button class="tab" role="tab" aria-selected="false" data-tab="bc"      style="--tabcol:var(--dt)"><span class="dot"></span>12 · Ограниченные контексты</button>
       <button class="tab" role="tab" aria-selected="false" data-tab="ctxmap"  style="--tabcol:var(--dt)"><span class="dot"></span>13 · Карта контекстов</button>
       <button class="tab" role="tab" aria-selected="false" data-tab="split"   style="--tabcol:var(--ms)"><span class="dot"></span>14 · Как резать 🔪</button>
+  </div>
+  <div class="nav-group">
+    <div class="nav-gt">🗄 Данные между сервисами</div>
       <button class="tab" role="tab" aria-selected="false" data-tab="data"    style="--tabcol:var(--dt)"><span class="dot"></span>15 · Данные и владение</button>
       <button class="tab" role="tab" aria-selected="false" data-tab="consist" style="--tabcol:var(--dt)"><span class="dot"></span>16 · Согласованность</button>
       <button class="tab" role="tab" aria-selected="false" data-tab="saga"    style="--tabcol:var(--dt)"><span class="dot"></span>17 · Саги 🔗</button>
       <button class="tab" role="tab" aria-selected="false" data-tab="outbox"  style="--tabcol:var(--dt)"><span class="dot"></span>18 · Outbox и CDC</button>
       <button class="tab" role="tab" aria-selected="false" data-tab="jobs"    style="--tabcol:var(--dt)"><span class="dot"></span>19 · Фоновые задачи и workflow ⏲</button>
       <button class="tab" role="tab" aria-selected="false" data-tab="cqrs"    style="--tabcol:var(--dt)"><span class="dot"></span>20 · CQRS и Event Sourcing</button>
+  </div>
+  <div class="nav-group">
+    <div class="nav-gt">🔌 Связь и интеграция</div>
       <button class="tab" role="tab" aria-selected="false" data-tab="net"     style="--tabcol:var(--nt)"><span class="dot"></span>21 · Сеть для архитектора 🌐</button>
       <button class="tab" role="tab" aria-selected="false" data-tab="comm"    style="--tabcol:var(--nt)"><span class="dot"></span>22 · Как сервисы говорят</button>
       <button class="tab" role="tab" aria-selected="false" data-tab="api"     style="--tabcol:var(--nt)"><span class="dot"></span>23 · Проектирование API 📐</button>
       <button class="tab" role="tab" aria-selected="false" data-tab="broker"  style="--tabcol:var(--nt)"><span class="dot"></span>24 · Брокеры: Kafka, RabbitMQ 📨</button>
       <button class="tab" role="tab" aria-selected="false" data-tab="eip"     style="--tabcol:var(--nt)"><span class="dot"></span>25 · Интеграция: EIP, ESB, ETL 🔌</button>
       <button class="tab" role="tab" aria-selected="false" data-tab="gw"      style="--tabcol:var(--nt)"><span class="dot"></span>26 · Gateway, BFF, mesh</button>
+  </div>
+  <div class="nav-group">
+    <div class="nav-gt">🔐 Безопасность</div>
       <button class="tab" role="tab" aria-selected="false" data-tab="sec"     style="--tabcol:var(--mn)"><span class="dot"></span>27 · Безопасность 🔐</button>
       <button class="tab" role="tab" aria-selected="false" data-tab="oauth"   style="--tabcol:var(--mn)"><span class="dot"></span>28 · OAuth 2.0, OIDC, JWT 🔑</button>
+  </div>
+  <div class="nav-group">
+    <div class="nav-gt">🛡 Надёжность и масштаб</div>
       <button class="tab" role="tab" aria-selected="false" data-tab="lb"      style="--tabcol:var(--nt)"><span class="dot"></span>29 · Балансировщики ⚖</button>
       <button class="tab" role="tab" aria-selected="false" data-tab="resil"   style="--tabcol:var(--nt)"><span class="dot"></span>30 · Устойчивость 🛡</button>
       <button class="tab" role="tab" aria-selected="false" data-tab="cache"   style="--tabcol:var(--nt)"><span class="dot"></span>31 · Кеш</button>
       <button class="tab" role="tab" aria-selected="false" data-tab="scale"   style="--tabcol:var(--nt)"><span class="dot"></span>32 · Масштаб и состояние</button>
       <button class="tab" role="tab" aria-selected="false" data-tab="tenant"  style="--tabcol:var(--nt)"><span class="dot"></span>33 · Мультиарендность (SaaS) 🏢</button>
+  </div>
+  <div class="nav-group">
+    <div class="nav-gt">⚡ Производительность и базы</div>
       <button class="tab" role="tab" aria-selected="false" data-tab="bigo"    style="--tabcol:var(--nt)"><span class="dot"></span>34 · Сложность: O(1), O(log n), O(n) 📈</button>
       <button class="tab" role="tab" aria-selected="false" data-tab="cap"     style="--tabcol:var(--nt)"><span class="dot"></span>35 · Ёмкость и нагрузочные тесты 📊</button>
       <button class="tab" role="tab" aria-selected="false" data-tab="db"      style="--tabcol:var(--nt)"><span class="dot"></span>36 · Базы данных 🗄</button>
       <button class="tab" role="tab" aria-selected="false" data-tab="explain" style="--tabcol:var(--nt)"><span class="dot"></span>37 · EXPLAIN и планы запросов 🔬</button>
       <button class="tab" role="tab" aria-selected="false" data-tab="dwh"     style="--tabcol:var(--dt)"><span class="dot"></span>38 · Аналитические данные: DWH и потоки 📦</button>
       <button class="tab" role="tab" aria-selected="false" data-tab="search"  style="--tabcol:var(--dt)"><span class="dot"></span>39 · Поиск и объектные хранилища 🔎</button>
+  </div>
+  <div class="nav-group">
+    <div class="nav-gt">🌐 Распределённые системы</div>
       <button class="tab" role="tab" aria-selected="false" data-tab="repl"    style="--tabcol:var(--dt)"><span class="dot"></span>40 · Репликация и переключение 🔁</button>
       <button class="tab" role="tab" aria-selected="false" data-tab="dr"      style="--tabcol:var(--dt)"><span class="dot"></span>41 · Катастрофоустойчивость и multi-region 🌍</button>
       <button class="tab" role="tab" aria-selected="false" data-tab="raft"    style="--tabcol:var(--dt)"><span class="dot"></span>42 · Консенсус и Raft 🗳</button>
       <button class="tab" role="tab" aria-selected="false" data-tab="dtx"     style="--tabcol:var(--dt)"><span class="dot"></span>43 · Распределённые транзакции, 2PC</button>
       <button class="tab" role="tab" aria-selected="false" data-tab="pay"     style="--tabcol:var(--dt)"><span class="dot"></span>44 · Платежи и деньги 💳</button>
       <button class="tab" role="tab" aria-selected="false" data-tab="time"    style="--tabcol:var(--dt)"><span class="dot"></span>45 · Время и порядок ⏱</button>
+  </div>
+  <div class="nav-group">
+    <div class="nav-gt">🚀 Инфраструктура и выпуск</div>
       <button class="tab" role="tab" aria-selected="false" data-tab="docker"  style="--tabcol:var(--ms)"><span class="dot"></span>46 · Контейнеры и Docker 🐳</button>
       <button class="tab" role="tab" aria-selected="false" data-tab="k8s"     style="--tabcol:var(--ms)"><span class="dot"></span>47 · Kubernetes ☸</button>
       <button class="tab" role="tab" aria-selected="false" data-tab="cicd"    style="--tabcol:var(--ms)"><span class="dot"></span>48 · CI/CD и инфраструктура как код ⚙</button>
@@ -62,17 +106,23 @@
       <button class="tab" role="tab" aria-selected="false" data-tab="release" style="--tabcol:var(--ms)"><span class="dot"></span>50 · Релизы 🚀</button>
       <button class="tab" role="tab" aria-selected="false" data-tab="legacy"  style="--tabcol:var(--mn)"><span class="dot"></span>51 · Рефакторинг легаси 🧬</button>
       <button class="tab" role="tab" aria-selected="false" data-tab="obs"     style="--tabcol:var(--ms)"><span class="dot"></span>52 · Наблюдаемость 🔭</button>
+  </div>
+  <div class="nav-group">
+    <div class="nav-gt">📝 Документация и ИИ</div>
       <button class="tab" role="tab" aria-selected="false" data-tab="docs"    style="--tabcol:var(--nt)"><span class="dot"></span>53 · Документирование архитектуры 📝</button>
       <button class="tab" role="tab" aria-selected="false" data-tab="llm"     style="--tabcol:var(--ms)"><span class="dot"></span>54 · LLM и ИИ в архитектуре 🤖</button>
+  </div>
+  <div class="nav-group">
+    <div class="nav-gt">🎯 Практика и справочник</div>
       <button class="tab" role="tab" aria-selected="false" data-tab="catalog" style="--tabcol:var(--nt)"><span class="dot"></span>55 · Каталог паттернов 📚</button>
       <button class="tab" role="tab" aria-selected="false" data-tab="duty"    style="--tabcol:var(--ms)"><span class="dot"></span>56 · Дежурный 🚨</button>
       <button class="tab" role="tab" aria-selected="false" data-tab="cases"   style="--tabcol:var(--ms)"><span class="dot"></span>57 · Разборы типовых систем 🧱</button>
       <button class="tab" role="tab" aria-selected="false" data-tab="practice" style="--tabcol:var(--ms)"><span class="dot"></span>58 · Практика 🎯</button>
       <button class="tab" role="tab" aria-selected="false" data-tab="capstone" style="--tabcol:var(--ms)"><span class="dot"></span>59 · Капстоун 🏗</button>
       <button class="tab" role="tab" aria-selected="false" data-tab="gloss"   style="--tabcol:var(--nt)"><span class="dot"></span>Глоссарий</button>
-    </nav>
   </div>
-</header>
+  <p class="nav-empty" id="nav-empty" hidden>Ничего не нашлось.</p>
+</nav>
 
 <script>
 "use strict";

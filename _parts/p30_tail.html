@@ -1,25 +1,83 @@
 <script>
-/* ---------- вкладки ---------- */
+/* ---------- вкладки и навигация ----------
+   Вкладки живут в выезжающей панели (#nav-drawer), сгруппированные по темам.
+   В шапке — кнопка «Разделы», текущий раздел и шаги ← →. На широком экране
+   панель закреплена слева и не закрывается. */
 (function(){
   const tabs = $$('.tab');
-  function activate(id){
+  const drawer = $('#nav-drawer'), scrim = $('#nav-scrim'), openB = $('#nav-open');
+  const q = $('#nav-q'), empty = $('#nav-empty');
+  const pinned = () => !!(window.matchMedia && window.matchMedia('(min-width:1500px)').matches);
+
+  function setOpen(on){
+    if(!drawer) return;
+    drawer.classList.toggle('open', on);
+    if(scrim) scrim.classList.toggle('open', on);
+    if(openB) openB.setAttribute('aria-expanded', on ? 'true' : 'false');
+    if(on){
+      const cur = drawer.querySelector('.tab[aria-selected="true"]');
+      if(cur && cur.scrollIntoView) cur.scrollIntoView({block:'center'});
+    }
+  }
+  function where(id){
+    const i = tabs.findIndex(x => x.dataset.tab === id), t = tabs[i];
+    if(!t) return;
+    const g = t.closest('.nav-group'), gt = g && g.querySelector('.nav-gt');
+    const gl = $('#nav-group'), tl = $('#nav-title');
+    if(gl) gl.textContent = (gt ? gt.textContent.replace(/^S+s/, '') + ' · ' : '') + (i + 1) + ' из ' + tabs.length;
+    if(tl) tl.textContent = t.textContent.replace(/^s*d+s*·s*/, '').trim();
+    const pv = $('#nav-prev'), nx = $('#nav-next');
+    if(pv) pv.disabled = i <= 0;
+    if(nx) nx.disabled = i >= tabs.length - 1;
+  }
+  function activate(id, quiet){
     tabs.forEach(t => t.setAttribute('aria-selected', t.dataset.tab === id));
     $$('.panel').forEach(p => p.classList.toggle('active', p.id === id));
-    const t = tabs.find(x => x.dataset.tab === id);
-    if(t) t.scrollIntoView({block:'nearest', inline:'nearest'});
+    where(id);
     window.scrollTo({top:0, behavior:'instant'});
-    try { location.hash = id; } catch(e){}
+    if(!quiet){ try { location.hash = id; } catch(e){} }
   }
-  tabs.forEach(t => t.addEventListener('click', () => activate(t.dataset.tab)));
+  const curIdx = () => tabs.findIndex(t => t.getAttribute('aria-selected') === 'true');
+  const step = d => { const n = clamp(curIdx() + d, 0, tabs.length - 1); if(tabs[n]) activate(tabs[n].dataset.tab); };
+
+  tabs.forEach(t => t.addEventListener('click', () => { activate(t.dataset.tab); if(!pinned()) setOpen(false); }));
+  if(openB) openB.addEventListener('click', () => setOpen(!drawer.classList.contains('open')));
+  const wb = $('#nav-where'); if(wb) wb.addEventListener('click', () => setOpen(true));
+  const cb = $('#nav-close'); if(cb) cb.addEventListener('click', () => setOpen(false));
+  if(scrim) scrim.addEventListener('click', () => setOpen(false));
+  const pv = $('#nav-prev'), nx = $('#nav-next');
+  if(pv) pv.addEventListener('click', () => step(-1));
+  if(nx) nx.addEventListener('click', () => step(1));
+
+  /* пустые группы (разделы ещё готовятся и скрыты) не показываем */
+  $$('.nav-group').forEach(g => { if(!g.querySelector('.tab')) g.remove(); });
+  const cnt = $('#nav-count'); if(cnt) cnt.textContent = tabs.length + ' разделов';
+
+  if(q) q.addEventListener('input', () => {
+    const f = q.value.trim().toLowerCase();
+    let shown = 0;
+    tabs.forEach(t => {
+      const ok = !f || (t.textContent + ' ' + t.dataset.tab).toLowerCase().includes(f);
+      t.hidden = !ok; if(ok) shown++;
+    });
+    $$('.nav-group').forEach(g => { g.hidden = !g.querySelector('.tab:not([hidden])'); });
+    if(empty) empty.hidden = shown > 0;
+  });
+  if(q) q.addEventListener('keydown', e => {
+    if(e.key !== 'Enter') return;
+    const first = tabs.find(t => !t.hidden);
+    if(first) first.click();
+  });
+
   document.addEventListener('keydown', e => {
+    if(e.key === 'Escape' && drawer && drawer.classList.contains('open')){ setOpen(false); return; }
     if(e.target.matches('input, textarea, select')) return;
     if(e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
-    const cur = tabs.findIndex(t => t.getAttribute('aria-selected') === 'true');
-    const nxt = clamp(cur + (e.key === 'ArrowRight' ? 1 : -1), 0, tabs.length - 1);
-    if(nxt !== cur) activate(tabs[nxt].dataset.tab);
+    step(e.key === 'ArrowRight' ? 1 : -1);
   });
   const h = (location.hash || '').slice(1);
-  if(h && tabs.some(t => t.dataset.tab === h)) activate(h);
+  const start = tabs.some(t => t.dataset.tab === h) ? h : (tabs.find(t => t.getAttribute('aria-selected') === 'true') || tabs[0] || {dataset:{}}).dataset.tab;
+  if(start) activate(start, true);
 })();
 
 /* ---------- тема ---------- */
