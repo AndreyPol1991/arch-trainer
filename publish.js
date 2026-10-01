@@ -43,7 +43,7 @@ const outside = (html, fn) => html.split(/(<script>[\s\S]*?<\/script>)/).map(
   (chunk, i) => i % 2 ? chunk : fn(chunk)).join('');
 
 let rerouted = 0, disabled = 0;
-const out = parts.filter(p => !p.stub).map(p => {
+const html = parts.filter(p => !p.stub).map(p => {
   if(p === header) return p.src;
   return outside(p.src, html => html
     .replace(/(<div class="nextbar">\s*<div><b>Дальше →<\/b>) <span class="sub">[\s\S]*?<\/span><\/div>\s*<button data-goto="([^"]+)">[^<]*<\/button>/g,
@@ -58,7 +58,10 @@ const out = parts.filter(p => !p.stub).map(p => {
       disabled++;
       return b + 'data-goto="' + id + '" title="Раздел скоро появится"';
     }));
-}).join('').replace('</body>', `<script>
+}).join('');
+/* перед ПОСЛЕДНИМ </body>: в примерах кода внутри разделов тоже встречается «</body>» */
+const cut = html.lastIndexOf('</body>');
+const out = html.slice(0, cut) + `<script>
 /* ссылки на разделы, которые ещё готовятся: подсказка вместо тишины */
 document.addEventListener('click', e => {
   const b = e.target.closest('[data-goto]'); if(!b) return;
@@ -72,7 +75,7 @@ document.addEventListener('click', e => {
   clearTimeout(t._h); t._h = setTimeout(() => { t.style.display = 'none'; }, 2200);
 });
 </script>
-</body>`);
+</body>` + html.slice(cut + 7);
 
 fs.writeFileSync(path.join(__dirname, 'index.html'), out);
 console.log('разделов в сборке:', order.length - hidden.size, 'из', order.length);
