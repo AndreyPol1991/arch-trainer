@@ -728,7 +728,7 @@
       const box = b.closest('.esx-fxi'), it = FIX[+box.dataset.esxFx], ch = it.opts[+b.dataset.j];
       const right = it.opts.find(o => o.ok);
       box.querySelectorAll('.opts button').forEach(x => { x.disabled = true; if(it.opts[+x.dataset.j].ok) x.classList.add('correct'); });
-      if(!ch.ok) b.classList.add('wrong');
+      if(!ch.ok){ b.classList.add('wrong'); Progress.miss('esx-fix-score', b); }
       const stEl = box.querySelector('[data-f=st]');
       stEl.innerHTML = '<span class="k">стало</span>' + esc(right.t);
       stEl.classList.remove('flip'); void stEl.offsetWidth; stEl.classList.add('flip');

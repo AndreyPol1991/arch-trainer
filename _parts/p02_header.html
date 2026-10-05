@@ -170,13 +170,17 @@ var Progress = (function(){
     if(p) p.textContent = got + ' / ' + max + ' баллов';
   }
   return {
-    register(key, max, label){ reg[key] = max; if(label) LABELS[key] = label; draw(); },
+    register(key, max, label){ reg[key] = max; if(label) LABELS[key] = label; bridge.place(key); draw(); },
     report(key, val){
       if(!(key in reg)) reg[key] = val;
-      if((data[key] || 0) < val){ data[key] = val; save(); bridge.solved(key, val); }
+      if((data[key] || 0) < val){ data[key] = val; save(); }
       draw();
+      bridge.check();
     },
-    reset(){ data = {}; save(); draw(); },
+    /* неверный ответ в задании: key — ключ прогресса задания, el — его корень
+       (по нему находится раздел, если ключа нет). Нужен мосту для attempts. */
+    miss(key, el){ bridge.miss(key, el); },
+    reset(){ data = {}; save(); bridge.reset(); draw(); },
     get data(){ return {...data}; },
     get reg(){ return {...reg}; },
     labels: LABELS, draw,
@@ -184,21 +188,221 @@ var Progress = (function(){
 })();
 
 /* ---------- мост к платформе (протокол trainer/1) ----------
-   Наружу уходит только факт: код задания и набранный балл. Что этот
-   код подтверждает в графе навыков — решает платформа, у неё манифест.
-   Без платформы тренажёр работает точно так же, просто некому слать. */
-var bridge = {
-  embedded: window.parent !== window,
-  target: '*',
-  send(m){ if(this.embedded) window.parent.postMessage({protocol:'trainer/1', trainer:'architecture', ...m}, this.target); },
-  solved(task, score){ this.send({kind:'solved', task, score}); },
-};
-window.addEventListener('message', e => {
-  const d = e.data;
-  if(typeof d !== 'object' || d === null || d.protocol !== 'trainer/1') return;
-  if(d.kind === 'hello'){ bridge.target = e.origin; }
-});
-bridge.send({kind:'ready'});
+   Открыт внутри платформы AMP School (в рамке) — сообщает ей о решённых
+   заданиях, и они попадают в профиль навыков. Открыт сам по себе — всё как
+   раньше: наружу не уходит ничего.
+
+   «Задание» платформы — раздел целиком: засчитывается, когда в разделе набраны
+   все баллы (все ключи Progress, зарегистрированные скриптом этой вкладки).
+   Отдельные задания — две игры, пять эпизодов и развилки «Практики», капстоун.
+   Какой навык подтверждает задание, знает только платформа — у неё манифест
+   (apps/web/src/content/trainers/arch.ts). Новое задание сначала добавляют
+   туда, потом в TASKS ниже: о чём платформа не знает, то молча не засчитается.
+
+   Наружу уходит код задания, номер успешной попытки и число подсказок:
+   attempts = 1 + неверные ответы в заданиях раздела до успеха (не больше 99),
+   неверными считаются ответы в движках заданий и играх, а не опыты на
+   симуляторах; лестниц подсказок в тренажёре нет — hints всегда 0.
+   Решённое запоминается и без платформы: открыли тренажёр в платформе
+   позже — после hello уходит всё решённое, чего нет в профиле. */
+var bridge = (function(){
+  const PROTOCOL = 'trainer/1', TRAINER = 'arch', KEY = 'arch-bridge-v1', MAX_ATTEMPTS = 99;
+  /* tab — вкладка; keys / roots — свои ключи прогресса или корни заданий
+     (без них задание — весь раздел: все ключи вкладки, кроме чужих);
+     need — доля максимума, если полный балл не нужен; or — ключ, полный балл
+     которого тоже засчитывает задание (прогресс, набранный до моста);
+     n — подпись в отметке, когда у вкладки несколько заданий. */
+  const TASKS = [
+    {id:'sec-layers',           tab:'layers'},
+    {id:'sec-why',              tab:'zachem'},
+    {id:'game-cafe',            tab:'life',     keys:['cf-game'], n:'игра «Кафе растёт»'},
+    {id:'sec-life',             tab:'life',     n:'задания раздела'},
+    {id:'sec-monolith',         tab:'mono'},
+    {id:'sec-modular',          tab:'modular'},
+    {id:'sec-microservices',    tab:'micro'},
+    {id:'sec-mono-vs-micro',    tab:'versus'},
+    {id:'sec-styles',           tab:'styles'},
+    {id:'sec-domains',          tab:'domains'},
+    {id:'sec-event-storming',   tab:'estorm'},
+    {id:'sec-bounded-contexts', tab:'bc'},
+    {id:'sec-context-map',      tab:'ctxmap'},
+    {id:'sec-split',            tab:'split'},
+    {id:'sec-data-ownership',   tab:'data'},
+    {id:'sec-consistency',      tab:'consist'},
+    {id:'sec-saga',             tab:'saga'},
+    {id:'sec-outbox',           tab:'outbox'},
+    {id:'sec-cqrs',             tab:'cqrs'},
+    {id:'sec-network',          tab:'net'},
+    {id:'sec-communication',    tab:'comm'},
+    {id:'sec-api',              tab:'api'},
+    {id:'sec-brokers',          tab:'broker'},
+    {id:'sec-gateway',          tab:'gw'},
+    {id:'sec-frontend',         tab:'front'},
+    {id:'sec-security',         tab:'sec'},
+    {id:'sec-oauth',            tab:'oauth'},
+    {id:'sec-load-balancing',   tab:'lb'},
+    {id:'sec-resilience',       tab:'resil'},
+    {id:'sec-cache',            tab:'cache'},
+    {id:'sec-scale',            tab:'scale'},
+    {id:'sec-complexity',       tab:'bigo'},
+    {id:'sec-databases',        tab:'db'},
+    {id:'sec-explain',          tab:'explain'},
+    {id:'sec-replication',      tab:'repl'},
+    {id:'sec-raft',             tab:'raft'},
+    {id:'sec-distributed-tx',   tab:'dtx'},
+    {id:'sec-time',             tab:'time'},
+    {id:'sec-docker',           tab:'docker'},
+    {id:'sec-kubernetes',       tab:'k8s'},
+    {id:'sec-cicd',             tab:'cicd'},
+    {id:'sec-releases',         tab:'release'},
+    {id:'sec-legacy',           tab:'legacy'},
+    {id:'sec-observability',    tab:'obs'},
+    {id:'sec-docs',             tab:'docs'},
+    {id:'game-duty',            tab:'duty',     keys:['dt-game'], n:'игра «Смена дежурного»'},
+    {id:'sec-duty',             tab:'duty',     n:'задания раздела'},
+    {id:'practice-start',       tab:'practice', roots:['prx-e1'], or:'pr-score', n:'эпизод 1'},
+    {id:'practice-money',       tab:'practice', roots:['prx-e2'], or:'pr-score', n:'эпизод 2'},
+    {id:'practice-growth',      tab:'practice', roots:['prx-e3'], or:'pr-score', n:'эпизод 3'},
+    {id:'practice-teams',       tab:'practice', roots:['prx-e4'], or:'pr-score', n:'эпизод 4'},
+    {id:'practice-fires',       tab:'practice', roots:['prx-e5'], or:'pr-score', n:'эпизод 5'},
+    {id:'practice-forks',       tab:'practice', keys:['prx-fork'], n:'развилки'},
+    {id:'capstone',             tab:'capstone', keys:['cap', 'cpx-score'], need:{cap:.75}},
+  ];
+
+  const embedded = (() => { try { return window.parent !== window; } catch(e){ return true; } })();
+  let target = '*', hello = false, ready = false;
+  const keyTab = {};            // ключ прогресса → вкладка, чей скрипт его зарегистрировал
+  const sent = new Set();       // отправлено в этом окне: повтор внутри сессии платформа всё равно отбросит
+  const inProfile = new Set();  // зачтено платформой (hello.solved и accepted)
+  let st = load();              // {done: {задание: attempts}, miss: {ключ или #корень: {n, t: вкладка}}}
+
+  function load(){
+    try {
+      const s = JSON.parse(localStorage.getItem(KEY) || 'null');
+      if(s && typeof s === 'object') return {done: s.done || {}, miss: s.miss || {}};
+    } catch(e){}
+    return {done:{}, miss:{}};
+  }
+  function save(){ try { localStorage.setItem(KEY, JSON.stringify(st)); } catch(e){} }
+  function send(m){
+    if(!embedded) return;
+    try { window.parent.postMessage(Object.assign({protocol:PROTOCOL, trainer:TRAINER}, m), target); } catch(e){}
+  }
+  const panelOf = el => { const p = el && el.closest ? el.closest('section.panel') : null; return p ? p.id : null; };
+  /* скрипт вкладки выполняется сразу за её разметкой: пока страница
+     разбирается, последняя разобранная панель — та, чей это скрипт */
+  function parsingTab(){
+    if(document.readyState !== 'loading') return null;
+    const s = document.getElementsByTagName('section');
+    for(let i = s.length - 1; i >= 0; i--) if(s[i].classList.contains('panel')) return s[i].id;
+    return null;
+  }
+  const own = t => (t.keys || []).concat((t.roots || []).map(r => '#' + r));
+  const isSection = t => !t.keys && !t.roots;
+  function claimed(t){
+    const c = new Set();
+    TASKS.forEach(x => { if(x !== t && x.tab === t.tab) own(x).forEach(b => c.add(b)); });
+    return c;
+  }
+  function keysOf(t){
+    if(!isSection(t)) return t.keys || [];
+    const c = claimed(t);
+    return Object.keys(keyTab).filter(k => keyTab[k] === t.tab && !c.has(k));
+  }
+  function complete(t){
+    const P = Progress.data, R = Progress.reg;
+    if(t.or && R[t.or] > 0 && (P[t.or] || 0) >= R[t.or]) return true;
+    if(t.roots) return t.roots.every(id => {
+      const r = document.getElementById(id), items = r ? [...r.querySelectorAll('.rtask')] : [];
+      return items.length > 0 && items.every(x => x.querySelector('.rwhy.show') && !x.querySelector('.rb.wrong'));
+    });
+    const keys = t.k || keysOf(t);
+    return keys.length > 0 && keys.every(k => R[k] > 0 &&
+      (P[k] || 0) >= Math.ceil(R[k] * ((t.need && t.need[k]) || 1)));
+  }
+  function attempts(t){
+    const mine = new Set(own(t)), c = claimed(t), sec = isSection(t);
+    let n = 0;
+    for(const b in st.miss){
+      const m = st.miss[b];
+      if(mine.has(b) || (sec && m.t === t.tab && !c.has(b))) n += m.n || 0;
+    }
+    return Math.min(MAX_ATTEMPTS, 1 + n);
+  }
+  function solved(id){
+    if(sent.has(id) || !(id in st.done)) return;
+    sent.add(id);
+    send({kind:'solved', task:id, attempts:st.done[id], hints:0});
+  }
+  /* решённое раньше (в том числе без платформы), но не зачтённое — один раз за окно */
+  function flush(){ Object.keys(st.done).forEach(id => { if(!inProfile.has(id)) solved(id); }); }
+
+  /* отметка «в профиле» — только то, что подтвердила платформа */
+  function paint(){
+    const byTab = {};
+    TASKS.forEach(t => { if(inProfile.has(t.id)) (byTab[t.tab] = byTab[t.tab] || []).push(t); });
+    Object.keys(byTab).forEach(tab => {
+      const names = byTab[tab].map(t => t.n || 'раздел');
+      const many = TASKS.filter(t => t.tab === tab).length > 1;
+      const btn = $$('.tab').find(b => b.dataset.tab === tab);
+      if(btn){ btn.setAttribute('data-amp', ''); btn.title = 'В профиле навыков: ' + names.join(', '); }
+      const panel = document.getElementById(tab);
+      if(!panel) return;
+      let chip = [...panel.children].find(c => c.classList.contains('amp-chip'));
+      if(!chip){ chip = document.createElement('div'); chip.className = 'amp-chip'; panel.insertBefore(chip, panel.firstChild); }
+      chip.textContent = '✓ В профиле навыков' + (many ? ': ' + names.join(', ') : '');
+    });
+  }
+
+  function check(){
+    if(!ready) return;
+    let changed = false;
+    TASKS.forEach(t => {
+      if(t.id in st.done || !complete(t)) return;
+      st.done[t.id] = attempts(t); changed = true;
+      if(hello) solved(t.id);
+    });
+    if(changed) save();
+  }
+  function start(){
+    ready = true;
+    TASKS.forEach(t => { if(isSection(t)) t.k = keysOf(t); });
+    check();               // пройденное до этого открытия: попытки из истории, без неё — 1
+    paint();
+    send({kind:'ready'});
+    if(hello) flush();
+  }
+
+  window.addEventListener('message', e => {
+    if(!embedded || e.source !== window.parent) return;
+    const d = e.data;
+    if(typeof d !== 'object' || d === null || d.protocol !== PROTOCOL) return;
+    if(d.kind === 'hello'){
+      hello = true;
+      target = /^https?:\/\//.test(e.origin) ? e.origin : '*';
+      (Array.isArray(d.solved) ? d.solved : []).forEach(id => { if(typeof id === 'string') inProfile.add(id); });
+      paint();
+      if(ready) flush();
+    }
+    if(d.kind === 'accepted' && typeof d.task === 'string'){ inProfile.add(d.task); paint(); }
+  });
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
+
+  return {
+    place(key){ if(!(key in keyTab)){ const t = parsingTab(); if(t) keyTab[key] = t; } },
+    miss(key, el){
+      const b = key || (el && el.id ? '#' + el.id : null); if(!b) return;
+      const m = st.miss[b] || (st.miss[b] = {n:0, t:null});
+      m.n++;
+      m.t = (key && keyTab[key]) || panelOf(el) || m.t;
+      save();
+    },
+    check,
+    reset(){ st = {done:{}, miss:{}}; save(); },
+    tasks: TASKS,
+    get keys(){ return {...keyTab}; },
+  };
+})();
 
 /* ---------- конфетти ---------- */
 function confetti(n){
@@ -429,7 +633,7 @@ function renderTasks(rootId, items, scoreId, totalId){
     const it = items[+task.dataset.i];
     const chosen = it.opts[+btn.dataset.j], correct = it.opts.find(o => o.ok);
     task.querySelectorAll('.rb').forEach(b => { b.disabled = true; if(it.opts[+b.dataset.j].ok) b.classList.add('correct'); });
-    if(!chosen.ok) btn.classList.add('wrong');
+    if(!chosen.ok){ btn.classList.add('wrong'); Progress.miss(scoreId, root); }
     const why = task.querySelector('.rwhy');
     why.classList.add('show');
     why.innerHTML = (chosen.ok
@@ -463,7 +667,7 @@ function renderSort(rootId, items, buckets, scoreId, totalId){
     const task = btn.closest('.rtask'), it = items[+task.dataset.i];
     const okId = it.bucket, chosen = btn.dataset.b;
     task.querySelectorAll('.rb').forEach(b => { b.disabled = true; if(b.dataset.b === okId) b.classList.add('correct'); });
-    if(chosen !== okId) btn.classList.add('wrong');
+    if(chosen !== okId){ btn.classList.add('wrong'); Progress.miss(scoreId, root); }
     const why = task.querySelector('.rwhy');
     why.classList.add('show');
     const okName = buckets.find(b => b.id === okId).n;

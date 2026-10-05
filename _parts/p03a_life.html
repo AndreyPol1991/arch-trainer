@@ -125,7 +125,7 @@
     const r = R[i], o = r.opts[+b.dataset.j];
     const task = b.closest('.rtask');
     task.querySelectorAll('.rb').forEach(x => { x.disabled = true; if(r.opts[+x.dataset.j].ok) x.classList.add('correct'); });
-    if(!o.ok) b.classList.add('wrong');
+    if(!o.ok){ b.classList.add('wrong'); Progress.miss('cf-game', b); }
     if(o.ok){ ok += r.load; } else { bad += Math.round(r.load * 0.4); }
     el('cf-ok').textContent = ok; el('cf-bad').textContent = bad;
     const why = task.querySelector('.rwhy');

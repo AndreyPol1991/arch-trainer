@@ -343,7 +343,7 @@
     const b = e.target.closest('.rb'); if(!b || b.disabled) return;
     const c = INC[i], o = c.opts[+b.dataset.j], task = b.closest('.rtask');
     task.querySelectorAll('.rb').forEach(x => { x.disabled = true; if(c.opts[+x.dataset.j].ok) x.classList.add('correct'); });
-    if(!o.ok) b.classList.add('wrong');
+    if(!o.ok){ b.classList.add('wrong'); Progress.miss('dt-game', b); }
     mins += o.m; if(o.ok) good++;
     el('dt-min').textContent = mins; el('dt-ok').textContent = good;
     const why = task.querySelector('.rwhy');
@@ -694,6 +694,7 @@
     const n = Q[node], o = n.o[+b.dataset.q], task = b.closest('.rtask');
     task.querySelectorAll('button[data-q]').forEach(x => { x.disabled = true; });
     if(o.g !== 'meh') b.classList.add(o.g === 'ok' ? 'correct' : 'wrong');
+    if(o.g === 'bad') Progress.miss('dux-quest', b);
     clock += o.m;
     if(n.pain) pain += o.m;
     if(o.g === 'ok') okN++;

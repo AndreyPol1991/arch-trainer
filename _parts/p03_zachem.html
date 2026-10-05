@@ -2594,7 +2594,7 @@
   }
   function check(){
     const a = A[ai], s = sel();
-    let good = 0;
+    let good = 0, wrong = 0;
     PARTS.forEach(p => {
       const box = g('zhx-qas-grid').querySelector('.zhx-qas-part[data-p="' + p.k + '"]');
       const fb = box.querySelector('.zhx-qas-fb');
@@ -2602,8 +2602,9 @@
       if(v == null){ box.className = 'zhx-qas-part bad'; fb.textContent = 'Не выбрано.'; return; }
       const o = a[p.k][v];
       if(o.ok){ box.className = 'zhx-qas-part ok'; fb.textContent = '✓ Годится.'; good++; }
-      else { box.className = 'zhx-qas-part bad'; fb.textContent = '✕ ' + o.w; }
+      else { box.className = 'zhx-qas-part bad'; fb.textContent = '✕ ' + o.w; wrong++; }
     });
+    if(wrong) Progress.miss('zhx-qas', g('zhx-qas-grid'));
     if(good === PARTS.length){
       const t = k => esc(a[k][s[k]].t);
       done.add(a.id);
@@ -2706,6 +2707,7 @@
       msg(g('zhx-nfr-msg'), 'ok', 'Готово: требование можно проверить, и два разных человека проверят его одинаково.' + (solved.size < R.length ? ' Переходите к следующему.' : ' Все шесть переписаны!'));
       paintPick();
     } else if(traps.length){
+      Progress.miss('zhx-nfr', g('zhx-nfr-msg'));
       msg(g('zhx-nfr-msg'), 'err', traps.map(o => '<b>«' + esc(o.c.x) + '»</b> — ' + o.c.w).join('<br>'));
     } else {
       const miss = CATS.filter(k => !have[k[0]]).map(k => k[1]);

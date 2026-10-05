@@ -2482,7 +2482,7 @@ git log --since="6 months ago" --name-only --pretty=format:"@%h" \
     fcDone[i] = b.dataset.q;
     card.querySelectorAll('button[data-q]').forEach(x => { x.disabled = true; if(x.dataset.q === f.q) x.classList.add('spx-ok'); });
     const ok = b.dataset.q === f.q;
-    if(!ok) b.classList.add('spx-no'); else fcOk.add(i);
+    if(!ok){ b.classList.add('spx-no'); Progress.miss('spx-first-score', b); } else fcOk.add(i);
     const w = card.querySelector('.spx-fcw'); w.classList.add('show');
     w.innerHTML = (ok ? '<b style="color:var(--ok)">Верно. </b>' : '<b style="color:var(--danger)">Правильно — «' + QD[f.q][0] + '». </b>') + f.why;
     E('spx-first-score').textContent = fcOk.size;

@@ -97,6 +97,9 @@
   .tab .dot{width:8px; height:8px; border-radius:50%; background:var(--tabcol); flex:none}
   .tab[aria-selected="true"]{color:var(--ink); font-weight:650; border-left-color:var(--tabcol); background:color-mix(in srgb, var(--tabcol) 13%, var(--surface))}
   .tab[hidden]{display:none}
+  /* отметка «в профиле»: раздел зачтён платформой (только когда тренажёр открыт в ней) */
+  .tab[data-amp]::after{content:"в профиле"; margin-left:auto; flex:none; font:600 10.5px var(--mono); color:var(--ok); background:var(--ok-bg); border-radius:999px; padding:1px 7px}
+  .amp-chip{display:inline-block; margin:0 0 12px; font:600 12px var(--mono); color:var(--ok); background:var(--ok-bg); border:1px solid color-mix(in srgb, var(--ok) 35%, transparent); border-radius:999px; padding:3px 11px}
   .tab:focus-visible, .navbtn:focus-visible, .navstep:focus-visible, .navwhere:focus-visible, .nav-x:focus-visible{outline:2px solid var(--nt); outline-offset:2px}
   @media (min-width:1500px){
     body{padding-left:300px}

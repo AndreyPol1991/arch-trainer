@@ -463,6 +463,7 @@
     const b = e.target.closest('.rb'); if(!b || chosen) return;
     const o = STEPS[i].opts[+b.dataset.j];
     pts += o.pts; doc.push(o.doc); picks.push(o); chosen = o;
+    if(o.pts === 0) Progress.miss('cap', b);
     draw();
     Progress.report('cap', pts);
   });

@@ -416,6 +416,7 @@
       Object.keys(o.d).forEach(k => { v[k] += o.d[k]; });
       hist[i] = o.k;
       if(o.k === 'good'){ best++; if(best > bestEver){ bestEver = best; } }
+      else Progress.miss('prx-fork', b);
       if(bestEl) bestEl.textContent = Math.max(bestEver, +bestEl.textContent || 0);
       Progress.report('prx-fork', best);
       render(o.d);
