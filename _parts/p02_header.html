@@ -114,7 +114,7 @@
   <div class="nav-group">
     <div class="nav-gt">📝 Документация и ИИ</div>
       <button class="tab" role="tab" aria-selected="false" data-tab="docs"    style="--tabcol:var(--nt)"><span class="dot"></span>54 · Документирование архитектуры 📝</button>
-      <button class="tab" role="tab" aria-selected="false" data-tab="llm"     style="--tabcol:var(--ms)"><span class="dot"></span>55 · LLM и ИИ в архитектуре 🤖</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="llm"     style="--tabcol:var(--ms)"><span class="dot"></span>55 · ИИ-система на C4 🤖</button>
   </div>
   <div class="nav-group">
     <div class="nav-gt">🎯 Практика и справочник</div>
@@ -180,6 +180,9 @@ var Progress = (function(){
     /* неверный ответ в задании: key — ключ прогресса задания, el — его корень
        (по нему находится раздел, если ключа нет). Нужен мосту для attempts. */
     miss(key, el){ bridge.miss(key, el); },
+    /* открыта ступень подсказки n (с единицы) у задания с ключом key. Нужна мосту для hints. */
+    hint(key, n){ bridge.hint(key, n); },
+    hintLevel(key){ return bridge.hintLevel(key); },
     reset(){ data = {}; save(); bridge.reset(); draw(); },
     get data(){ return {...data}; },
     get reg(){ return {...reg}; },
@@ -202,7 +205,10 @@ var Progress = (function(){
    Наружу уходит код задания, номер успешной попытки и число подсказок:
    attempts = 1 + неверные ответы в заданиях раздела до успеха (не больше 99),
    неверными считаются ответы в движках заданий и играх, а не опыты на
-   симуляторах; лестниц подсказок в тренажёре нет — hints всегда 0.
+   симуляторах. hints — сколько ступеней лестницы подсказок (renderHints)
+   было открыто к моменту решения; у заданий без лестницы — 0. Число ступеней
+   лестницы обязано совпадать с hints задания в манифесте платформы: больше
+   она не примет.
    Решённое запоминается и без платформы: открыли тренажёр в платформе
    позже — после hello уходит всё решённое, чего нет в профиле. */
 var bridge = (function(){
@@ -244,6 +250,11 @@ var bridge = (function(){
     {id:'sec-resilience',       tab:'resil'},
     {id:'sec-cache',            tab:'cache'},
     {id:'sec-scale',            tab:'scale'},
+    /* мультиарендность: задания мельче раздела — у каждого свой ключ */
+    {id:'tenant-isolation',     tab:'tenant',   keys:['tnx-iso'],   n:'модель изоляции'},
+    {id:'tenant-context',       tab:'tenant',   keys:['tnx-ctx'],   n:'откуда берётся клиент'},
+    {id:'tenant-noisy-neighbor', tab:'tenant',  keys:['tnx-noisy'], n:'шумный сосед'},
+    {id:'tenant-leak-hunt',     tab:'tenant',   keys:['tnx-leak'],  n:'поиск утечек'},
     {id:'sec-complexity',       tab:'bigo'},
     {id:'sec-databases',        tab:'db'},
     {id:'sec-explain',          tab:'explain'},
@@ -258,6 +269,12 @@ var bridge = (function(){
     {id:'sec-legacy',           tab:'legacy'},
     {id:'sec-observability',    tab:'obs'},
     {id:'sec-docs',             tab:'docs'},
+    /* ИИ-система на C4: задания мельче раздела — у каждого свой ключ */
+    {id:'ai-containers',        tab:'llm',      keys:['aix-cont'],  n:'контейнеры ИИ-системы'},
+    {id:'ai-roles-access',      tab:'llm',      keys:['aix-roles'], n:'роли и доступы'},
+    {id:'ai-outbound-data',     tab:'llm',      keys:['aix-out'],   n:'что уходит наружу'},
+    {id:'ai-failure-paths',     tab:'llm',      keys:['aix-fail'],  n:'отказы в сценарии'},
+    {id:'ai-quality-scenario',  tab:'llm',      keys:['aix-qas'],   n:'сценарии качества для ИИ'},
     {id:'game-duty',            tab:'duty',     keys:['dt-game'], n:'игра «Смена дежурного»'},
     {id:'sec-duty',             tab:'duty',     n:'задания раздела'},
     {id:'practice-start',       tab:'practice', roots:['prx-e1'], or:'pr-score', n:'эпизод 1'},
@@ -274,14 +291,16 @@ var bridge = (function(){
   const keyTab = {};            // ключ прогресса → вкладка, чей скрипт его зарегистрировал
   const sent = new Set();       // отправлено в этом окне: повтор внутри сессии платформа всё равно отбросит
   const inProfile = new Set();  // зачтено платформой (hello.solved и accepted)
-  let st = load();              // {done: {задание: attempts}, miss: {ключ или #корень: {n, t: вкладка}}}
+  /* {done: {задание: attempts}, miss: {ключ или #корень: {n, t: вкладка}},
+      hint: {ключ: открыто ступеней}, dh: {задание: ступеней к моменту решения}} */
+  let st = load();
 
   function load(){
     try {
       const s = JSON.parse(localStorage.getItem(KEY) || 'null');
-      if(s && typeof s === 'object') return {done: s.done || {}, miss: s.miss || {}};
+      if(s && typeof s === 'object') return {done: s.done || {}, miss: s.miss || {}, hint: s.hint || {}, dh: s.dh || {}};
     } catch(e){}
-    return {done:{}, miss:{}};
+    return {done:{}, miss:{}, hint:{}, dh:{}};
   }
   function save(){ try { localStorage.setItem(KEY, JSON.stringify(st)); } catch(e){} }
   function send(m){
@@ -329,10 +348,15 @@ var bridge = (function(){
     }
     return Math.min(MAX_ATTEMPTS, 1 + n);
   }
+  /* сколько ступеней подсказок открыто в задании: максимум по его ключам */
+  function hintsOf(t){
+    const keys = isSection(t) ? (t.k || keysOf(t)) : (t.keys || []);
+    return Math.min(3, keys.reduce((m, k) => Math.max(m, st.hint[k] || 0), 0));
+  }
   function solved(id){
     if(sent.has(id) || !(id in st.done)) return;
     sent.add(id);
-    send({kind:'solved', task:id, attempts:st.done[id], hints:0});
+    send({kind:'solved', task:id, attempts:st.done[id], hints:st.dh[id] || 0});
   }
   /* решённое раньше (в том числе без платформы), но не зачтённое — один раз за окно */
   function flush(){ Object.keys(st.done).forEach(id => { if(!inProfile.has(id)) solved(id); }); }
@@ -359,7 +383,7 @@ var bridge = (function(){
     let changed = false;
     TASKS.forEach(t => {
       if(t.id in st.done || !complete(t)) return;
-      st.done[t.id] = attempts(t); changed = true;
+      st.done[t.id] = attempts(t); st.dh[t.id] = hintsOf(t); changed = true;
       if(hello) solved(t.id);
     });
     if(changed) save();
@@ -397,8 +421,13 @@ var bridge = (function(){
       m.t = (key && keyTab[key]) || panelOf(el) || m.t;
       save();
     },
+    hint(key, n){
+      if(!key || !(n > 0)) return;
+      if((st.hint[key] || 0) < n){ st.hint[key] = n; save(); }
+    },
+    hintLevel(key){ return st.hint[key] || 0; },
     check,
-    reset(){ st = {done:{}, miss:{}}; save(); },
+    reset(){ st = {done:{}, miss:{}, hint:{}, dh:{}}; save(); },
     tasks: TASKS,
     get keys(){ return {...keyTab}; },
   };
@@ -676,6 +705,33 @@ function renderSort(rootId, items, buckets, scoreId, totalId){
     if(chosen === okId){ solved.add(task.dataset.i); if(solved.size === items.length) confetti(26); }
     if(scoreId){ document.getElementById(scoreId).textContent = solved.size; Progress.report(scoreId, solved.size); }
   });
+}
+
+/* ─── лестница подсказок ───
+   steps — ступени по порядку: от намёка к почти готовому ответу. Открываются
+   по одной; сколько открыто, помнит мост (Progress.hint) и при решении
+   сообщает платформе (hints). Число ступеней должно совпадать с hints задания
+   в манифесте платформы — больше она не примет. */
+function renderHints(rootId, key, steps){
+  const root = document.getElementById(rootId); if(!root || !steps || !steps.length) return null;
+  let open = Math.min(steps.length, Progress.hintLevel(key));
+  root.classList.add('hintl');
+  function paint(){
+    root.innerHTML =
+      '<div class="hintl-bar">' +
+        (open < steps.length
+          ? '<button type="button" class="ghost hintl-btn">💡 ' + (open ? 'Следующая подсказка' : 'Подсказка') + ' · ' + (open + 1) + ' из ' + steps.length + '</button>'
+          : '<span class="hintl-all">💡 Открыты все подсказки: ' + steps.length + ' из ' + steps.length + '</span>') +
+        '<span class="hintl-note">без подсказок решение весит в профиле больше</span>' +
+      '</div>' +
+      (open ? '<ol class="hintl-list">' + steps.slice(0, open).map(s => '<li>' + s + '</li>').join('') + '</ol>' : '');
+  }
+  root.addEventListener('click', e => {
+    if(!e.target.closest('.hintl-btn') || open >= steps.length) return;
+    open++; Progress.hint(key, open); paint();
+  });
+  paint();
+  return { get open(){ return open; }, total: steps.length };
 }
 
 /* ─── карточки паттернов с поиском (переиспользуется в каталоге) ─── */

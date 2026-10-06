@@ -1,4 +1,870 @@
-<!-- ==================== TENANT ==================== -->
+<!-- ==================== МУЛЬТИАРЕНДНОСТЬ: ОДИН СЕРВИС — МНОГО КЛИЕНТОВ ==================== -->
 <section class="panel" id="tenant" data-accent="nt" role="tabpanel">
-  <p class="lead"><b>Раздел готовится.</b></p>
+  <style>
+    .tnx-ch{scroll-margin-top:150px}
+    .tnx-map{display:grid; grid-template-columns:repeat(auto-fill,minmax(215px,1fr)); gap:8px; margin-top:12px}
+    .tnx-map button{display:flex; gap:9px; align-items:flex-start; text-align:left; appearance:none; border:1px solid var(--line); background:var(--surface-2); color:var(--ink); font:inherit; font-size:13px; line-height:1.35; padding:9px 11px; border-radius:9px; cursor:pointer}
+    .tnx-map button:hover{border-color:var(--accent)}
+    .tnx-map .n{flex:none; width:22px; height:22px; border-radius:50%; background:var(--accent); color:var(--surface); font:700 11px var(--mono); display:grid; place-items:center}
+    .tnx-map small{display:block; color:var(--muted); font-size:11.5px; margin-top:2px}
+    .tnx-def{border:1px solid color-mix(in srgb,var(--accent) 40%,var(--line)); background:color-mix(in srgb,var(--accent) 6%,var(--surface)); border-radius:10px; padding:11px 14px; margin:12px 0 0; font-size:14px; color:var(--ink)}
+    .tnx-def > b:first-child{color:var(--accent)}
+    .tnx-life{border-left:3px solid var(--ok); background:var(--ok-bg); border-radius:0 9px 9px 0; padding:9px 13px; margin:10px 0 0; font-size:13.5px; color:var(--ink)}
+    .tnx-life::before{content:"Из жизни: "; font-weight:700; color:var(--ok)}
+    .tnx-story{font-size:14px; color:var(--ink); background:var(--surface-2); border:1px solid var(--line); border-radius:10px; padding:11px 14px; margin:12px 0 0}
+    .tnx-story .l{display:block; font:600 10.5px var(--mono); color:var(--faint); text-transform:uppercase; letter-spacing:.03em; margin-bottom:4px}
+    .tnx-links{display:flex; flex-wrap:wrap; gap:6px; margin-top:12px}
+    .tnx-links button{appearance:none; border:1px solid var(--line); background:var(--surface); color:var(--accent); font:600 12px var(--sans); padding:5px 10px; border-radius:14px; cursor:pointer; text-align:left}
+    .tnx-links button:hover{border-color:var(--accent)}
+    .tnx-task{border:1px solid color-mix(in srgb,var(--accent) 45%,var(--line)); border-radius:12px; padding:14px 16px; margin-top:16px; background:color-mix(in srgb,var(--accent) 4%,var(--surface))}
+    .tnx-task > h3{margin-top:0}
+    .tnx-task > p{font-size:14px; color:var(--muted); margin:6px 0 10px; max-width:80ch}
+    .tnx-task > p b{color:var(--ink)}
+    .tnx-prof .ops button:disabled, .tnx-ln:disabled, .tnx-sw button:disabled{opacity:.8}
+    .tnx-task .tnx-tl{font:600 10.5px var(--mono); color:var(--accent); text-transform:uppercase; letter-spacing:.04em}
+    .tnx-wrapx{overflow-x:auto; -webkit-overflow-scrolling:touch}
+    table.tnx-tb{border-collapse:collapse; width:100%; min-width:640px; font-size:13px; margin-top:10px}
+    table.tnx-tb th, table.tnx-tb td{border-bottom:1px solid var(--line); padding:7px 9px; text-align:left; vertical-align:top}
+    table.tnx-tb th{font:600 11px var(--mono); color:var(--faint); text-transform:uppercase; letter-spacing:.02em}
+    table.tnx-tb td:first-child{font-weight:600; color:var(--ink)}
+    table.tnx-tb td{color:var(--muted)}
+    table.tnx-tb .g{color:var(--ok); font-weight:600} table.tnx-tb .b{color:var(--danger); font-weight:600} table.tnx-tb .w{color:var(--warn); font-weight:600}
+    pre.tnx-code{font:400 12.5px/1.6 var(--mono); background:var(--surface-2); border:1px solid var(--line); border-radius:10px; padding:12px 14px; overflow-x:auto; margin:10px 0 0; color:var(--ink); white-space:pre}
+    pre.tnx-code .cm{color:var(--faint)} pre.tnx-code .bad{color:var(--danger)} pre.tnx-code .ok{color:var(--ok)}
+
+    /* кто есть кто */
+    .tnx-who{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; margin-top:10px}
+    @media (max-width:760px){ .tnx-who{grid-template-columns:repeat(2,minmax(0,1fr))} }
+    .tnx-who .tc{border:1.5px solid var(--accent); border-radius:10px; background:color-mix(in srgb,var(--accent) 8%,var(--surface)); padding:9px 11px; font-size:12.5px; color:var(--muted)}
+    .tnx-who .tc b{display:block; color:var(--ink); font-size:13.5px}
+    .tnx-who .tc .u{margin-top:6px; font:500 11px var(--mono); color:var(--faint)}
+    .tnx-plat{border:2px dashed var(--accent); border-radius:12px; padding:10px 12px; text-align:center; font-weight:650; margin-top:12px}
+    .tnx-plat small{display:block; font:500 11px var(--mono); color:var(--faint)}
+
+    /* радиус аварии */
+    .tnx-rad{border:1px solid var(--line); border-radius:12px; background:var(--surface-2); padding:12px; margin-top:10px}
+    .tnx-rad .grp{border:1.5px solid var(--muted); border-radius:10px; padding:8px; display:flex; flex-wrap:wrap; gap:5px; background:var(--surface)}
+    .tnx-rad .grp .gl{width:100%; font:600 10.5px var(--mono); color:var(--faint); text-transform:uppercase}
+    .tnx-rad .grps{display:flex; flex-wrap:wrap; gap:8px}
+    .tnx-rad .grps.cells .grp{flex:1 1 200px}
+    .tnx-rad .grps.silo .grp{padding:4px; flex:0 0 auto}
+    .tnx-tile{width:44px; height:30px; border-radius:6px; display:grid; place-items:center; font:700 10.5px var(--mono); color:var(--muted); background:var(--surface-3); border:1px solid transparent; transition:all .25s}
+    .tnx-rad.schema .tnx-tile, .tnx-rad.silo .tnx-tile{border-color:var(--line); background:var(--surface-2)}
+    .tnx-tile.nm{color:var(--ink)}
+    .tnx-tile.down{background:var(--danger); color:#fff}
+    .tnx-tile.leak{background:var(--warn); color:#fff}
+    .tnx-tile.slow{background:color-mix(in srgb,var(--warn) 55%,var(--surface)); color:var(--ink)}
+    .tnx-tile.culp{outline:2px solid var(--ink); outline-offset:1px}
+    .tnx-cnt{font:700 13px var(--mono); margin-top:10px}
+
+    /* выбор модели под профиль */
+    .tnx-profs{display:flex; flex-direction:column; gap:10px; margin-top:10px}
+    .tnx-prof{border:1px solid var(--line); border-radius:11px; background:var(--surface); padding:11px 13px}
+    .tnx-prof h4{margin:0 0 3px; font-size:14px}
+    .tnx-prof .d{font-size:13px; color:var(--muted)}
+    .tnx-prof .ops{display:flex; flex-wrap:wrap; gap:6px; margin-top:8px}
+    .tnx-prof .ops button{appearance:none; border:1px solid var(--line); background:var(--surface-2); color:var(--ink); font:600 12.5px var(--sans); padding:7px 11px; border-radius:8px; cursor:pointer}
+    .tnx-prof .ops button:hover{border-color:var(--accent)}
+    .tnx-prof .ops button.on{border-color:var(--accent); background:color-mix(in srgb,var(--accent) 14%,var(--surface))}
+    .tnx-prof .facts{display:grid; grid-template-columns:150px 1fr; gap:3px 10px; font-size:12.5px; color:var(--muted); margin-top:8px; border-top:1px dashed var(--line); padding-top:8px}
+    .tnx-prof .facts b{font:600 10.5px var(--mono); color:var(--faint); text-transform:uppercase; padding-top:2px}
+    @media (max-width:560px){ .tnx-prof .facts{grid-template-columns:1fr} .tnx-prof .facts b{margin-top:5px} }
+    .tnx-prof.ok{border-color:var(--ok)} .tnx-prof.nok{border-color:var(--danger)}
+    .tnx-prof .fb{font-size:12.5px; margin-top:7px}
+    .tnx-prof.ok .fb{color:var(--ok)} .tnx-prof.nok .fb{color:var(--danger)}
+    .tnx-loss{color:var(--danger); font-weight:700} .tnx-gain{color:var(--ok); font-weight:700}
+
+    /* шумный сосед */
+    .tnx-sw{display:flex; flex-direction:column; gap:6px; margin-top:10px}
+    .tnx-sw button{display:flex; gap:10px; align-items:flex-start; appearance:none; border:1.5px solid var(--line); background:var(--surface); color:var(--ink); font:inherit; font-size:13px; text-align:left; padding:8px 11px; border-radius:10px; cursor:pointer}
+    .tnx-sw button .k{flex:none; width:34px; height:20px; border-radius:10px; background:var(--surface-3); position:relative; margin-top:1px}
+    .tnx-sw button .k::after{content:""; position:absolute; left:3px; top:3px; width:14px; height:14px; border-radius:50%; background:var(--faint); transition:left .15s}
+    .tnx-sw button.on{border-color:var(--accent)}
+    .tnx-sw button.on .k{background:var(--accent)}
+    .tnx-sw button.on .k::after{left:17px; background:#fff}
+    .tnx-sw button .c{margin-left:auto; flex:none; font:600 11.5px var(--mono); color:var(--faint)}
+    .tnx-rows{display:flex; flex-direction:column; gap:7px; margin-top:10px}
+    .tnx-row{display:grid; grid-template-columns:150px minmax(0,1fr) 190px 30px; gap:10px; align-items:center; font-size:13px}
+    .tnx-row .nm{font-weight:650}
+    .tnx-row .nm small{display:block; font:500 10.5px var(--mono); color:var(--faint); font-weight:400}
+    .tnx-row .bar{height:14px; border-radius:7px; background:var(--surface-3); overflow:hidden; position:relative}
+    .tnx-row .bar::after{content:""; position:absolute; top:0; bottom:0; left:16.67%; border-left:2px dashed var(--ink); opacity:.45}
+    .tnx-row .bar i{display:block; height:100%; border-radius:7px; background:var(--ok); transition:width .5s ease, background .3s}
+    .tnx-row .bar i.w{background:var(--warn)} .tnx-row .bar i.b{background:var(--danger)}
+    .tnx-row .v{font:600 12px var(--mono); color:var(--muted)}
+    .tnx-row .st{font-weight:800; text-align:center}
+    .tnx-row .st.g{color:var(--ok)} .tnx-row .st.b{color:var(--danger)} .tnx-row .st.n{color:var(--faint)}
+    @media (max-width:640px){ .tnx-row{grid-template-columns:1fr 30px} .tnx-row .bar{grid-column:1 / -1; order:3} .tnx-row .v{grid-column:1 / -1; order:4} }
+
+    /* наблюдаемость по клиенту */
+    .tnx-chart{display:flex; align-items:flex-end; gap:6px; height:170px; border-bottom:1px solid var(--line); margin-top:12px; padding:0 2px}
+    .tnx-chart .col{flex:1; display:flex; flex-direction:column-reverse; height:100%; position:relative}
+    .tnx-chart .col span{display:block; transition:height .4s ease}
+    .tnx-chart .col .lb{position:absolute; bottom:-20px; left:50%; transform:translateX(-50%); font:500 10px var(--mono); color:var(--faint); white-space:nowrap}
+    .tnx-legend{display:flex; flex-wrap:wrap; gap:10px; margin-top:26px; font-size:12px; color:var(--muted)}
+    .tnx-legend i{display:inline-block; width:11px; height:11px; border-radius:3px; margin-right:4px; vertical-align:-1px}
+
+    /* поиск утечек */
+    .tnx-lines{display:flex; flex-direction:column; gap:6px; margin-top:10px}
+    .tnx-ln{display:flex; gap:10px; align-items:flex-start; appearance:none; border:1.5px solid var(--line); background:var(--surface); color:var(--ink); font:inherit; font-size:13.5px; text-align:left; padding:9px 12px; border-radius:10px; cursor:pointer}
+    .tnx-ln:hover{border-color:var(--accent)}
+    .tnx-ln .n{flex:none; width:24px; height:24px; border-radius:7px; display:grid; place-items:center; font:700 11.5px var(--mono); background:var(--surface-3); color:var(--muted)}
+    .tnx-ln.sel{border-color:var(--danger); background:var(--danger-bg)}
+    .tnx-ln.sel .n{background:var(--danger); color:#fff}
+    .tnx-ln .fx{display:none; margin-top:6px; font-size:12.5px; color:var(--muted)}
+    .tnx-ln.shown .fx{display:block}
+    .tnx-ln.okline{border-color:var(--ok)} .tnx-ln.okline .n{background:var(--ok); color:#fff}
+    .tnx-ln:disabled{cursor:default}
+    .tnx-chk{margin:8px 0 0; padding-left:0; list-style:none; font-size:13.5px; color:var(--muted)}
+    .tnx-chk li{margin:6px 0; padding-left:24px; position:relative}
+    .tnx-chk li::before{content:"☐"; position:absolute; left:2px; color:var(--accent)}
+  </style>
+
+  <p class="lead"><b>Мультиарендность — это когда одна программа обслуживает сразу много компаний, а каждая видит только своё, как будто программа написана для неё одной.</b> Так устроены почти все облачные сервисы по подписке (SaaS). Разбираем на платформе записи на занятия «Слот», которой пользуются сети фитнес-клубов и студий: как разделить клиентов — всем общее, своя база или отдельная установка, откуда сервис узнаёт, чей это запрос, что делать с шумным соседом и где данные клиентов перемешиваются чаще всего.</p>
+
+  <div class="card"><h2><span class="tag">зачем это</span> зачем делить одну систему между многими клиентами</h2><div id="why-tenant"></div></div>
+
+  <div class="card">
+    <h2><span class="tag">карта раздела</span> одна платформа, четыре клиента, семь глав</h2>
+    <p>В главах 3–6 есть задания: каждое засчитывается отдельно. У части есть лестница подсказок — открывайте по одной, если застряли.</p>
+    <div class="tnx-map" id="tnx-map">
+      <button data-tnx-ch="tnx-ch1"><span class="n">1</span><span>Бизнес-центр<small>арендатор — это не пользователь</small></span></button>
+      <button data-tnx-ch="tnx-ch2"><span class="n">2</span><span>Три модели изоляции<small>пул, своя схема, отдельная установка, ячейки</small></span></button>
+      <button data-tnx-ch="tnx-ch3"><span class="n">3</span><span>Выбор под клиента<small>цена и риски · задание</small></span></button>
+      <button data-tnx-ch="tnx-ch4"><span class="n">4</span><span>Откуда берётся клиент<small>метка везде · задание</small></span></button>
+      <button data-tnx-ch="tnx-ch5"><span class="n">5</span><span>Шумный сосед<small>лимиты, очереди, ячейки · задание</small></span></button>
+      <button data-tnx-ch="tnx-ch6"><span class="n">6</span><span>Где перемешиваются данные<small>поиск утечек · задание</small></span></button>
+      <button data-tnx-ch="tnx-ch7"><span class="n">7</span><span>Итог<small>чек-лист мультиарендной системы</small></span></button>
+    </div>
+  </div>
+
+  <!-- ─── глава 1 ─── -->
+  <div class="card tnx-ch" id="tnx-ch1">
+    <h2><span class="tag">глава 1 · завязка</span> бизнес-центр: арендатор — это не пользователь</h2>
+    <p>Сначала без терминов. Бизнес-центр: одно здание, общий лифт, охрана и котельная — поэтому аренда дешевле своего особняка. Но у каждой компании свой ключ, своя табличка на двери и свой счётчик электричества. Сотрудники компании ходят по своему офису, а в чужой не попадают, даже если очень захотят.</p>
+    <div class="tnx-def"><b>Арендатор</b> (tenant) — компания-клиент, которая пользуется сервисом по подписке. У арендатора много <b>пользователей</b>: администраторы, тренеры, посетители. <b>Мультиарендность</b> (multi-tenancy) — одна система обслуживает многих арендаторов, держа их данные и нагрузку раздельно.</div>
+    <div class="tnx-life">бизнес-центр. Арендатор — компания, которая подписала договор. Пользователи — её сотрудники с пропусками. Изолируют компании друг от друга; кто из сотрудников что может внутри своего офиса — уже обычные роли.</div>
+
+    <h3>История</h3>
+    <div class="tnx-story"><span class="l">кто платит «Слоту»</span>Платформа записи «Слот» работает третий год. Её арендаторы — сети клубов и студий. У каждого свои клубы, расписание, тренеры и посетители, а программа одна на всех.</div>
+    <div class="tnx-plat">Платформа «Слот»<small>одна программа, одна команда, один конвейер выкатки</small></div>
+    <div class="tnx-who">
+      <div class="tc"><b>🧘 Йога у дома</b>3 зала, 900 посетителей<div class="u">4 900 ₽ в месяц</div></div>
+      <div class="tc"><b>🏋 Фитнес-Лайт</b>франшиза: 120 клубов, 180 000 посетителей<div class="u">120 000 ₽ в месяц</div></div>
+      <div class="tc"><b>🩺 Клиника ЛФК</b>реабилитация после травм: в записях — ограничения по здоровью<div class="u">40 000 ₽ в месяц</div></div>
+      <div class="tc"><b>🏦 Банк-Спорт</b>залы для сотрудников банка; строгая служба безопасности<div class="u">600 000 ₽ в месяц</div></div>
+    </div>
+    <div class="note good"><b>Проще говоря.</b> Арендатор — тот, кто платит за подписку; пользователь — тот, кто нажимает кнопки. Мультиарендность решает три задачи: <b>чужого не видно</b>, <b>соседи не мешают</b>, <b>счёт у каждого свой</b>. Всё остальное в разделе — как этого добиться и сколько это стоит.</div>
+  </div>
+
+  <!-- ─── глава 2 ─── -->
+  <div class="card tnx-ch" id="tnx-ch2">
+    <h2><span class="tag">глава 2 · модели изоляции</span> всё общее, своя схема, отдельная установка — и ячейки</h2>
+    <div class="tnx-def"><b>Модель изоляции</b> — что у арендаторов общее, а что своё: серверы приложений, база, схема в базе, ключи шифрования, окно обновлений. Три классические модели называют <b>пул</b> (pool), <b>мост</b> (bridge, у нас — «своя схема») и <b>силос</b> (silo, «отдельная установка»).</div>
+    <div class="grid2" style="margin-top:12px">
+      <div class="box"><h4>🏢 Пул: всё общее, у строки метка</h4><p class="bs"><b>Open space в бизнес-центре:</b> все сидят за общими столами, у каждого бейдж своей компании. Одна база, одни таблицы, в каждой строке <code class="inl">tenant_id</code>. Самое дешёвое и самое быстрое подключение — но одна забытая метка, и данные перемешались.</p></div>
+      <div class="box"><h4>🚪 Своя схема (или база)</h4><p class="bs"><b>Свой кабинет на общем этаже:</b> стены свои, лифт и охрана общие. Код и серверы приложений общие, а у клиента своя схема в общей базе или своя база на общем сервере. Данные разделены по-настоящему, но миграции катятся на каждую схему отдельно.</p></div>
+      <div class="box"><h4>🏠 Отдельная установка</h4><p class="bs"><b>Свой особняк:</b> отдельные серверы, база, ключи шифрования, своё окно обновлений. Изоляция полная, но каждая установка — отдельная выкатка, отдельный мониторинг и отдельный счёт.</p></div>
+      <div class="box"><h4>🐝 Ячейки</h4><p class="bs"><b>Несколько одинаковых бизнес-центров:</b> клиенты закреплены за зданием, внутри здания — пул. Авария задевает одну ячейку, выкатка идёт по ячейкам. Крупному клиенту можно дать свою ячейку — изоляция как у особняка, а обслуживание общим конвейером.</p></div>
+    </div>
+    <div class="tnx-links"><button data-goto="styles">Ячеистая архитектура среди стилей: радиус поражения →</button></div>
+
+    <h3>Сравнение: что получаем и чем платим</h3>
+    <div class="tnx-wrapx"><table class="tnx-tb">
+      <thead><tr><th></th><th>Пул</th><th>Своя схема</th><th>Своя ячейка</th><th>Отдельная установка</th></tr></thead>
+      <tbody>
+        <tr><td>Цена для платформы, ₽ в месяц на клиента</td><td class="g">≈ 300</td><td class="g">≈ 2 500</td><td class="w">≈ 45 000</td><td class="b">≈ 180 000</td></tr>
+        <tr><td>Подключение нового клиента</td><td class="g">секунды: запись в таблице</td><td class="g">минуты: создать схему</td><td class="w">часы: развернуть ячейку</td><td class="b">дни и недели</td></tr>
+        <tr><td>«Наши данные — отдельно»</td><td class="b">нет, только метка</td><td class="g">да: копия, выгрузка, удаление целиком</td><td class="g">да</td><td class="g">да, со своими ключами</td></tr>
+        <tr><td>Шумный сосед</td><td class="b">есть</td><td class="w">есть: серверы и сервер базы общие</td><td class="g">нет</td><td class="g">нет</td></tr>
+        <tr><td>Обновления</td><td class="g">одна выкатка на всех</td><td class="w">одна выкатка, миграция × число схем</td><td class="g">тем же конвейером, по ячейкам</td><td class="b">отдельно, в своё окно</td></tr>
+        <tr><td>Цена ошибки «забыли фильтр»</td><td class="b">утечка всем</td><td class="g">не страшно: запрос живёт в своей схеме</td><td class="g">внутри ячейки</td><td class="g">не страшно</td></tr>
+      </tbody>
+    </table></div>
+    <div class="note"><b>Числа модельные, пропорции реальные.</b> Пул дешевле отдельной установки в сотни раз, потому что серверы, база, мониторинг и дежурство делятся между всеми. Поэтому почти все SaaS начинают с пула и выносят в отдельную схему, ячейку или установку только тех, кому это действительно нужно и кто за это платит.</div>
+
+    <h3>Интерактив: радиус аварии</h3>
+    <p>24 клиента «Слота» в четырёх моделях. Выберите модель и устройте аварию — увидите, кого она задела. Обведённая плитка — тот, с кого всё началось.</p>
+    <div class="seg" id="tnx-rad-model">
+      <button class="on" data-m="pool">🏢 Пул</button>
+      <button data-m="schema">🚪 Своя схема</button>
+      <button data-m="cells">🐝 Ячейки (4 по 6)</button>
+      <button data-m="silo">🏠 Отдельные установки</button>
+    </div>
+    <div class="seg" id="tnx-rad-inc">
+      <button data-i="db">💥 Упала база</button>
+      <button data-i="poison">☠ Ядовитый запрос</button>
+      <button data-i="mig">🧩 Сломанная миграция</button>
+      <button data-i="leak">🕳 Забыли фильтр по клиенту</button>
+      <button data-i="load">📈 Клиент дал нагрузку ×20</button>
+    </div>
+    <div class="tnx-rad" id="tnx-rad"></div>
+    <div class="console" id="tnx-rad-msg"></div>
+  </div>
+
+  <!-- ─── глава 3 ─── -->
+  <div class="card tnx-ch" id="tnx-ch3">
+    <h2><span class="tag">глава 3 · выбор</span> модель изоляции под клиента: цена и риски</h2>
+    <p>Одной модели на всех не бывает. Обычно у SaaS две-три «полки»: большинство в пуле, кому нужно — отдельно. Решение принимают по клиенту, а не по вкусу архитектора.</p>
+    <div class="grid3">
+      <div class="box"><h4>1 · Жёсткое требование</h4><p class="bs">Есть ли у клиента «данные отдельно», свои ключи, своё окно обновлений, требования регулятора? Это отсекает дешёвые варианты сразу.</p></div>
+      <div class="box"><h4>2 · Нагрузка</h4><p class="bs">Будут ли его пики мешать соседям, а соседи — ему? Шумному соседу нужна своя ячейка или жёсткие лимиты.</p></div>
+      <div class="box"><h4>3 · Деньги и скорость</h4><p class="bs">Окупает ли выручка клиента его модель? Нужно ли подключить его сегодня? Берите самую дешёвую модель, которая закрывает требования.</p></div>
+    </div>
+
+    <div class="tnx-task" id="tnx-iso-task">
+      <div class="tnx-tl">задание · модель изоляции</div>
+      <h3>Подберите модель каждому из четырёх клиентов</h3>
+      <p>Нажимайте на модели — ниже появятся цена для платформы и что получит клиент. Когда выберете всем, нажмите «Проверить выбор». Подобрано верно: <b id="tnx-iso-score">0</b> из 4.</p>
+      <div class="tnx-profs" id="tnx-profs"></div>
+      <div id="tnx-iso-hints"></div>
+      <div class="form-row">
+        <button class="act" id="tnx-iso-check">Проверить выбор</button>
+      </div>
+      <div class="console" id="tnx-iso-msg"></div>
+    </div>
+  </div>
+
+  <!-- ─── глава 4 ─── -->
+  <div class="card tnx-ch" id="tnx-ch4">
+    <h2><span class="tag">глава 4 · контекст клиента</span> откуда сервис узнаёт, чей это запрос</h2>
+    <div class="tnx-def"><b>Контекст арендатора</b> (tenant context) — ответ на вопрос «чей это запрос». Сервер узнаёт его <b>один раз на входе</b>, из проверенного токена или сессии, и дальше несёт с собой: в запрос к базе, ключ кеша, сообщение в очереди, запись в журнале.</div>
+    <div class="tnx-life">пропуск в бизнес-центре. Охрана смотрит на пропуск, а не на то, что вы сказали («я из пятого офиса»). Лифт везёт на этаж, записанный в пропуске. Если бы охрана верила на слово, в любой офис можно было бы войти, назвав чужой номер.</div>
+    <div class="grid3" style="margin-top:12px">
+      <div class="box"><h4>🔑 Из входа, не из тела</h4><p class="bs">Клиент — из токена, который выдал наш сервер входа. Не из поля <code class="inl">tenantId</code> в теле, не из параметра в адресе. Поддомен <code class="inl">fitlite.slot.app</code> подсказывает страницу входа, но после входа решает токен.</p></div>
+      <div class="box"><h4>🗄 В каждой таблице</h4><p class="bs"><code class="inl">tenant_id</code> в каждой строке, первым полем в индексах и уникальных ключах. Сверху — защита в самой базе: политика строк не отдаст чужие строки, даже если в запросе забыли фильтр.</p></div>
+      <div class="box"><h4>⚡ В ключе кеша</h4><p class="bs"><code class="inl">t:{клиент}:schedule:{клуб}:{дата}</code>. Номера клубов у клиентов пересекаются: у каждого есть «клуб 1».</p></div>
+      <div class="box"><h4>📨 В очереди</h4><p class="bs">Сообщение несёт метку клиента. Обработчик ставит контекст перед работой и сбрасывает после.</p></div>
+      <div class="box"><h4>🔭 В журналах и метриках</h4><p class="bs">Без метки не разобрать жалобу клиента, не найти шумного соседа и не выставить счёт по расходу.</p></div>
+      <div class="box"><h4>🚦 В лимитах</h4><p class="bs">Запросы в секунду, тяжёлые отчёты, место на диске — свой лимит у каждого клиента.</p></div>
+    </div>
+    <pre class="tnx-code"><span class="cm">// ✕ клиент из тела запроса: подставь чужой — получишь чужое</span>
+<span class="bad">const tenant = req.body.tenantId;</span>
+
+<span class="cm">// ✓ клиент из проверенного токена входа</span>
+<span class="ok">const tenant = req.auth.claims.tenant_id;</span>
+
+<span class="cm">-- защита в базе (PostgreSQL): политика строк по контексту соединения</span>
+ALTER TABLE bookings ENABLE ROW LEVEL SECURITY;
+CREATE POLICY by_tenant ON bookings
+  USING (tenant_id = current_setting('app.tenant')::uuid);
+
+<span class="cm">-- в каждой транзакции: SET LOCAL живёт только до её конца</span>
+BEGIN; SET LOCAL app.tenant = '…'; INSERT INTO bookings …; COMMIT;</pre>
+
+    <h3>Интерактив: путь записи на занятие с меткой клиента</h3>
+    <p>Сравните два пути одного запроса: правильный и тот, где сервис взял клиента из тела запроса.</p>
+    <div class="seg" id="tnx-path-mode">
+      <button class="on" data-m="ok">✓ Клиент из токена</button>
+      <button data-m="bad">✕ Клиент из тела запроса</button>
+    </div>
+    <div id="tnx-path"></div>
+
+    <div class="tnx-task" id="tnx-ctx-task">
+      <div class="tnx-tl">задание · метка клиента</div>
+      <h3>Где живёт метка клиента</h3>
+      <p>Выберите правильный ответ. Ошиблись — прочитайте, почему, и попробуйте другой. Решено <b id="tnx-ctx-score">0</b> из <span id="tnx-ctx-total">0</span>.</p>
+      <div id="tnx-ctx"></div>
+    </div>
+    <div class="tnx-links"><button data-goto="oauth">Токены и утверждения в них: OAuth и JWT →</button><button data-goto="cache">Ключи кеша и сброс →</button></div>
+  </div>
+
+  <!-- ─── глава 5 ─── -->
+  <div class="card tnx-ch" id="tnx-ch5">
+    <h2><span class="tag">глава 5 · шумный сосед</span> один клиент не должен съедать ресурсы всех</h2>
+    <div class="tnx-def"><b>Шумный сосед</b> (noisy neighbor) — клиент, чья нагрузка забирает общие ресурсы так, что остальным становится плохо. Не обязательно злой: франшиза просто открыла запись на неделю, и 180 000 человек пришли одновременно.</div>
+    <div class="tnx-life">общежитие с одной плитой на этаж. Один сосед варит холодец восемь часов — остальные без ужина. Помогает расписание на плиту (лимит), отдельная плита для долгой готовки (своя очередь) или переселение любителя холодца в квартиру с кухней (своя ячейка). Купить вторую плиту на всех — дорого и не спасает: холодец займёт и её.</div>
+
+    <div class="tnx-task" id="tnx-noisy-task">
+      <div class="tnx-tl">задание · симулятор</div>
+      <h3>Унять шумного соседа и уложиться в бюджет</h3>
+      <p>Четыре клиента в одном пуле. Цель: в понедельник в 7:00, когда «Фитнес-Лайт» открывает запись (запросов в 20 раз больше), и во время годового отчёта «Клиники» <b>остальные клиенты</b> должны получать ответ за p95 ≤ 500 мс с ошибками не больше 1 %. Бюджет на изменения — не больше +30 % к счёту за серверы. Включайте меры, запускайте события, потом нажмите «Проверить решение».</p>
+      <div class="tnx-sw" id="tnx-sw"></div>
+      <div class="seg" id="tnx-ev">
+        <button class="on" data-e="norm">🌙 Обычный вечер</button>
+        <button data-e="mon">🏋 Понедельник 7:00: запись ×20</button>
+        <button data-e="rep">📊 Годовой отчёт «Клиники»</button>
+      </div>
+      <div class="meters" id="tnx-meters"></div>
+      <div class="tnx-rows" id="tnx-rows"></div>
+      <p style="font:500 11.5px var(--mono);color:var(--faint);margin:6px 0 0">Полоса — время ответа p95: пунктир — цель 500 мс, вся полоса — 3 секунды и больше.</p>
+      <div id="tnx-noisy-hints"></div>
+      <div class="form-row">
+        <button class="act" id="tnx-noisy-check">Проверить решение</button>
+      </div>
+      <div class="console" id="tnx-noisy-msg"></div>
+      <div id="tnx-noisy-why"></div>
+    </div>
+
+    <h3>Интерактив: кто устроил пик — видно только с меткой клиента</h3>
+    <p>Дежурный видит график запросов к платформе в понедельник утром. Переключите график на разбивку по клиентам.</p>
+    <div class="seg" id="tnx-obs-mode">
+      <button class="on" data-m="all">Все запросы вместе</button>
+      <button data-m="split">По клиентам (метка в метриках)</button>
+    </div>
+    <div class="tnx-chart" id="tnx-chart"></div>
+    <div class="tnx-legend" id="tnx-legend"></div>
+    <div class="console" id="tnx-obs-msg"></div>
+    <h3>Счёт по клиенту</h3>
+    <p>Та же метка в метриках раскладывает расход платформы по клиентам. Ниже — месяц «Слота».</p>
+    <div class="tnx-wrapx"><table class="tnx-tb" id="tnx-bill"></table></div>
+    <div class="note"><b>Что видно из таблицы.</b> «Клиника» приносит 23 % выручки, а расходует 27 % ресурсов — из-за тяжёлых отчётов. Это повод для тарифа «отчёты сверх лимита — за доплату», а не для обиды. Без метки клиента в метриках такой таблицы нет, и цены на тарифы назначают наугад.</div>
+    <div class="tnx-links"><button data-goto="resil">Переборки и ведро токенов в «Устойчивости» →</button><button data-goto="obs">Метрики и метки в «Наблюдаемости» →</button></div>
+  </div>
+
+  <!-- ─── глава 6 ─── -->
+  <div class="card tnx-ch" id="tnx-ch6">
+    <h2><span class="tag">глава 6 · утечки</span> где данные клиентов перемешиваются</h2>
+    <p>Утечки между клиентами почти никогда не выглядят как взлом. Это забытая метка в одном месте: в ключе кеша, в общей выгрузке, в соединении, которое вернулось в пул с чужим контекстом. Поэтому их ищут, проходя путь данных целиком.</p>
+
+    <div class="tnx-task" id="tnx-leak-task">
+      <div class="tnx-tl">задание · поиск утечек</div>
+      <h3>Найдите в описании «Слота» места, где данные клиентов перемешаются</h3>
+      <p>Это двенадцать строк из документа архитектуры «Слота». Нажмите на каждую строку, где данные одного клиента могут попасть к другому, и нажмите «Проверить».</p>
+      <div class="tnx-lines" id="tnx-lines"></div>
+      <div id="tnx-leak-hints"></div>
+      <div class="form-row">
+        <button class="act" id="tnx-leak-check">Проверить</button>
+        <button class="ghost" id="tnx-leak-reset">⟲ Снять отметки</button>
+      </div>
+      <div class="console" id="tnx-leak-msg"></div>
+    </div>
+  </div>
+
+  <!-- ─── глава 7 ─── -->
+  <div class="card tnx-ch" id="tnx-ch7">
+    <h2><span class="tag">глава 7 · итог</span> чек-лист мультиарендной системы</h2>
+    <ul class="tnx-chk">
+      <li>Для каждого класса клиентов выбрана модель изоляции, и записано, когда клиент переезжает в свою схему, ячейку или установку.</li>
+      <li>Клиент берётся из входа; в теле запроса его нет, а если есть — сверяется с токеном.</li>
+      <li>Метка клиента есть в каждой таблице, ключе кеша, сообщении, журнале, файле и индексе поиска.</li>
+      <li>База сама не отдаёт чужие строки: политика строк или своя схема.</li>
+      <li>Лимиты на клиента: запросы, тяжёлые отчёты, место; тяжёлое — в отдельной очереди.</li>
+      <li>Метрики и расход видны по клиенту; счёт за серверы можно разложить.</li>
+      <li>Доступ поддержки — личный, по заявке клиента, на время и с журналом аудита.</li>
+      <li>Известен радиус аварии: что пострадает при отказе базы, при плохой выкатке, при ядовитом запросе.</li>
+    </ul>
+    <div class="note"><b>Как это звучит в постановке.</b> «Слот» — пул с политикой строк в базе. Клиенты с требованием отдельного хранения — своя схема. Клиенты с пиками выше ×10 от обычной нагрузки — своя ячейка. Отдельная установка — только по договору с окном обновлений. Клиент берётся из утверждения <code class="inl">tenant_id</code> в токене входа. Лимит по умолчанию — 300 запросов в секунду на клиента; не больше двух тяжёлых отчётов одновременно. В одной ячейке — не больше 50 клиентов.</div>
+    <div class="tnx-links"><button data-goto="styles">Ячеистая архитектура →</button><button data-goto="scale">Масштаб и состояние →</button><button data-goto="sec">Безопасность →</button><button data-goto="llm">То же для ИИ: метка ученика в журнале и кеше ответов →</button></div>
+  </div>
+
+  <div class="nextbar">
+    <div><b>Дальше →</b> <span class="sub">сложность: как растёт цена перебора, индекса и соединения, когда данных становится больше</span></div>
+    <button data-goto="bigo">К сложности алгоритмов</button>
+  </div>
 </section>
+
+<script>
+/* ═══ Мультиарендность: платформа записи «Слот» ═══
+   Четыре задания раздела засчитываются по отдельности (ключи tnx-*, см. TASKS в мосте). */
+(function(){
+  const sec = document.getElementById('tenant'); if(!sec) return;
+  const solvedBefore = (key, max) => (Progress.data[key] || 0) >= max;
+  const rub = n => Math.round(n).toLocaleString('ru-RU') + ' ₽';
+
+  document.getElementById('tnx-map').addEventListener('click', e => {
+    const b = e.target.closest('button[data-tnx-ch]'); if(!b) return;
+    const t = document.getElementById(b.dataset.tnxCh);
+    if(t && t.scrollIntoView) t.scrollIntoView({behavior:'smooth', block:'start'});
+  });
+
+  renderWhy('why-tenant', {
+    task: 'обслуживать сотни компаний одной системой так, чтобы <b>каждая видела только своё, не мешала соседям и платила за своё</b>, а новый клиент подключался за минуты, а не за месяцы.',
+    life: 'бизнес-центр. Общий лифт, охрана и котельная — поэтому аренда дешевле своего особняка. Но у каждой компании свой ключ, своя табличка и свой счётчик электричества. А если сосед затеял ремонт с перфоратором, работать мешает всем.',
+    no: [
+      'Под каждого клиента — своя копия программы: 300 клиентов — 300 серверов и 300 выкаток каждой новой версии.',
+      'Забыли фильтр по клиенту в одном запросе — франшиза видит посетителей чужой студии.',
+      'Один крупный клиент в понедельник утром кладёт запись всем остальным.',
+      'Счёт за серверы приходит общий, и непонятно, какой клиент сколько стоит.',
+      'Банк приходит с требованием «наши данные — отдельно», а разделить уже нельзя.'
+    ],
+    yes: [
+      'Новый клиент подключается за минуты: завели запись — и всё работает.',
+      'Одна версия программы для всех: исправили ошибку — исправили у всех.',
+      'Клиент взят из входа, метка клиента есть везде — перемешать данные трудно даже по ошибке.',
+      'Лимиты и ячейки держат шумного соседа в его углу.',
+      'Расход и счёт видны по каждому клиенту.'
+    ],
+    fix: [
+      ['Стоимость', 'серверы, база и дежурство делятся между клиентами'],
+      ['Скорость подключения', 'минуты вместо недель'],
+      ['Защищённость', 'метка клиента проверяется на сервере и в самой базе'],
+      ['Справедливость', 'один клиент не съедает ресурсы всех']
+    ],
+    cost: 'дисциплина везде: метку клиента нужно протащить через каждую таблицу, ключ кеша, очередь и журнал. Одна забытая — и утечка. Плюс отдельная работа: лимиты, ячейки, учёт расхода по клиентам.',
+    skip: 'у вас один заказчик (внутренняя система компании) или пять крупных клиентов, каждый со своим договором на отдельную установку. Там проще и честнее отдельные установки.'
+  });
+
+  /* ── глава 2: радиус аварии ── */
+  (function(){
+    const N = 24, NAMES = {0:'Фит', 2:'ЛФК'};
+    const label = i => NAMES[i] || 'К' + (i + 1);
+    const all = () => Array.from({length:N}, (_, i) => i);
+    const cell0 = [0, 1, 2, 3, 4, 5];
+    /* исход: [кого задело, вид, кто начал, пояснение] */
+    const R = {
+      pool:{
+        db:[all(), 'down', null, 'Одна база на всех — легла у всех. Все 24 клиента без записи, пока база не поднимется.'],
+        poison:[all(), 'down', 0, 'Запрос «Фитнес-Лайт» с особыми данными роняет серверы приложений. Перезапуск — и он приходит снова. Серверы общие, поэтому стоят все.'],
+        mig:[all(), 'down', null, 'Схема одна на всех: сломанная миграция ломает таблицу сразу всем.'],
+        leak:[all(), 'leak', 2, 'Отчёт «Клиники» без фильтра по клиенту: в нём строки всех 24 клиентов. Это не авария, а утечка — и худшая из аварий.'],
+        load:[all(), 'slow', 0, 'Нагрузка ×20 от «Фитнес-Лайт» забирает общие серверы и базу. Тормозят все.']
+      },
+      schema:{
+        db:[all(), 'down', null, 'Схемы разные, но сервер базы общий. Лёг сервер — легли все схемы.'],
+        poison:[all(), 'down', 0, 'Серверы приложений общие: ядовитый запрос роняет их для всех, хоть схемы и разные.'],
+        mig:[[7], 'down', 7, 'Миграция катится по схемам по одной. На восьмой упала — выкатку остановили. Пострадал один клиент, остальные ждут исправления.'],
+        leak:[[], 'leak', 2, 'Запрос выполняется внутри схемы «Клиники», чужих строк там просто нет. Забытый фильтр ничего не выдал.'],
+        load:[all(), 'slow', 0, 'Серверы приложений и сервер базы общие — пик ×20 тормозит всех, хоть данные и разделены.']
+      },
+      cells:{
+        db:[cell0, 'down', null, 'Легла база первой ячейки. Пострадали её 6 клиентов, остальные 18 ничего не заметили.'],
+        poison:[cell0, 'down', 0, 'Ядовитый запрос уронил серверы ячейки, где живёт «Фитнес-Лайт». Шесть клиентов, а не двадцать четыре.'],
+        mig:[cell0, 'down', null, 'Выкатка идёт по ячейкам: первая сломалась — остальные три не получили версию. Пострадали 6.'],
+        leak:[cell0, 'leak', 2, 'Внутри ячейки — пул: забытый фильтр выдал строки шести соседей по ячейке. Меньше, чем всем, но всё ещё утечка.'],
+        load:[cell0, 'slow', 0, 'Пик «Фитнес-Лайт» тормозит его ячейку. Остальные 18 клиентов в других ячейках живут как обычно.']
+      },
+      silo:{
+        db:[[2], 'down', 2, 'Легла база одной установки — пострадал один клиент.'],
+        poison:[[0], 'down', 0, 'Ядовитый запрос «Фитнес-Лайт» уронил только его установку.'],
+        mig:[[3], 'down', 3, 'Новую версию первой получила одна установка — она и пострадала. Зато остальные 23 придётся обновлять по отдельности.'],
+        leak:[[], 'leak', 2, 'В установке только данные «Клиники»: забытый фильтр ничего чужого не выдал.'],
+        load:[[0], 'slow', 0, 'Пик ×20 тормозит только самого «Фитнес-Лайт».']
+      }
+    };
+    let model = 'pool', inc = null;
+    const box = document.getElementById('tnx-rad'), out = document.getElementById('tnx-rad-msg');
+    function tiles(ids, hit, kind, culp){
+      return ids.map(i => '<span class="tnx-tile' + (NAMES[i] ? ' nm' : '') + (hit.has(i) ? ' ' + kind : '') + (culp === i ? ' culp' : '') + '">' + label(i) + '</span>').join('');
+    }
+    function draw(){
+      const r = inc ? R[model][inc] : [[], '', null, ''];
+      const hit = new Set(r[0]), kind = r[1], culp = r[2];
+      let html;
+      if(model === 'pool') html = '<div class="grps"><div class="grp"><span class="gl">одна база · одни таблицы · метка в строке</span>' + tiles(all(), hit, kind, culp) + '</div></div>';
+      else if(model === 'schema') html = '<div class="grps"><div class="grp"><span class="gl">общий сервер базы · своя схема у каждого</span>' + tiles(all(), hit, kind, culp) + '</div></div>';
+      else if(model === 'cells') html = '<div class="grps cells">' + [0, 1, 2, 3].map(c => '<div class="grp"><span class="gl">ячейка ' + (c + 1) + '</span>' + tiles(all().slice(c * 6, c * 6 + 6), hit, kind, culp) + '</div>').join('') + '</div>';
+      else html = '<div class="grps silo">' + all().map(i => '<div class="grp">' + tiles([i], hit, kind, culp) + '</div>').join('') + '</div>';
+      box.className = 'tnx-rad ' + model;
+      box.innerHTML = html + (inc ? '<div class="tnx-cnt">' + (kind === 'leak' ? 'Чьи данные утекли: ' : kind === 'slow' ? 'Тормозят: ' : 'Не работают: ') + hit.size + ' из ' + N + '</div>' : '');
+      if(!inc) msg(out, '', 'Выберите аварию — плитки покажут, кого она задела.');
+      else msg(out, hit.size === 0 ? 'ok' : hit.size <= 6 ? 'warn' : 'err', r[3]);
+    }
+    document.getElementById('tnx-rad-model').addEventListener('click', e => {
+      const b = e.target.closest('button[data-m]'); if(!b) return;
+      [...b.parentNode.children].forEach(x => x.classList.toggle('on', x === b));
+      model = b.dataset.m; draw();
+    });
+    document.getElementById('tnx-rad-inc').addEventListener('click', e => {
+      const b = e.target.closest('button[data-i]'); if(!b) return;
+      [...b.parentNode.children].forEach(x => x.classList.toggle('on', x === b));
+      inc = b.dataset.i; draw();
+    });
+    draw();
+  })();
+
+  /* ── задание: модель изоляции под профиль ── */
+  (function(){
+    const KEY = 'tnx-iso';
+    const M = {
+      pool:{n:'🏢 Пул', cost:300, on:'секунды', sep:'нет — только метка в строке', noisy:'есть: общие серверы и база', upd:'вместе со всеми, одной выкаткой'},
+      schema:{n:'🚪 Своя схема', cost:2500, on:'минуты', sep:'да: своя копия, выгрузка и удаление целиком', noisy:'есть: серверы приложений и сервер базы общие', upd:'вместе со всеми; миграция катится по схемам'},
+      cell:{n:'🐝 Своя ячейка', cost:45000, on:'часы', sep:'да: своя база в своей ячейке', noisy:'нет: ресурсы ячейки под свой пик', upd:'тем же конвейером, по ячейкам'},
+      silo:{n:'🏠 Отдельная установка', cost:180000, on:'дни и недели', sep:'да: свои серверы, база и ключи', noisy:'нет', upd:'в своё окно, отдельной выкаткой'}
+    };
+    const P = [
+      {id:'yoga', n:'🧘 Йога у дома', pay:4900, ok:'pool',
+       d:'3 зала, 900 посетителей. Хотят начать сегодня. Особых требований к хранению нет.',
+       why:{schema:'Работает, но в 8 раз дороже пула, а требований «отдельно» нет. И миграции теперь катятся ещё на одну схему.',
+            cell:'Своя ячейка за 45 000 ₽ при выручке 4 900 ₽ — убыток каждый месяц.',
+            silo:'Отдельная установка — 180 000 ₽ в месяц и недели на подключение. Студия хотела начать сегодня.'},
+       good:'Пул: самое дешёвое и подключается за секунды. Требований, которые пул не закрывает, у студии нет.'},
+      {id:'clinic', n:'🩺 Клиника ЛФК', pay:40000, ok:'schema',
+       d:'В записях — ограничения по здоровью: особая категория персональных данных. Юрист просит: данные клиники хранить отдельно от чужих, уметь выгрузить или удалить всё по запросу, отдельная резервная копия. Своё окно обновлений не нужно.',
+       why:{pool:'Данные клиники лежат в одних таблицах с чужими. Отдельной копии и удаления «всего сразу» нет — требование юриста не выполнено.',
+            cell:'Своя ячейка выполнит требование, но стоит 45 000 ₽ при выручке 40 000 ₽: работа в убыток ради защиты от шумного соседа, о которой не просили.',
+            silo:'Отдельная установка выполнит требование с большим запасом, но 180 000 ₽ при выручке 40 000 ₽. Своё окно обновлений клинике не нужно.'},
+       good:'Своя схема: данные физически отдельно — своя копия, выгрузка и удаление одной командой, — а код и серверы общие. Ровно то, что просил юрист, и в бюджете.'},
+      {id:'fit', n:'🏋 Фитнес-Лайт', pay:120000, ok:'cell',
+       d:'Франшиза на 120 клубов, 180 000 посетителей. Каждый понедельник в 7:00 открывает запись на неделю: на 15 минут запросов в 20 раз больше. В договоре: их пик не должен тормозить других, а чужие пики — их. Требований «данные отдельно» нет.',
+       why:{pool:'В понедельник в 7:00 их ×20 положит запись соседям по пулу. Лимит на клиента защитит соседей, но тогда тормозить будут они сами — договор запрещает и то и другое.',
+            schema:'Своя схема разделила данные, но серверы приложений и сервер базы общие: пик в понедельник всё равно ударит по всем.',
+            silo:'Отдельная установка справится, но им не нужны ни свои ключи, ни своё окно обновлений. Своя ячейка даёт ту же защиту от пиков, а обновляется общим конвейером — и в четыре раза дешевле.'},
+       good:'Своя ячейка: ресурсы под их пик, соседи не мешают ни им, ни им соседи. А код, конвейер и мониторинг те же, что у всех.'},
+      {id:'bank', n:'🏦 Банк-Спорт', pay:600000, ok:'silo',
+       d:'Служба безопасности банка требует: отдельные серверы и база, свои ключи шифрования, обновления только в согласованное окно, доступ наших инженеров — по заявке.',
+       why:{pool:'Отдельные серверы и свои ключи в общем пуле невозможны.',
+            schema:'Своя схема — это всё ещё общий сервер базы и общие серверы приложений. Требование «отдельные серверы, свои ключи, своё окно» не выполнено.',
+            cell:'Ячейка обновляется вместе с остальными тем же конвейером. Банку нужно своё окно обновлений и доступ по заявке — это отдельная установка.'},
+       good:'Отдельная установка: свои серверы, ключи и окно обновлений. Дорого, но выручка в 600 000 ₽ это окупает, и иначе договор не подписать.'}
+    ];
+    const sel = {}, ok = new Set();
+    const host = document.getElementById('tnx-profs'), out = document.getElementById('tnx-iso-msg');
+    const fbs = {};
+    function facts(p){
+      const m = M[sel[p.id]]; if(!m) return '';
+      const margin = p.pay - m.cost;
+      return '<div class="facts"><b>цена для платформы</b><div>' + rub(m.cost) + ' в месяц при выручке ' + rub(p.pay) + ' — <span class="' + (margin >= 0 ? 'tnx-gain' : 'tnx-loss') + '">' + (margin >= 0 ? 'остаётся ' : 'убыток ') + rub(Math.abs(margin)) + '</span></div>' +
+        '<b>подключение</b><div>' + m.on + '</div><b>данные отдельно</b><div>' + m.sep + '</div><b>шумный сосед</b><div>' + m.noisy + '</div><b>обновления</b><div>' + m.upd + '</div></div>';
+    }
+    function paint(){
+      host.innerHTML = P.map(p => {
+        const f = fbs[p.id];
+        return '<div class="tnx-prof' + (ok.has(p.id) ? ' ok' : f ? ' nok' : '') + '"><h4>' + p.n + ' <span style="font:500 12px var(--mono);color:var(--faint)">· платит ' + rub(p.pay) + ' в месяц</span></h4><div class="d">' + p.d + '</div>' +
+          '<div class="ops">' + Object.keys(M).map(k => '<button type="button" data-p="' + p.id + '" data-m="' + k + '"' + (sel[p.id] === k ? ' class="on"' : '') + (ok.has(p.id) ? ' disabled' : '') + '>' + M[k].n + '</button>').join('') + '</div>' +
+          facts(p) + (ok.has(p.id) ? '<div class="fb">✓ ' + p.good + '</div>' : f ? '<div class="fb">✕ ' + f + '</div>' : '') + '</div>';
+      }).join('');
+    }
+    host.addEventListener('click', e => {
+      const b = e.target.closest('button[data-p]'); if(!b || ok.has(b.dataset.p)) return;
+      sel[b.dataset.p] = b.dataset.m; delete fbs[b.dataset.p]; paint();
+    });
+    renderHints('tnx-iso-hints', KEY, [
+      'Начинайте с самого жёсткого требования клиента. «Данные отдельно» отсекает пул. «Свои ключи, своё окно обновлений, доступ по заявке» — это уже отдельная установка.',
+      'Цена растёт слева направо: пул → своя схема → своя ячейка → отдельная установка. Берите самую дешёвую модель, которая закрывает требования, и сверяйтесь с выручкой. Для франшизы с пиками главное — чтобы её пики не задевали других и наоборот, а не отдельная база.'
+    ]);
+    document.getElementById('tnx-iso-check').addEventListener('click', () => {
+      const left = P.filter(p => !ok.has(p.id));
+      if(!left.length){ msg(out, 'ok', 'Все четыре клиента уже подобраны верно.'); return; }
+      const none = left.filter(p => !sel[p.id]);
+      if(none.length){ msg(out, 'warn', 'Не принимается: модель не выбрана у клиентов — ' + none.length + '. Выберите всем и проверьте.'); return; }
+      let bad = 0;
+      left.forEach(p => {
+        if(sel[p.id] === p.ok){ ok.add(p.id); delete fbs[p.id]; }
+        else { bad++; fbs[p.id] = p.why[sel[p.id]]; }
+      });
+      document.getElementById('tnx-iso-score').textContent = ok.size;
+      Progress.report(KEY, ok.size);
+      paint();
+      if(bad){
+        Progress.miss(KEY, host);
+        msg(out, 'err', 'Не подходит у клиентов: <b>' + bad + '</b>. Причина написана под каждым — поменяйте и проверьте ещё раз.');
+        return;
+      }
+      confetti(28);
+      msg(out, 'ok', 'Все четыре клиента на своих полках. Заметьте: три разные модели в одной платформе — это нормально. Платформа выигрывает на пуле, а дорогие модели оплачивают те, кому они нужны.');
+    });
+    paint();
+    msg(out, solvedBefore(KEY, P.length) ? 'ok' : '', solvedBefore(KEY, P.length) ? 'Задание уже решено раньше — можно подобрать ещё раз.' : 'Выберите модель каждому клиенту — цена и риски появятся сразу.');
+    Progress.register(KEY, P.length, 'Мультиарендность: модель изоляции');
+  })();
+
+  /* ── глава 4: путь запроса с меткой клиента ── */
+  (function(){
+    const A = [{id:'b', n:'Браузер', s:'администратор «Йоги»'}, {id:'g', n:'Шлюз'}, {id:'s', n:'Сервис записи'}, {id:'q', n:'Очередь → уведомления'}, {id:'c', n:'Кеш'}, {id:'d', n:'База'}];
+    const SPEC = {
+      ok:{actors:A, steps:[
+        {from:'b', to:'g', l:'POST /bookings {clubId:1, slotId:77} + токен', ms:'0 мс', d:'В теле нет никакого клиента. Клиент известен из токена входа.'},
+        {from:'g', to:'g', l:'токен проверен → клиент «Йога у дома»', ms:'1 мс', d:'Шлюз проверил подпись токена и достал утверждение <code class="inl">tenant_id</code>. Заодно — лимит: 12 из 300 запросов в секунду у «Йоги».'},
+        {from:'g', to:'s', l:'запрос + контекст: tenant = yoga', ms:'1 мс', d:'Контекст едет дальше во внутренней сети. Сервис доверяет шлюзу, а не браузеру.'},
+        {from:'s', to:'c', l:'GET t:yoga:slots:1:77', ms:'1 мс', d:'Ключ кеша начинается с клиента: «клуб 1» есть у каждого.'},
+        {from:'c', to:'s', l:'свободно 3 места', k:'ret'},
+        {from:'s', to:'d', l:'SET LOCAL app.tenant = yoga; INSERT booking', ms:'6 мс', d:'Контекст ставится внутри транзакции и живёт до её конца. Политика строк проверит, что строка принадлежит «Йоге».'},
+        {from:'d', to:'s', l:'запись 9031', k:'ret'},
+        {from:'s', to:'q', l:'«запись создана», метка tenant = yoga', ms:'2 мс', d:'Метка едет вместе с сообщением.'},
+        {from:'q', to:'q', l:'обработчик: контекст yoga → SMS от «Йоги у дома»', d:'Обработчик уведомлений восстанавливает контекст из метки: шаблон, имя отправителя и лимит SMS — свои у каждого клиента.'},
+        {from:'s', to:'b', l:'201: запись 9031', k:'ret', ms:'итого 34 мс'},
+        {from:'s', to:'s', l:'журнал и метрики: tenant = yoga', d:'Метка в журнале и метриках: по ней разбирают жалобы и считают расход клиента.'}
+      ], note:'<b>Метка клиента появилась один раз — на входе</b> — и дальше ехала сама: в ключ кеша, в транзакцию, в сообщение, в журнал. Никто по дороге её не «вспоминал».'},
+      bad:{actors:A, steps:[
+        {from:'b', to:'g', l:'POST /bookings {tenantId:"fitlite", clubId:1, slotId:77}', ms:'0 мс', fail:true, d:'Администратор «Йоги» дописал в тело чужого клиента. Это одна строка в инструментах разработчика браузера.'},
+        {from:'g', to:'g', l:'токен проверен: пользователь «Йоги»', ms:'1 мс', d:'Шлюз честно проверил вход. Но сервис записи возьмёт клиента не из токена.'},
+        {from:'g', to:'s', l:'запрос как есть', ms:'1 мс'},
+        {from:'s', to:'s', l:'tenant = body.tenantId = fitlite ✕', fail:true, d:'<b>Вот ошибка.</b> Сервис поверил телу запроса.'},
+        {from:'s', to:'d', l:'SET LOCAL app.tenant = fitlite; INSERT', ms:'6 мс', fail:true, d:'Политика строк не спасает: контекст уже чужой, и база честно защищает того, кого ей назвали.'},
+        {from:'d', to:'s', l:'запись в клубе 1 «Фитнес-Лайт»', k:'ret', fail:true},
+        {from:'s', to:'b', l:'201 — посетитель записан в чужой клуб', k:'ret', fail:true, d:'А такой же GET с tenantId=fitlite покажет чужое расписание и чужих посетителей.'}
+      ], note:'<b>Политика строк в базе — вторая линия обороны, а не первая.</b> Она защищает от забытого фильтра, но не от неверного контекста. Контекст должен приходить из входа.'}
+    };
+    let n = 0;
+    function draw(m){
+      const host = document.getElementById('tnx-path'); host.innerHTML = '';
+      const d = document.createElement('div'); d.id = 'tnx-path-' + (++n); host.appendChild(d);
+      renderSeq(d.id, SPEC[m]);
+    }
+    document.getElementById('tnx-path-mode').addEventListener('click', e => {
+      const b = e.target.closest('button[data-m]'); if(!b) return;
+      [...b.parentNode.children].forEach(x => x.classList.toggle('on', x === b));
+      draw(b.dataset.m);
+    });
+    draw('ok');
+  })();
+
+  /* ── задание: метка клиента (выбор с повтором) ── */
+  (function(){
+    const KEY = 'tnx-ctx';
+    const Q = [
+      {q:'Откуда сервис записи должен брать идентификатор клиента?',
+       opts:[{t:'Из проверенного токена или сессии входа', ok:true},
+             {t:'Из поля tenantId в теле запроса', why:'Тело пишет браузер, а значит, и любой пользователь. Подставил чужого клиента — получил чужие данные.'},
+             {t:'Из поддомена в адресе, без сверки с токеном', why:'Поддомен меняется руками в адресной строке. Он годится, чтобы показать нужную страницу входа, но не чтобы решать, чьи данные отдавать.'},
+             {t:'Из заголовка, который присылает браузер', why:'Заголовки от браузера — те же слова пользователя. Заголовок с клиентом можно доверять только тот, что поставил шлюз после проверки токена.'}],
+       why:'Клиента сообщает тот, кто его проверил: сервер входа подписал токен, шлюз проверил подпись. Всё, что пишет браузер, — просьба, а не факт.'},
+      {q:'Расписание кешируется по ключу schedule:{clubId}:{date}. Номера клубов у каждого клиента начинаются с 1. Что случится?',
+       opts:[{t:'Клиенты увидят расписание друг друга: ключи совпадают', ok:true},
+             {t:'Ничего: номер клуба уникален', why:'Уникален внутри клиента. «Клуб 1» есть и у «Йоги», и у «Фитнес-Лайт».'},
+             {t:'Кеш станет медленнее', why:'Скорость та же. Беда в другом: в кеше лежит чужое.'},
+             {t:'Кеш будет чаще промахиваться', why:'Наоборот, он будет «попадать» — в чужую запись.'}],
+       why:'Ключ кеша — тоже адрес данных, и в нём должна быть метка клиента: t:{клиент}:schedule:{клуб}:{дата}. Лучше собирать ключ в одной общей функции, а не руками в каждом сервисе.'},
+      {q:'Обработчик уведомлений получает из очереди «запись создана». Как он узнаёт, чей это посетитель?',
+       opts:[{t:'Из метки клиента в сообщении — и ставит контекст перед работой', ok:true},
+             {t:'Берёт клиента, который был у предыдущего сообщения', why:'Предыдущее сообщение могло быть от другого клиента. Это прямой путь к SMS с чужим именем отправителя.'},
+             {t:'Ищет запись по номеру во всех клиентах подряд', why:'Обход всех клиентов — это доступ ко всем данным сразу. Обработчику он не нужен.'},
+             {t:'Никак: уведомления общие для всех', why:'Шаблоны, имя отправителя и лимит SMS у каждого клиента свои.'}],
+       why:'Метка едет вместе с сообщением. Обработчик ставит контекст из неё перед работой и сбрасывает после — так же, как сервис делает это для запроса.'},
+      {q:'Зачем метка клиента в журналах и метриках?',
+       opts:[{t:'Чтобы разобрать жалобу клиента, найти, кто устроил пик, и разложить счёт по клиентам', ok:true},
+             {t:'Чтобы журналы занимали меньше места', why:'Метка добавляет поле, а не убирает.'},
+             {t:'Незачем: в журналах только технические данные', why:'Без метки нельзя ответить на вопрос «почему у нас тормозило в понедельник» и «во что нам обходится этот клиент».'},
+             {t:'Чтобы клиент мог читать журналы всех клиентов', why:'Наоборот: метка нужна, чтобы клиент видел только своё.'}],
+       why:'Метка в журналах, трассах и метриках превращает «у всех тормозит» в «пик у одного клиента» и даёт счёт по расходу.'},
+      {q:'В пуле таблица bookings: индекс (club_id, starts_at), уникальный ключ (club_id, slot_id). Что поправить?',
+       opts:[{t:'Поставить tenant_id первым в индексы и уникальные ключи', ok:true},
+             {t:'Ничего: фильтр по tenant_id и так есть в запросе', why:'Индекс без клиента ведёт базу по строкам всех клиентов, а уникальный ключ без клиента запретит «Йоге» слот, который занят у «Фитнес-Лайт».'},
+             {t:'Сделать отдельную таблицу на каждого клиента', why:'Это уже другая модель изоляции, и у неё своя цена: тысячи таблиц и миграции на каждую.'},
+             {t:'Убрать tenant_id: номера клубов и так разные', why:'Не разные: «клуб 1» есть у каждого клиента.'}],
+       why:'В пуле клиент — первая часть любого ключа: (tenant_id, club_id, …). Так и поиск идёт только по своим строкам, и уникальность — внутри клиента.'},
+      {q:'Администратор «Йоги» запускает отчёт за год. Как не дать ему съесть базу у всех?',
+       opts:[{t:'Лимит тяжёлых отчётов на клиента и отдельная очередь отчётов со своими обработчиками и репликой', ok:true},
+             {t:'Никак: клиент платит, клиент прав', why:'Платят все клиенты, и остальные тоже вправе получить запись за полсекунды.'},
+             {t:'Запретить отчёты всем', why:'Отчёты нужны. Проблема не в отчётах, а в том, что они делят ресурсы с онлайн-записью.'},
+             {t:'Поднять таймаут базы до часа', why:'Тогда отчёт гарантированно доработает — и всё это время будет держать соединения, нужные остальным.'}],
+       why:'Тяжёлое — отдельно и с лимитом на клиента: своя очередь, свои обработчики, реплика для чтения. Отчёт строится дольше, зато запись у всех остаётся быстрой.'}
+    ];
+    const root = document.getElementById('tnx-ctx'), solved = new Set();
+    document.getElementById('tnx-ctx-total').textContent = Q.length;
+    root.className = 'role-list';
+    root.innerHTML = Q.map((it, i) => '<div class="rtask" data-i="' + i + '"><div class="rq2">' + it.q + '</div><div class="rbtns">' +
+      shuffleBy(it.opts, it.q).map(j => '<button class="rb" data-j="' + j + '">' + esc(it.opts[j].t) + '</button>').join('') + '</div><div class="rwhy"></div></div>').join('');
+    root.addEventListener('click', e => {
+      const btn = e.target.closest('.rb'); if(!btn || btn.disabled) return;
+      const task = btn.closest('.rtask'), i = +task.dataset.i, o = Q[i].opts[+btn.dataset.j], why = task.querySelector('.rwhy');
+      why.classList.add('show');
+      if(o.ok){
+        task.querySelectorAll('.rb').forEach(b => { b.disabled = true; });
+        btn.classList.add('correct');
+        why.innerHTML = '<b style="color:var(--ok)">Верно. </b>' + Q[i].why;
+        solved.add(i);
+        document.getElementById('tnx-ctx-score').textContent = solved.size;
+        Progress.report(KEY, solved.size);
+        if(solved.size === Q.length) confetti(26);
+      } else {
+        btn.classList.add('wrong'); btn.disabled = true;
+        Progress.miss(KEY, root);
+        why.innerHTML = '<b style="color:var(--danger)">Не то. </b>' + o.why + ' <span style="color:var(--faint)">Выберите другой вариант.</span>';
+      }
+    });
+    Progress.register(KEY, Q.length, 'Мультиарендность: метка клиента');
+  })();
+
+  /* ── глава 5: шумный сосед ── */
+  (function(){
+    const KEY = 'tnx-noisy';
+    const TEN = [
+      {id:'yoga', n:'Йога у дома', base:20},
+      {id:'fit', n:'Фитнес-Лайт', base:150},
+      {id:'cli', n:'Клиника ЛФК', base:80},
+      {id:'dan', n:'Танцы на Ленина', base:30}
+    ];
+    const TOG = [
+      {id:'quota', n:'Лимит на клиента: 300 запросов в секунду, сверх — ответ 429 «повторите через 5 секунд»', cost:0},
+      {id:'bulk', n:'Тяжёлые отчёты — в отдельную очередь со своими обработчиками и репликой для чтения', cost:10},
+      {id:'cell', n:'Своя ячейка для «Фитнес-Лайт»', cost:20},
+      {id:'x2', n:'Удвоить серверы приложений для всех', cost:100},
+      {id:'retry', n:'Повторять неудачные запросы до трёх раз сразу, без паузы', cost:0}
+    ];
+    const t = {}; TOG.forEach(x => { t[x.id] = false; });
+    let ev = 'norm', done = false;
+    const SLO = 500;
+    const lat = (u, k) => k / (1 - u);
+    /* модель: серверы приложений на 1000 запросов/с, пул базы на 100 соединений; 0,1 соединения на запрос/с;
+       годовой отчёт без отдельной очереди держит 88 соединений; своя ячейка рассчитана на пик «Фитнес-Лайт» */
+    function sim(e, tg){
+      const load = {}; TEN.forEach(x => { load[x.id] = x.base; });
+      if(e === 'mon') load.fit = x20(load.fit);
+      const cap = tg.x2 ? 2000 : 1000;
+      const shared = TEN.filter(x => !(tg.cell && x.id === 'fit'));
+      const adm = {}, rej = {};
+      shared.forEach(x => { adm[x.id] = tg.quota ? Math.min(load[x.id], 300) : load[x.id]; rej[x.id] = load[x.id] - adm[x.id]; });
+      const A0 = shared.reduce((s, x) => s + adm[x.id], 0);
+      const R = (e === 'rep' && !tg.bulk) ? 88 : 0, avail = 100 - R;
+      const over0 = A0 / cap >= 1 || A0 * 0.1 / avail >= 1;
+      const storm = tg.retry && over0 ? 1.8 : 1;
+      const A = A0 * storm, uA = A / cap, need = A0 * 0.1 * storm, uD = need / avail;
+      const res = {};
+      shared.forEach(x => {
+        let p95, err;
+        if(uA >= 1 || uD >= 1){ const u = Math.max(uA, uD); err = 1 - 1 / u; p95 = 3000; }
+        else { p95 = Math.min(3000, 60 + lat(uA, 120) + lat(uD, 40)); err = 0; }
+        res[x.id] = {p95, err, rej:rej[x.id] / load[x.id]};
+      });
+      if(tg.cell){
+        const u = load.fit / 3500, ud = load.fit * 0.1 / 400;
+        res.fit = {p95:Math.min(3000, 60 + lat(u, 120) + lat(ud, 40)), err:0, rej:0, cell:true};
+      }
+      const cost = TOG.reduce((s, x) => s + (tg[x.id] ? x.cost : 0), 0);
+      return {res, uA, uD, R, need, avail, cost, storm};
+    }
+    function x20(v){ return v * 20; }
+    const okT = r => r.p95 <= SLO && r.err <= 0.01;
+    function verdict(tg){
+      const mon = sim('mon', tg), rep = sim('rep', tg);
+      const monOk = TEN.filter(x => x.id !== 'fit').every(x => okT(mon.res[x.id]));
+      const repOk = TEN.every(x => okT(rep.res[x.id]));
+      return {monOk, repOk, cost:mon.cost, pass:monOk && repOk && mon.cost <= 30 && !tg.retry};
+    }
+    const sw = document.getElementById('tnx-sw');
+    sw.innerHTML = TOG.map(x => '<button type="button" data-t="' + x.id + '"><span class="k"></span><span>' + x.n + '</span><span class="c">+' + x.cost + ' %</span></button>').join('');
+    const out = document.getElementById('tnx-noisy-msg'), whyEl = document.getElementById('tnx-noisy-why');
+    function paint(){
+      sw.querySelectorAll('button').forEach(b => { b.classList.toggle('on', t[b.dataset.t]); b.disabled = done; });
+      const r = sim(ev, t);
+      const pct = v => Math.round(v * 100);
+      document.getElementById('tnx-meters').innerHTML =
+        '<span class="meter' + (r.uA >= 1 ? ' bad' : r.uA > 0.7 ? ' wq' : ' good') + '">серверы приложений: <b>' + Math.min(999, pct(r.uA)) + ' %</b></span>' +
+        '<span class="meter' + (r.uD >= 1 ? ' bad' : r.uD > 0.7 ? ' wq' : ' good') + '">соединения базы: <b>' + Math.min(999, pct(r.uD)) + ' %</b>' + (r.R ? ' (отчёт держит ' + r.R + ' из 100)' : '') + '</span>' +
+        '<span class="meter' + (r.cost > 30 ? ' bad' : r.cost ? ' wq' : '') + '">счёт за серверы: <b>+' + r.cost + ' %</b></span>' +
+        (r.storm > 1 ? '<span class="meter bad">шторм повторов: <b>×1,8</b></span>' : '');
+      document.getElementById('tnx-rows').innerHTML = TEN.map(x => {
+        const v = r.res[x.id], free = ev === 'mon' && x.id === 'fit';
+        const good = okT(v), w = Math.min(100, v.p95 / 30);
+        const cls = v.p95 >= 3000 || v.err > 0.01 ? 'b' : v.p95 > SLO ? 'w' : '';
+        const sub = v.cell ? 'своя ячейка' : (v.rej > 0.001 ? 'отказано по лимиту: ' + pct(v.rej) + ' %' : (free ? 'это его пик' : 'в общем пуле'));
+        return '<div class="tnx-row"><span class="nm">' + x.n + '<small>' + sub + '</small></span><span class="bar"><i class="' + cls + '" style="width:' + w + '%"></i></span>' +
+          '<span class="v">p95 ' + (v.p95 >= 3000 ? '> 3 с' : Math.round(v.p95) + ' мс') + ' · ошибок ' + pct(v.err) + ' %</span>' +
+          '<span class="st ' + (free && !good ? 'n' : good ? 'g' : 'b') + '">' + (free && !good ? '—' : good ? '✓' : '✕') + '</span></div>';
+      }).join('');
+    }
+    sw.addEventListener('click', e => {
+      const b = e.target.closest('button[data-t]'); if(!b || done) return;
+      t[b.dataset.t] = !t[b.dataset.t]; whyEl.innerHTML = ''; paint();
+    });
+    document.getElementById('tnx-ev').addEventListener('click', e => {
+      const b = e.target.closest('button[data-e]'); if(!b) return;
+      [...b.parentNode.children].forEach(x => x.classList.toggle('on', x === b));
+      ev = b.dataset.e; paint();
+    });
+    renderHints('tnx-noisy-hints', KEY, [
+      'Разберите две беды по отдельности. Всплеск запросов одного клиента лечится лимитом на клиента или своей ячейкой. Тяжёлый фоновый отчёт — отдельной очередью со своими обработчиками: лимит по числу запросов его не остановит, ведь отчёт — это один запрос. Удвоить серверы всем дорого и не трогает базу, а повторы без паузы только добавляют нагрузки.'
+    ]);
+    document.getElementById('tnx-noisy-check').addEventListener('click', () => {
+      if(done){ msg(out, 'ok', 'Решение уже принято.'); return; }
+      if(!TOG.some(x => t[x.id])){ msg(out, 'warn', 'Не принимается: ни одна мера не включена. Сначала запустите события и посмотрите, что ломается.'); return; }
+      const v = verdict(t);
+      if(!v.pass){
+        Progress.miss(KEY, sw);
+        const why = [];
+        if(!v.monOk) why.push('В понедельник в 7:00 соседи «Фитнес-Лайт» не укладываются в 500 мс или получают ошибки.');
+        if(!v.repOk) why.push('Во время годового отчёта запись тормозит у всех: отчёт держит соединения базы.');
+        if(v.cost > 30) why.push('Счёт за серверы вырос на ' + v.cost + ' % — бюджет +30 %.');
+        if(t.retry) why.push('Повторы без паузы включены: при любой перегрузке они умножают нагрузку — это шторм повторов. Повторять можно только с паузой и случайным разбросом.');
+        msg(out, 'err', 'Решение пока не проходит.');
+        whyEl.innerHTML = '<div class="note bad">' + why.join('<br>') + '</div>';
+        return;
+      }
+      done = true; paint();
+      Progress.report(KEY, 1); confetti(28);
+      msg(out, 'ok', 'Решение проходит: в оба события соседи укладываются в 500 мс, счёт вырос на ' + v.cost + ' %.');
+      whyEl.innerHTML = '<div class="note good"><b>Почему это работает.</b> Каждая беда получила своё лекарство: всплеск запросов — лимит или своя ячейка, тяжёлый отчёт — своя очередь и реплика. ' +
+        (t.quota && !t.cell ? 'Обратите внимание: лимит спас соседей, но «Фитнес-Лайт» в свой пик получает 90 % ответов «повторите через 5 секунд». Соседи довольны, крупный клиент — нет. В жизни это разговор о своей ячейке, за которую он доплатит.' : 'Своя ячейка дала «Фитнес-Лайт» ресурсы под его пик: и соседи не страдают, и он сам не получает отказов.') + '</div>';
+    });
+    paint();
+    msg(out, solvedBefore(KEY, 1) ? 'ok' : '', solvedBefore(KEY, 1) ? 'Задание уже решено раньше — можно поэкспериментировать ещё.' : 'Запустите «Понедельник» и «Годовой отчёт» без мер — посмотрите, что ломается.');
+    Progress.register(KEY, 1, 'Мультиарендность: шумный сосед');
+  })();
+
+  /* ── глава 5: наблюдаемость и счёт по клиенту ── */
+  (function(){
+    const T = ['6:45', '6:50', '6:55', '7:00', '7:05', '7:10', '7:15', '7:20'];
+    const S = [
+      {n:'Фитнес-Лайт', c:'var(--danger)', v:[150, 160, 170, 3000, 2600, 1400, 400, 160]},
+      {n:'Клиника ЛФК', c:'var(--nt)', v:[80, 85, 80, 90, 85, 80, 80, 85]},
+      {n:'Танцы на Ленина', c:'var(--ms)', v:[30, 30, 35, 30, 30, 35, 30, 30]},
+      {n:'Йога у дома', c:'var(--dt)', v:[20, 25, 20, 20, 25, 20, 20, 20]}
+    ];
+    const max = Math.max(...T.map((_, i) => S.reduce((s, x) => s + x.v[i], 0)));
+    const chart = document.getElementById('tnx-chart'), leg = document.getElementById('tnx-legend'), out = document.getElementById('tnx-obs-msg');
+    function draw(mode){
+      chart.innerHTML = T.map((tm, i) => {
+        const sum = S.reduce((s, x) => s + x.v[i], 0);
+        const parts = mode === 'all' ? '<span style="height:' + (sum / max * 100) + '%;background:var(--faint)"></span>'
+          : S.map(x => '<span style="height:' + (x.v[i] / max * 100) + '%;background:' + x.c + '"></span>').join('');
+        return '<div class="col" title="' + tm + ': ' + sum + ' запросов/с">' + parts + '<span class="lb">' + tm + '</span></div>';
+      }).join('');
+      leg.innerHTML = mode === 'all' ? '<span><i style="background:var(--faint)"></i>все клиенты вместе</span>' : S.map(x => '<span><i style="background:' + x.c + '"></i>' + x.n + '</span>').join('');
+      msg(out, mode === 'all' ? 'warn' : 'ok', mode === 'all' ? 'В 7:00 запросов стало в 10 раз больше. Кто это — по общему графику не понять: дежурный будет искать по журналам полчаса.'
+        : 'С меткой клиента в метриках ответ виден сразу: пик — это «Фитнес-Лайт», остальные клиенты нагрузку не меняли.');
+    }
+    document.getElementById('tnx-obs-mode').addEventListener('click', e => {
+      const b = e.target.closest('button[data-m]'); if(!b) return;
+      [...b.parentNode.children].forEach(x => x.classList.toggle('on', x === b));
+      draw(b.dataset.m);
+    });
+    draw('all');
+    document.getElementById('tnx-bill').innerHTML =
+      '<thead><tr><th>Клиент за месяц</th><th>Запросов</th><th>Тяжёлых отчётов</th><th>Доля расхода платформы</th><th>Платит</th></tr></thead><tbody>' +
+      '<tr><td>Фитнес-Лайт</td><td>41 млн</td><td>12</td><td class="w">58 %</td><td>120 000 ₽</td></tr>' +
+      '<tr><td>Клиника ЛФК</td><td>9 млн</td><td>31</td><td class="w">27 %</td><td>40 000 ₽</td></tr>' +
+      '<tr><td>Танцы на Ленина</td><td>3 млн</td><td>2</td><td>9 %</td><td>9 900 ₽</td></tr>' +
+      '<tr><td>Йога у дома</td><td>2 млн</td><td>1</td><td>6 %</td><td>4 900 ₽</td></tr></tbody>';
+  })();
+
+  /* ── глава 6: поиск утечек ── */
+  (function(){
+    const KEY = 'tnx-leak';
+    const L = [
+      {t:'Шлюз проверяет токен входа; из него берётся идентификатор клиента и кладётся в контекст запроса.', fx:'Правильно: клиент из проверенного токена.'},
+      {t:'Эндпоинт POST /bookings принимает в теле tenantId, clubId и slotId; сервис записи находит клуб по tenantId из тела.', bad:true, fx:'Клиента брать из токена. Поле tenantId из тела убрать или сверять с токеном и отвечать 403 при расхождении.'},
+      {t:'Расписание клуба кешируется в Redis по ключу schedule:{clubId}:{date}; номера клубов у каждого клиента начинаются с 1.', bad:true, fx:'Ключ с меткой клиента: t:{tenant}:schedule:{clubId}:{date}. Собирать ключ в одной общей функции, а не руками в каждом сервисе.'},
+      {t:'Во всех таблицах есть столбец tenant_id; в базе включена политика строк: запрос видит только строки клиента из контекста.', fx:'Правильно: даже если в запросе забыли фильтр, база не отдаст чужие строки.'},
+      {t:'Пул соединений с базой общий; перед запросом сервис выполняет SET app.tenant, а после ответа значение не сбрасывает.', bad:true, fx:'Соединение вернётся в пул с чужим контекстом, и следующий запрос без своего SET увидит чужие строки. Ставить SET LOCAL внутри транзакции или сбрасывать значение при возврате соединения в пул.'},
+      {t:'Сообщение «запись создана» несёт tenant_id; обработчик уведомлений перед работой ставит контекст клиента из сообщения.', fx:'Правильно: метка едет вместе с сообщением.'},
+      {t:'Ночная выгрузка для аналитики собирает все записи в один файл bookings.csv в общей папке, к которой есть доступ у менеджеров всех клиентов.', bad:true, fx:'Выгрузка — по клиенту: отдельный файл в папке клиента и доступ только его менеджерам. Общий файл — только обезличенный.'},
+      {t:'Поиск посетителей по имени и телефону идёт по общему поисковому индексу; фильтр по tenant_id добавляет экран на фронтенде.', bad:true, fx:'Фильтр в браузере убирается за минуту в инструментах разработчика. Фильтр по клиенту — на сервере, в запросе к индексу; надёжнее — свой индекс или раздел на клиента.'},
+      {t:'В журналах и трассах у каждой записи есть поле tenant; телефоны в журналах маскируются.', fx:'Правильно: жалобу клиента можно разобрать, а телефонов в журнале нет.'},
+      {t:'Лимиты запросов считаются отдельно для каждого клиента по tenant_id из токена.', fx:'Правильно: шумный сосед не съест всех.'},
+      {t:'Файлы (фото тренеров, договоры) лежат в хранилище по пути /{tenant_id}/…; ссылка на скачивание выдаётся на 10 минут после проверки, что файл принадлежит клиенту из токена.', fx:'Правильно: путь с меткой и проверка принадлежности перед выдачей ссылки.'},
+      {t:'Служба поддержки входит в админку под общей учётной записью support и видит данные любого клиента без записи в журнал аудита.', bad:true, fx:'Личные учётные записи поддержки, доступ к данным клиента — по его заявке и на время, каждое действие — в журнал аудита, который клиент может запросить.'}
+    ];
+    const sel = new Set();
+    let done = false;
+    const host = document.getElementById('tnx-lines'), out = document.getElementById('tnx-leak-msg');
+    function paint(){
+      host.innerHTML = L.map((l, i) => {
+        const cls = done ? (l.bad ? ' sel shown' : ' okline shown') : (sel.has(i) ? ' sel' : '');
+        return '<button type="button" class="tnx-ln' + cls + '" data-i="' + i + '"' + (done ? ' disabled' : '') + '><span class="n">' + (i + 1) + '</span><span>' + esc(l.t) +
+          '<span class="fx">' + (l.bad ? '<b style="color:var(--danger)">Утечка.</b> ' : '') + l.fx + '</span></span></button>';
+      }).join('');
+    }
+    host.addEventListener('click', e => {
+      const b = e.target.closest('.tnx-ln'); if(!b || done) return;
+      const i = +b.dataset.i;
+      if(sel.has(i)) sel.delete(i); else sel.add(i);
+      paint(); msg(out, '', 'Отмечено строк: ' + sel.size + '.');
+    });
+    document.getElementById('tnx-leak-reset').addEventListener('click', () => { if(done) return; sel.clear(); paint(); msg(out, '', 'Отметки сняты.'); });
+    renderHints('tnx-leak-hints', KEY, [
+      'Ищите места, где метка клиента берётся не из входа, теряется по дороге или проверяется не на сервере. И общие места без метки: кеш, выгрузки, учётные записи.',
+      'Пройдите путь данных: вход → кеш → база → очередь → выгрузки → поиск → поддержка. Утечек шесть; две из них — в кеше и в общем пуле соединений с базой.',
+      'Утечки — в строках 2, 3, 5, 7, 8 и 12.'
+    ]);
+    document.getElementById('tnx-leak-check').addEventListener('click', () => {
+      if(done){ msg(out, 'ok', 'Задание уже решено.'); return; }
+      if(!sel.size){ msg(out, 'warn', 'Не принимается: ни одна строка не отмечена. Нажмите на строки, где данные клиентов могут перемешаться.'); return; }
+      const bad = L.map((l, i) => l.bad ? i : -1).filter(i => i >= 0);
+      const found = bad.filter(i => sel.has(i)).length, extra = [...sel].filter(i => !L[i].bad).length;
+      if(found < bad.length || extra){
+        Progress.miss(KEY, host);
+        msg(out, 'err', 'Пока не так. Найдено утечек: <b>' + found + ' из ' + bad.length + '</b>' + (extra ? '; ложных тревог: <b>' + extra + '</b> — там всё в порядке' : '') + '.');
+        return;
+      }
+      done = true; paint();
+      Progress.report(KEY, 1); confetti(30);
+      msg(out, 'ok', 'Все шесть утечек найдены. Под каждой строкой — как это чинят. Заметьте: ни одна утечка не похожа на взлом — это забытая метка в одном месте.');
+    });
+    paint();
+    msg(out, solvedBefore(KEY, 1) ? 'ok' : '', solvedBefore(KEY, 1) ? 'Задание уже решено раньше — можно пройти ещё раз.' : 'Отметьте строки с утечками и нажмите «Проверить».');
+    Progress.register(KEY, 1, 'Мультиарендность: поиск утечек');
+  })();
+})();
+</script>
