@@ -1,0 +1,3627 @@
+{
+ "contrast": {
+  "light": {
+   "tokens": {
+    "ground": "#eaeef4",
+    "surface": "#ffffff",
+    "surface-2": "#f2f5fa",
+    "surface-3": "#e7ecf4",
+    "ink": "#16202f",
+    "muted": "#586275",
+    "faint": "#8894a6",
+    "line": "#d4dbe6",
+    "mn": "#c0611a",
+    "ms": "#0d8e7f",
+    "dt": "#7a45cf",
+    "nt": "#4356d3",
+    "danger": "#c62f27",
+    "danger-bg": "#fdeceb",
+    "ok": "#1c8a4a",
+    "ok-bg": "#e9f7ee",
+    "warn": "#b7791f",
+    "warn-bg": "#fdf4e3"
+   },
+   "ratios": {
+    "ink on surface": 16.38,
+    "ink on surface-2": 14.99,
+    "ink on surface-3": 13.81,
+    "ink on ground": 14.07,
+    "muted on surface": 6.14,
+    "muted on surface-2": 5.62,
+    "muted on surface-3": 5.18,
+    "muted on ground": 5.28,
+    "faint on surface": 3.07,
+    "faint on surface-2": 2.81,
+    "faint on surface-3": 2.59,
+    "faint on ground": 2.64,
+    "mn on surface": 4.23,
+    "mn on surface-2": 3.87,
+    "mn on surface-3": 3.56,
+    "mn on ground": 3.63,
+    "ms on surface": 4.04,
+    "ms on surface-2": 3.7,
+    "ms on surface-3": 3.41,
+    "ms on ground": 3.47,
+    "dt on surface": 5.87,
+    "dt on surface-2": 5.37,
+    "dt on surface-3": 4.95,
+    "dt on ground": 5.04,
+    "nt on surface": 5.98,
+    "nt on surface-2": 5.47,
+    "nt on surface-3": 5.04,
+    "nt on ground": 5.14,
+    "danger on surface": 5.47,
+    "danger on surface-2": 5.01,
+    "danger on surface-3": 4.61,
+    "danger on ground": 4.7,
+    "ok on surface": 4.39,
+    "ok on surface-2": 4.02,
+    "ok on surface-3": 3.7,
+    "ok on ground": 3.77,
+    "warn on surface": 3.64,
+    "warn on surface-2": 3.33,
+    "warn on surface-3": 3.07,
+    "warn on ground": 3.13,
+    "#fff on mn": 4.23,
+    "#fff on ms": 4.04,
+    "#fff on dt": 5.87,
+    "#fff on nt": 5.98,
+    "#fff on danger": 5.47,
+    "#fff on ok": 4.39,
+    "#fff on warn": 3.64,
+    "surface on mn": 4.23,
+    "surface on ms": 4.04,
+    "surface on dt": 5.87,
+    "surface on nt": 5.98
+   }
+  },
+  "dark": {
+   "tokens": {
+    "ground": "#0b101a",
+    "surface": "#131b28",
+    "surface-2": "#1a2434",
+    "surface-3": "#222f42",
+    "ink": "#e7edf6",
+    "muted": "#98a5ba",
+    "faint": "#68758c",
+    "line": "#293648",
+    "mn": "#e8a052",
+    "ms": "#33cab4",
+    "dt": "#b697f6",
+    "nt": "#8090ff",
+    "danger": "#ff6f64",
+    "danger-bg": "#3a1a18",
+    "ok": "#4ed383",
+    "ok-bg": "#14301f",
+    "warn": "#e6b45a",
+    "warn-bg": "#332916"
+   },
+   "ratios": {
+    "ink on surface": 14.68,
+    "ink on surface-2": 13.26,
+    "ink on surface-3": 11.49,
+    "ink on ground": 16.17,
+    "muted on surface": 6.93,
+    "muted on surface-2": 6.26,
+    "muted on surface-3": 5.42,
+    "muted on ground": 7.64,
+    "faint on surface": 3.71,
+    "faint on surface-2": 3.35,
+    "faint on surface-3": 2.9,
+    "faint on ground": 4.09,
+    "mn on surface": 7.89,
+    "mn on surface-2": 7.12,
+    "mn on surface-3": 6.17,
+    "mn on ground": 8.68,
+    "ms on surface": 8.43,
+    "ms on surface-2": 7.61,
+    "ms on surface-3": 6.6,
+    "ms on ground": 9.29,
+    "dt on surface": 7.2,
+    "dt on surface-2": 6.5,
+    "dt on surface-3": 5.63,
+    "dt on ground": 7.93,
+    "nt on surface": 6.05,
+    "nt on surface-2": 5.46,
+    "nt on surface-3": 4.73,
+    "nt on ground": 6.66,
+    "danger on surface": 6.34,
+    "danger on surface-2": 5.73,
+    "danger on surface-3": 4.96,
+    "danger on ground": 6.99,
+    "ok on surface": 9.03,
+    "ok on surface-2": 8.15,
+    "ok on surface-3": 7.06,
+    "ok on ground": 9.94,
+    "warn on surface": 9.09,
+    "warn on surface-2": 8.2,
+    "warn on surface-3": 7.11,
+    "warn on ground": 10.01,
+    "#fff on mn": 2.19,
+    "#fff on ms": 2.05,
+    "#fff on dt": 2.4,
+    "#fff on nt": 2.86,
+    "#fff on danger": 2.72,
+    "#fff on ok": 1.91,
+    "#fff on warn": 1.9,
+    "surface on mn": 7.89,
+    "surface on ms": 8.43,
+    "surface on dt": 7.2,
+    "surface on nt": 6.05
+   }
+  }
+ },
+ "prefixes": {
+  "sharedClassCount": 201,
+  "perPart": {
+   "layers": {
+    "file": "p02a_layers.html",
+    "styleBytes": 13273,
+    "localClasses": 64,
+    "prefixes": {
+     "lyx": 38,
+     "(no-prefix)": 26
+    },
+    "unprefixedSamples": [
+     "ln",
+     "lt",
+     "e",
+     "soft",
+     "nd",
+     "src",
+     "cur",
+     "sel"
+    ]
+   },
+   "zachem": {
+    "file": "p03_zachem.html",
+    "styleBytes": 15391,
+    "localClasses": 85,
+    "prefixes": {
+     "zhx": 54,
+     "(no-prefix)": 31
+    },
+    "unprefixedSamples": [
+     "v",
+     "s",
+     "past",
+     "ax",
+     "grid",
+     "cv",
+     "cv2",
+     "pre"
+    ]
+   },
+   "life": {
+    "file": "p03a_life.html",
+    "styleBytes": 0,
+    "localClasses": 0,
+    "prefixes": {},
+    "unprefixedSamples": []
+   },
+   "reqs": {
+    "file": "p03b_reqs.html",
+    "styleBytes": 0,
+    "localClasses": 0,
+    "prefixes": {},
+    "unprefixedSamples": []
+   },
+   "bpmn": {
+    "file": "p03c_bpmn.html",
+    "styleBytes": 0,
+    "localClasses": 0,
+    "prefixes": {},
+    "unprefixedSamples": []
+   },
+   "mono": {
+    "file": "p04_mono.html",
+    "styleBytes": 12225,
+    "localClasses": 70,
+    "prefixes": {
+     "mnx": 35,
+     "(no-prefix)": 35
+    },
+    "unprefixedSamples": [
+     "v",
+     "new",
+     "src",
+     "s",
+     "still",
+     "commit",
+     "rollback",
+     "lost"
+    ]
+   },
+   "modular": {
+    "file": "p05_modular.html",
+    "styleBytes": 0,
+    "localClasses": 0,
+    "prefixes": {},
+    "unprefixedSamples": []
+   },
+   "micro": {
+    "file": "p06_micro.html",
+    "styleBytes": 0,
+    "localClasses": 0,
+    "prefixes": {},
+    "unprefixedSamples": []
+   },
+   "versus": {
+    "file": "p07_versus.html",
+    "styleBytes": 0,
+    "localClasses": 0,
+    "prefixes": {},
+    "unprefixedSamples": []
+   },
+   "styles": {
+    "file": "p07a_styles.html",
+    "styleBytes": 0,
+    "localClasses": 0,
+    "prefixes": {},
+    "unprefixedSamples": []
+   },
+   "domains": {
+    "file": "p08_domains.html",
+    "styleBytes": 22021,
+    "localClasses": 117,
+    "prefixes": {
+     "dmx": 82,
+     "(no-prefix)": 35
+    },
+    "unprefixedSamples": [
+     "v",
+     "w",
+     "q",
+     "o",
+     "s",
+     "ev",
+     "piv",
+     "cand"
+    ]
+   },
+   "estorm": {
+    "file": "p08a_estorm.html",
+    "styleBytes": 17578,
+    "localClasses": 85,
+    "prefixes": {
+     "esx": 57,
+     "(no-prefix)": 25,
+     "ln": 1,
+     "v": 2
+    },
+    "unprefixedSamples": [
+     "k",
+     "ar",
+     "col",
+     "gone",
+     "hid",
+     "piv",
+     "sel",
+     "fresh"
+    ]
+   },
+   "bc": {
+    "file": "p09_bc.html",
+    "styleBytes": 0,
+    "localClasses": 0,
+    "prefixes": {},
+    "unprefixedSamples": []
+   },
+   "ctxmap": {
+    "file": "p10_ctxmap.html",
+    "styleBytes": 0,
+    "localClasses": 0,
+    "prefixes": {},
+    "unprefixedSamples": []
+   },
+   "split": {
+    "file": "p11_split.html",
+    "styleBytes": 19848,
+    "localClasses": 120,
+    "prefixes": {
+     "spx": 84,
+     "(no-prefix)": 33,
+     "st": 3
+    },
+    "unprefixedSamples": [
+     "v",
+     "lay",
+     "hit",
+     "one",
+     "why",
+     "how",
+     "res",
+     "seen"
+    ]
+   },
+   "data": {
+    "file": "p12_data.html",
+    "styleBytes": 0,
+    "localClasses": 0,
+    "prefixes": {},
+    "unprefixedSamples": []
+   },
+   "consist": {
+    "file": "p13_consist.html",
+    "styleBytes": 0,
+    "localClasses": 0,
+    "prefixes": {},
+    "unprefixedSamples": []
+   },
+   "saga": {
+    "file": "p14_saga.html",
+    "styleBytes": 0,
+    "localClasses": 0,
+    "prefixes": {},
+    "unprefixedSamples": []
+   },
+   "outbox": {
+    "file": "p15_outbox.html",
+    "styleBytes": 0,
+    "localClasses": 0,
+    "prefixes": {},
+    "unprefixedSamples": []
+   },
+   "jobs": {
+    "file": "p15a_jobs.html",
+    "styleBytes": 0,
+    "localClasses": 0,
+    "prefixes": {},
+    "unprefixedSamples": []
+   },
+   "cqrs": {
+    "file": "p16_cqrs.html",
+    "styleBytes": 5819,
+    "localClasses": 40,
+    "prefixes": {
+     "cqm": 1,
+     "cqd": 4,
+     "(no-prefix)": 9,
+     "cqp": 12,
+     "cql": 5,
+     "cqf": 9
+    },
+    "unprefixedSamples": [
+     "in",
+     "past",
+     "off",
+     "nw",
+     "new",
+     "hot",
+     "miss",
+     "w"
+    ]
+   },
+   "net": {
+    "file": "p16a_net.html",
+    "styleBytes": 19405,
+    "localClasses": 114,
+    "prefixes": {
+     "nwx": 65,
+     "(no-prefix)": 49
+    },
+    "unprefixedSamples": [
+     "nd",
+     "s",
+     "off",
+     "ln",
+     "far",
+     "dc",
+     "lb",
+     "inf"
+    ]
+   },
+   "comm": {
+    "file": "p17_comm.html",
+    "styleBytes": 11817,
+    "localClasses": 65,
+    "prefixes": {
+     "cmx": 50,
+     "(no-prefix)": 15
+    },
+    "unprefixedSamples": [
+     "seen",
+     "from",
+     "to",
+     "async",
+     "reply",
+     "sync",
+     "free",
+     "wait"
+    ]
+   },
+   "api": {
+    "file": "p17a_api.html",
+    "styleBytes": 16355,
+    "localClasses": 77,
+    "prefixes": {
+     "apx": 49,
+     "(no-prefix)": 28
+    },
+    "unprefixedSamples": [
+     "when",
+     "ln",
+     "seen",
+     "row",
+     "c2",
+     "c3",
+     "c4",
+     "c5"
+    ]
+   },
+   "broker": {
+    "file": "p17b_broker.html",
+    "styleBytes": 17253,
+    "localClasses": 102,
+    "prefixes": {
+     "brk": 71,
+     "(no-prefix)": 31
+    },
+    "unprefixedSamples": [
+     "v",
+     "new",
+     "proc",
+     "eat",
+     "gone",
+     "tomb",
+     "pk",
+     "hl"
+    ]
+   },
+   "eip": {
+    "file": "p17c_eip.html",
+    "styleBytes": 0,
+    "localClasses": 0,
+    "prefixes": {},
+    "unprefixedSamples": []
+   },
+   "gw": {
+    "file": "p18_gw.html",
+    "styleBytes": 7714,
+    "localClasses": 45,
+    "prefixes": {
+     "gwx": 40,
+     "(no-prefix)": 5
+    },
+    "unprefixedSamples": [
+     "off",
+     "ns",
+     "ew",
+     "none",
+     "lock"
+    ]
+   },
+   "front": {
+    "file": "p18_web.html",
+    "styleBytes": 19926,
+    "localClasses": 118,
+    "prefixes": {
+     "fex": 70,
+     "(no-prefix)": 39,
+     "x": 9
+    },
+    "unprefixedSamples": [
+     "k",
+     "lf",
+     "pl",
+     "mi",
+     "wh",
+     "v",
+     "cap",
+     "s"
+    ]
+   },
+   "sec": {
+    "file": "p18a_sec.html",
+    "styleBytes": 25473,
+    "localClasses": 118,
+    "prefixes": {
+     "sfx": 67,
+     "(no-prefix)": 51
+    },
+    "unprefixedSamples": [
+     "v",
+     "nm",
+     "pass",
+     "part",
+     "stop",
+     "off",
+     "res",
+     "zone"
+    ]
+   },
+   "oauth": {
+    "file": "p18b_oauth.html",
+    "styleBytes": 11955,
+    "localClasses": 60,
+    "prefixes": {
+     "oax": 46,
+     "(no-prefix)": 14
+    },
+    "unprefixedSamples": [
+     "skip",
+     "self",
+     "still",
+     "nm",
+     "sb",
+     "off",
+     "used",
+     "revoked"
+    ]
+   },
+   "lb": {
+    "file": "p19_lb.html",
+    "styleBytes": 8885,
+    "localClasses": 64,
+    "prefixes": {
+     "lbx": 64
+    },
+    "unprefixedSamples": []
+   },
+   "resil": {
+    "file": "p20_resil.html",
+    "styleBytes": 6774,
+    "localClasses": 35,
+    "prefixes": {
+     "rsx": 26,
+     "(no-prefix)": 9
+    },
+    "unprefixedSamples": [
+     "nm",
+     "sb",
+     "wait",
+     "o",
+     "s",
+     "bar",
+     "fb",
+     "v"
+    ]
+   },
+   "cache": {
+    "file": "p21_cache.html",
+    "styleBytes": 12640,
+    "localClasses": 69,
+    "prefixes": {
+     "chx": 48,
+     "(no-prefix)": 21
+    },
+    "unprefixedSamples": [
+     "full",
+     "hit",
+     "miss",
+     "idle",
+     "new",
+     "victim",
+     "v",
+     "old"
+    ]
+   },
+   "scale": {
+    "file": "p22_scale.html",
+    "styleBytes": 7325,
+    "localClasses": 44,
+    "prefixes": {
+     "scx": 43,
+     "(no-prefix)": 1
+    },
+    "unprefixedSamples": [
+     "pk"
+    ]
+   },
+   "tenant": {
+    "file": "p22_tenant.html",
+    "styleBytes": 11268,
+    "localClasses": 53,
+    "prefixes": {
+     "tnx": 28,
+     "(no-prefix)": 25
+    },
+    "unprefixedSamples": [
+     "ops",
+     "w",
+     "tc",
+     "u",
+     "grp",
+     "gl",
+     "grps",
+     "silo"
+    ]
+   },
+   "bigo": {
+    "file": "p22a_bigo.html",
+    "styleBytes": 11047,
+    "localClasses": 77,
+    "prefixes": {
+     "bgx": 56,
+     "(no-prefix)": 18,
+     "v": 3
+    },
+    "unprefixedSamples": [
+     "ln",
+     "f",
+     "cp",
+     "nw",
+     "sw",
+     "nm",
+     "tm",
+     "off"
+    ]
+   },
+   "cap": {
+    "file": "p22aa_cap.html",
+    "styleBytes": 0,
+    "localClasses": 0,
+    "prefixes": {},
+    "unprefixedSamples": []
+   },
+   "db": {
+    "file": "p22b_db.html",
+    "styleBytes": 10740,
+    "localClasses": 62,
+    "prefixes": {
+     "dbx": 51,
+     "(no-prefix)": 11
+    },
+    "unprefixedSamples": [
+     "wait",
+     "cut",
+     "go",
+     "still",
+     "hl",
+     "gone",
+     "neg",
+     "chg"
+    ]
+   },
+   "explain": {
+    "file": "p22ba_explain.html",
+    "styleBytes": 13631,
+    "localClasses": 89,
+    "prefixes": {
+     "exq": 54,
+     "(no-prefix)": 35
+    },
+    "unprefixedSamples": [
+     "v",
+     "nd",
+     "hot",
+     "sum",
+     "d0",
+     "nm",
+     "sb",
+     "leaf"
+    ]
+   },
+   "dwh": {
+    "file": "p22bb_dwh.html",
+    "styleBytes": 0,
+    "localClasses": 0,
+    "prefixes": {},
+    "unprefixedSamples": []
+   },
+   "search": {
+    "file": "p22bc_search.html",
+    "styleBytes": 0,
+    "localClasses": 0,
+    "prefixes": {},
+    "unprefixedSamples": []
+   },
+   "repl": {
+    "file": "p22c_repl.html",
+    "styleBytes": 18223,
+    "localClasses": 96,
+    "prefixes": {
+     "rpx": 57,
+     "(no-prefix)": 39
+    },
+    "unprefixedSamples": [
+     "k",
+     "wal",
+     "wr",
+     "rd",
+     "arb",
+     "cut",
+     "stale",
+     "cl"
+    ]
+   },
+   "dr": {
+    "file": "p22ca_dr.html",
+    "styleBytes": 0,
+    "localClasses": 0,
+    "prefixes": {},
+    "unprefixedSamples": []
+   },
+   "raft": {
+    "file": "p22d_raft.html",
+    "styleBytes": 12693,
+    "localClasses": 81,
+    "prefixes": {
+     "rfx": 61,
+     "(no-prefix)": 20
+    },
+    "unprefixedSamples": [
+     "x",
+     "ck",
+     "hl",
+     "rv",
+     "pv",
+     "hb",
+     "ae",
+     "cl"
+    ]
+   },
+   "dtx": {
+    "file": "p22e_dtx.html",
+    "styleBytes": 15532,
+    "localClasses": 79,
+    "prefixes": {
+     "dtx": 47,
+     "(no-prefix)": 32
+    },
+    "unprefixedSamples": [
+     "k",
+     "s",
+     "w",
+     "pnr",
+     "v",
+     "x",
+     "coord",
+     "hot"
+    ]
+   },
+   "pay": {
+    "file": "p22ea_pay.html",
+    "styleBytes": 0,
+    "localClasses": 0,
+    "prefixes": {},
+    "unprefixedSamples": []
+   },
+   "time": {
+    "file": "p22f_time.html",
+    "styleBytes": 19544,
+    "localClasses": 120,
+    "prefixes": {
+     "tmx": 62,
+     "(no-prefix)": 58
+    },
+    "unprefixedSamples": [
+     "v",
+     "slow",
+     "fast",
+     "go",
+     "still",
+     "rule",
+     "big",
+     "meta"
+    ]
+   },
+   "docker": {
+    "file": "p22g_docker.html",
+    "styleBytes": 19806,
+    "localClasses": 107,
+    "prefixes": {
+     "dkx": 68,
+     "(no-prefix)": 39
+    },
+    "unprefixedSamples": [
+     "y",
+     "v",
+     "diff",
+     "same",
+     "cfg",
+     "o",
+     "x",
+     "k"
+    ]
+   },
+   "k8s": {
+    "file": "p22h_k8s.html",
+    "styleBytes": 18125,
+    "localClasses": 97,
+    "prefixes": {
+     "k8x": 57,
+     "(no-prefix)": 40
+    },
+    "unprefixedSamples": [
+     "nm",
+     "sb",
+     "wait",
+     "want",
+     "start",
+     "row",
+     "bx",
+     "acc"
+    ]
+   },
+   "cicd": {
+    "file": "p22i_cicd.html",
+    "styleBytes": 18694,
+    "localClasses": 91,
+    "prefixes": {
+     "cix": 55,
+     "(no-prefix)": 36
+    },
+    "unprefixedSamples": [
+     "nm",
+     "sb",
+     "wait",
+     "mn",
+     "br",
+     "cf",
+     "cw",
+     "co"
+    ]
+   },
+   "cloud": {
+    "file": "p22j_cloud.html",
+    "styleBytes": 0,
+    "localClasses": 0,
+    "prefixes": {},
+    "unprefixedSamples": []
+   },
+   "release": {
+    "file": "p23_release.html",
+    "styleBytes": 7834,
+    "localClasses": 54,
+    "prefixes": {
+     "rlx": 46,
+     "(no-prefix)": 8
+    },
+    "unprefixedSamples": [
+     "old",
+     "new",
+     "warm",
+     "drain",
+     "o",
+     "v1",
+     "v2",
+     "bug"
+    ]
+   },
+   "legacy": {
+    "file": "p24_legacy.html",
+    "styleBytes": 6098,
+    "localClasses": 31,
+    "prefixes": {
+     "lgx": 21,
+     "(no-prefix)": 10
+    },
+    "unprefixedSamples": [
+     "s",
+     "tr",
+     "f",
+     "v",
+     "mid",
+     "nw",
+     "boom",
+     "nm"
+    ]
+   },
+   "obs": {
+    "file": "p25_obs.html",
+    "styleBytes": 6975,
+    "localClasses": 52,
+    "prefixes": {
+     "obx": 49,
+     "(no-prefix)": 3
+    },
+    "unprefixedSamples": [
+     "me",
+     "click",
+     "s"
+    ]
+   },
+   "docs": {
+    "file": "p25a_docs.html",
+    "styleBytes": 24089,
+    "localClasses": 134,
+    "prefixes": {
+     "dcx": 51,
+     "(no-prefix)": 74,
+     "k": 9
+    },
+    "unprefixedSamples": [
+     "ad",
+     "rm",
+     "acc",
+     "prop",
+     "rej",
+     "sup",
+     "dep",
+     "why"
+    ]
+   },
+   "llm": {
+    "file": "p25b_llm.html",
+    "styleBytes": 16147,
+    "localClasses": 83,
+    "prefixes": {
+     "aix": 38,
+     "(no-prefix)": 45
+    },
+    "unprefixedSamples": [
+     "ops",
+     "tp",
+     "xf",
+     "out",
+     "warnl",
+     "k",
+     "sel",
+     "nm"
+    ]
+   },
+   "catalog": {
+    "file": "p26_catalog.html",
+    "styleBytes": 3590,
+    "localClasses": 20,
+    "prefixes": {
+     "ctx": 20
+    },
+    "unprefixedSamples": []
+   },
+   "duty": {
+    "file": "p26a_duty.html",
+    "styleBytes": 5520,
+    "localClasses": 27,
+    "prefixes": {
+     "dux": 21,
+     "(no-prefix)": 6
+    },
+    "unprefixedSamples": [
+     "pain",
+     "calm",
+     "fut",
+     "lo",
+     "meh",
+     "me"
+    ]
+   },
+   "cases": {
+    "file": "p26b_cases.html",
+    "styleBytes": 0,
+    "localClasses": 0,
+    "prefixes": {},
+    "unprefixedSamples": []
+   },
+   "practice": {
+    "file": "p27_practice.html",
+    "styleBytes": 2371,
+    "localClasses": 14,
+    "prefixes": {
+     "prx": 12,
+     "(no-prefix)": 2
+    },
+    "unprefixedSamples": [
+     "up",
+     "dn"
+    ]
+   },
+   "capstone": {
+    "file": "p28_capstone.html",
+    "styleBytes": 4131,
+    "localClasses": 22,
+    "prefixes": {
+     "cpx": 18,
+     "(no-prefix)": 4
+    },
+    "unprefixedSamples": [
+     "p2",
+     "p1",
+     "p0",
+     "s"
+    ]
+   },
+   "gloss": {
+    "file": "p29_gloss.html",
+    "styleBytes": 1666,
+    "localClasses": 11,
+    "prefixes": {
+     "glx": 11
+    },
+    "unprefixedSamples": []
+   }
+  },
+  "uniquePrefixes": 49,
+  "localClassTotal": 2892,
+  "prefixesSharedAcrossSections": [
+   "v: estorm,bigo"
+  ]
+ },
+ "patterns": {
+  "chapterMap": {
+   "implementations": 38,
+   "sections": 38,
+   "distinctCssAfterPrefixNormalization": 14,
+   "list": [
+    "layers:lyx-map(1)",
+    "zachem:zhx-map(2)",
+    "mono:mnx-map(2)",
+    "domains:dmx-map(4)",
+    "estorm:esx-map(2)",
+    "split:spx-map(2)",
+    "cqrs:cqm-map(2)",
+    "net:nwx-map(1)",
+    "comm:cmx-map(2)",
+    "api:apx-map(2)",
+    "broker:brk-map(2)",
+    "gw:gwx-map(3)",
+    "front:fex-map(2)",
+    "sec:sfx-map(2)",
+    "oauth:oax-map(2)",
+    "lb:lbx-map(2)",
+    "resil:rsx-map(2)",
+    "cache:chx-map(2)",
+    "scale:scx-map(2)",
+    "tenant:tnx-map(2)",
+    "bigo:bgx-map(2)",
+    "db:dbx-map(2)",
+    "explain:exq-map(2)",
+    "repl:rpx-map(2)",
+    "raft:rfx-map(2)",
+    "dtx:dtx-map(2)",
+    "time:tmx-map(2)",
+    "docker:dkx-map(2)",
+    "k8s:k8x-map(2)",
+    "cicd:cix-map(2)",
+    "release:rlx-map(2)",
+    "legacy:lgx-map(2)",
+    "obs:obx-map(2)",
+    "docs:dcx-map(2)",
+    "llm:aix-map(2)",
+    "duty:dux-map(2)",
+    "practice:prx-map(2)",
+    "capstone:cpx-map(2)"
+   ]
+  },
+  "definition": {
+   "implementations": 29,
+   "sections": 29,
+   "distinctCssAfterPrefixNormalization": 13,
+   "list": [
+    "layers:lyx-def(25)",
+    "zachem:zhx-def(24)",
+    "mono:mnx-def(33)",
+    "domains:dmx-def(27)",
+    "estorm:esx-def(14)",
+    "split:spx-def(20)",
+    "cqrs:cqd-def(1)",
+    "net:nwx-def(28)",
+    "api:apx-def(26)",
+    "broker:brk-def(51)",
+    "front:fex-def(39)",
+    "sec:sfx-def(59)",
+    "oauth:oax-def(41)",
+    "resil:rsx-def(9)",
+    "cache:chx-def(2)",
+    "tenant:tnx-def(4)",
+    "bigo:bgx-def(27)",
+    "db:dbx-def(13)",
+    "explain:exq-def(21)",
+    "repl:rpx-def(29)",
+    "raft:rfx-def(28)",
+    "dtx:dtx-def(15)",
+    "time:tmx-def(44)",
+    "docker:dkx-def(39)",
+    "k8s:k8x-def(41)",
+    "cicd:cix-def(47)",
+    "docs:dcx-def(20)",
+    "llm:aix-def(6)",
+    "duty:dux-def(2)"
+   ]
+  },
+  "life": {
+   "implementations": 29,
+   "sections": 29,
+   "distinctCssAfterPrefixNormalization": 7,
+   "list": [
+    "layers:lyx-life(19)",
+    "zachem:zhx-life(17)",
+    "mono:mnx-life(13)",
+    "domains:dmx-life(14)",
+    "estorm:esx-life(9)",
+    "split:spx-life(14)",
+    "net:nwx-life(23)",
+    "comm:cmx-life(1)",
+    "api:apx-life(20)",
+    "broker:brk-life(34)",
+    "gw:gwx-life(4)",
+    "front:fex-life(32)",
+    "sec:sfx-life(46)",
+    "oauth:oax-life(31)",
+    "resil:rsx-life(9)",
+    "tenant:tnx-life(3)",
+    "bigo:bgx-life(18)",
+    "explain:exq-life(20)",
+    "repl:rpx-life(23)",
+    "raft:rfx-life(16)",
+    "dtx:dtx-life(9)",
+    "time:tmx-life(22)",
+    "docker:dkx-life(24)",
+    "k8s:k8x-life(27)",
+    "cicd:cix-life(22)",
+    "release:rlx-life(5)",
+    "docs:dcx-life(16)",
+    "llm:aix-life(6)",
+    "catalog:ctx-life(1)"
+   ]
+  },
+  "chapterLink": {
+   "implementations": 14,
+   "sections": 12,
+   "distinctCssAfterPrefixNormalization": 12,
+   "list": [
+    "cqrs:cqp-n(2)",
+    "cqrs:cql-n(1)",
+    "gw:gwx-n(10)",
+    "lb:lbx-num(11)",
+    "lb:lbx-n(1)",
+    "scale:scx-n(1)",
+    "bigo:bgx-n(14)",
+    "db:dbx-n(11)",
+    "explain:exq-n(16)",
+    "docker:dkx-n(16)",
+    "release:rlx-n(11)",
+    "obs:obx-n(10)",
+    "catalog:ctx-num(1)",
+    "duty:dux-n(1)"
+   ]
+  },
+  "chapterMapMarkup": {
+   "layers": {
+    "container": "div.lyx-map",
+    "id": "lyx-map",
+    "usesButtons": true,
+    "usesLinks": false
+   },
+   "zachem": {
+    "container": "div.zhx-map",
+    "id": "zhx-map",
+    "usesButtons": true,
+    "usesLinks": false
+   },
+   "mono": {
+    "container": "div.mnx-map",
+    "id": "mnx-map",
+    "usesButtons": true,
+    "usesLinks": false
+   },
+   "domains": {
+    "container": "div.dmx-map",
+    "id": "dmx-map",
+    "usesButtons": true,
+    "usesLinks": false
+   },
+   "estorm": {
+    "container": "div.esx-map",
+    "id": "esx-map",
+    "usesButtons": true,
+    "usesLinks": false
+   },
+   "split": {
+    "container": "div.spx-map",
+    "id": "spx-map",
+    "usesButtons": true,
+    "usesLinks": false
+   },
+   "cqrs": {
+    "container": "div.cqm-map",
+    "id": "cqm-map",
+    "usesButtons": true,
+    "usesLinks": false
+   },
+   "net": {
+    "container": "div.nwx-map",
+    "id": "nwx-map",
+    "usesButtons": true,
+    "usesLinks": false
+   },
+   "comm": {
+    "container": "div.cmx-map",
+    "id": "cmx-map",
+    "usesButtons": true,
+    "usesLinks": false
+   },
+   "api": {
+    "container": "div.apx-map",
+    "id": "apx-map",
+    "usesButtons": true,
+    "usesLinks": false
+   },
+   "broker": {
+    "container": "div.brk-map",
+    "id": "brk-map",
+    "usesButtons": true,
+    "usesLinks": true
+   },
+   "gw": {
+    "container": "div.gwx-map",
+    "id": "gwx-map",
+    "usesButtons": true,
+    "usesLinks": false
+   },
+   "front": {
+    "container": "div.fex-map",
+    "id": "fex-map",
+    "usesButtons": true,
+    "usesLinks": false
+   },
+   "sec": {
+    "container": "div.sfx-map",
+    "id": "sfx-map",
+    "usesButtons": true,
+    "usesLinks": false
+   },
+   "oauth": {
+    "container": "div.oax-map",
+    "id": "oax-map",
+    "usesButtons": true,
+    "usesLinks": false
+   },
+   "lb": {
+    "container": "div.lbx-map",
+    "id": "lbx-map",
+    "usesButtons": true,
+    "usesLinks": false
+   },
+   "resil": {
+    "container": "div.rsx-map",
+    "id": "rsx-map",
+    "usesButtons": true,
+    "usesLinks": false
+   },
+   "cache": {
+    "container": "div.chx-map",
+    "id": "chx-map",
+    "usesButtons": true,
+    "usesLinks": false
+   },
+   "scale": {
+    "container": "div.scx-map",
+    "id": "scx-map",
+    "usesButtons": true,
+    "usesLinks": false
+   },
+   "tenant": {
+    "container": "div.tnx-map",
+    "id": "tnx-map",
+    "usesButtons": true,
+    "usesLinks": false
+   },
+   "bigo": {
+    "container": "div.bgx-map",
+    "id": "bgx-map",
+    "usesButtons": true,
+    "usesLinks": false
+   },
+   "db": {
+    "container": "div.dbx-map",
+    "id": "dbx-map",
+    "usesButtons": true,
+    "usesLinks": false
+   },
+   "explain": {
+    "container": "div.exq-map",
+    "id": "exq-map",
+    "usesButtons": true,
+    "usesLinks": false
+   },
+   "repl": {
+    "container": "div.rpx-map",
+    "id": "rpx-map",
+    "usesButtons": true,
+    "usesLinks": false
+   },
+   "raft": {
+    "container": "div.rfx-map",
+    "id": "rfx-map",
+    "usesButtons": true,
+    "usesLinks": false
+   },
+   "dtx": {
+    "container": "div.dtx-map",
+    "id": "dtx-map",
+    "usesButtons": true,
+    "usesLinks": false
+   },
+   "time": {
+    "container": "div.tmx-map",
+    "id": "tmx-map",
+    "usesButtons": true,
+    "usesLinks": false
+   },
+   "docker": {
+    "container": "div.dkx-map",
+    "id": "dkx-map",
+    "usesButtons": true,
+    "usesLinks": false
+   },
+   "k8s": {
+    "container": "div.k8x-map",
+    "id": "k8x-map",
+    "usesButtons": true,
+    "usesLinks": false
+   },
+   "cicd": {
+    "container": "div.cix-map",
+    "id": "cix-map",
+    "usesButtons": true,
+    "usesLinks": false
+   },
+   "release": {
+    "container": "div.rlx-map",
+    "id": "rlx-map",
+    "usesButtons": true,
+    "usesLinks": false
+   },
+   "legacy": {
+    "container": "div.lgx-map",
+    "id": "lgx-map",
+    "usesButtons": true,
+    "usesLinks": false
+   },
+   "obs": {
+    "container": "div.obx-map",
+    "id": "obx-map",
+    "usesButtons": true,
+    "usesLinks": false
+   },
+   "docs": {
+    "container": "div.dcx-map",
+    "id": "dcx-map",
+    "usesButtons": true,
+    "usesLinks": false
+   },
+   "llm": {
+    "container": "div.aix-map",
+    "id": "aix-map",
+    "usesButtons": true,
+    "usesLinks": false
+   },
+   "catalog": {
+    "container": "div.ctx-navbtns",
+    "usesButtons": true,
+    "usesLinks": false
+   },
+   "duty": {
+    "container": "div.dux-map",
+    "id": "dux-map",
+    "usesButtons": true,
+    "usesLinks": false
+   },
+   "practice": {
+    "container": "div.prx-map",
+    "id": "prx-map",
+    "usesButtons": true,
+    "usesLinks": false
+   },
+   "capstone": {
+    "container": "div.cpx-map",
+    "id": "cpx-map",
+    "usesButtons": true,
+    "usesLinks": false
+   }
+  },
+  "chapterMapContainers": 39
+ },
+ "buttons": {
+  "perPart": {
+   "layers": {
+    "localButtonRules": 1,
+    "localSegLike": [],
+    "sharedUse": {
+     "act": 10,
+     "ghost": 10,
+     "seg": 11
+    }
+   },
+   "zachem": {
+    "localButtonRules": 1,
+    "localSegLike": [],
+    "sharedUse": {
+     "act": 24,
+     "ghost": 16,
+     "seg": 10
+    }
+   },
+   "life": {
+    "localButtonRules": 0,
+    "localSegLike": [],
+    "sharedUse": {
+     "act": 2,
+     "ghost": 2,
+     "seg": 0
+    }
+   },
+   "mono": {
+    "localButtonRules": 1,
+    "localSegLike": [],
+    "sharedUse": {
+     "act": 12,
+     "ghost": 25,
+     "seg": 8
+    }
+   },
+   "modular": {
+    "localButtonRules": 0,
+    "localSegLike": [],
+    "sharedUse": {
+     "act": 4,
+     "ghost": 3,
+     "seg": 5
+    }
+   },
+   "micro": {
+    "localButtonRules": 0,
+    "localSegLike": [],
+    "sharedUse": {
+     "act": 0,
+     "ghost": 0,
+     "seg": 3
+    }
+   },
+   "versus": {
+    "localButtonRules": 0,
+    "localSegLike": [],
+    "sharedUse": {
+     "act": 0,
+     "ghost": 0,
+     "seg": 2
+    }
+   },
+   "styles": {
+    "localButtonRules": 0,
+    "localSegLike": [],
+    "sharedUse": {
+     "act": 0,
+     "ghost": 2,
+     "seg": 3
+    }
+   },
+   "domains": {
+    "localButtonRules": 3,
+    "localSegLike": [
+     "dmx-seg"
+    ],
+    "sharedUse": {
+     "act": 10,
+     "ghost": 9,
+     "seg": 9
+    }
+   },
+   "estorm": {
+    "localButtonRules": 5,
+    "localSegLike": [
+     "esx-pick"
+    ],
+    "sharedUse": {
+     "act": 12,
+     "ghost": 9,
+     "seg": 5
+    }
+   },
+   "bc": {
+    "localButtonRules": 0,
+    "localSegLike": [],
+    "sharedUse": {
+     "act": 2,
+     "ghost": 1,
+     "seg": 2
+    }
+   },
+   "ctxmap": {
+    "localButtonRules": 0,
+    "localSegLike": [],
+    "sharedUse": {
+     "act": 2,
+     "ghost": 1,
+     "seg": 2
+    }
+   },
+   "split": {
+    "localButtonRules": 4,
+    "localSegLike": [],
+    "sharedUse": {
+     "act": 10,
+     "ghost": 8,
+     "seg": 9
+    }
+   },
+   "data": {
+    "localButtonRules": 0,
+    "localSegLike": [],
+    "sharedUse": {
+     "act": 0,
+     "ghost": 0,
+     "seg": 2
+    }
+   },
+   "consist": {
+    "localButtonRules": 0,
+    "localSegLike": [],
+    "sharedUse": {
+     "act": 2,
+     "ghost": 5,
+     "seg": 3
+    }
+   },
+   "saga": {
+    "localButtonRules": 0,
+    "localSegLike": [],
+    "sharedUse": {
+     "act": 4,
+     "ghost": 4,
+     "seg": 1
+    }
+   },
+   "outbox": {
+    "localButtonRules": 0,
+    "localSegLike": [],
+    "sharedUse": {
+     "act": 4,
+     "ghost": 3,
+     "seg": 2
+    }
+   },
+   "cqrs": {
+    "localButtonRules": 1,
+    "localSegLike": [],
+    "sharedUse": {
+     "act": 21,
+     "ghost": 12,
+     "seg": 6
+    }
+   },
+   "net": {
+    "localButtonRules": 2,
+    "localSegLike": [],
+    "sharedUse": {
+     "act": 14,
+     "ghost": 22,
+     "seg": 24
+    }
+   },
+   "comm": {
+    "localButtonRules": 1,
+    "localSegLike": [
+     "cmx-seg"
+    ],
+    "sharedUse": {
+     "act": 18,
+     "ghost": 22,
+     "seg": 12
+    }
+   },
+   "api": {
+    "localButtonRules": 3,
+    "localSegLike": [],
+    "sharedUse": {
+     "act": 20,
+     "ghost": 10,
+     "seg": 10
+    }
+   },
+   "broker": {
+    "localButtonRules": 1,
+    "localSegLike": [],
+    "sharedUse": {
+     "act": 28,
+     "ghost": 17,
+     "seg": 22
+    }
+   },
+   "gw": {
+    "localButtonRules": 2,
+    "localSegLike": [],
+    "sharedUse": {
+     "act": 10,
+     "ghost": 15,
+     "seg": 13
+    }
+   },
+   "front": {
+    "localButtonRules": 1,
+    "localSegLike": [
+     "fex-modes",
+     "fex-mode"
+    ],
+    "sharedUse": {
+     "act": 28,
+     "ghost": 11,
+     "seg": 19
+    }
+   },
+   "sec": {
+    "localButtonRules": 7,
+    "localSegLike": [],
+    "sharedUse": {
+     "act": 25,
+     "ghost": 10,
+     "seg": 19
+    }
+   },
+   "oauth": {
+    "localButtonRules": 1,
+    "localSegLike": [],
+    "sharedUse": {
+     "act": 20,
+     "ghost": 20,
+     "seg": 11
+    }
+   },
+   "lb": {
+    "localButtonRules": 2,
+    "localSegLike": [],
+    "sharedUse": {
+     "act": 18,
+     "ghost": 18,
+     "seg": 9
+    }
+   },
+   "resil": {
+    "localButtonRules": 1,
+    "localSegLike": [],
+    "sharedUse": {
+     "act": 18,
+     "ghost": 19,
+     "seg": 5
+    }
+   },
+   "cache": {
+    "localButtonRules": 1,
+    "localSegLike": [],
+    "sharedUse": {
+     "act": 18,
+     "ghost": 15,
+     "seg": 11
+    }
+   },
+   "scale": {
+    "localButtonRules": 0,
+    "localSegLike": [
+     "scx-seg"
+    ],
+    "sharedUse": {
+     "act": 10,
+     "ghost": 15,
+     "seg": 8
+    }
+   },
+   "tenant": {
+    "localButtonRules": 4,
+    "localSegLike": [],
+    "sharedUse": {
+     "act": 6,
+     "ghost": 1,
+     "seg": 5
+    }
+   },
+   "bigo": {
+    "localButtonRules": 1,
+    "localSegLike": [],
+    "sharedUse": {
+     "act": 14,
+     "ghost": 21,
+     "seg": 10
+    }
+   },
+   "db": {
+    "localButtonRules": 2,
+    "localSegLike": [],
+    "sharedUse": {
+     "act": 18,
+     "ghost": 11,
+     "seg": 12
+    }
+   },
+   "explain": {
+    "localButtonRules": 1,
+    "localSegLike": [],
+    "sharedUse": {
+     "act": 16,
+     "ghost": 13,
+     "seg": 16
+    }
+   },
+   "repl": {
+    "localButtonRules": 2,
+    "localSegLike": [],
+    "sharedUse": {
+     "act": 14,
+     "ghost": 19,
+     "seg": 16
+    }
+   },
+   "raft": {
+    "localButtonRules": 2,
+    "localSegLike": [
+     "rfx-tgl"
+    ],
+    "sharedUse": {
+     "act": 16,
+     "ghost": 26,
+     "seg": 13
+    }
+   },
+   "dtx": {
+    "localButtonRules": 2,
+    "localSegLike": [],
+    "sharedUse": {
+     "act": 14,
+     "ghost": 16,
+     "seg": 4
+    }
+   },
+   "time": {
+    "localButtonRules": 3,
+    "localSegLike": [],
+    "sharedUse": {
+     "act": 23,
+     "ghost": 15,
+     "seg": 11
+    }
+   },
+   "docker": {
+    "localButtonRules": 3,
+    "localSegLike": [],
+    "sharedUse": {
+     "act": 12,
+     "ghost": 23,
+     "seg": 13
+    }
+   },
+   "k8s": {
+    "localButtonRules": 2,
+    "localSegLike": [],
+    "sharedUse": {
+     "act": 28,
+     "ghost": 31,
+     "seg": 11
+    }
+   },
+   "cicd": {
+    "localButtonRules": 2,
+    "localSegLike": [
+     "cix-mode"
+    ],
+    "sharedUse": {
+     "act": 22,
+     "ghost": 11,
+     "seg": 9
+    }
+   },
+   "release": {
+    "localButtonRules": 1,
+    "localSegLike": [],
+    "sharedUse": {
+     "act": 8,
+     "ghost": 7,
+     "seg": 8
+    }
+   },
+   "legacy": {
+    "localButtonRules": 1,
+    "localSegLike": [],
+    "sharedUse": {
+     "act": 10,
+     "ghost": 9,
+     "seg": 2
+    }
+   },
+   "obs": {
+    "localButtonRules": 1,
+    "localSegLike": [],
+    "sharedUse": {
+     "act": 4,
+     "ghost": 4,
+     "seg": 6
+    }
+   },
+   "docs": {
+    "localButtonRules": 7,
+    "localSegLike": [],
+    "sharedUse": {
+     "act": 14,
+     "ghost": 11,
+     "seg": 12
+    }
+   },
+   "llm": {
+    "localButtonRules": 6,
+    "localSegLike": [],
+    "sharedUse": {
+     "act": 10,
+     "ghost": 4,
+     "seg": 3
+    }
+   },
+   "catalog": {
+    "localButtonRules": 2,
+    "localSegLike": [],
+    "sharedUse": {
+     "act": 2,
+     "ghost": 3,
+     "seg": 1
+    }
+   },
+   "duty": {
+    "localButtonRules": 2,
+    "localSegLike": [],
+    "sharedUse": {
+     "act": 6,
+     "ghost": 4,
+     "seg": 1
+    }
+   },
+   "practice": {
+    "localButtonRules": 2,
+    "localSegLike": [],
+    "sharedUse": {
+     "act": 8,
+     "ghost": 21,
+     "seg": 1
+    }
+   },
+   "capstone": {
+    "localButtonRules": 2,
+    "localSegLike": [],
+    "sharedUse": {
+     "act": 4,
+     "ghost": 4,
+     "seg": 1
+    }
+   },
+   "gloss": {
+    "localButtonRules": 1,
+    "localSegLike": [],
+    "sharedUse": {
+     "act": 2,
+     "ghost": 1,
+     "seg": 1
+    }
+   }
+  },
+  "sectionsWithLocalButtonStyles": 39,
+  "localButtonRules": 87,
+  "distinctLocalSegLike": 8
+ },
+ "fonts": {
+  "perPart": {
+   "p01_head.html": 27,
+   "p02_header.html": 1,
+   "layers": 15,
+   "zachem": 23,
+   "mono": 17,
+   "modular": 8,
+   "micro": 2,
+   "versus": 1,
+   "styles": 7,
+   "domains": 39,
+   "estorm": 32,
+   "bc": 2,
+   "ctxmap": 1,
+   "split": 27,
+   "consist": 2,
+   "saga": 2,
+   "cqrs": 7,
+   "net": 34,
+   "comm": 10,
+   "api": 20,
+   "broker": 32,
+   "gw": 15,
+   "front": 39,
+   "sec": 36,
+   "oauth": 11,
+   "lb": 16,
+   "resil": 12,
+   "cache": 22,
+   "scale": 12,
+   "tenant": 15,
+   "bigo": 18,
+   "db": 20,
+   "explain": 17,
+   "repl": 23,
+   "raft": 15,
+   "dtx": 33,
+   "time": 30,
+   "docker": 31,
+   "k8s": 24,
+   "cicd": 31,
+   "release": 6,
+   "legacy": 4,
+   "obs": 18,
+   "docs": 24,
+   "llm": 27,
+   "catalog": 5,
+   "duty": 5,
+   "practice": 1,
+   "capstone": 6,
+   "gloss": 1
+  },
+  "byValue": {
+   "9": 2,
+   "10": 50,
+   "11": 300,
+   "9.5": 14,
+   "10.5": 233,
+   "11.5": 227
+  },
+  "totalDeclarationsUnder12px": 826
+ },
+ "motion": {
+  "perPart": {
+   "p01_head.html": {
+    "keyframes": 2,
+    "infinite": 0,
+    "cssAnimTransDecl": 16,
+    "reducedMotionCss": 3,
+    "reducedMotionJs": 0,
+    "rAF": 0,
+    "setInterval": 0
+   },
+   "p02_header.html": {
+    "keyframes": 0,
+    "infinite": 0,
+    "cssAnimTransDecl": 0,
+    "reducedMotionCss": 0,
+    "reducedMotionJs": 1,
+    "rAF": 1,
+    "setInterval": 2
+   },
+   "layers": {
+    "keyframes": 0,
+    "infinite": 0,
+    "cssAnimTransDecl": 7,
+    "reducedMotionCss": 0,
+    "reducedMotionJs": 2,
+    "rAF": 0,
+    "setInterval": 2
+   },
+   "zachem": {
+    "keyframes": 0,
+    "infinite": 0,
+    "cssAnimTransDecl": 3,
+    "reducedMotionCss": 1,
+    "reducedMotionJs": 3,
+    "rAF": 0,
+    "setInterval": 3
+   },
+   "life": {
+    "keyframes": 0,
+    "infinite": 0,
+    "cssAnimTransDecl": 0,
+    "reducedMotionCss": 0,
+    "reducedMotionJs": 0,
+    "rAF": 0,
+    "setInterval": 0
+   },
+   "mono": {
+    "keyframes": 1,
+    "infinite": 0,
+    "cssAnimTransDecl": 14,
+    "reducedMotionCss": 1,
+    "reducedMotionJs": 2,
+    "rAF": 2,
+    "setInterval": 4
+   },
+   "modular": {
+    "keyframes": 0,
+    "infinite": 0,
+    "cssAnimTransDecl": 0,
+    "reducedMotionCss": 0,
+    "reducedMotionJs": 0,
+    "rAF": 0,
+    "setInterval": 0
+   },
+   "micro": {
+    "keyframes": 0,
+    "infinite": 0,
+    "cssAnimTransDecl": 0,
+    "reducedMotionCss": 0,
+    "reducedMotionJs": 0,
+    "rAF": 0,
+    "setInterval": 0
+   },
+   "versus": {
+    "keyframes": 0,
+    "infinite": 0,
+    "cssAnimTransDecl": 0,
+    "reducedMotionCss": 0,
+    "reducedMotionJs": 0,
+    "rAF": 0,
+    "setInterval": 0
+   },
+   "styles": {
+    "keyframes": 0,
+    "infinite": 0,
+    "cssAnimTransDecl": 0,
+    "reducedMotionCss": 0,
+    "reducedMotionJs": 0,
+    "rAF": 0,
+    "setInterval": 0
+   },
+   "domains": {
+    "keyframes": 1,
+    "infinite": 0,
+    "cssAnimTransDecl": 8,
+    "reducedMotionCss": 1,
+    "reducedMotionJs": 4,
+    "rAF": 0,
+    "setInterval": 3
+   },
+   "estorm": {
+    "keyframes": 3,
+    "infinite": 0,
+    "cssAnimTransDecl": 12,
+    "reducedMotionCss": 1,
+    "reducedMotionJs": 1,
+    "rAF": 0,
+    "setInterval": 2
+   },
+   "bc": {
+    "keyframes": 0,
+    "infinite": 0,
+    "cssAnimTransDecl": 0,
+    "reducedMotionCss": 0,
+    "reducedMotionJs": 0,
+    "rAF": 0,
+    "setInterval": 0
+   },
+   "ctxmap": {
+    "keyframes": 0,
+    "infinite": 0,
+    "cssAnimTransDecl": 0,
+    "reducedMotionCss": 0,
+    "reducedMotionJs": 0,
+    "rAF": 0,
+    "setInterval": 0
+   },
+   "split": {
+    "keyframes": 0,
+    "infinite": 0,
+    "cssAnimTransDecl": 6,
+    "reducedMotionCss": 1,
+    "reducedMotionJs": 2,
+    "rAF": 0,
+    "setInterval": 0
+   },
+   "data": {
+    "keyframes": 0,
+    "infinite": 0,
+    "cssAnimTransDecl": 0,
+    "reducedMotionCss": 0,
+    "reducedMotionJs": 0,
+    "rAF": 0,
+    "setInterval": 0
+   },
+   "consist": {
+    "keyframes": 0,
+    "infinite": 0,
+    "cssAnimTransDecl": 0,
+    "reducedMotionCss": 0,
+    "reducedMotionJs": 0,
+    "rAF": 0,
+    "setInterval": 0
+   },
+   "saga": {
+    "keyframes": 0,
+    "infinite": 0,
+    "cssAnimTransDecl": 0,
+    "reducedMotionCss": 0,
+    "reducedMotionJs": 0,
+    "rAF": 0,
+    "setInterval": 0
+   },
+   "outbox": {
+    "keyframes": 0,
+    "infinite": 0,
+    "cssAnimTransDecl": 0,
+    "reducedMotionCss": 0,
+    "reducedMotionJs": 0,
+    "rAF": 0,
+    "setInterval": 0
+   },
+   "cqrs": {
+    "keyframes": 0,
+    "infinite": 0,
+    "cssAnimTransDecl": 5,
+    "reducedMotionCss": 0,
+    "reducedMotionJs": 0,
+    "rAF": 0,
+    "setInterval": 2
+   },
+   "net": {
+    "keyframes": 0,
+    "infinite": 0,
+    "cssAnimTransDecl": 8,
+    "reducedMotionCss": 1,
+    "reducedMotionJs": 3,
+    "rAF": 2,
+    "setInterval": 1
+   },
+   "comm": {
+    "keyframes": 1,
+    "infinite": 0,
+    "cssAnimTransDecl": 12,
+    "reducedMotionCss": 2,
+    "reducedMotionJs": 0,
+    "rAF": 0,
+    "setInterval": 6
+   },
+   "api": {
+    "keyframes": 1,
+    "infinite": 0,
+    "cssAnimTransDecl": 8,
+    "reducedMotionCss": 1,
+    "reducedMotionJs": 2,
+    "rAF": 4,
+    "setInterval": 1
+   },
+   "broker": {
+    "keyframes": 4,
+    "infinite": 0,
+    "cssAnimTransDecl": 13,
+    "reducedMotionCss": 1,
+    "reducedMotionJs": 3,
+    "rAF": 0,
+    "setInterval": 4
+   },
+   "gw": {
+    "keyframes": 0,
+    "infinite": 0,
+    "cssAnimTransDecl": 7,
+    "reducedMotionCss": 1,
+    "reducedMotionJs": 0,
+    "rAF": 0,
+    "setInterval": 1
+   },
+   "front": {
+    "keyframes": 0,
+    "infinite": 0,
+    "cssAnimTransDecl": 7,
+    "reducedMotionCss": 1,
+    "reducedMotionJs": 6,
+    "rAF": 6,
+    "setInterval": 1
+   },
+   "sec": {
+    "keyframes": 0,
+    "infinite": 0,
+    "cssAnimTransDecl": 10,
+    "reducedMotionCss": 2,
+    "reducedMotionJs": 4,
+    "rAF": 0,
+    "setInterval": 0
+   },
+   "oauth": {
+    "keyframes": 0,
+    "infinite": 0,
+    "cssAnimTransDecl": 6,
+    "reducedMotionCss": 2,
+    "reducedMotionJs": 1,
+    "rAF": 2,
+    "setInterval": 3
+   },
+   "lb": {
+    "keyframes": 0,
+    "infinite": 0,
+    "cssAnimTransDecl": 4,
+    "reducedMotionCss": 0,
+    "reducedMotionJs": 1,
+    "rAF": 2,
+    "setInterval": 4
+   },
+   "resil": {
+    "keyframes": 0,
+    "infinite": 0,
+    "cssAnimTransDecl": 1,
+    "reducedMotionCss": 0,
+    "reducedMotionJs": 0,
+    "rAF": 0,
+    "setInterval": 3
+   },
+   "cache": {
+    "keyframes": 0,
+    "infinite": 0,
+    "cssAnimTransDecl": 9,
+    "reducedMotionCss": 0,
+    "reducedMotionJs": 1,
+    "rAF": 0,
+    "setInterval": 2
+   },
+   "scale": {
+    "keyframes": 0,
+    "infinite": 0,
+    "cssAnimTransDecl": 3,
+    "reducedMotionCss": 0,
+    "reducedMotionJs": 1,
+    "rAF": 0,
+    "setInterval": 0
+   },
+   "tenant": {
+    "keyframes": 0,
+    "infinite": 0,
+    "cssAnimTransDecl": 4,
+    "reducedMotionCss": 0,
+    "reducedMotionJs": 0,
+    "rAF": 0,
+    "setInterval": 0
+   },
+   "bigo": {
+    "keyframes": 0,
+    "infinite": 0,
+    "cssAnimTransDecl": 7,
+    "reducedMotionCss": 1,
+    "reducedMotionJs": 1,
+    "rAF": 0,
+    "setInterval": 0
+   },
+   "db": {
+    "keyframes": 0,
+    "infinite": 0,
+    "cssAnimTransDecl": 8,
+    "reducedMotionCss": 1,
+    "reducedMotionJs": 1,
+    "rAF": 2,
+    "setInterval": 2
+   },
+   "explain": {
+    "keyframes": 0,
+    "infinite": 0,
+    "cssAnimTransDecl": 1,
+    "reducedMotionCss": 1,
+    "reducedMotionJs": 2,
+    "rAF": 0,
+    "setInterval": 3
+   },
+   "repl": {
+    "keyframes": 0,
+    "infinite": 0,
+    "cssAnimTransDecl": 4,
+    "reducedMotionCss": 1,
+    "reducedMotionJs": 1,
+    "rAF": 0,
+    "setInterval": 1
+   },
+   "raft": {
+    "keyframes": 0,
+    "infinite": 0,
+    "cssAnimTransDecl": 4,
+    "reducedMotionCss": 1,
+    "reducedMotionJs": 2,
+    "rAF": 2,
+    "setInterval": 3
+   },
+   "dtx": {
+    "keyframes": 0,
+    "infinite": 0,
+    "cssAnimTransDecl": 6,
+    "reducedMotionCss": 1,
+    "reducedMotionJs": 3,
+    "rAF": 0,
+    "setInterval": 2
+   },
+   "time": {
+    "keyframes": 0,
+    "infinite": 0,
+    "cssAnimTransDecl": 5,
+    "reducedMotionCss": 1,
+    "reducedMotionJs": 1,
+    "rAF": 0,
+    "setInterval": 0
+   },
+   "docker": {
+    "keyframes": 0,
+    "infinite": 0,
+    "cssAnimTransDecl": 5,
+    "reducedMotionCss": 2,
+    "reducedMotionJs": 3,
+    "rAF": 0,
+    "setInterval": 3
+   },
+   "k8s": {
+    "keyframes": 1,
+    "infinite": 0,
+    "cssAnimTransDecl": 8,
+    "reducedMotionCss": 1,
+    "reducedMotionJs": 1,
+    "rAF": 0,
+    "setInterval": 5
+   },
+   "cicd": {
+    "keyframes": 2,
+    "infinite": 2,
+    "cssAnimTransDecl": 11,
+    "reducedMotionCss": 3,
+    "reducedMotionJs": 2,
+    "rAF": 0,
+    "setInterval": 2
+   },
+   "release": {
+    "keyframes": 0,
+    "infinite": 0,
+    "cssAnimTransDecl": 3,
+    "reducedMotionCss": 0,
+    "reducedMotionJs": 0,
+    "rAF": 0,
+    "setInterval": 2
+   },
+   "legacy": {
+    "keyframes": 0,
+    "infinite": 0,
+    "cssAnimTransDecl": 3,
+    "reducedMotionCss": 0,
+    "reducedMotionJs": 0,
+    "rAF": 0,
+    "setInterval": 1
+   },
+   "obs": {
+    "keyframes": 0,
+    "infinite": 0,
+    "cssAnimTransDecl": 2,
+    "reducedMotionCss": 0,
+    "reducedMotionJs": 0,
+    "rAF": 0,
+    "setInterval": 0
+   },
+   "docs": {
+    "keyframes": 2,
+    "infinite": 1,
+    "cssAnimTransDecl": 7,
+    "reducedMotionCss": 2,
+    "reducedMotionJs": 2,
+    "rAF": 3,
+    "setInterval": 0
+   },
+   "llm": {
+    "keyframes": 1,
+    "infinite": 1,
+    "cssAnimTransDecl": 2,
+    "reducedMotionCss": 1,
+    "reducedMotionJs": 0,
+    "rAF": 0,
+    "setInterval": 0
+   },
+   "catalog": {
+    "keyframes": 0,
+    "infinite": 0,
+    "cssAnimTransDecl": 0,
+    "reducedMotionCss": 0,
+    "reducedMotionJs": 0,
+    "rAF": 0,
+    "setInterval": 0
+   },
+   "duty": {
+    "keyframes": 0,
+    "infinite": 0,
+    "cssAnimTransDecl": 1,
+    "reducedMotionCss": 0,
+    "reducedMotionJs": 0,
+    "rAF": 0,
+    "setInterval": 1
+   },
+   "practice": {
+    "keyframes": 0,
+    "infinite": 0,
+    "cssAnimTransDecl": 0,
+    "reducedMotionCss": 0,
+    "reducedMotionJs": 0,
+    "rAF": 0,
+    "setInterval": 0
+   },
+   "capstone": {
+    "keyframes": 1,
+    "infinite": 0,
+    "cssAnimTransDecl": 3,
+    "reducedMotionCss": 1,
+    "reducedMotionJs": 0,
+    "rAF": 0,
+    "setInterval": 1
+   },
+   "gloss": {
+    "keyframes": 0,
+    "infinite": 0,
+    "cssAnimTransDecl": 0,
+    "reducedMotionCss": 0,
+    "reducedMotionJs": 0,
+    "rAF": 0,
+    "setInterval": 0
+   },
+   "p29b_why.html": {
+    "keyframes": 0,
+    "infinite": 0,
+    "cssAnimTransDecl": 0,
+    "reducedMotionCss": 0,
+    "reducedMotionJs": 0,
+    "rAF": 0,
+    "setInterval": 0
+   },
+   "p30_tail.html": {
+    "keyframes": 0,
+    "infinite": 0,
+    "cssAnimTransDecl": 0,
+    "reducedMotionCss": 0,
+    "reducedMotionJs": 0,
+    "rAF": 0,
+    "setInterval": 0
+   }
+  },
+  "keyframesTotal": 20,
+  "infiniteTotal": 4,
+  "reducedMotionCssTotal": 36,
+  "reducedMotionJsTotal": 56,
+  "partsWithMotionButNoReducedMotion": [
+   "cqrs",
+   "resil",
+   "release",
+   "legacy",
+   "duty"
+  ]
+ },
+ "focusCss": {
+  "outlineNone": [
+   "layers:2",
+   "sec:1",
+   "cache:1",
+   "db:1",
+   "raft:1",
+   "time:1",
+   "docs:1"
+  ],
+  "focusVisibleRules": 21
+ },
+ "storage": {
+  "keys": [
+   "p02_header.html: arch-progress-v1",
+   "p02_header.html: arch-bridge-v1",
+   "p30_tail.html: arch-theme"
+  ]
+ },
+ "progressStatic": {
+  "layers": [
+   "lyx-roles-score=ITEMS.length",
+   "lay-score=ITEMS.length",
+   "lyx-tr=3",
+   "lyx-cap=3",
+   "lyx-adm=PH.length",
+   "lyx-am=1",
+   "lyx-tt=3",
+   "lyx-gov=2",
+   "lay-qscore=5",
+   "lyx-q-score=Q.length"
+  ],
+  "zachem": [
+   "qa-pick=1",
+   "zach-score=5",
+   "zhx-sk=2",
+   "zhx-calc=1",
+   "zhx-fall=2",
+   "zhx-qaa=1",
+   "zhx-tl=1",
+   "zhx-curve=1",
+   "zhx-door-score=12",
+   "zhx-lrm=2",
+   "zhx-tr=2",
+   "zhx-qas=4",
+   "zhx-nfr=6",
+   "zhx-nines=2",
+   "zhx-debt=2",
+   "zhx-asr-score=10",
+   "zhx-roles-score=10",
+   "zhx-q-score=14"
+  ],
+  "life": [
+   "cf-game=9",
+   "lf-score=8"
+  ],
+  "mono": [
+   "mono-check=1",
+   "mono-score=4",
+   "mnx-path=4",
+   "mnx-lat=1",
+   "mnx-sc=2",
+   "mnx-dep=3",
+   "mnx-g=3",
+   "mnx-q-score=10",
+   "mnx-sort-score=8"
+  ],
+  "modular": [
+   "grd-score=CASES.length",
+   "mm-score=4"
+  ],
+  "micro": [
+   "ms-score=5"
+  ],
+  "versus": [
+   "vsq-score=SIT.length"
+  ],
+  "styles": [
+   "st-score=7"
+  ],
+  "domains": [
+   "dmx-space-score=SP.length",
+   "dmx-find=3",
+   "dmx-lang=W.length",
+   "dmx-econ=S.length",
+   "dmx-drift=2",
+   "dmx-sim=SD.length",
+   "dmx-team=1",
+   "sd-score=ITEMS.length",
+   "dmx-map=2",
+   "dom-score=13"
+  ],
+  "estorm": [
+   "esx-fix-score=FIX.length",
+   "esx-sort-score=16",
+   "esx-zoom=1",
+   "esx-room=1",
+   "esx-wall=2",
+   "esx-piv=1",
+   "esx-cut=GAP.length",
+   "esx-proc=SC.length",
+   "esx-inv-score=10",
+   "esx-arch=7",
+   "esx-fac-score=6",
+   "esx-tech-score=6",
+   "esx-q-score=12"
+  ],
+  "bc": [
+   "bc-word=1",
+   "bcf=FIELDS.length",
+   "bc-score=4"
+  ],
+  "ctxmap": [
+   "cm-score=6"
+  ],
+  "split": [
+   "spx-try=1",
+   "spx-alg=1",
+   "spx-heur-score=7",
+   "spx-anti-score=6",
+   "spx-ready-score=4",
+   "sp-score=14",
+   "spx-lens=2",
+   "spx-word=1",
+   "spx-dsm=1",
+   "sp-cut=5",
+   "spx-scen=1",
+   "spx-first-score=FC.length"
+  ],
+  "data": [
+   "dw-score=6",
+   "dt-score=4"
+  ],
+  "consist": [
+   "cap-play=1",
+   "cn-score=6"
+  ],
+  "saga": [
+   "sg-play=1",
+   "sga-score=6"
+  ],
+  "outbox": [
+   "ob-play=1",
+   "ob-score=5"
+  ],
+  "cqrs": [
+   "cq-play=1",
+   "cq-score=5",
+   "cqf-sim=1",
+   "cqf-score=8",
+   "cqd-play=1",
+   "cqp-play=1",
+   "cql-play=1",
+   "cqlv-score=6"
+  ],
+  "net": [
+   "nwx-trip=3",
+   "nwx-enc=1",
+   "nwx-ip-score=11",
+   "nwx-dns=1",
+   "nwx-mv=2",
+   "nwx-tcp=2",
+   "nwx-hol=1",
+   "nwx-lat=1",
+   "nwx-cdn-score=9",
+   "nwx-ws=1",
+   "nwx-vpc=2",
+   "nwx-doc=1",
+   "nwx-diag-score=10",
+   "nwx-nft=1",
+   "nwx-q-score=12"
+  ],
+  "comm": [
+   "cm2-score=6",
+   "cmq-score=4",
+   "cmx-flow=1",
+   "cmx-sim=3",
+   "cmx-qs=3",
+   "cmx-ps=2",
+   "cmx-ce-score=8",
+   "cmx-env=SC.length",
+   "cmx-gq=2",
+   "cmx-wiz=3",
+   "cmx-ev=2",
+   "cmx-id=2"
+  ],
+  "api": [
+   "apx-uri-score=9",
+   "apx-rich=1",
+   "apx-codes=1",
+   "apx-pr-score=9",
+   "apx-q-score=12",
+   "apx-br=6",
+   "apx-pay=3",
+   "apx-et=2",
+   "apx-pg=2",
+   "apx-pgd=1",
+   "apx-ct=T.length",
+   "apx-ch=1"
+  ],
+  "broker": [
+   "brk-peak=1",
+   "brk-mode=1",
+   "brk-log=1",
+   "brk-hash=1",
+   "brk-live=4",
+   "brk-batch=1",
+   "brk-acks=2",
+   "brk-sem=3",
+   "brk-seq=3",
+   "brk-schema=1",
+   "brk-rmq=3",
+   "brk-calc=1",
+   "brk-lq-score=4",
+   "brk-pick-score=10",
+   "brk-q-score=12"
+  ],
+  "gw": [
+   "gw-score=14",
+   "gwq-score=4",
+   "gwx-flow=1",
+   "gwx-chaos=4",
+   "gwx-mesh=2",
+   "gwx-off=4",
+   "gwx-sc=4"
+  ],
+  "front": [
+   "fex-mode-score=8",
+   "fex-crp=2",
+   "fex-race=3",
+   "fex-cls=1",
+   "fex-inp=1",
+   "fex-bd=2",
+   "fex-wf=2",
+   "fex-qc=1",
+   "fex-state-score=10",
+   "fex-fsd-score=8",
+   "fex-mf=3",
+   "fex-pwa=3",
+   "fex-csp=1",
+   "fex-dep=1",
+   "fex-req-score=5",
+   "fex-q-score=12"
+  ],
+  "sec": [
+   "sfx-cia-score=7",
+   "sfx-layers=2",
+   "sfx-stride=10",
+   "sfx-hash=2",
+   "sfx-sig=1",
+   "sfx-chain=1",
+   "sfx-env=3",
+   "sfx-git=1",
+   "sfx-where-score=7",
+   "sfx-owasp=10",
+   "sfx-bola=2",
+   "sfx-ma=1",
+   "sfx-sqli=3",
+   "sfx-xss=1",
+   "sfx-csrf=1",
+   "sfx-cors=1",
+   "sfx-acc=4",
+   "sfx-zt=2",
+   "sfx-sc=1",
+   "sfx-log-score=9",
+   "sfx-login=1",
+   "sfx-pd=1",
+   "sfx-erase=10",
+   "sfx-review=1",
+   "sfx-q-score=12",
+   "sfx-os-score=11"
+  ],
+  "oauth": [
+   "oax-ck=1",
+   "oax-jwt=3",
+   "oax-atk=5",
+   "oax-ru-score=7",
+   "oax-pkce=3",
+   "oax-rot=2",
+   "oax-calc=1",
+   "oax-flow-score=10",
+   "oax-sso=2",
+   "oax-st=1",
+   "oax-req-score=5",
+   "oax-q-score=12"
+  ],
+  "lb": [
+   "lb-play=1",
+   "lbq-score=6",
+   "lbx-trip=1",
+   "lbx-race=1",
+   "lbx-hc=1",
+   "lbx-drain=1",
+   "lbx-who-score=6",
+   "lbx-anim=1",
+   "lbx-req-score=9"
+  ],
+  "resil": [
+   "rsx-lit=1",
+   "rsx-tmo=1",
+   "rsx-jit=1",
+   "rsx-bh=1",
+   "rsx-pult=2",
+   "rs-play=1",
+   "cb-play=1",
+   "tb-play=1",
+   "dg-score=10",
+   "rsx-q-score=5",
+   "rsq-score=6"
+  ],
+  "cache": [
+   "chx-flow=1",
+   "chx-lru=1",
+   "chx-stale=1",
+   "chx-av=1",
+   "ca-play=1",
+   "caq-score=5",
+   "chx-sx=5",
+   "chx-srt-score=6",
+   "chx-q-score=5"
+  ],
+  "scale": [
+   "sh-play=1",
+   "scq-score=5",
+   "scx-flow=1",
+   "scx-story=1",
+   "scx-sim=1",
+   "scx-sess=1",
+   "scx-queue=1",
+   "scx-sort-score=7"
+  ],
+  "bigo": [
+   "bgx-story=1",
+   "bgx-terms=1",
+   "bgx-amort=1",
+   "bgx-race=3",
+   "bgx-bs=2",
+   "bgx-bt=2",
+   "bgx-sort=1",
+   "bgx-exp=1",
+   "bgx-calc-score=FR.length",
+   "bgx-walk=3",
+   "bgx-hash=3",
+   "bgx-ds-score=6",
+   "bgx-join=1",
+   "bgx-page=1",
+   "bgx-chash=1",
+   "bgx-fan=1",
+   "bgx-lat=2",
+   "bgx-vol=1",
+   "bgx-q-score=12"
+  ],
+  "db": [
+   "dbq-score=5",
+   "dbx-kind-score=6",
+   "dbx-acid=4",
+   "dbx-acid-score=8"
+  ],
+  "explain": [
+   "exq-build=1",
+   "exq-anat=1",
+   "exq-rt-score=3",
+   "exq-lab=4",
+   "exq-race=2",
+   "exq-sel=1",
+   "exq-join=3",
+   "exq-jcalc=1",
+   "exq-sort=1",
+   "exq-stat=2",
+   "exq-cix=5",
+   "exq-ni-score=11",
+   "exq-np1=1",
+   "exq-pr=1",
+   "exq-rp-score=6",
+   "exq-q-score=12"
+  ],
+  "repl": [
+   "rpx-route-score=7",
+   "rpx-fmt=1",
+   "rpx-lvl=1",
+   "rpx-pult=3",
+   "rpx-anom=3",
+   "rpx-fo=4",
+   "rpx-rt=1",
+   "rpx-dc=1",
+   "rpx-mm=2",
+   "rpx-mk=1",
+   "rpx-geo=1",
+   "rpx-av=1",
+   "rpx-req-score=7",
+   "rpx-q-score=12"
+  ],
+  "raft": [
+   "rfx-tmo=1",
+   "rfx-quo=1",
+   "rfx-ix=1",
+   "rfx-roles=1",
+   "rfx-vote-score=3",
+   "rfx-f8=1",
+   "rfx-mem=1",
+   "rfx-bft-score=8",
+   "rfx-zone=1",
+   "rfx-err-score=8",
+   "rfx-q-score=12",
+   "rfx-live=3",
+   "rfx-fence=2"
+  ],
+  "dtx": [
+   "dtx-nv=1",
+   "dtx-pult=3",
+   "dtx-fa=1",
+   "dtx-cost=1",
+   "dtx-3pc=2",
+   "dtx-mod=1",
+   "dtx-tcc=3",
+   "dtx-sql=1",
+   "dtx-tree=2",
+   "dtx-sort-score=10",
+   "dtx-q-score=12"
+  ],
+  "time": [
+   "tmx-drift=1",
+   "tmx-lw=3",
+   "tmx-st=2",
+   "tmx-vc=1",
+   "tmx-tt=1",
+   "tmx-ord=2",
+   "tmx-wm=2",
+   "tmx-cr=2",
+   "tmx-id=2",
+   "tmx-dst=1",
+   "tmx-bt-score=10",
+   "tmx-q-score=12"
+  ],
+  "docker": [
+   "dkx-env=1",
+   "dkx-vm=1",
+   "dkx-ns=1",
+   "dkx-oom=2",
+   "dkx-cow=1",
+   "dkx-ep=1",
+   "dkx-lb=3",
+   "dkx-gs=2",
+   "dkx-data-score=8",
+   "dkx-cmp=3",
+   "dkx-12-score=12",
+   "dkx-sec-score=nBad",
+   "dkx-cpu=1",
+   "dkx-mem=1",
+   "dkx-an-score=7",
+   "dkx-q-score=12"
+  ],
+  "k8s": [
+   "k8x-th=1",
+   "k8x-arch=1",
+   "k8x-sel=1",
+   "k8x-lc=3",
+   "k8x-yaml=1",
+   "k8x-sc=2",
+   "k8x-pr=2",
+   "k8x-roll=1",
+   "k8x-hpa=1",
+   "k8x-b64=1",
+   "k8x-net-score=6",
+   "k8x-wl-score=6",
+   "k8x-need=1",
+   "k8x-q-score=12"
+  ],
+  "cicd": [
+   "cix-fri=1",
+   "cix-merge=1",
+   "cix-stage=1",
+   "cix-pipe=3",
+   "cix-pyr=1",
+   "cix-art-score=10",
+   "cix-mode=1",
+   "cix-dora=1",
+   "cix-tf=2",
+   "cix-gitops=2",
+   "cix-sc-score=7",
+   "cix-mig-score=7",
+   "cix-req-score=7",
+   "cix-q-score=12"
+  ],
+  "release": [
+   "rlx-flow=1",
+   "rlx-sim=3",
+   "rlx-n1=1",
+   "rlx-mig=1",
+   "rlx-flag=1",
+   "cn-play=1",
+   "rlx-sort-score=7",
+   "rlq-score=7"
+  ],
+  "legacy": [
+   "lgx-flow=1",
+   "lgx-pick-score=6",
+   "sf-play=3",
+   "lgx-sim=3",
+   "lgx-acl=1",
+   "lgx-diff-score=6",
+   "lg-score=5",
+   "lgq-score=5"
+  ],
+  "obs": [
+   "tr-play=3",
+   "sl-play=1",
+   "obq-score=5",
+   "obx-inv=1",
+   "obx-srt-score=7",
+   "obx-lg=1",
+   "obx-pc=1",
+   "obx-wf=1",
+   "obx-al-score=8",
+   "obx-eb=1"
+  ],
+  "docs": [
+   "dcx-week=1",
+   "dcx-who=1",
+   "dcx-lvl-score=10",
+   "dcx-zoom=4",
+   "dcx-zerr=TOTAL_ERR",
+   "dcx-dac=1",
+   "dcx-tool-score=5",
+   "dcx-dsort-score=11",
+   "dcx-adr=P.length",
+   "dcx-log=1",
+   "dcx-arc=1",
+   "dcx-arcsort-score=9",
+   "dcx-qas=QA.length",
+   "dcx-nfr-score=8",
+   "dcx-lint=1",
+   "dcx-ut=S.length",
+   "dcx-atam-score=8",
+   "dcx-ci=4",
+   "dcx-risk=1",
+   "dcx-q-score=12"
+  ],
+  "catalog": [
+   "ctx-pick=3",
+   "cat-read=1"
+  ],
+  "duty": [
+   "dt-game=8",
+   "dux-night=1",
+   "dux-sort=items.length",
+   "dux-quest=3",
+   "dux-pm=items.length",
+   "dux-quiz=items.length"
+  ],
+  "practice": [
+   "prx-fork=5",
+   "pr-score=30"
+  ],
+  "capstone": [
+   "cap=MAX",
+   "cpx-score=5"
+  ],
+  "gloss": [
+   "glx-quiz=QMAX"
+  ]
+ },
+ "progressDisplays": {
+  "layers": {
+   "iz": 7,
+   "chapterDone": 4
+  },
+  "zachem": {
+   "iz": 7,
+   "chapterDone": 2
+  },
+  "life": {
+   "iz": 2,
+   "chapterDone": 0
+  },
+  "mono": {
+   "iz": 6,
+   "chapterDone": 1
+  },
+  "modular": {
+   "iz": 4,
+   "chapterDone": 0
+  },
+  "micro": {
+   "iz": 1,
+   "chapterDone": 0
+  },
+  "versus": {
+   "iz": 2,
+   "chapterDone": 0
+  },
+  "styles": {
+   "iz": 1,
+   "chapterDone": 0
+  },
+  "domains": {
+   "iz": 8,
+   "chapterDone": 0
+  },
+  "estorm": {
+   "iz": 9,
+   "chapterDone": 0
+  },
+  "bc": {
+   "iz": 1,
+   "chapterDone": 0
+  },
+  "ctxmap": {
+   "iz": 2,
+   "chapterDone": 0
+  },
+  "split": {
+   "iz": 9,
+   "chapterDone": 0
+  },
+  "data": {
+   "iz": 2,
+   "chapterDone": 0
+  },
+  "consist": {
+   "iz": 1,
+   "chapterDone": 0
+  },
+  "saga": {
+   "iz": 2,
+   "chapterDone": 1
+  },
+  "outbox": {
+   "iz": 2,
+   "chapterDone": 0
+  },
+  "cqrs": {
+   "iz": 4,
+   "chapterDone": 5
+  },
+  "net": {
+   "iz": 9,
+   "chapterDone": 1
+  },
+  "comm": {
+   "iz": 11,
+   "chapterDone": 1
+  },
+  "api": {
+   "iz": 9,
+   "chapterDone": 2
+  },
+  "broker": {
+   "iz": 6,
+   "chapterDone": 6
+  },
+  "gw": {
+   "iz": 5,
+   "chapterDone": 1
+  },
+  "front": {
+   "iz": 13,
+   "chapterDone": 1
+  },
+  "sec": {
+   "iz": 9,
+   "chapterDone": 3
+  },
+  "oauth": {
+   "iz": 6,
+   "chapterDone": 0
+  },
+  "lb": {
+   "iz": 7,
+   "chapterDone": 0
+  },
+  "resil": {
+   "iz": 10,
+   "chapterDone": 0
+  },
+  "cache": {
+   "iz": 7,
+   "chapterDone": 1
+  },
+  "scale": {
+   "iz": 5,
+   "chapterDone": 0
+  },
+  "tenant": {
+   "iz": 3,
+   "chapterDone": 0
+  },
+  "bigo": {
+   "iz": 5,
+   "chapterDone": 4
+  },
+  "db": {
+   "iz": 7,
+   "chapterDone": 3
+  },
+  "explain": {
+   "iz": 6,
+   "chapterDone": 25
+  },
+  "repl": {
+   "iz": 6,
+   "chapterDone": 1
+  },
+  "raft": {
+   "iz": 14,
+   "chapterDone": 3
+  },
+  "dtx": {
+   "iz": 5,
+   "chapterDone": 4
+  },
+  "time": {
+   "iz": 4,
+   "chapterDone": 0
+  },
+  "docker": {
+   "iz": 11,
+   "chapterDone": 2
+  },
+  "k8s": {
+   "iz": 7,
+   "chapterDone": 0
+  },
+  "cicd": {
+   "iz": 12,
+   "chapterDone": 0
+  },
+  "release": {
+   "iz": 11,
+   "chapterDone": 3
+  },
+  "legacy": {
+   "iz": 6,
+   "chapterDone": 0
+  },
+  "obs": {
+   "iz": 6,
+   "chapterDone": 0
+  },
+  "docs": {
+   "iz": 22,
+   "chapterDone": 0
+  },
+  "llm": {
+   "iz": 2,
+   "chapterDone": 0
+  },
+  "catalog": {
+   "iz": 1,
+   "chapterDone": 0
+  },
+  "duty": {
+   "iz": 5,
+   "chapterDone": 1
+  },
+  "practice": {
+   "iz": 9,
+   "chapterDone": 0
+  },
+  "capstone": {
+   "iz": 4,
+   "chapterDone": 0
+  },
+  "gloss": {
+   "iz": 1,
+   "chapterDone": 0
+  }
+ },
+ "parts": [
+  {
+   "file": "p01_head.html",
+   "id": null,
+   "bytes": 34061,
+   "stub": false
+  },
+  {
+   "file": "p02_header.html",
+   "id": null,
+   "bytes": 57028,
+   "stub": false
+  },
+  {
+   "file": "p02a_layers.html",
+   "id": "layers",
+   "bytes": 264526,
+   "stub": false
+  },
+  {
+   "file": "p03_zachem.html",
+   "id": "zachem",
+   "bytes": 394381,
+   "stub": false
+  },
+  {
+   "file": "p03a_life.html",
+   "id": "life",
+   "bytes": 34523,
+   "stub": false
+  },
+  {
+   "file": "p03b_reqs.html",
+   "id": "reqs",
+   "bytes": 196,
+   "stub": true
+  },
+  {
+   "file": "p03c_bpmn.html",
+   "id": "bpmn",
+   "bytes": 196,
+   "stub": true
+  },
+  {
+   "file": "p04_mono.html",
+   "id": "mono",
+   "bytes": 269041,
+   "stub": false
+  },
+  {
+   "file": "p05_modular.html",
+   "id": "modular",
+   "bytes": 123254,
+   "stub": false
+  },
+  {
+   "file": "p06_micro.html",
+   "id": "micro",
+   "bytes": 56371,
+   "stub": false
+  },
+  {
+   "file": "p07_versus.html",
+   "id": "versus",
+   "bytes": 45235,
+   "stub": false
+  },
+  {
+   "file": "p07a_styles.html",
+   "id": "styles",
+   "bytes": 183830,
+   "stub": false
+  },
+  {
+   "file": "p08_domains.html",
+   "id": "domains",
+   "bytes": 324606,
+   "stub": false
+  },
+  {
+   "file": "p08a_estorm.html",
+   "id": "estorm",
+   "bytes": 292886,
+   "stub": false
+  },
+  {
+   "file": "p09_bc.html",
+   "id": "bc",
+   "bytes": 38977,
+   "stub": false
+  },
+  {
+   "file": "p10_ctxmap.html",
+   "id": "ctxmap",
+   "bytes": 67145,
+   "stub": false
+  },
+  {
+   "file": "p11_split.html",
+   "id": "split",
+   "bytes": 336427,
+   "stub": false
+  },
+  {
+   "file": "p12_data.html",
+   "id": "data",
+   "bytes": 56346,
+   "stub": false
+  },
+  {
+   "file": "p13_consist.html",
+   "id": "consist",
+   "bytes": 37154,
+   "stub": false
+  },
+  {
+   "file": "p14_saga.html",
+   "id": "saga",
+   "bytes": 49801,
+   "stub": false
+  },
+  {
+   "file": "p15_outbox.html",
+   "id": "outbox",
+   "bytes": 44080,
+   "stub": false
+  },
+  {
+   "file": "p15a_jobs.html",
+   "id": "jobs",
+   "bytes": 196,
+   "stub": true
+  },
+  {
+   "file": "p16_cqrs.html",
+   "id": "cqrs",
+   "bytes": 127640,
+   "stub": false
+  },
+  {
+   "file": "p16a_net.html",
+   "id": "net",
+   "bytes": 339473,
+   "stub": false
+  },
+  {
+   "file": "p17_comm.html",
+   "id": "comm",
+   "bytes": 279162,
+   "stub": false
+  },
+  {
+   "file": "p17a_api.html",
+   "id": "api",
+   "bytes": 318449,
+   "stub": false
+  },
+  {
+   "file": "p17b_broker.html",
+   "id": "broker",
+   "bytes": 337685,
+   "stub": false
+  },
+  {
+   "file": "p17c_eip.html",
+   "id": "eip",
+   "bytes": 194,
+   "stub": true
+  },
+  {
+   "file": "p18_gw.html",
+   "id": "gw",
+   "bytes": 205428,
+   "stub": false
+  },
+  {
+   "file": "p18_web.html",
+   "id": "front",
+   "bytes": 393809,
+   "stub": false
+  },
+  {
+   "file": "p18a_sec.html",
+   "id": "sec",
+   "bytes": 409937,
+   "stub": false
+  },
+  {
+   "file": "p18b_oauth.html",
+   "id": "oauth",
+   "bytes": 315143,
+   "stub": false
+  },
+  {
+   "file": "p19_lb.html",
+   "id": "lb",
+   "bytes": 174171,
+   "stub": false
+  },
+  {
+   "file": "p20_resil.html",
+   "id": "resil",
+   "bytes": 153110,
+   "stub": false
+  },
+  {
+   "file": "p21_cache.html",
+   "id": "cache",
+   "bytes": 206032,
+   "stub": false
+  },
+  {
+   "file": "p22_scale.html",
+   "id": "scale",
+   "bytes": 153417,
+   "stub": false
+  },
+  {
+   "file": "p22_tenant.html",
+   "id": "tenant",
+   "bytes": 100395,
+   "stub": false
+  },
+  {
+   "file": "p22a_bigo.html",
+   "id": "bigo",
+   "bytes": 279046,
+   "stub": false
+  },
+  {
+   "file": "p22aa_cap.html",
+   "id": "cap",
+   "bytes": 194,
+   "stub": true
+  },
+  {
+   "file": "p22b_db.html",
+   "id": "db",
+   "bytes": 263553,
+   "stub": false
+  },
+  {
+   "file": "p22ba_explain.html",
+   "id": "explain",
+   "bytes": 381314,
+   "stub": false
+  },
+  {
+   "file": "p22bb_dwh.html",
+   "id": "dwh",
+   "bytes": 194,
+   "stub": true
+  },
+  {
+   "file": "p22bc_search.html",
+   "id": "search",
+   "bytes": 200,
+   "stub": true
+  },
+  {
+   "file": "p22c_repl.html",
+   "id": "repl",
+   "bytes": 329817,
+   "stub": false
+  },
+  {
+   "file": "p22ca_dr.html",
+   "id": "dr",
+   "bytes": 192,
+   "stub": true
+  },
+  {
+   "file": "p22d_raft.html",
+   "id": "raft",
+   "bytes": 354550,
+   "stub": false
+  },
+  {
+   "file": "p22e_dtx.html",
+   "id": "dtx",
+   "bytes": 282906,
+   "stub": false
+  },
+  {
+   "file": "p22ea_pay.html",
+   "id": "pay",
+   "bytes": 194,
+   "stub": true
+  },
+  {
+   "file": "p22f_time.html",
+   "id": "time",
+   "bytes": 287392,
+   "stub": false
+  },
+  {
+   "file": "p22g_docker.html",
+   "id": "docker",
+   "bytes": 343042,
+   "stub": false
+  },
+  {
+   "file": "p22h_k8s.html",
+   "id": "k8s",
+   "bytes": 319817,
+   "stub": false
+  },
+  {
+   "file": "p22i_cicd.html",
+   "id": "cicd",
+   "bytes": 337437,
+   "stub": false
+  },
+  {
+   "file": "p22j_cloud.html",
+   "id": "cloud",
+   "bytes": 198,
+   "stub": true
+  },
+  {
+   "file": "p23_release.html",
+   "id": "release",
+   "bytes": 129982,
+   "stub": false
+  },
+  {
+   "file": "p24_legacy.html",
+   "id": "legacy",
+   "bytes": 117739,
+   "stub": false
+  },
+  {
+   "file": "p25_obs.html",
+   "id": "obs",
+   "bytes": 131205,
+   "stub": false
+  },
+  {
+   "file": "p25a_docs.html",
+   "id": "docs",
+   "bytes": 356175,
+   "stub": false
+  },
+  {
+   "file": "p25b_llm.html",
+   "id": "llm",
+   "bytes": 156874,
+   "stub": false
+  },
+  {
+   "file": "p26_catalog.html",
+   "id": "catalog",
+   "bytes": 414958,
+   "stub": false
+  },
+  {
+   "file": "p26a_duty.html",
+   "id": "duty",
+   "bytes": 93614,
+   "stub": false
+  },
+  {
+   "file": "p26b_cases.html",
+   "id": "cases",
+   "bytes": 198,
+   "stub": true
+  },
+  {
+   "file": "p27_practice.html",
+   "id": "practice",
+   "bytes": 89969,
+   "stub": false
+  },
+  {
+   "file": "p28_capstone.html",
+   "id": "capstone",
+   "bytes": 83968,
+   "stub": false
+  },
+  {
+   "file": "p29_gloss.html",
+   "id": "gloss",
+   "bytes": 93614,
+   "stub": false
+  },
+  {
+   "file": "p29b_why.html",
+   "id": null,
+   "bytes": 63969,
+   "stub": false
+  },
+  {
+   "file": "p30_tail.html",
+   "id": null,
+   "bytes": 4806,
+   "stub": false
+  }
+ ]
+}

@@ -1,0 +1,4604 @@
+{
+ "meta": {
+  "date": "2026-10-07T21:16:08.038Z",
+  "file": "E:/arch_trainer/index.html",
+  "bytes": 11137691,
+  "servedGzipLevel4Bytes": 3215477,
+  "githubPagesLiveGzipBytes": 3179323,
+  "scenarios": {
+   "desktop": {
+    "w": 1366,
+    "h": 768,
+    "dpr": 1,
+    "mobile": false,
+    "cpu": 1,
+    "net": null
+   },
+   "mobile4g": {
+    "w": 390,
+    "h": 844,
+    "dpr": 3,
+    "mobile": true,
+    "cpu": 4,
+    "net": {
+     "offline": false,
+     "latency": 150,
+     "downloadThroughput": 1125000,
+     "uploadThroughput": 375000
+    },
+    "ua": "Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/154.0.0.0 Mobile Safari/537.36"
+   }
+  },
+  "ttiMethod": "Lighthouse-like: from FCP, first 5 s window without long tasks; max with DCL"
+ },
+ "summary": {
+  "desktop_coldFirstVisit": {
+   "runs": 3,
+   "ttfb": 15,
+   "responseEnd": 418,
+   "firstPaint": 352,
+   "fcp": 352,
+   "lcp": 620,
+   "navMenuWorks": 1039,
+   "domInteractive": 1042,
+   "dclEnd": 1047,
+   "loadEnd": 1060,
+   "ttiEstimate": 1047,
+   "tbt": 0,
+   "longTaskCount": 0,
+   "longTaskTotal": 0,
+   "longTaskMax": 0,
+   "cls": 0,
+   "scriptMs": 412,
+   "layoutMs": 259,
+   "styleMs": 25,
+   "taskMs": 1101,
+   "heapUsedMB": 14.9,
+   "heapAfterGcMB": 11,
+   "docEncodedBytes": 3215697,
+   "domElements": 82185,
+   "cdpNodes": 170568,
+   "listeners": 2008
+  },
+  "desktop_repeatVisit": {
+   "runs": 2,
+   "ttfb": 1,
+   "responseEnd": 405,
+   "firstPaint": 354,
+   "fcp": 354,
+   "lcp": 620,
+   "navMenuWorks": 1014,
+   "domInteractive": 1015,
+   "dclEnd": 1020,
+   "loadEnd": 1032,
+   "ttiEstimate": 1020,
+   "tbt": 9,
+   "longTaskCount": 1,
+   "longTaskTotal": 34,
+   "longTaskMax": 34,
+   "cls": 0,
+   "scriptMs": 401,
+   "layoutMs": 260,
+   "styleMs": 27,
+   "taskMs": 1095,
+   "heapUsedMB": 15.05,
+   "heapAfterGcMB": 11,
+   "docEncodedBytes": 0,
+   "domElements": 82185,
+   "cdpNodes": 170855,
+   "listeners": 2008
+  },
+  "mobile4g_coldFirstVisit": {
+   "runs": 3,
+   "ttfb": 2,
+   "responseEnd": 3608,
+   "firstPaint": 1248,
+   "fcp": 1248,
+   "lcp": 1764,
+   "navMenuWorks": 6061,
+   "domInteractive": 6077,
+   "dclEnd": 6104,
+   "loadEnd": 6175,
+   "ttiEstimate": 6195,
+   "tbt": 669,
+   "longTaskCount": 23,
+   "longTaskTotal": 1819,
+   "longTaskMax": 135,
+   "cls": 0.008,
+   "scriptMs": 2388,
+   "layoutMs": 1382,
+   "styleMs": 155,
+   "taskMs": 6205,
+   "heapUsedMB": 15.1,
+   "heapAfterGcMB": 11,
+   "docEncodedBytes": 3215697,
+   "domElements": 82185,
+   "cdpNodes": 170861,
+   "listeners": 2008
+  },
+  "mobile4g_repeatVisit": {
+   "runs": 2,
+   "ttfb": 1,
+   "responseEnd": 1727,
+   "firstPaint": 1258,
+   "fcp": 1258,
+   "lcp": 1676,
+   "navMenuWorks": 5941,
+   "domInteractive": 5955,
+   "dclEnd": 5980,
+   "loadEnd": 6047,
+   "ttiEstimate": 6068,
+   "tbt": 679,
+   "longTaskCount": 24,
+   "longTaskTotal": 1879,
+   "longTaskMax": 121,
+   "cls": 0.008,
+   "scriptMs": 2431,
+   "layoutMs": 1351,
+   "styleMs": 155,
+   "taskMs": 6248,
+   "heapUsedMB": 15.25,
+   "heapAfterGcMB": 11,
+   "docEncodedBytes": 0,
+   "domElements": 82185,
+   "cdpNodes": 172280,
+   "listeners": 2009
+  }
+ },
+ "tabSwitch": {
+  "desktop": {
+   "firstVisit": {
+    "median": 53.3,
+    "p90": 126.5,
+    "max": 184,
+    "maxId": "zachem",
+    "medianStyleLayout": 0,
+    "medianJs": 45
+   },
+   "secondVisit": {
+    "median": 50.6,
+    "p90": 82.6,
+    "max": 127,
+    "maxId": "raft",
+    "medianStyleLayout": 0,
+    "medianJs": 37.8
+   },
+   "slowest6": [
+    {
+     "pass": 1,
+     "id": "zachem",
+     "js": 107.6,
+     "styleLayout": 0.1,
+     "toFrame": 184,
+     "elements": 2364
+    },
+    {
+     "pass": 1,
+     "id": "explain",
+     "js": 65.1,
+     "styleLayout": 0,
+     "toFrame": 137,
+     "elements": 2432
+    },
+    {
+     "pass": 1,
+     "id": "front",
+     "js": 75.9,
+     "styleLayout": 0,
+     "toFrame": 133.9,
+     "elements": 3012
+    },
+    {
+     "pass": 1,
+     "id": "raft",
+     "js": 70.8,
+     "styleLayout": 0,
+     "toFrame": 133.2,
+     "elements": 2787
+    },
+    {
+     "pass": 1,
+     "id": "split",
+     "js": 77.6,
+     "styleLayout": 0,
+     "toFrame": 132.8,
+     "elements": 3201
+    },
+    {
+     "pass": 1,
+     "id": "sec",
+     "js": 116.2,
+     "styleLayout": 0,
+     "toFrame": 126.5,
+     "elements": 2832
+    }
+   ],
+   "afterAllTabs": {
+    "Nodes": 166886,
+    "heapUsedMB": 11.1
+   }
+  },
+  "mobile4g": {
+   "firstVisit": {
+    "median": 248.7,
+    "p90": 495.9,
+    "max": 702.8,
+    "maxId": "zachem",
+    "medianStyleLayout": 0.2,
+    "medianJs": 220.8
+   },
+   "secondVisit": {
+    "median": 232.6,
+    "p90": 385.4,
+    "max": 593.2,
+    "maxId": "sec",
+    "medianStyleLayout": 0.2,
+    "medianJs": 190.9
+   },
+   "slowest6": [
+    {
+     "pass": 1,
+     "id": "zachem",
+     "js": 633.8,
+     "styleLayout": 0.2,
+     "toFrame": 702.8,
+     "elements": 2364
+    },
+    {
+     "pass": 1,
+     "id": "sec",
+     "js": 581.4,
+     "styleLayout": 0.2,
+     "toFrame": 649.3,
+     "elements": 2832
+    },
+    {
+     "pass": 1,
+     "id": "net",
+     "js": 514.4,
+     "styleLayout": 0.3,
+     "toFrame": 566,
+     "elements": 2901
+    },
+    {
+     "pass": 1,
+     "id": "front",
+     "js": 448.3,
+     "styleLayout": 0.2,
+     "toFrame": 516.6,
+     "elements": 3012
+    },
+    {
+     "pass": 1,
+     "id": "oauth",
+     "js": 441.6,
+     "styleLayout": 0.2,
+     "toFrame": 506.4,
+     "elements": 2612
+    },
+    {
+     "pass": 1,
+     "id": "raft",
+     "js": 429.3,
+     "styleLayout": 0.1,
+     "toFrame": 495.9,
+     "elements": 2787
+    }
+   ],
+   "afterAllTabs": {
+    "Nodes": 167131,
+    "heapUsedMB": 11.2
+   }
+  }
+ },
+ "traces": [
+  {
+   "scenario": "desktop",
+   "mainThreadTaskMs": 1178.6,
+   "evaluateScriptTotalMs": 506.9,
+   "parseHtmlInclMs": 673.4,
+   "topSelf": [
+    {
+     "name": "v8.run",
+     "selfMs": 350.9,
+     "inclMs": 451.9,
+     "count": 206
+    },
+    {
+     "name": "InlineNode::ShapeTextIncludingFirstLine",
+     "selfMs": 206.2,
+     "inclMs": 206.3,
+     "count": 1142
+    },
+    {
+     "name": "ParseHTML",
+     "selfMs": 137.9,
+     "inclMs": 673.4,
+     "count": 3354
+    },
+    {
+     "name": "Blink.Accessibility.UpdateTime",
+     "selfMs": 122,
+     "inclMs": 122,
+     "count": 36
+    },
+    {
+     "name": "LocalFrameView::performLayout",
+     "selfMs": 57.1,
+     "inclMs": 266.1,
+     "count": 41
+    },
+    {
+     "name": "v8.compile",
+     "selfMs": 53.5,
+     "inclMs": 53.5,
+     "count": 206
+    },
+    {
+     "name": "TextResourceDecoder::Decode",
+     "selfMs": 35.7,
+     "inclMs": 35.7,
+     "count": 13
+    },
+    {
+     "name": "Paint",
+     "selfMs": 22.3,
+     "inclMs": 40.2,
+     "count": 77
+    },
+    {
+     "name": "WebFrameWidgetImpl::UpdateLifecycle",
+     "selfMs": 21.4,
+     "inclMs": 350.7,
+     "count": 36
+    },
+    {
+     "name": "Document::FinishedParsing",
+     "selfMs": 15.8,
+     "inclMs": 21.8,
+     "count": 2
+    },
+    {
+     "name": "CSSParserImpl::parseStyleSheet.parse",
+     "selfMs": 12.3,
+     "inclMs": 12.4,
+     "count": 59
+    },
+    {
+     "name": "ThreadControllerImpl::RunTask",
+     "selfMs": 11.6,
+     "inclMs": 1175.9,
+     "count": 623
+    },
+    {
+     "name": "Blink.CompositingInputs.UpdateTime",
+     "selfMs": 10.4,
+     "inclMs": 10.5,
+     "count": 36
+    },
+    {
+     "name": "Document::recalcStyle",
+     "selfMs": 8.2,
+     "inclMs": 8.3,
+     "count": 41
+    },
+    {
+     "name": "StyleEngine::scheduleInvalidationsForRuleSets",
+     "selfMs": 7.7,
+     "inclMs": 7.7,
+     "count": 30
+    },
+    {
+     "name": "HTMLDocumentParser::PumpTokenizerIfPossible",
+     "selfMs": 7.3,
+     "inclMs": 706.5,
+     "count": 4181
+    },
+    {
+     "name": "FunctionCall",
+     "selfMs": 7.1,
+     "inclMs": 11.6,
+     "count": 455
+    },
+    {
+     "name": "AsyncTask Run",
+     "selfMs": 6.6,
+     "inclMs": 521.5,
+     "count": 655
+    }
+   ],
+   "evalScriptBySection": [
+    {
+     "id": "docs",
+     "evalMs": 25.2
+    },
+    {
+     "id": "k8s",
+     "evalMs": 21.8
+    },
+    {
+     "id": "cicd",
+     "evalMs": 21.8
+    },
+    {
+     "id": "split",
+     "evalMs": 21.3
+    },
+    {
+     "id": "docker",
+     "evalMs": 20.6
+    },
+    {
+     "id": "explain",
+     "evalMs": 18.7
+    },
+    {
+     "id": "time",
+     "evalMs": 17.8
+    },
+    {
+     "id": "raft",
+     "evalMs": 16.7
+    },
+    {
+     "id": "sec",
+     "evalMs": 15.9
+    },
+    {
+     "id": "bigo",
+     "evalMs": 15.7
+    },
+    {
+     "id": "repl",
+     "evalMs": 15.6
+    },
+    {
+     "id": "front",
+     "evalMs": 15
+    },
+    {
+     "id": "dtx",
+     "evalMs": 14.1
+    },
+    {
+     "id": "obs",
+     "evalMs": 14
+    },
+    {
+     "id": "catalog",
+     "evalMs": 13.9
+    },
+    {
+     "id": "layers",
+     "evalMs": 13.5
+    },
+    {
+     "id": "broker",
+     "evalMs": 13.4
+    },
+    {
+     "id": "cache",
+     "evalMs": 13
+    },
+    {
+     "id": "oauth",
+     "evalMs": 12.1
+    },
+    {
+     "id": "net",
+     "evalMs": 11.1
+    },
+    {
+     "id": "legacy",
+     "evalMs": 10.3
+    },
+    {
+     "id": "api",
+     "evalMs": 10.3
+    },
+    {
+     "id": "release",
+     "evalMs": 10.1
+    },
+    {
+     "id": "resil",
+     "evalMs": 9.6
+    },
+    {
+     "id": "comm",
+     "evalMs": 9.4
+    },
+    {
+     "id": "zachem",
+     "evalMs": 9.3
+    },
+    {
+     "id": "domains",
+     "evalMs": 8.6
+    },
+    {
+     "id": "lb",
+     "evalMs": 8.3
+    },
+    {
+     "id": "llm",
+     "evalMs": 8.2
+    },
+    {
+     "id": "scale",
+     "evalMs": 7.9
+    },
+    {
+     "id": "duty",
+     "evalMs": 7.8
+    },
+    {
+     "id": "estorm",
+     "evalMs": 7.6
+    },
+    {
+     "id": "mono",
+     "evalMs": 7.6
+    },
+    {
+     "id": "db",
+     "evalMs": 7.5
+    },
+    {
+     "id": "gw",
+     "evalMs": 7.3
+    },
+    {
+     "id": "(tail: nav/theme)",
+     "evalMs": 7.1
+    },
+    {
+     "id": "tenant",
+     "evalMs": 4.9
+    },
+    {
+     "id": "gloss",
+     "evalMs": 4.6
+    },
+    {
+     "id": "cqrs",
+     "evalMs": 3.8
+    },
+    {
+     "id": "practice",
+     "evalMs": 3.5
+    },
+    {
+     "id": "capstone",
+     "evalMs": 3.4
+    },
+    {
+     "id": "modular",
+     "evalMs": 3.1
+    },
+    {
+     "id": "styles",
+     "evalMs": 2.4
+    },
+    {
+     "id": "data",
+     "evalMs": 1.5
+    },
+    {
+     "id": "(why-blocks p29b)",
+     "evalMs": 1.5
+    },
+    {
+     "id": "micro",
+     "evalMs": 1.4
+    },
+    {
+     "id": "bc",
+     "evalMs": 1.3
+    },
+    {
+     "id": "saga",
+     "evalMs": 1.2
+    },
+    {
+     "id": "ctxmap",
+     "evalMs": 1.2
+    },
+    {
+     "id": "life",
+     "evalMs": 1.1
+    },
+    {
+     "id": "(head/header/core)",
+     "evalMs": 1
+    },
+    {
+     "id": "consist",
+     "evalMs": 1
+    },
+    {
+     "id": "versus",
+     "evalMs": 1
+    },
+    {
+     "id": "outbox",
+     "evalMs": 0.9
+    }
+   ],
+   "dom": {
+    "elements": 82185,
+    "svg": 46,
+    "svgDescendants": 1896,
+    "buttons": 9597,
+    "scripts": 206,
+    "styles": 55,
+    "panels": 51,
+    "maxDepth": 15
+   },
+   "heap": {
+    "usedMB": 15.2,
+    "totalMB": 21.8,
+    "afterGcUsedMB": 11
+   }
+  },
+  {
+   "scenario": "mobile4g",
+   "mainThreadTaskMs": 7397.5,
+   "evaluateScriptTotalMs": 3315.1,
+   "parseHtmlInclMs": 4322.1,
+   "topSelf": [
+    {
+     "name": "v8.run",
+     "selfMs": 2322.1,
+     "inclMs": 3003.3,
+     "count": 206
+    },
+    {
+     "name": "InlineNode::ShapeTextIncludingFirstLine",
+     "selfMs": 1038.6,
+     "inclMs": 1039.2,
+     "count": 1212
+    },
+    {
+     "name": "ParseHTML",
+     "selfMs": 850.2,
+     "inclMs": 4322.1,
+     "count": 3919
+    },
+    {
+     "name": "Blink.Accessibility.UpdateTime",
+     "selfMs": 673.8,
+     "inclMs": 673.8,
+     "count": 95
+    },
+    {
+     "name": "LocalFrameView::performLayout",
+     "selfMs": 314.1,
+     "inclMs": 1359.3,
+     "count": 95
+    },
+    {
+     "name": "v8.compile",
+     "selfMs": 297.5,
+     "inclMs": 298.4,
+     "count": 206
+    },
+    {
+     "name": "WebFrameWidgetImpl::UpdateLifecycle",
+     "selfMs": 245.7,
+     "inclMs": 2236.3,
+     "count": 95
+    },
+    {
+     "name": "Paint",
+     "selfMs": 194.9,
+     "inclMs": 262,
+     "count": 178
+    },
+    {
+     "name": "TextResourceDecoder::Decode",
+     "selfMs": 157.1,
+     "inclMs": 157.1,
+     "count": 73
+    },
+    {
+     "name": "Blink.CompositingInputs.UpdateTime",
+     "selfMs": 152.2,
+     "inclMs": 152.3,
+     "count": 95
+    },
+    {
+     "name": "Document::FinishedParsing",
+     "selfMs": 108,
+     "inclMs": 143,
+     "count": 2
+    },
+    {
+     "name": "ThreadControllerImpl::RunTask",
+     "selfMs": 88.8,
+     "inclMs": 7344.2,
+     "count": 3194
+    },
+    {
+     "name": "CSSParserImpl::parseStyleSheet.parse",
+     "selfMs": 72.4,
+     "inclMs": 72.4,
+     "count": 59
+    },
+    {
+     "name": "Document::recalcStyle",
+     "selfMs": 58.8,
+     "inclMs": 59.4,
+     "count": 99
+    },
+    {
+     "name": "HTMLDocumentParser::PumpTokenizerIfPossible",
+     "selfMs": 58.4,
+     "inclMs": 4554.2,
+     "count": 4236
+    },
+    {
+     "name": "StyleEngine::scheduleInvalidationsForRuleSets",
+     "selfMs": 52.3,
+     "inclMs": 52.3,
+     "count": 38
+    },
+    {
+     "name": "FunctionCall",
+     "selfMs": 51.8,
+     "inclMs": 56,
+     "count": 524
+    },
+    {
+     "name": "AsyncTask Run",
+     "selfMs": 40.8,
+     "inclMs": 3390.4,
+     "count": 711
+    }
+   ],
+   "evalScriptBySection": [
+    {
+     "id": "docs",
+     "evalMs": 169.2
+    },
+    {
+     "id": "raft",
+     "evalMs": 164
+    },
+    {
+     "id": "docker",
+     "evalMs": 145.4
+    },
+    {
+     "id": "cicd",
+     "evalMs": 144.5
+    },
+    {
+     "id": "split",
+     "evalMs": 129.9
+    },
+    {
+     "id": "k8s",
+     "evalMs": 129.5
+    },
+    {
+     "id": "explain",
+     "evalMs": 120.6
+    },
+    {
+     "id": "catalog",
+     "evalMs": 114.7
+    },
+    {
+     "id": "time",
+     "evalMs": 107.8
+    },
+    {
+     "id": "bigo",
+     "evalMs": 107.2
+    },
+    {
+     "id": "repl",
+     "evalMs": 106.3
+    },
+    {
+     "id": "front",
+     "evalMs": 95.4
+    },
+    {
+     "id": "sec",
+     "evalMs": 93.2
+    },
+    {
+     "id": "dtx",
+     "evalMs": 87.3
+    },
+    {
+     "id": "broker",
+     "evalMs": 87.3
+    },
+    {
+     "id": "obs",
+     "evalMs": 86.7
+    },
+    {
+     "id": "layers",
+     "evalMs": 73.9
+    },
+    {
+     "id": "zachem",
+     "evalMs": 73.6
+    },
+    {
+     "id": "comm",
+     "evalMs": 70.9
+    },
+    {
+     "id": "net",
+     "evalMs": 69.5
+    },
+    {
+     "id": "oauth",
+     "evalMs": 67.9
+    },
+    {
+     "id": "cache",
+     "evalMs": 67.5
+    },
+    {
+     "id": "release",
+     "evalMs": 67.3
+    },
+    {
+     "id": "legacy",
+     "evalMs": 65.4
+    },
+    {
+     "id": "api",
+     "evalMs": 63.8
+    },
+    {
+     "id": "llm",
+     "evalMs": 55.5
+    },
+    {
+     "id": "duty",
+     "evalMs": 55.2
+    },
+    {
+     "id": "resil",
+     "evalMs": 54.8
+    },
+    {
+     "id": "mono",
+     "evalMs": 52.1
+    },
+    {
+     "id": "domains",
+     "evalMs": 51.4
+    },
+    {
+     "id": "estorm",
+     "evalMs": 50.9
+    },
+    {
+     "id": "scale",
+     "evalMs": 45.2
+    },
+    {
+     "id": "db",
+     "evalMs": 45.2
+    },
+    {
+     "id": "gw",
+     "evalMs": 44.9
+    },
+    {
+     "id": "lb",
+     "evalMs": 43.7
+    },
+    {
+     "id": "(tail: nav/theme)",
+     "evalMs": 36.2
+    },
+    {
+     "id": "practice",
+     "evalMs": 35.6
+    },
+    {
+     "id": "tenant",
+     "evalMs": 28.5
+    },
+    {
+     "id": "cqrs",
+     "evalMs": 27.9
+    },
+    {
+     "id": "gloss",
+     "evalMs": 26.1
+    },
+    {
+     "id": "capstone",
+     "evalMs": 24.7
+    },
+    {
+     "id": "modular",
+     "evalMs": 20.9
+    },
+    {
+     "id": "styles",
+     "evalMs": 14.9
+    },
+    {
+     "id": "bc",
+     "evalMs": 11.5
+    },
+    {
+     "id": "ctxmap",
+     "evalMs": 10.6
+    },
+    {
+     "id": "data",
+     "evalMs": 9.9
+    },
+    {
+     "id": "micro",
+     "evalMs": 9.9
+    },
+    {
+     "id": "(why-blocks p29b)",
+     "evalMs": 9.2
+    },
+    {
+     "id": "saga",
+     "evalMs": 8
+    },
+    {
+     "id": "life",
+     "evalMs": 7.5
+    },
+    {
+     "id": "consist",
+     "evalMs": 7.4
+    },
+    {
+     "id": "outbox",
+     "evalMs": 7.1
+    },
+    {
+     "id": "versus",
+     "evalMs": 6.7
+    },
+    {
+     "id": "(head/header/core)",
+     "evalMs": 4.9
+    }
+   ],
+   "dom": {
+    "elements": 82185,
+    "svg": 46,
+    "svgDescendants": 1896,
+    "buttons": 9597,
+    "scripts": 206,
+    "styles": 55,
+    "panels": 51,
+    "maxDepth": 15
+   },
+   "heap": {
+    "usedMB": 13.9,
+    "totalMB": 21,
+    "afterGcUsedMB": 11
+   }
+  }
+ ],
+ "runs": [
+  {
+   "scenario": "desktop",
+   "warm": false,
+   "trace": true,
+   "wallLoadMs": 1143,
+   "docEncodedBytes": 3215697,
+   "fromCache": false,
+   "nav": {
+    "responseStart": 3.899999976158142,
+    "responseEnd": 400.19999998807907,
+    "domInteractive": 1102.699999988079,
+    "domContentLoadedEventStart": 1102.800000011921,
+    "domContentLoadedEventEnd": 1108,
+    "loadEventEnd": 1120.3999999761581,
+    "transferSize": 3215777,
+    "encodedBodySize": 3215477,
+    "decodedBodySize": 11137691
+   },
+   "paints": {
+    "first-paint": 384,
+    "first-contentful-paint": 384
+   },
+   "lcp": [
+    600,
+    101640,
+    "P.lead#"
+   ],
+   "lcpAll": [
+    [
+     384,
+     9673,
+     "P.sub#"
+    ],
+    [
+     600,
+     101640,
+     "P.lead#"
+    ]
+   ],
+   "cls": 0.00012023816792002331,
+   "navReady": 1102.5,
+   "dcl": 1102.800000011921,
+   "load": 1120.3999999761581,
+   "longTasks": {
+    "count": 0,
+    "total": 0,
+    "max": 0,
+    "lastEnd": 0,
+    "over200": 0,
+    "over1000": 0,
+    "top": []
+   },
+   "ttiEstimate": 1108,
+   "tbt": 0,
+   "perfMemory": {
+    "usedJSHeapSize": 19747479,
+    "totalJSHeapSize": 27933251
+   },
+   "dom": {
+    "elements": 82185,
+    "svg": 46,
+    "svgDescendants": 1896,
+    "buttons": 9597,
+    "scripts": 206,
+    "styles": 55,
+    "panels": 51,
+    "maxDepth": 15
+   },
+   "activePanelElements": 1963,
+   "styleSheetsRules": 5912,
+   "cdpMetrics": {
+    "Nodes": 168142,
+    "JSEventListeners": 2008,
+    "LayoutCount": 41,
+    "RecalcStyleCount": 42,
+    "LayoutDurationMs": 268.7,
+    "RecalcStyleDurationMs": 26.6,
+    "ScriptDurationMs": 450.6,
+    "TaskDurationMs": 1194.8,
+    "JSHeapUsedSize": 15961556,
+    "JSHeapTotalSize": 22806528,
+    "Documents": 1,
+    "Frames": 1
+   },
+   "heap": {
+    "usedMB": 15.2,
+    "totalMB": 21.8,
+    "afterGcUsedMB": 11
+   },
+   "traceAnalysis": {
+    "mainThreadTaskMs": 1178.6,
+    "evaluateScriptTotalMs": 506.9,
+    "parseHtmlInclMs": 673.4,
+    "topSelf": [
+     {
+      "name": "v8.run",
+      "selfMs": 350.9,
+      "inclMs": 451.9,
+      "count": 206
+     },
+     {
+      "name": "InlineNode::ShapeTextIncludingFirstLine",
+      "selfMs": 206.2,
+      "inclMs": 206.3,
+      "count": 1142
+     },
+     {
+      "name": "ParseHTML",
+      "selfMs": 137.9,
+      "inclMs": 673.4,
+      "count": 3354
+     },
+     {
+      "name": "Blink.Accessibility.UpdateTime",
+      "selfMs": 122,
+      "inclMs": 122,
+      "count": 36
+     },
+     {
+      "name": "LocalFrameView::performLayout",
+      "selfMs": 57.1,
+      "inclMs": 266.1,
+      "count": 41
+     },
+     {
+      "name": "v8.compile",
+      "selfMs": 53.5,
+      "inclMs": 53.5,
+      "count": 206
+     },
+     {
+      "name": "TextResourceDecoder::Decode",
+      "selfMs": 35.7,
+      "inclMs": 35.7,
+      "count": 13
+     },
+     {
+      "name": "Paint",
+      "selfMs": 22.3,
+      "inclMs": 40.2,
+      "count": 77
+     },
+     {
+      "name": "WebFrameWidgetImpl::UpdateLifecycle",
+      "selfMs": 21.4,
+      "inclMs": 350.7,
+      "count": 36
+     },
+     {
+      "name": "Document::FinishedParsing",
+      "selfMs": 15.8,
+      "inclMs": 21.8,
+      "count": 2
+     },
+     {
+      "name": "CSSParserImpl::parseStyleSheet.parse",
+      "selfMs": 12.3,
+      "inclMs": 12.4,
+      "count": 59
+     },
+     {
+      "name": "ThreadControllerImpl::RunTask",
+      "selfMs": 11.6,
+      "inclMs": 1175.9,
+      "count": 623
+     },
+     {
+      "name": "Blink.CompositingInputs.UpdateTime",
+      "selfMs": 10.4,
+      "inclMs": 10.5,
+      "count": 36
+     },
+     {
+      "name": "Document::recalcStyle",
+      "selfMs": 8.2,
+      "inclMs": 8.3,
+      "count": 41
+     },
+     {
+      "name": "StyleEngine::scheduleInvalidationsForRuleSets",
+      "selfMs": 7.7,
+      "inclMs": 7.7,
+      "count": 30
+     },
+     {
+      "name": "HTMLDocumentParser::PumpTokenizerIfPossible",
+      "selfMs": 7.3,
+      "inclMs": 706.5,
+      "count": 4181
+     },
+     {
+      "name": "FunctionCall",
+      "selfMs": 7.1,
+      "inclMs": 11.6,
+      "count": 455
+     },
+     {
+      "name": "AsyncTask Run",
+      "selfMs": 6.6,
+      "inclMs": 521.5,
+      "count": 655
+     }
+    ],
+    "evalScriptBySection": [
+     {
+      "id": "docs",
+      "evalMs": 25.2
+     },
+     {
+      "id": "k8s",
+      "evalMs": 21.8
+     },
+     {
+      "id": "cicd",
+      "evalMs": 21.8
+     },
+     {
+      "id": "split",
+      "evalMs": 21.3
+     },
+     {
+      "id": "docker",
+      "evalMs": 20.6
+     },
+     {
+      "id": "explain",
+      "evalMs": 18.7
+     },
+     {
+      "id": "time",
+      "evalMs": 17.8
+     },
+     {
+      "id": "raft",
+      "evalMs": 16.7
+     },
+     {
+      "id": "sec",
+      "evalMs": 15.9
+     },
+     {
+      "id": "bigo",
+      "evalMs": 15.7
+     },
+     {
+      "id": "repl",
+      "evalMs": 15.6
+     },
+     {
+      "id": "front",
+      "evalMs": 15
+     },
+     {
+      "id": "dtx",
+      "evalMs": 14.1
+     },
+     {
+      "id": "obs",
+      "evalMs": 14
+     },
+     {
+      "id": "catalog",
+      "evalMs": 13.9
+     },
+     {
+      "id": "layers",
+      "evalMs": 13.5
+     },
+     {
+      "id": "broker",
+      "evalMs": 13.4
+     },
+     {
+      "id": "cache",
+      "evalMs": 13
+     },
+     {
+      "id": "oauth",
+      "evalMs": 12.1
+     },
+     {
+      "id": "net",
+      "evalMs": 11.1
+     },
+     {
+      "id": "legacy",
+      "evalMs": 10.3
+     },
+     {
+      "id": "api",
+      "evalMs": 10.3
+     },
+     {
+      "id": "release",
+      "evalMs": 10.1
+     },
+     {
+      "id": "resil",
+      "evalMs": 9.6
+     },
+     {
+      "id": "comm",
+      "evalMs": 9.4
+     },
+     {
+      "id": "zachem",
+      "evalMs": 9.3
+     },
+     {
+      "id": "domains",
+      "evalMs": 8.6
+     },
+     {
+      "id": "lb",
+      "evalMs": 8.3
+     },
+     {
+      "id": "llm",
+      "evalMs": 8.2
+     },
+     {
+      "id": "scale",
+      "evalMs": 7.9
+     },
+     {
+      "id": "duty",
+      "evalMs": 7.8
+     },
+     {
+      "id": "estorm",
+      "evalMs": 7.6
+     },
+     {
+      "id": "mono",
+      "evalMs": 7.6
+     },
+     {
+      "id": "db",
+      "evalMs": 7.5
+     },
+     {
+      "id": "gw",
+      "evalMs": 7.3
+     },
+     {
+      "id": "(tail: nav/theme)",
+      "evalMs": 7.1
+     },
+     {
+      "id": "tenant",
+      "evalMs": 4.9
+     },
+     {
+      "id": "gloss",
+      "evalMs": 4.6
+     },
+     {
+      "id": "cqrs",
+      "evalMs": 3.8
+     },
+     {
+      "id": "practice",
+      "evalMs": 3.5
+     },
+     {
+      "id": "capstone",
+      "evalMs": 3.4
+     },
+     {
+      "id": "modular",
+      "evalMs": 3.1
+     },
+     {
+      "id": "styles",
+      "evalMs": 2.4
+     },
+     {
+      "id": "data",
+      "evalMs": 1.5
+     },
+     {
+      "id": "(why-blocks p29b)",
+      "evalMs": 1.5
+     },
+     {
+      "id": "micro",
+      "evalMs": 1.4
+     },
+     {
+      "id": "bc",
+      "evalMs": 1.3
+     },
+     {
+      "id": "saga",
+      "evalMs": 1.2
+     },
+     {
+      "id": "ctxmap",
+      "evalMs": 1.2
+     },
+     {
+      "id": "life",
+      "evalMs": 1.1
+     },
+     {
+      "id": "(head/header/core)",
+      "evalMs": 1
+     },
+     {
+      "id": "consist",
+      "evalMs": 1
+     },
+     {
+      "id": "versus",
+      "evalMs": 1
+     },
+     {
+      "id": "outbox",
+      "evalMs": 0.9
+     }
+    ]
+   }
+  },
+  {
+   "scenario": "desktop",
+   "warm": false,
+   "trace": false,
+   "wallLoadMs": 1112,
+   "docEncodedBytes": 3215697,
+   "fromCache": false,
+   "nav": {
+    "responseStart": 59.39999997615814,
+    "responseEnd": 474,
+    "domInteractive": 1075.699999988079,
+    "domContentLoadedEventStart": 1075.699999988079,
+    "domContentLoadedEventEnd": 1080.3999999761581,
+    "loadEventEnd": 1093.5,
+    "transferSize": 3215777,
+    "encodedBodySize": 3215477,
+    "decodedBodySize": 11137691
+   },
+   "paints": {
+    "first-paint": 420,
+    "first-contentful-paint": 420
+   },
+   "lcp": [
+    684,
+    101640,
+    "P.lead#"
+   ],
+   "lcpAll": [
+    [
+     420,
+     9673,
+     "P.sub#"
+    ],
+    [
+     684,
+     101640,
+     "P.lead#"
+    ]
+   ],
+   "cls": 0.0001062252646481884,
+   "navReady": 1075.5,
+   "dcl": 1075.699999988079,
+   "load": 1093.5,
+   "longTasks": {
+    "count": 0,
+    "total": 0,
+    "max": 0,
+    "lastEnd": 0,
+    "over200": 0,
+    "over1000": 0,
+    "top": []
+   },
+   "ttiEstimate": 1080.3999999761581,
+   "tbt": 0,
+   "perfMemory": {
+    "usedJSHeapSize": 19567175,
+    "totalJSHeapSize": 27933195
+   },
+   "dom": {
+    "elements": 82185,
+    "svg": 46,
+    "svgDescendants": 1896,
+    "buttons": 9597,
+    "scripts": 206,
+    "styles": 55,
+    "panels": 51,
+    "maxDepth": 15
+   },
+   "activePanelElements": 1963,
+   "styleSheetsRules": 5912,
+   "cdpMetrics": {
+    "Nodes": 170861,
+    "JSEventListeners": 2008,
+    "LayoutCount": 41,
+    "RecalcStyleCount": 42,
+    "LayoutDurationMs": 268.2,
+    "RecalcStyleDurationMs": 26.2,
+    "ScriptDurationMs": 398.4,
+    "TaskDurationMs": 1099.8,
+    "JSHeapUsedSize": 15781332,
+    "JSHeapTotalSize": 22806528,
+    "Documents": 1,
+    "Frames": 1
+   },
+   "heap": {
+    "usedMB": 15.1,
+    "totalMB": 21.8,
+    "afterGcUsedMB": 11
+   },
+   "traceAnalysis": null,
+   "tabSwitch": [
+    {
+     "pass": 1,
+     "id": "layers",
+     "js": 2.9,
+     "styleLayout": 0.1,
+     "toFrame": 11.1,
+     "elements": 1963
+    },
+    {
+     "pass": 1,
+     "id": "zachem",
+     "js": 107.6,
+     "styleLayout": 0.1,
+     "toFrame": 184,
+     "elements": 2364
+    },
+    {
+     "pass": 1,
+     "id": "life",
+     "js": 24.5,
+     "styleLayout": 0,
+     "toFrame": 25.8,
+     "elements": 291
+    },
+    {
+     "pass": 1,
+     "id": "mono",
+     "js": 68.4,
+     "styleLayout": 0,
+     "toFrame": 73.2,
+     "elements": 1647
+    },
+    {
+     "pass": 1,
+     "id": "modular",
+     "js": 27.1,
+     "styleLayout": 0,
+     "toFrame": 29.7,
+     "elements": 794
+    },
+    {
+     "pass": 1,
+     "id": "micro",
+     "js": 11,
+     "styleLayout": 0,
+     "toFrame": 13.5,
+     "elements": 463
+    },
+    {
+     "pass": 1,
+     "id": "versus",
+     "js": 10.5,
+     "styleLayout": 0,
+     "toFrame": 12.7,
+     "elements": 435
+    },
+    {
+     "pass": 1,
+     "id": "styles",
+     "js": 30.1,
+     "styleLayout": 0.1,
+     "toFrame": 33.1,
+     "elements": 527
+    },
+    {
+     "pass": 1,
+     "id": "domains",
+     "js": 59,
+     "styleLayout": 0,
+     "toFrame": 70.4,
+     "elements": 2092
+    },
+    {
+     "pass": 1,
+     "id": "estorm",
+     "js": 75.8,
+     "styleLayout": 0,
+     "toFrame": 85,
+     "elements": 2178
+    },
+    {
+     "pass": 1,
+     "id": "bc",
+     "js": 15.1,
+     "styleLayout": 0,
+     "toFrame": 17.1,
+     "elements": 339
+    },
+    {
+     "pass": 1,
+     "id": "ctxmap",
+     "js": 13.7,
+     "styleLayout": 0,
+     "toFrame": 15.4,
+     "elements": 468
+    },
+    {
+     "pass": 1,
+     "id": "split",
+     "js": 77.6,
+     "styleLayout": 0,
+     "toFrame": 132.8,
+     "elements": 3201
+    },
+    {
+     "pass": 1,
+     "id": "data",
+     "js": 14.5,
+     "styleLayout": 0,
+     "toFrame": 16.2,
+     "elements": 457
+    },
+    {
+     "pass": 1,
+     "id": "consist",
+     "js": 8.2,
+     "styleLayout": 0,
+     "toFrame": 17.9,
+     "elements": 254
+    },
+    {
+     "pass": 1,
+     "id": "saga",
+     "js": 16.4,
+     "styleLayout": 0,
+     "toFrame": 52.1,
+     "elements": 410
+    },
+    {
+     "pass": 1,
+     "id": "outbox",
+     "js": 10.9,
+     "styleLayout": 0,
+     "toFrame": 12.4,
+     "elements": 284
+    },
+    {
+     "pass": 1,
+     "id": "cqrs",
+     "js": 42.9,
+     "styleLayout": 0,
+     "toFrame": 45.5,
+     "elements": 627
+    },
+    {
+     "pass": 1,
+     "id": "net",
+     "js": 92,
+     "styleLayout": 0,
+     "toFrame": 101.8,
+     "elements": 2901
+    },
+    {
+     "pass": 1,
+     "id": "comm",
+     "js": 70.8,
+     "styleLayout": 0,
+     "toFrame": 75.9,
+     "elements": 1398
+    },
+    {
+     "pass": 1,
+     "id": "api",
+     "js": 61.6,
+     "styleLayout": 0,
+     "toFrame": 71.2,
+     "elements": 2806
+    },
+    {
+     "pass": 1,
+     "id": "broker",
+     "js": 68,
+     "styleLayout": 0.1,
+     "toFrame": 77.4,
+     "elements": 2258
+    },
+    {
+     "pass": 1,
+     "id": "gw",
+     "js": 44.1,
+     "styleLayout": 0,
+     "toFrame": 48.3,
+     "elements": 1188
+    },
+    {
+     "pass": 1,
+     "id": "front",
+     "js": 75.9,
+     "styleLayout": 0,
+     "toFrame": 133.9,
+     "elements": 3012
+    },
+    {
+     "pass": 1,
+     "id": "sec",
+     "js": 116.2,
+     "styleLayout": 0,
+     "toFrame": 126.5,
+     "elements": 2832
+    },
+    {
+     "pass": 1,
+     "id": "oauth",
+     "js": 88,
+     "styleLayout": 0,
+     "toFrame": 99,
+     "elements": 2612
+    },
+    {
+     "pass": 1,
+     "id": "lb",
+     "js": 54.6,
+     "styleLayout": 0.1,
+     "toFrame": 59.5,
+     "elements": 1426
+    },
+    {
+     "pass": 1,
+     "id": "resil",
+     "js": 30.3,
+     "styleLayout": 0,
+     "toFrame": 34.9,
+     "elements": 1410
+    },
+    {
+     "pass": 1,
+     "id": "cache",
+     "js": 36.3,
+     "styleLayout": 0.2,
+     "toFrame": 41.6,
+     "elements": 1344
+    },
+    {
+     "pass": 1,
+     "id": "scale",
+     "js": 41.1,
+     "styleLayout": 0,
+     "toFrame": 44.7,
+     "elements": 1062
+    },
+    {
+     "pass": 1,
+     "id": "tenant",
+     "js": 28.8,
+     "styleLayout": 0,
+     "toFrame": 31.7,
+     "elements": 742
+    },
+    {
+     "pass": 1,
+     "id": "bigo",
+     "js": 68.4,
+     "styleLayout": 0,
+     "toFrame": 77.5,
+     "elements": 2719
+    },
+    {
+     "pass": 1,
+     "id": "db",
+     "js": 49.5,
+     "styleLayout": 0.1,
+     "toFrame": 54.6,
+     "elements": 1279
+    },
+    {
+     "pass": 1,
+     "id": "explain",
+     "js": 65.1,
+     "styleLayout": 0,
+     "toFrame": 137,
+     "elements": 2432
+    },
+    {
+     "pass": 1,
+     "id": "repl",
+     "js": 46.4,
+     "styleLayout": 0,
+     "toFrame": 53.6,
+     "elements": 2149
+    },
+    {
+     "pass": 1,
+     "id": "raft",
+     "js": 70.8,
+     "styleLayout": 0,
+     "toFrame": 133.2,
+     "elements": 2787
+    },
+    {
+     "pass": 1,
+     "id": "dtx",
+     "js": 73.5,
+     "styleLayout": 0.1,
+     "toFrame": 81.3,
+     "elements": 2103
+    },
+    {
+     "pass": 1,
+     "id": "time",
+     "js": 68.4,
+     "styleLayout": 0,
+     "toFrame": 76.5,
+     "elements": 2330
+    },
+    {
+     "pass": 1,
+     "id": "docker",
+     "js": 71.5,
+     "styleLayout": 0,
+     "toFrame": 86.5,
+     "elements": 2673
+    },
+    {
+     "pass": 1,
+     "id": "k8s",
+     "js": 70,
+     "styleLayout": 0,
+     "toFrame": 85.6,
+     "elements": 2628
+    },
+    {
+     "pass": 1,
+     "id": "cicd",
+     "js": 88.6,
+     "styleLayout": 0,
+     "toFrame": 103.3,
+     "elements": 2629
+    },
+    {
+     "pass": 1,
+     "id": "release",
+     "js": 28.5,
+     "styleLayout": 0,
+     "toFrame": 36.7,
+     "elements": 932
+    },
+    {
+     "pass": 1,
+     "id": "legacy",
+     "js": 36.1,
+     "styleLayout": 0,
+     "toFrame": 44.4,
+     "elements": 904
+    },
+    {
+     "pass": 1,
+     "id": "obs",
+     "js": 45,
+     "styleLayout": 0.1,
+     "toFrame": 53.3,
+     "elements": 1059
+    },
+    {
+     "pass": 1,
+     "id": "docs",
+     "js": 83.7,
+     "styleLayout": 0,
+     "toFrame": 93.7,
+     "elements": 2776
+    },
+    {
+     "pass": 1,
+     "id": "llm",
+     "js": 53.7,
+     "styleLayout": 0.1,
+     "toFrame": 57.4,
+     "elements": 978
+    },
+    {
+     "pass": 1,
+     "id": "catalog",
+     "js": 30,
+     "styleLayout": 0,
+     "toFrame": 32.7,
+     "elements": 4900
+    },
+    {
+     "pass": 1,
+     "id": "duty",
+     "js": 25.6,
+     "styleLayout": 0,
+     "toFrame": 27.8,
+     "elements": 555
+    },
+    {
+     "pass": 1,
+     "id": "practice",
+     "js": 15.7,
+     "styleLayout": 0,
+     "toFrame": 17.9,
+     "elements": 547
+    },
+    {
+     "pass": 1,
+     "id": "capstone",
+     "js": 14.5,
+     "styleLayout": 0,
+     "toFrame": 16.1,
+     "elements": 254
+    },
+    {
+     "pass": 1,
+     "id": "gloss",
+     "js": 27.2,
+     "styleLayout": 0,
+     "toFrame": 31.1,
+     "elements": 1343
+    },
+    {
+     "pass": 2,
+     "id": "layers",
+     "js": 43,
+     "styleLayout": 0,
+     "toFrame": 95.3,
+     "elements": 1963
+    },
+    {
+     "pass": 2,
+     "id": "zachem",
+     "js": 50.1,
+     "styleLayout": 0,
+     "toFrame": 57.6,
+     "elements": 2364
+    },
+    {
+     "pass": 2,
+     "id": "life",
+     "js": 11.4,
+     "styleLayout": 0,
+     "toFrame": 12.8,
+     "elements": 291
+    },
+    {
+     "pass": 2,
+     "id": "mono",
+     "js": 37.8,
+     "styleLayout": 0.1,
+     "toFrame": 42.9,
+     "elements": 1647
+    },
+    {
+     "pass": 2,
+     "id": "modular",
+     "js": 16.5,
+     "styleLayout": 0,
+     "toFrame": 19,
+     "elements": 794
+    },
+    {
+     "pass": 2,
+     "id": "micro",
+     "js": 8.5,
+     "styleLayout": 0,
+     "toFrame": 10.2,
+     "elements": 463
+    },
+    {
+     "pass": 2,
+     "id": "versus",
+     "js": 7.4,
+     "styleLayout": 0,
+     "toFrame": 9,
+     "elements": 435
+    },
+    {
+     "pass": 2,
+     "id": "styles",
+     "js": 10.3,
+     "styleLayout": 0,
+     "toFrame": 19.4,
+     "elements": 527
+    },
+    {
+     "pass": 2,
+     "id": "domains",
+     "js": 37,
+     "styleLayout": 0,
+     "toFrame": 45.9,
+     "elements": 2092
+    },
+    {
+     "pass": 2,
+     "id": "estorm",
+     "js": 51.5,
+     "styleLayout": 0.1,
+     "toFrame": 60.5,
+     "elements": 2178
+    },
+    {
+     "pass": 2,
+     "id": "bc",
+     "js": 11.6,
+     "styleLayout": 0,
+     "toFrame": 13.4,
+     "elements": 339
+    },
+    {
+     "pass": 2,
+     "id": "ctxmap",
+     "js": 8.3,
+     "styleLayout": 0.1,
+     "toFrame": 17.7,
+     "elements": 468
+    },
+    {
+     "pass": 2,
+     "id": "split",
+     "js": 50.3,
+     "styleLayout": 0,
+     "toFrame": 104.7,
+     "elements": 3201
+    },
+    {
+     "pass": 2,
+     "id": "data",
+     "js": 13.9,
+     "styleLayout": 0.1,
+     "toFrame": 15.7,
+     "elements": 457
+    },
+    {
+     "pass": 2,
+     "id": "consist",
+     "js": 6.8,
+     "styleLayout": 0,
+     "toFrame": 14.1,
+     "elements": 254
+    },
+    {
+     "pass": 2,
+     "id": "saga",
+     "js": 11.7,
+     "styleLayout": 0,
+     "toFrame": 47.7,
+     "elements": 410
+    },
+    {
+     "pass": 2,
+     "id": "outbox",
+     "js": 9.4,
+     "styleLayout": 0.1,
+     "toFrame": 11.2,
+     "elements": 284
+    },
+    {
+     "pass": 2,
+     "id": "cqrs",
+     "js": 22.9,
+     "styleLayout": 0,
+     "toFrame": 25.7,
+     "elements": 627
+    },
+    {
+     "pass": 2,
+     "id": "net",
+     "js": 70.8,
+     "styleLayout": 0,
+     "toFrame": 82.6,
+     "elements": 2901
+    },
+    {
+     "pass": 2,
+     "id": "comm",
+     "js": 54,
+     "styleLayout": 0.1,
+     "toFrame": 59.7,
+     "elements": 1398
+    },
+    {
+     "pass": 2,
+     "id": "api",
+     "js": 48.2,
+     "styleLayout": 0,
+     "toFrame": 58.1,
+     "elements": 2806
+    },
+    {
+     "pass": 2,
+     "id": "broker",
+     "js": 52.6,
+     "styleLayout": 0,
+     "toFrame": 62.9,
+     "elements": 2258
+    },
+    {
+     "pass": 2,
+     "id": "gw",
+     "js": 30.5,
+     "styleLayout": 0,
+     "toFrame": 34.8,
+     "elements": 1188
+    },
+    {
+     "pass": 2,
+     "id": "front",
+     "js": 52.5,
+     "styleLayout": 0,
+     "toFrame": 63.5,
+     "elements": 3012
+    },
+    {
+     "pass": 2,
+     "id": "sec",
+     "js": 100.9,
+     "styleLayout": 0.1,
+     "toFrame": 111.9,
+     "elements": 2832
+    },
+    {
+     "pass": 2,
+     "id": "oauth",
+     "js": 65.9,
+     "styleLayout": 0.1,
+     "toFrame": 77.4,
+     "elements": 2612
+    },
+    {
+     "pass": 2,
+     "id": "lb",
+     "js": 35.1,
+     "styleLayout": 0.1,
+     "toFrame": 40.5,
+     "elements": 1426
+    },
+    {
+     "pass": 2,
+     "id": "resil",
+     "js": 28.7,
+     "styleLayout": 0,
+     "toFrame": 33.9,
+     "elements": 1410
+    },
+    {
+     "pass": 2,
+     "id": "cache",
+     "js": 45.7,
+     "styleLayout": 0.2,
+     "toFrame": 51.4,
+     "elements": 1344
+    },
+    {
+     "pass": 2,
+     "id": "scale",
+     "js": 29.9,
+     "styleLayout": 0.1,
+     "toFrame": 65.3,
+     "elements": 1062
+    },
+    {
+     "pass": 2,
+     "id": "tenant",
+     "js": 20.8,
+     "styleLayout": 0.1,
+     "toFrame": 23.6,
+     "elements": 742
+    },
+    {
+     "pass": 2,
+     "id": "bigo",
+     "js": 42.6,
+     "styleLayout": 0,
+     "toFrame": 56.2,
+     "elements": 2719
+    },
+    {
+     "pass": 2,
+     "id": "db",
+     "js": 40.4,
+     "styleLayout": 0,
+     "toFrame": 50.6,
+     "elements": 1279
+    },
+    {
+     "pass": 2,
+     "id": "explain",
+     "js": 52.2,
+     "styleLayout": 0,
+     "toFrame": 65.8,
+     "elements": 2432
+    },
+    {
+     "pass": 2,
+     "id": "repl",
+     "js": 41.5,
+     "styleLayout": 0,
+     "toFrame": 54.1,
+     "elements": 2149
+    },
+    {
+     "pass": 2,
+     "id": "raft",
+     "js": 62.6,
+     "styleLayout": 0,
+     "toFrame": 127,
+     "elements": 2787
+    },
+    {
+     "pass": 2,
+     "id": "dtx",
+     "js": 55.1,
+     "styleLayout": 0.1,
+     "toFrame": 67.5,
+     "elements": 2103
+    },
+    {
+     "pass": 2,
+     "id": "time",
+     "js": 46.7,
+     "styleLayout": 0.1,
+     "toFrame": 59.5,
+     "elements": 2330
+    },
+    {
+     "pass": 2,
+     "id": "docker",
+     "js": 45.6,
+     "styleLayout": 0,
+     "toFrame": 59.2,
+     "elements": 2673
+    },
+    {
+     "pass": 2,
+     "id": "k8s",
+     "js": 55.8,
+     "styleLayout": 0,
+     "toFrame": 115.2,
+     "elements": 2628
+    },
+    {
+     "pass": 2,
+     "id": "cicd",
+     "js": 64.3,
+     "styleLayout": 0,
+     "toFrame": 73.4,
+     "elements": 2629
+    },
+    {
+     "pass": 2,
+     "id": "release",
+     "js": 28.5,
+     "styleLayout": 0,
+     "toFrame": 32.1,
+     "elements": 932
+    },
+    {
+     "pass": 2,
+     "id": "legacy",
+     "js": 28.8,
+     "styleLayout": 0,
+     "toFrame": 31.9,
+     "elements": 904
+    },
+    {
+     "pass": 2,
+     "id": "obs",
+     "js": 39.1,
+     "styleLayout": 0,
+     "toFrame": 44.7,
+     "elements": 1059
+    },
+    {
+     "pass": 2,
+     "id": "docs",
+     "js": 68.6,
+     "styleLayout": 0,
+     "toFrame": 81.5,
+     "elements": 2776
+    },
+    {
+     "pass": 2,
+     "id": "llm",
+     "js": 53.7,
+     "styleLayout": 0,
+     "toFrame": 57.7,
+     "elements": 978
+    },
+    {
+     "pass": 2,
+     "id": "catalog",
+     "js": 27.4,
+     "styleLayout": 0.1,
+     "toFrame": 30.2,
+     "elements": 4900
+    },
+    {
+     "pass": 2,
+     "id": "duty",
+     "js": 19.6,
+     "styleLayout": 0,
+     "toFrame": 22,
+     "elements": 555
+    },
+    {
+     "pass": 2,
+     "id": "practice",
+     "js": 14.5,
+     "styleLayout": 0,
+     "toFrame": 16.9,
+     "elements": 547
+    },
+    {
+     "pass": 2,
+     "id": "capstone",
+     "js": 12,
+     "styleLayout": 0,
+     "toFrame": 13.8,
+     "elements": 254
+    },
+    {
+     "pass": 2,
+     "id": "gloss",
+     "js": 21,
+     "styleLayout": 0,
+     "toFrame": 60,
+     "elements": 1343
+    }
+   ],
+   "afterAllTabs": {
+    "Nodes": 166886,
+    "heapUsedMB": 11.1
+   }
+  },
+  {
+   "scenario": "desktop",
+   "warm": false,
+   "trace": false,
+   "wallLoadMs": 1079,
+   "docEncodedBytes": 3215697,
+   "fromCache": false,
+   "nav": {
+    "responseStart": 15.300000011920929,
+    "responseEnd": 418,
+    "domInteractive": 1042.2000000476837,
+    "domContentLoadedEventStart": 1042.2000000476837,
+    "domContentLoadedEventEnd": 1047.4000000357628,
+    "loadEventEnd": 1059.6000000238419,
+    "transferSize": 3215777,
+    "encodedBodySize": 3215477,
+    "decodedBodySize": 11137691
+   },
+   "paints": {
+    "first-paint": 352,
+    "first-contentful-paint": 352
+   },
+   "lcp": [
+    620,
+    101640,
+    "P.lead#"
+   ],
+   "lcpAll": [
+    [
+     352,
+     9673,
+     "P.sub#"
+    ],
+    [
+     620,
+     101640,
+     "P.lead#"
+    ]
+   ],
+   "cls": 0.00012023816792002331,
+   "navReady": 1039.1000000238419,
+   "dcl": 1042.300000011921,
+   "load": 1059.6000000238419,
+   "longTasks": {
+    "count": 0,
+    "total": 0,
+    "max": 0,
+    "lastEnd": 0,
+    "over200": 0,
+    "over1000": 0,
+    "top": []
+   },
+   "ttiEstimate": 1047.4000000357628,
+   "tbt": 0,
+   "perfMemory": {
+    "usedJSHeapSize": 19256491,
+    "totalJSHeapSize": 28195339
+   },
+   "dom": {
+    "elements": 82185,
+    "svg": 46,
+    "svgDescendants": 1896,
+    "buttons": 9597,
+    "scripts": 206,
+    "styles": 55,
+    "panels": 51,
+    "maxDepth": 15
+   },
+   "activePanelElements": 1963,
+   "styleSheetsRules": 5912,
+   "cdpMetrics": {
+    "Nodes": 170568,
+    "JSEventListeners": 2008,
+    "LayoutCount": 40,
+    "RecalcStyleCount": 42,
+    "LayoutDurationMs": 258.9,
+    "RecalcStyleDurationMs": 25.3,
+    "ScriptDurationMs": 418.9,
+    "TaskDurationMs": 1110,
+    "JSHeapUsedSize": 15470384,
+    "JSHeapTotalSize": 23068672,
+    "Documents": 1,
+    "Frames": 1
+   },
+   "heap": {
+    "usedMB": 14.8,
+    "totalMB": 22,
+    "afterGcUsedMB": 11
+   },
+   "traceAnalysis": null
+  },
+  {
+   "scenario": "desktop",
+   "warm": false,
+   "trace": false,
+   "wallLoadMs": 1053,
+   "docEncodedBytes": 3215697,
+   "fromCache": false,
+   "nav": {
+    "responseStart": 1.800000011920929,
+    "responseEnd": 401.80000001192093,
+    "domInteractive": 1016.6000000238419,
+    "domContentLoadedEventStart": 1016.6000000238419,
+    "domContentLoadedEventEnd": 1021.6999999880791,
+    "loadEventEnd": 1034.199999988079,
+    "transferSize": 3215777,
+    "encodedBodySize": 3215477,
+    "decodedBodySize": 11137691
+   },
+   "paints": {
+    "first-paint": 336,
+    "first-contentful-paint": 336
+   },
+   "lcp": [
+    620,
+    101640,
+    "P.lead#"
+   ],
+   "lcpAll": [
+    [
+     336,
+     9673,
+     "P.sub#"
+    ],
+    [
+     620,
+     101640,
+     "P.lead#"
+    ]
+   ],
+   "cls": 0.00012023816792002331,
+   "navReady": 1015.3999999761581,
+   "dcl": 1016.6999999880791,
+   "load": 1034.1000000238419,
+   "longTasks": {
+    "count": 0,
+    "total": 0,
+    "max": 0,
+    "lastEnd": 0,
+    "over200": 0,
+    "over1000": 0,
+    "top": []
+   },
+   "ttiEstimate": 1021.6999999880791,
+   "tbt": 0,
+   "perfMemory": {
+    "usedJSHeapSize": 19385059,
+    "totalJSHeapSize": 28195339
+   },
+   "dom": {
+    "elements": 82185,
+    "svg": 46,
+    "svgDescendants": 1896,
+    "buttons": 9597,
+    "scripts": 206,
+    "styles": 55,
+    "panels": 51,
+    "maxDepth": 15
+   },
+   "activePanelElements": 1963,
+   "styleSheetsRules": 5912,
+   "cdpMetrics": {
+    "Nodes": 170489,
+    "JSEventListeners": 2008,
+    "LayoutCount": 37,
+    "RecalcStyleCount": 41,
+    "LayoutDurationMs": 255.2,
+    "RecalcStyleDurationMs": 24.5,
+    "ScriptDurationMs": 412.4,
+    "TaskDurationMs": 1101.3,
+    "JSHeapUsedSize": 15599008,
+    "JSHeapTotalSize": 23068672,
+    "Documents": 1,
+    "Frames": 1
+   },
+   "heap": {
+    "usedMB": 14.9,
+    "totalMB": 22,
+    "afterGcUsedMB": 11
+   },
+   "traceAnalysis": null
+  },
+  {
+   "scenario": "desktop",
+   "warm": true,
+   "trace": false,
+   "wallLoadMs": 1028,
+   "docEncodedBytes": 0,
+   "fromCache": true,
+   "nav": {
+    "responseStart": 0.8999999761581421,
+    "responseEnd": 402.69999998807907,
+    "domInteractive": 995.5999999642372,
+    "domContentLoadedEventStart": 995.5999999642372,
+    "domContentLoadedEventEnd": 1000.6999999880791,
+    "loadEventEnd": 1012.1999999880791,
+    "transferSize": 0,
+    "encodedBodySize": 3215477,
+    "decodedBodySize": 11137691
+   },
+   "paints": {
+    "first-paint": 360,
+    "first-contentful-paint": 360
+   },
+   "lcp": [
+    624,
+    101640,
+    "P.lead#"
+   ],
+   "lcpAll": [
+    [
+     360,
+     9673,
+     "P.sub#"
+    ],
+    [
+     624,
+     101640,
+     "P.lead#"
+    ]
+   ],
+   "cls": 0.0001062252646481884,
+   "navReady": 994.2999999523163,
+   "dcl": 995.5999999642372,
+   "load": 1012.1999999880791,
+   "longTasks": {
+    "count": 1,
+    "total": 67,
+    "max": 67,
+    "lastEnd": 772.2999999523163,
+    "over200": 0,
+    "over1000": 0,
+    "top": [
+     [
+      705.2999999523163,
+      67
+     ]
+    ]
+   },
+   "ttiEstimate": 1000.6999999880791,
+   "tbt": 17,
+   "perfMemory": {
+    "usedJSHeapSize": 19579815,
+    "totalJSHeapSize": 27671043
+   },
+   "dom": {
+    "elements": 82185,
+    "svg": 46,
+    "svgDescendants": 1896,
+    "buttons": 9597,
+    "scripts": 206,
+    "styles": 55,
+    "panels": 51,
+    "maxDepth": 15
+   },
+   "activePanelElements": 1963,
+   "styleSheetsRules": 5912,
+   "cdpMetrics": {
+    "Nodes": 170857,
+    "JSEventListeners": 2008,
+    "LayoutCount": 40,
+    "RecalcStyleCount": 42,
+    "LayoutDurationMs": 259.2,
+    "RecalcStyleDurationMs": 28.1,
+    "ScriptDurationMs": 386.5,
+    "TaskDurationMs": 1074.9,
+    "JSHeapUsedSize": 15796428,
+    "JSHeapTotalSize": 22544384,
+    "Documents": 1,
+    "Frames": 1
+   },
+   "heap": {
+    "usedMB": 15.1,
+    "totalMB": 21.5,
+    "afterGcUsedMB": 11
+   },
+   "traceAnalysis": null
+  },
+  {
+   "scenario": "desktop",
+   "warm": true,
+   "trace": false,
+   "wallLoadMs": 1068,
+   "docEncodedBytes": 0,
+   "fromCache": true,
+   "nav": {
+    "responseStart": 1,
+    "responseEnd": 407.7999999523163,
+    "domInteractive": 1034,
+    "domContentLoadedEventStart": 1034,
+    "domContentLoadedEventEnd": 1038.5999999642372,
+    "loadEventEnd": 1051.3999999761581,
+    "transferSize": 0,
+    "encodedBodySize": 3215477,
+    "decodedBodySize": 11137691
+   },
+   "paints": {
+    "first-paint": 348,
+    "first-contentful-paint": 348
+   },
+   "lcp": [
+    616,
+    101640,
+    "P.lead#"
+   ],
+   "lcpAll": [
+    [
+     348,
+     9673,
+     "P.sub#"
+    ],
+    [
+     616,
+     101640,
+     "P.lead#"
+    ]
+   ],
+   "cls": 0.00012023816792002331,
+   "navReady": 1033.699999988079,
+   "dcl": 1034,
+   "load": 1051.3999999761581,
+   "longTasks": {
+    "count": 0,
+    "total": 0,
+    "max": 0,
+    "lastEnd": 0,
+    "over200": 0,
+    "over1000": 0,
+    "top": []
+   },
+   "ttiEstimate": 1038.5999999642372,
+   "tbt": 0,
+   "perfMemory": {
+    "usedJSHeapSize": 19553039,
+    "totalJSHeapSize": 27933187
+   },
+   "dom": {
+    "elements": 82185,
+    "svg": 46,
+    "svgDescendants": 1896,
+    "buttons": 9597,
+    "scripts": 206,
+    "styles": 55,
+    "panels": 51,
+    "maxDepth": 15
+   },
+   "activePanelElements": 1963,
+   "styleSheetsRules": 5912,
+   "cdpMetrics": {
+    "Nodes": 170853,
+    "JSEventListeners": 2008,
+    "LayoutCount": 44,
+    "RecalcStyleCount": 45,
+    "LayoutDurationMs": 260.6,
+    "RecalcStyleDurationMs": 25.4,
+    "ScriptDurationMs": 416.4,
+    "TaskDurationMs": 1114.6,
+    "JSHeapUsedSize": 15765848,
+    "JSHeapTotalSize": 22806528,
+    "Documents": 1,
+    "Frames": 1
+   },
+   "heap": {
+    "usedMB": 15,
+    "totalMB": 21.8,
+    "afterGcUsedMB": 11
+   },
+   "traceAnalysis": null
+  },
+  {
+   "scenario": "mobile4g",
+   "warm": false,
+   "trace": true,
+   "wallLoadMs": 7519,
+   "docEncodedBytes": 3215697,
+   "fromCache": false,
+   "nav": {
+    "responseStart": 1.800000011920929,
+    "responseEnd": 3583.800000011921,
+    "domInteractive": 7360.5,
+    "domContentLoadedEventStart": 7360.5,
+    "domContentLoadedEventEnd": 7392.5,
+    "loadEventEnd": 7480.5,
+    "transferSize": 3215777,
+    "encodedBodySize": 3215477,
+    "decodedBodySize": 11137691
+   },
+   "paints": {
+    "first-paint": 1212,
+    "first-contentful-paint": 1212
+   },
+   "lcp": [
+    1680,
+    99180,
+    "P.lead#"
+   ],
+   "lcpAll": [
+    [
+     1212,
+     1974,
+     "SPAN.plab#"
+    ],
+    [
+     1680,
+     99180,
+     "P.lead#"
+    ]
+   ],
+   "cls": 0.007986066716427109,
+   "navReady": 7337.400000035763,
+   "dcl": 7360.700000047684,
+   "load": 7480.5,
+   "longTasks": {
+    "count": 24,
+    "total": 2197,
+    "max": 183,
+    "lastEnd": 7503.100000023842,
+    "over200": 0,
+    "over1000": 0,
+    "top": [
+     [
+      6768.400000035763,
+      183
+     ],
+     [
+      5024.900000035763,
+      145
+     ],
+     [
+      7359.100000023842,
+      144
+     ],
+     [
+      2506.7000000476837,
+      132
+     ],
+     [
+      6138.900000035763,
+      128
+     ],
+     [
+      4444.300000011921,
+      126
+     ],
+     [
+      6014.800000011921,
+      112
+     ],
+     [
+      6282.100000023842,
+      101
+     ]
+    ]
+   },
+   "ttiEstimate": 7503.100000023842,
+   "tbt": 997,
+   "perfMemory": {
+    "usedJSHeapSize": 18367088,
+    "totalJSHeapSize": 27146888
+   },
+   "dom": {
+    "elements": 82185,
+    "svg": 46,
+    "svgDescendants": 1896,
+    "buttons": 9597,
+    "scripts": 206,
+    "styles": 55,
+    "panels": 51,
+    "maxDepth": 15
+   },
+   "activePanelElements": 1963,
+   "styleSheetsRules": 5912,
+   "cdpMetrics": {
+    "Nodes": 168363,
+    "JSEventListeners": 2008,
+    "LayoutCount": 95,
+    "RecalcStyleCount": 99,
+    "LayoutDurationMs": 1394.6,
+    "RecalcStyleDurationMs": 183.3,
+    "ScriptDurationMs": 2982.7,
+    "TaskDurationMs": 7470.3,
+    "JSHeapUsedSize": 14581572,
+    "JSHeapTotalSize": 22020096,
+    "Documents": 1,
+    "Frames": 1
+   },
+   "heap": {
+    "usedMB": 13.9,
+    "totalMB": 21,
+    "afterGcUsedMB": 11
+   },
+   "traceAnalysis": {
+    "mainThreadTaskMs": 7397.5,
+    "evaluateScriptTotalMs": 3315.1,
+    "parseHtmlInclMs": 4322.1,
+    "topSelf": [
+     {
+      "name": "v8.run",
+      "selfMs": 2322.1,
+      "inclMs": 3003.3,
+      "count": 206
+     },
+     {
+      "name": "InlineNode::ShapeTextIncludingFirstLine",
+      "selfMs": 1038.6,
+      "inclMs": 1039.2,
+      "count": 1212
+     },
+     {
+      "name": "ParseHTML",
+      "selfMs": 850.2,
+      "inclMs": 4322.1,
+      "count": 3919
+     },
+     {
+      "name": "Blink.Accessibility.UpdateTime",
+      "selfMs": 673.8,
+      "inclMs": 673.8,
+      "count": 95
+     },
+     {
+      "name": "LocalFrameView::performLayout",
+      "selfMs": 314.1,
+      "inclMs": 1359.3,
+      "count": 95
+     },
+     {
+      "name": "v8.compile",
+      "selfMs": 297.5,
+      "inclMs": 298.4,
+      "count": 206
+     },
+     {
+      "name": "WebFrameWidgetImpl::UpdateLifecycle",
+      "selfMs": 245.7,
+      "inclMs": 2236.3,
+      "count": 95
+     },
+     {
+      "name": "Paint",
+      "selfMs": 194.9,
+      "inclMs": 262,
+      "count": 178
+     },
+     {
+      "name": "TextResourceDecoder::Decode",
+      "selfMs": 157.1,
+      "inclMs": 157.1,
+      "count": 73
+     },
+     {
+      "name": "Blink.CompositingInputs.UpdateTime",
+      "selfMs": 152.2,
+      "inclMs": 152.3,
+      "count": 95
+     },
+     {
+      "name": "Document::FinishedParsing",
+      "selfMs": 108,
+      "inclMs": 143,
+      "count": 2
+     },
+     {
+      "name": "ThreadControllerImpl::RunTask",
+      "selfMs": 88.8,
+      "inclMs": 7344.2,
+      "count": 3194
+     },
+     {
+      "name": "CSSParserImpl::parseStyleSheet.parse",
+      "selfMs": 72.4,
+      "inclMs": 72.4,
+      "count": 59
+     },
+     {
+      "name": "Document::recalcStyle",
+      "selfMs": 58.8,
+      "inclMs": 59.4,
+      "count": 99
+     },
+     {
+      "name": "HTMLDocumentParser::PumpTokenizerIfPossible",
+      "selfMs": 58.4,
+      "inclMs": 4554.2,
+      "count": 4236
+     },
+     {
+      "name": "StyleEngine::scheduleInvalidationsForRuleSets",
+      "selfMs": 52.3,
+      "inclMs": 52.3,
+      "count": 38
+     },
+     {
+      "name": "FunctionCall",
+      "selfMs": 51.8,
+      "inclMs": 56,
+      "count": 524
+     },
+     {
+      "name": "AsyncTask Run",
+      "selfMs": 40.8,
+      "inclMs": 3390.4,
+      "count": 711
+     }
+    ],
+    "evalScriptBySection": [
+     {
+      "id": "docs",
+      "evalMs": 169.2
+     },
+     {
+      "id": "raft",
+      "evalMs": 164
+     },
+     {
+      "id": "docker",
+      "evalMs": 145.4
+     },
+     {
+      "id": "cicd",
+      "evalMs": 144.5
+     },
+     {
+      "id": "split",
+      "evalMs": 129.9
+     },
+     {
+      "id": "k8s",
+      "evalMs": 129.5
+     },
+     {
+      "id": "explain",
+      "evalMs": 120.6
+     },
+     {
+      "id": "catalog",
+      "evalMs": 114.7
+     },
+     {
+      "id": "time",
+      "evalMs": 107.8
+     },
+     {
+      "id": "bigo",
+      "evalMs": 107.2
+     },
+     {
+      "id": "repl",
+      "evalMs": 106.3
+     },
+     {
+      "id": "front",
+      "evalMs": 95.4
+     },
+     {
+      "id": "sec",
+      "evalMs": 93.2
+     },
+     {
+      "id": "dtx",
+      "evalMs": 87.3
+     },
+     {
+      "id": "broker",
+      "evalMs": 87.3
+     },
+     {
+      "id": "obs",
+      "evalMs": 86.7
+     },
+     {
+      "id": "layers",
+      "evalMs": 73.9
+     },
+     {
+      "id": "zachem",
+      "evalMs": 73.6
+     },
+     {
+      "id": "comm",
+      "evalMs": 70.9
+     },
+     {
+      "id": "net",
+      "evalMs": 69.5
+     },
+     {
+      "id": "oauth",
+      "evalMs": 67.9
+     },
+     {
+      "id": "cache",
+      "evalMs": 67.5
+     },
+     {
+      "id": "release",
+      "evalMs": 67.3
+     },
+     {
+      "id": "legacy",
+      "evalMs": 65.4
+     },
+     {
+      "id": "api",
+      "evalMs": 63.8
+     },
+     {
+      "id": "llm",
+      "evalMs": 55.5
+     },
+     {
+      "id": "duty",
+      "evalMs": 55.2
+     },
+     {
+      "id": "resil",
+      "evalMs": 54.8
+     },
+     {
+      "id": "mono",
+      "evalMs": 52.1
+     },
+     {
+      "id": "domains",
+      "evalMs": 51.4
+     },
+     {
+      "id": "estorm",
+      "evalMs": 50.9
+     },
+     {
+      "id": "scale",
+      "evalMs": 45.2
+     },
+     {
+      "id": "db",
+      "evalMs": 45.2
+     },
+     {
+      "id": "gw",
+      "evalMs": 44.9
+     },
+     {
+      "id": "lb",
+      "evalMs": 43.7
+     },
+     {
+      "id": "(tail: nav/theme)",
+      "evalMs": 36.2
+     },
+     {
+      "id": "practice",
+      "evalMs": 35.6
+     },
+     {
+      "id": "tenant",
+      "evalMs": 28.5
+     },
+     {
+      "id": "cqrs",
+      "evalMs": 27.9
+     },
+     {
+      "id": "gloss",
+      "evalMs": 26.1
+     },
+     {
+      "id": "capstone",
+      "evalMs": 24.7
+     },
+     {
+      "id": "modular",
+      "evalMs": 20.9
+     },
+     {
+      "id": "styles",
+      "evalMs": 14.9
+     },
+     {
+      "id": "bc",
+      "evalMs": 11.5
+     },
+     {
+      "id": "ctxmap",
+      "evalMs": 10.6
+     },
+     {
+      "id": "data",
+      "evalMs": 9.9
+     },
+     {
+      "id": "micro",
+      "evalMs": 9.9
+     },
+     {
+      "id": "(why-blocks p29b)",
+      "evalMs": 9.2
+     },
+     {
+      "id": "saga",
+      "evalMs": 8
+     },
+     {
+      "id": "life",
+      "evalMs": 7.5
+     },
+     {
+      "id": "consist",
+      "evalMs": 7.4
+     },
+     {
+      "id": "outbox",
+      "evalMs": 7.1
+     },
+     {
+      "id": "versus",
+      "evalMs": 6.7
+     },
+     {
+      "id": "(head/header/core)",
+      "evalMs": 4.9
+     }
+    ]
+   }
+  },
+  {
+   "scenario": "mobile4g",
+   "warm": false,
+   "trace": false,
+   "wallLoadMs": 6149,
+   "docEncodedBytes": 3215697,
+   "fromCache": false,
+   "nav": {
+    "responseStart": 2.299999952316284,
+    "responseEnd": 3613,
+    "domInteractive": 5982.399999976158,
+    "domContentLoadedEventStart": 5982.399999976158,
+    "domContentLoadedEventEnd": 6011.5,
+    "loadEventEnd": 6106.5,
+    "transferSize": 3215777,
+    "encodedBodySize": 3215477,
+    "decodedBodySize": 11137691
+   },
+   "paints": {
+    "first-paint": 1248,
+    "first-contentful-paint": 1248
+   },
+   "lcp": [
+    1832,
+    99180,
+    "P.lead#"
+   ],
+   "lcpAll": [
+    [
+     1248,
+     1974,
+     "SPAN.plab#"
+    ],
+    [
+     1480,
+     19165,
+     "DIV.note#"
+    ],
+    [
+     1832,
+     99180,
+     "P.lead#"
+    ]
+   ],
+   "cls": 0.007986066716427109,
+   "navReady": 5965.399999976158,
+   "dcl": 5982.599999964237,
+   "load": 6106.299999952316,
+   "longTasks": {
+    "count": 22,
+    "total": 1693,
+    "max": 151,
+    "lastEnd": 6132.099999964237,
+    "over200": 0,
+    "over1000": 0,
+    "top": [
+     [
+      5981.099999964237,
+      151
+     ],
+     [
+      5574.5,
+      119
+     ],
+     [
+      3851.899999976158,
+      110
+     ],
+     [
+      2283.699999988079,
+      109
+     ],
+     [
+      3691.699999988079,
+      90
+     ],
+     [
+      3258.7999999523163,
+      87
+     ],
+     [
+      5126.5,
+      86
+     ],
+     [
+      4330.799999952316,
+      83
+     ]
+    ]
+   },
+   "ttiEstimate": 6132.099999964237,
+   "tbt": 593,
+   "perfMemory": {
+    "usedJSHeapSize": 19632087,
+    "totalJSHeapSize": 27933195
+   },
+   "dom": {
+    "elements": 82185,
+    "svg": 46,
+    "svgDescendants": 1896,
+    "buttons": 9597,
+    "scripts": 206,
+    "styles": 55,
+    "panels": 51,
+    "maxDepth": 15
+   },
+   "activePanelElements": 1963,
+   "styleSheetsRules": 5912,
+   "cdpMetrics": {
+    "Nodes": 170936,
+    "JSEventListeners": 2008,
+    "LayoutCount": 89,
+    "RecalcStyleCount": 92,
+    "LayoutDurationMs": 1381.6,
+    "RecalcStyleDurationMs": 154.3,
+    "ScriptDurationMs": 2251,
+    "TaskDurationMs": 6099.9,
+    "JSHeapUsedSize": 15853884,
+    "JSHeapTotalSize": 22806528,
+    "Documents": 1,
+    "Frames": 1
+   },
+   "heap": {
+    "usedMB": 15.1,
+    "totalMB": 21.8,
+    "afterGcUsedMB": 11
+   },
+   "traceAnalysis": null,
+   "tabSwitch": [
+    {
+     "pass": 1,
+     "id": "layers",
+     "js": 15.6,
+     "styleLayout": 0.2,
+     "toFrame": 29,
+     "elements": 1963
+    },
+    {
+     "pass": 1,
+     "id": "zachem",
+     "js": 633.8,
+     "styleLayout": 0.2,
+     "toFrame": 702.8,
+     "elements": 2364
+    },
+    {
+     "pass": 1,
+     "id": "life",
+     "js": 116,
+     "styleLayout": 0.1,
+     "toFrame": 127.8,
+     "elements": 291
+    },
+    {
+     "pass": 1,
+     "id": "mono",
+     "js": 358.3,
+     "styleLayout": 0,
+     "toFrame": 389.5,
+     "elements": 1647
+    },
+    {
+     "pass": 1,
+     "id": "modular",
+     "js": 126.7,
+     "styleLayout": 0,
+     "toFrame": 142.4,
+     "elements": 794
+    },
+    {
+     "pass": 1,
+     "id": "micro",
+     "js": 56.5,
+     "styleLayout": 0.3,
+     "toFrame": 67.2,
+     "elements": 463
+    },
+    {
+     "pass": 1,
+     "id": "versus",
+     "js": 45,
+     "styleLayout": 0.2,
+     "toFrame": 53.1,
+     "elements": 435
+    },
+    {
+     "pass": 1,
+     "id": "styles",
+     "js": 113,
+     "styleLayout": 0.1,
+     "toFrame": 125.3,
+     "elements": 527
+    },
+    {
+     "pass": 1,
+     "id": "domains",
+     "js": 288.3,
+     "styleLayout": 0.2,
+     "toFrame": 344.5,
+     "elements": 2092
+    },
+    {
+     "pass": 1,
+     "id": "estorm",
+     "js": 363.8,
+     "styleLayout": 0.4,
+     "toFrame": 412.5,
+     "elements": 2178
+    },
+    {
+     "pass": 1,
+     "id": "bc",
+     "js": 71.2,
+     "styleLayout": 0,
+     "toFrame": 82.1,
+     "elements": 339
+    },
+    {
+     "pass": 1,
+     "id": "ctxmap",
+     "js": 69.5,
+     "styleLayout": 0.3,
+     "toFrame": 82.5,
+     "elements": 468
+    },
+    {
+     "pass": 1,
+     "id": "split",
+     "js": 411.6,
+     "styleLayout": 0.1,
+     "toFrame": 457.5,
+     "elements": 3201
+    },
+    {
+     "pass": 1,
+     "id": "data",
+     "js": 75.4,
+     "styleLayout": 0.1,
+     "toFrame": 85.4,
+     "elements": 457
+    },
+    {
+     "pass": 1,
+     "id": "consist",
+     "js": 39.1,
+     "styleLayout": 0.1,
+     "toFrame": 46.6,
+     "elements": 254
+    },
+    {
+     "pass": 1,
+     "id": "saga",
+     "js": 80.5,
+     "styleLayout": 0.2,
+     "toFrame": 91.1,
+     "elements": 410
+    },
+    {
+     "pass": 1,
+     "id": "outbox",
+     "js": 56.2,
+     "styleLayout": 0,
+     "toFrame": 65.2,
+     "elements": 284
+    },
+    {
+     "pass": 1,
+     "id": "cqrs",
+     "js": 210,
+     "styleLayout": 0.3,
+     "toFrame": 227,
+     "elements": 627
+    },
+    {
+     "pass": 1,
+     "id": "net",
+     "js": 514.4,
+     "styleLayout": 0.3,
+     "toFrame": 566,
+     "elements": 2901
+    },
+    {
+     "pass": 1,
+     "id": "comm",
+     "js": 343.5,
+     "styleLayout": 0,
+     "toFrame": 372.6,
+     "elements": 1398
+    },
+    {
+     "pass": 1,
+     "id": "api",
+     "js": 344.9,
+     "styleLayout": 0.2,
+     "toFrame": 401.5,
+     "elements": 2806
+    },
+    {
+     "pass": 1,
+     "id": "broker",
+     "js": 338.9,
+     "styleLayout": 0.1,
+     "toFrame": 393.9,
+     "elements": 2258
+    },
+    {
+     "pass": 1,
+     "id": "gw",
+     "js": 216.9,
+     "styleLayout": 0.1,
+     "toFrame": 242.4,
+     "elements": 1188
+    },
+    {
+     "pass": 1,
+     "id": "front",
+     "js": 448.3,
+     "styleLayout": 0.2,
+     "toFrame": 516.6,
+     "elements": 3012
+    },
+    {
+     "pass": 1,
+     "id": "sec",
+     "js": 581.4,
+     "styleLayout": 0.2,
+     "toFrame": 649.3,
+     "elements": 2832
+    },
+    {
+     "pass": 1,
+     "id": "oauth",
+     "js": 441.6,
+     "styleLayout": 0.2,
+     "toFrame": 506.4,
+     "elements": 2612
+    },
+    {
+     "pass": 1,
+     "id": "lb",
+     "js": 246.2,
+     "styleLayout": 0.2,
+     "toFrame": 280.6,
+     "elements": 1426
+    },
+    {
+     "pass": 1,
+     "id": "resil",
+     "js": 151.2,
+     "styleLayout": 0.2,
+     "toFrame": 177.2,
+     "elements": 1410
+    },
+    {
+     "pass": 1,
+     "id": "cache",
+     "js": 169,
+     "styleLayout": 0.8,
+     "toFrame": 194.4,
+     "elements": 1344
+    },
+    {
+     "pass": 1,
+     "id": "scale",
+     "js": 186.4,
+     "styleLayout": 0.3,
+     "toFrame": 207.4,
+     "elements": 1062
+    },
+    {
+     "pass": 1,
+     "id": "tenant",
+     "js": 134,
+     "styleLayout": 0.1,
+     "toFrame": 151.1,
+     "elements": 742
+    },
+    {
+     "pass": 1,
+     "id": "bigo",
+     "js": 328.2,
+     "styleLayout": 0.2,
+     "toFrame": 379.9,
+     "elements": 2719
+    },
+    {
+     "pass": 1,
+     "id": "db",
+     "js": 248.6,
+     "styleLayout": 0.1,
+     "toFrame": 275.6,
+     "elements": 1279
+    },
+    {
+     "pass": 1,
+     "id": "explain",
+     "js": 346.5,
+     "styleLayout": 0.1,
+     "toFrame": 401.2,
+     "elements": 2432
+    },
+    {
+     "pass": 1,
+     "id": "repl",
+     "js": 227.8,
+     "styleLayout": 0.2,
+     "toFrame": 271.2,
+     "elements": 2149
+    },
+    {
+     "pass": 1,
+     "id": "raft",
+     "js": 429.3,
+     "styleLayout": 0.1,
+     "toFrame": 495.9,
+     "elements": 2787
+    },
+    {
+     "pass": 1,
+     "id": "dtx",
+     "js": 375.1,
+     "styleLayout": 0.1,
+     "toFrame": 422.5,
+     "elements": 2103
+    },
+    {
+     "pass": 1,
+     "id": "time",
+     "js": 319.7,
+     "styleLayout": 0.3,
+     "toFrame": 369.9,
+     "elements": 2330
+    },
+    {
+     "pass": 1,
+     "id": "docker",
+     "js": 278.6,
+     "styleLayout": 0.3,
+     "toFrame": 336.1,
+     "elements": 2673
+    },
+    {
+     "pass": 1,
+     "id": "k8s",
+     "js": 336.1,
+     "styleLayout": 0.2,
+     "toFrame": 392.5,
+     "elements": 2628
+    },
+    {
+     "pass": 1,
+     "id": "cicd",
+     "js": 391.1,
+     "styleLayout": 0,
+     "toFrame": 444.4,
+     "elements": 2629
+    },
+    {
+     "pass": 1,
+     "id": "release",
+     "js": 142.6,
+     "styleLayout": 0.3,
+     "toFrame": 167.4,
+     "elements": 932
+    },
+    {
+     "pass": 1,
+     "id": "legacy",
+     "js": 169.1,
+     "styleLayout": 0.3,
+     "toFrame": 193.3,
+     "elements": 904
+    },
+    {
+     "pass": 1,
+     "id": "obs",
+     "js": 220.8,
+     "styleLayout": 0.2,
+     "toFrame": 248.7,
+     "elements": 1059
+    },
+    {
+     "pass": 1,
+     "id": "docs",
+     "js": 384.9,
+     "styleLayout": 0.2,
+     "toFrame": 442.4,
+     "elements": 2776
+    },
+    {
+     "pass": 1,
+     "id": "llm",
+     "js": 288.4,
+     "styleLayout": 0.1,
+     "toFrame": 315.9,
+     "elements": 978
+    },
+    {
+     "pass": 1,
+     "id": "catalog",
+     "js": 154.6,
+     "styleLayout": 0.2,
+     "toFrame": 177.2,
+     "elements": 4900
+    },
+    {
+     "pass": 1,
+     "id": "duty",
+     "js": 130.2,
+     "styleLayout": 0.2,
+     "toFrame": 149.9,
+     "elements": 555
+    },
+    {
+     "pass": 1,
+     "id": "practice",
+     "js": 86.7,
+     "styleLayout": 0.2,
+     "toFrame": 106.2,
+     "elements": 547
+    },
+    {
+     "pass": 1,
+     "id": "capstone",
+     "js": 75.6,
+     "styleLayout": 0.2,
+     "toFrame": 91,
+     "elements": 254
+    },
+    {
+     "pass": 1,
+     "id": "gloss",
+     "js": 160.3,
+     "styleLayout": 0.3,
+     "toFrame": 191.5,
+     "elements": 1343
+    },
+    {
+     "pass": 2,
+     "id": "layers",
+     "js": 233.4,
+     "styleLayout": 0.2,
+     "toFrame": 287.6,
+     "elements": 1963
+    },
+    {
+     "pass": 2,
+     "id": "zachem",
+     "js": 283.3,
+     "styleLayout": 0.2,
+     "toFrame": 334.4,
+     "elements": 2364
+    },
+    {
+     "pass": 2,
+     "id": "life",
+     "js": 48,
+     "styleLayout": 0.2,
+     "toFrame": 63.3,
+     "elements": 291
+    },
+    {
+     "pass": 2,
+     "id": "mono",
+     "js": 226.1,
+     "styleLayout": 0.1,
+     "toFrame": 265.1,
+     "elements": 1647
+    },
+    {
+     "pass": 2,
+     "id": "modular",
+     "js": 95.1,
+     "styleLayout": 0.2,
+     "toFrame": 115.6,
+     "elements": 794
+    },
+    {
+     "pass": 2,
+     "id": "micro",
+     "js": 42.7,
+     "styleLayout": 0.2,
+     "toFrame": 58.3,
+     "elements": 463
+    },
+    {
+     "pass": 2,
+     "id": "versus",
+     "js": 38.4,
+     "styleLayout": 0.2,
+     "toFrame": 53.7,
+     "elements": 435
+    },
+    {
+     "pass": 2,
+     "id": "styles",
+     "js": 51.1,
+     "styleLayout": 0,
+     "toFrame": 61.8,
+     "elements": 527
+    },
+    {
+     "pass": 2,
+     "id": "domains",
+     "js": 222.1,
+     "styleLayout": 0.3,
+     "toFrame": 274,
+     "elements": 2092
+    },
+    {
+     "pass": 2,
+     "id": "estorm",
+     "js": 255.7,
+     "styleLayout": 0.2,
+     "toFrame": 302.8,
+     "elements": 2178
+    },
+    {
+     "pass": 2,
+     "id": "bc",
+     "js": 57.7,
+     "styleLayout": 0.2,
+     "toFrame": 70.8,
+     "elements": 339
+    },
+    {
+     "pass": 2,
+     "id": "ctxmap",
+     "js": 43.1,
+     "styleLayout": 0.2,
+     "toFrame": 53.1,
+     "elements": 468
+    },
+    {
+     "pass": 2,
+     "id": "split",
+     "js": 241.9,
+     "styleLayout": 0.1,
+     "toFrame": 284.8,
+     "elements": 3201
+    },
+    {
+     "pass": 2,
+     "id": "data",
+     "js": 64.9,
+     "styleLayout": 0.8,
+     "toFrame": 76.7,
+     "elements": 457
+    },
+    {
+     "pass": 2,
+     "id": "consist",
+     "js": 32.9,
+     "styleLayout": 0.1,
+     "toFrame": 40.3,
+     "elements": 254
+    },
+    {
+     "pass": 2,
+     "id": "saga",
+     "js": 51,
+     "styleLayout": 0.2,
+     "toFrame": 62,
+     "elements": 410
+    },
+    {
+     "pass": 2,
+     "id": "outbox",
+     "js": 38.6,
+     "styleLayout": 0.3,
+     "toFrame": 48.1,
+     "elements": 284
+    },
+    {
+     "pass": 2,
+     "id": "cqrs",
+     "js": 117.4,
+     "styleLayout": 0.3,
+     "toFrame": 135.7,
+     "elements": 627
+    },
+    {
+     "pass": 2,
+     "id": "net",
+     "js": 323.9,
+     "styleLayout": 0.2,
+     "toFrame": 378.2,
+     "elements": 2901
+    },
+    {
+     "pass": 2,
+     "id": "comm",
+     "js": 240.9,
+     "styleLayout": 0.3,
+     "toFrame": 272.9,
+     "elements": 1398
+    },
+    {
+     "pass": 2,
+     "id": "api",
+     "js": 250.2,
+     "styleLayout": 0.2,
+     "toFrame": 311.5,
+     "elements": 2806
+    },
+    {
+     "pass": 2,
+     "id": "broker",
+     "js": 340.7,
+     "styleLayout": 0.3,
+     "toFrame": 412.2,
+     "elements": 2258
+    },
+    {
+     "pass": 2,
+     "id": "gw",
+     "js": 182,
+     "styleLayout": 0,
+     "toFrame": 209.5,
+     "elements": 1188
+    },
+    {
+     "pass": 2,
+     "id": "front",
+     "js": 436.8,
+     "styleLayout": 0.1,
+     "toFrame": 511.7,
+     "elements": 3012
+    },
+    {
+     "pass": 2,
+     "id": "sec",
+     "js": 521.1,
+     "styleLayout": 0.2,
+     "toFrame": 593.2,
+     "elements": 2832
+    },
+    {
+     "pass": 2,
+     "id": "oauth",
+     "js": 358.5,
+     "styleLayout": 0,
+     "toFrame": 439.3,
+     "elements": 2612
+    },
+    {
+     "pass": 2,
+     "id": "lb",
+     "js": 188.9,
+     "styleLayout": 0.4,
+     "toFrame": 227.9,
+     "elements": 1426
+    },
+    {
+     "pass": 2,
+     "id": "resil",
+     "js": 187,
+     "styleLayout": 0.2,
+     "toFrame": 224,
+     "elements": 1410
+    },
+    {
+     "pass": 2,
+     "id": "cache",
+     "js": 190.9,
+     "styleLayout": 1.1,
+     "toFrame": 232.6,
+     "elements": 1344
+    },
+    {
+     "pass": 2,
+     "id": "scale",
+     "js": 162.2,
+     "styleLayout": 0.4,
+     "toFrame": 206.7,
+     "elements": 1062
+    },
+    {
+     "pass": 2,
+     "id": "tenant",
+     "js": 134.4,
+     "styleLayout": 0.2,
+     "toFrame": 165,
+     "elements": 742
+    },
+    {
+     "pass": 2,
+     "id": "bigo",
+     "js": 277.6,
+     "styleLayout": 0.1,
+     "toFrame": 348.2,
+     "elements": 2719
+    },
+    {
+     "pass": 2,
+     "id": "db",
+     "js": 232,
+     "styleLayout": 0.2,
+     "toFrame": 270.8,
+     "elements": 1279
+    },
+    {
+     "pass": 2,
+     "id": "explain",
+     "js": 288.2,
+     "styleLayout": 0,
+     "toFrame": 353.1,
+     "elements": 2432
+    },
+    {
+     "pass": 2,
+     "id": "repl",
+     "js": 212.3,
+     "styleLayout": 0.2,
+     "toFrame": 264.1,
+     "elements": 2149
+    },
+    {
+     "pass": 2,
+     "id": "raft",
+     "js": 314.6,
+     "styleLayout": 0.3,
+     "toFrame": 385.4,
+     "elements": 2787
+    },
+    {
+     "pass": 2,
+     "id": "dtx",
+     "js": 264.9,
+     "styleLayout": 0,
+     "toFrame": 315.8,
+     "elements": 2103
+    },
+    {
+     "pass": 2,
+     "id": "time",
+     "js": 270.4,
+     "styleLayout": 0.2,
+     "toFrame": 327.1,
+     "elements": 2330
+    },
+    {
+     "pass": 2,
+     "id": "docker",
+     "js": 315.7,
+     "styleLayout": 0.4,
+     "toFrame": 376.4,
+     "elements": 2673
+    },
+    {
+     "pass": 2,
+     "id": "k8s",
+     "js": 309.3,
+     "styleLayout": 0.2,
+     "toFrame": 368,
+     "elements": 2628
+    },
+    {
+     "pass": 2,
+     "id": "cicd",
+     "js": 318.7,
+     "styleLayout": 0.2,
+     "toFrame": 379.9,
+     "elements": 2629
+    },
+    {
+     "pass": 2,
+     "id": "release",
+     "js": 136.8,
+     "styleLayout": 0,
+     "toFrame": 164.4,
+     "elements": 932
+    },
+    {
+     "pass": 2,
+     "id": "legacy",
+     "js": 128.9,
+     "styleLayout": 0.1,
+     "toFrame": 156.7,
+     "elements": 904
+    },
+    {
+     "pass": 2,
+     "id": "obs",
+     "js": 184.9,
+     "styleLayout": 0.1,
+     "toFrame": 221,
+     "elements": 1059
+    },
+    {
+     "pass": 2,
+     "id": "docs",
+     "js": 336.4,
+     "styleLayout": 0.2,
+     "toFrame": 397.1,
+     "elements": 2776
+    },
+    {
+     "pass": 2,
+     "id": "llm",
+     "js": 288.5,
+     "styleLayout": 0.3,
+     "toFrame": 326,
+     "elements": 978
+    },
+    {
+     "pass": 2,
+     "id": "catalog",
+     "js": 143.4,
+     "styleLayout": 0.3,
+     "toFrame": 164.1,
+     "elements": 4900
+    },
+    {
+     "pass": 2,
+     "id": "duty",
+     "js": 112.9,
+     "styleLayout": 0.2,
+     "toFrame": 132.7,
+     "elements": 555
+    },
+    {
+     "pass": 2,
+     "id": "practice",
+     "js": 78,
+     "styleLayout": 0.2,
+     "toFrame": 96.3,
+     "elements": 547
+    },
+    {
+     "pass": 2,
+     "id": "capstone",
+     "js": 54.2,
+     "styleLayout": 0.1,
+     "toFrame": 67.2,
+     "elements": 254
+    },
+    {
+     "pass": 2,
+     "id": "gloss",
+     "js": 126.4,
+     "styleLayout": 0.1,
+     "toFrame": 177.3,
+     "elements": 1343
+    }
+   ],
+   "afterAllTabs": {
+    "Nodes": 167131,
+    "heapUsedMB": 11.2
+   }
+  },
+  {
+   "scenario": "mobile4g",
+   "warm": false,
+   "trace": false,
+   "wallLoadMs": 6292,
+   "docEncodedBytes": 3215697,
+   "fromCache": false,
+   "nav": {
+    "responseStart": 12,
+    "responseEnd": 3556.399999976158,
+    "domInteractive": 6152.300000011921,
+    "domContentLoadedEventStart": 6152.300000011921,
+    "domContentLoadedEventEnd": 6178.899999976158,
+    "loadEventEnd": 6254.5,
+    "transferSize": 3215777,
+    "encodedBodySize": 3215477,
+    "decodedBodySize": 11137691
+   },
+   "paints": {
+    "first-paint": 1068,
+    "first-contentful-paint": 1068
+   },
+   "lcp": [
+    1604,
+    99180,
+    "P.lead#"
+   ],
+   "lcpAll": [
+    [
+     1068,
+     1974,
+     "SPAN.plab#"
+    ],
+    [
+     1604,
+     99180,
+     "P.lead#"
+    ]
+   ],
+   "cls": 0.007986066716427109,
+   "navReady": 6137.800000011921,
+   "dcl": 6152.5,
+   "load": 6254.5,
+   "longTasks": {
+    "count": 23,
+    "total": 1819,
+    "max": 135,
+    "lastEnd": 6277.099999964237,
+    "over200": 0,
+    "over1000": 0,
+    "top": [
+     [
+      5748.199999988079,
+      135
+     ],
+     [
+      6151.099999964237,
+      126
+     ],
+     [
+      2297.800000011921,
+      111
+     ],
+     [
+      5240.599999964237,
+      108
+     ],
+     [
+      3911.099999964237,
+      101
+     ],
+     [
+      5142.599999964237,
+      92
+     ],
+     [
+      3349.699999988079,
+      91
+     ],
+     [
+      3592.300000011921,
+      91
+     ]
+    ]
+   },
+   "ttiEstimate": 6277.099999964237,
+   "tbt": 669,
+   "perfMemory": {
+    "usedJSHeapSize": 19610459,
+    "totalJSHeapSize": 27933195
+   },
+   "dom": {
+    "elements": 82185,
+    "svg": 46,
+    "svgDescendants": 1896,
+    "buttons": 9597,
+    "scripts": 206,
+    "styles": 55,
+    "panels": 51,
+    "maxDepth": 15
+   },
+   "activePanelElements": 1963,
+   "styleSheetsRules": 5912,
+   "cdpMetrics": {
+    "Nodes": 170861,
+    "JSEventListeners": 2008,
+    "LayoutCount": 89,
+    "RecalcStyleCount": 93,
+    "LayoutDurationMs": 1383.5,
+    "RecalcStyleDurationMs": 167.8,
+    "ScriptDurationMs": 2388.1,
+    "TaskDurationMs": 6254.5,
+    "JSHeapUsedSize": 15830092,
+    "JSHeapTotalSize": 22806528,
+    "Documents": 1,
+    "Frames": 1
+   },
+   "heap": {
+    "usedMB": 15.1,
+    "totalMB": 21.8,
+    "afterGcUsedMB": 11
+   },
+   "traceAnalysis": null
+  },
+  {
+   "scenario": "mobile4g",
+   "warm": false,
+   "trace": false,
+   "wallLoadMs": 6208,
+   "docEncodedBytes": 3215697,
+   "fromCache": false,
+   "nav": {
+    "responseStart": 2.099999964237213,
+    "responseEnd": 3607.699999988079,
+    "domInteractive": 6076.699999988079,
+    "domContentLoadedEventStart": 6076.899999976158,
+    "domContentLoadedEventEnd": 6104.199999988079,
+    "loadEventEnd": 6175,
+    "transferSize": 3215777,
+    "encodedBodySize": 3215477,
+    "decodedBodySize": 11137691
+   },
+   "paints": {
+    "first-paint": 1264,
+    "first-contentful-paint": 1264
+   },
+   "lcp": [
+    1764,
+    99180,
+    "P.lead#"
+   ],
+   "lcpAll": [
+    [
+     1264,
+     1974,
+     "SPAN.plab#"
+    ],
+    [
+     1764,
+     99180,
+     "P.lead#"
+    ]
+   ],
+   "cls": 0.007986066716427109,
+   "navReady": 6061,
+   "dcl": 6076.899999976158,
+   "load": 6175,
+   "longTasks": {
+    "count": 25,
+    "total": 1937,
+    "max": 130,
+    "lastEnd": 6194.599999964237,
+    "over200": 0,
+    "over1000": 0,
+    "top": [
+     [
+      5722.099999964237,
+      130
+     ],
+     [
+      6075.599999964237,
+      119
+     ],
+     [
+      5202.599999964237,
+      107
+     ],
+     [
+      2209,
+      106
+     ],
+     [
+      3240.099999964237,
+      106
+     ],
+     [
+      3657.7999999523163,
+      98
+     ],
+     [
+      5101.799999952316,
+      92
+     ],
+     [
+      3756,
+      91
+     ]
+    ]
+   },
+   "ttiEstimate": 6194.599999964237,
+   "tbt": 687,
+   "perfMemory": {
+    "usedJSHeapSize": 19496203,
+    "totalJSHeapSize": 27933195
+   },
+   "dom": {
+    "elements": 82185,
+    "svg": 46,
+    "svgDescendants": 1896,
+    "buttons": 9597,
+    "scripts": 206,
+    "styles": 55,
+    "panels": 51,
+    "maxDepth": 15
+   },
+   "activePanelElements": 1963,
+   "styleSheetsRules": 5912,
+   "cdpMetrics": {
+    "Nodes": 170842,
+    "JSEventListeners": 2008,
+    "LayoutCount": 88,
+    "RecalcStyleCount": 91,
+    "LayoutDurationMs": 1365.4,
+    "RecalcStyleDurationMs": 154.5,
+    "ScriptDurationMs": 2402.9,
+    "TaskDurationMs": 6204.9,
+    "JSHeapUsedSize": 15714280,
+    "JSHeapTotalSize": 22806528,
+    "Documents": 1,
+    "Frames": 1
+   },
+   "heap": {
+    "usedMB": 15,
+    "totalMB": 21.8,
+    "afterGcUsedMB": 11
+   },
+   "traceAnalysis": null
+  },
+  {
+   "scenario": "mobile4g",
+   "warm": true,
+   "trace": false,
+   "wallLoadMs": 5912,
+   "docEncodedBytes": 0,
+   "fromCache": true,
+   "nav": {
+    "responseStart": 1.2000000476837158,
+    "responseEnd": 1671.6000000238419,
+    "domInteractive": 5786,
+    "domContentLoadedEventStart": 5786.200000047684,
+    "domContentLoadedEventEnd": 5811.700000047684,
+    "loadEventEnd": 5874.900000035763,
+    "transferSize": 0,
+    "encodedBodySize": 3215477,
+    "decodedBodySize": 11137691
+   },
+   "paints": {
+    "first-paint": 1224,
+    "first-contentful-paint": 1224
+   },
+   "lcp": [
+    1624,
+    99180,
+    "P.lead#"
+   ],
+   "lcpAll": [
+    [
+     1224,
+     2758,
+     "SPAN.plab#"
+    ],
+    [
+     1624,
+     99180,
+     "P.lead#"
+    ]
+   ],
+   "cls": 0.007986066716427109,
+   "navReady": 5772,
+   "dcl": 5786.200000047684,
+   "load": 5874.900000035763,
+   "longTasks": {
+    "count": 22,
+    "total": 1679,
+    "max": 119,
+    "lastEnd": 5895.800000011921,
+    "over200": 0,
+    "over1000": 0,
+    "top": [
+     [
+      2141.7000000476837,
+      119
+     ],
+     [
+      5391.600000023842,
+      119
+     ],
+     [
+      5784.800000011921,
+      111
+     ],
+     [
+      3597.800000011921,
+      108
+     ],
+     [
+      4893.200000047684,
+      105
+     ],
+     [
+      1732,
+      97
+     ],
+     [
+      4791.800000011921,
+      91
+     ],
+     [
+      5068.900000035763,
+      89
+     ]
+    ]
+   },
+   "ttiEstimate": 5895.800000011921,
+   "tbt": 579,
+   "perfMemory": {
+    "usedJSHeapSize": 19762355,
+    "totalJSHeapSize": 28195331
+   },
+   "dom": {
+    "elements": 82185,
+    "svg": 46,
+    "svgDescendants": 1896,
+    "buttons": 9597,
+    "scripts": 206,
+    "styles": 55,
+    "panels": 51,
+    "maxDepth": 15
+   },
+   "activePanelElements": 1963,
+   "styleSheetsRules": 5912,
+   "cdpMetrics": {
+    "Nodes": 172087,
+    "JSEventListeners": 2009,
+    "LayoutCount": 88,
+    "RecalcStyleCount": 91,
+    "LayoutDurationMs": 1306.6,
+    "RecalcStyleDurationMs": 151.6,
+    "ScriptDurationMs": 2332.5,
+    "TaskDurationMs": 6061.3,
+    "JSHeapUsedSize": 15980240,
+    "JSHeapTotalSize": 23068672,
+    "Documents": 2,
+    "Frames": 2
+   },
+   "heap": {
+    "usedMB": 15.2,
+    "totalMB": 22,
+    "afterGcUsedMB": 11
+   },
+   "traceAnalysis": null
+  },
+  {
+   "scenario": "mobile4g",
+   "warm": true,
+   "trace": false,
+   "wallLoadMs": 6256,
+   "docEncodedBytes": 0,
+   "fromCache": true,
+   "nav": {
+    "responseStart": 0.8999999761581421,
+    "responseEnd": 1781.5999999642372,
+    "domInteractive": 6123.799999952316,
+    "domContentLoadedEventStart": 6124,
+    "domContentLoadedEventEnd": 6148.5,
+    "loadEventEnd": 6218.099999964237,
+    "transferSize": 0,
+    "encodedBodySize": 3215477,
+    "decodedBodySize": 11137691
+   },
+   "paints": {
+    "first-paint": 1292,
+    "first-contentful-paint": 1292
+   },
+   "lcp": [
+    1728,
+    99180,
+    "P.lead#"
+   ],
+   "lcpAll": [
+    [
+     1292,
+     2758,
+     "SPAN.plab#"
+    ],
+    [
+     1728,
+     99180,
+     "P.lead#"
+    ]
+   ],
+   "cls": 0.007986066716427109,
+   "navReady": 6109.099999964237,
+   "dcl": 6124,
+   "load": 6218.099999964237,
+   "longTasks": {
+    "count": 26,
+    "total": 2079,
+    "max": 122,
+    "lastEnd": 6239.799999952316,
+    "over200": 0,
+    "over1000": 0,
+    "top": [
+     [
+      5795.5,
+      122
+     ],
+     [
+      2286.5,
+      121
+     ],
+     [
+      6122.799999952316,
+      117
+     ],
+     [
+      5253.899999976158,
+      115
+     ],
+     [
+      3334.199999988079,
+      104
+     ],
+     [
+      5143.299999952316,
+      104
+     ],
+     [
+      1853.199999988079,
+      102
+     ],
+     [
+      3834.2999999523163,
+      97
+     ]
+    ]
+   },
+   "ttiEstimate": 6239.799999952316,
+   "tbt": 779,
+   "perfMemory": {
+    "usedJSHeapSize": 19844048,
+    "totalJSHeapSize": 28457468
+   },
+   "dom": {
+    "elements": 82185,
+    "svg": 46,
+    "svgDescendants": 1896,
+    "buttons": 9597,
+    "scripts": 206,
+    "styles": 55,
+    "panels": 51,
+    "maxDepth": 15
+   },
+   "activePanelElements": 1963,
+   "styleSheetsRules": 5912,
+   "cdpMetrics": {
+    "Nodes": 172473,
+    "JSEventListeners": 2009,
+    "LayoutCount": 89,
+    "RecalcStyleCount": 90,
+    "LayoutDurationMs": 1396,
+    "RecalcStyleDurationMs": 158.1,
+    "ScriptDurationMs": 2528.8,
+    "TaskDurationMs": 6434.1,
+    "JSHeapUsedSize": 16063984,
+    "JSHeapTotalSize": 23330816,
+    "Documents": 2,
+    "Frames": 2
+   },
+   "heap": {
+    "usedMB": 15.3,
+    "totalMB": 22.3,
+    "afterGcUsedMB": 11
+   },
+   "traceAnalysis": null
+  }
+ ]
+}

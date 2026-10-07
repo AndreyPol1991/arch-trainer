@@ -1,0 +1,19 @@
+{
+ "file": "E:/arch_trainer/index.html",
+ "bytes": 11137691,
+ "gzip6": 3034027,
+ "gzip9": 3030023,
+ "brotli11": 2040491,
+ "brotli5": 2544285,
+ "composition": {
+  "styleBytes": 554033,
+  "scriptBytes": 7128432,
+  "inlineSvgInMarkupBytes_approx": 32749,
+  "scriptCount": 207,
+  "styleCount": 56,
+  "lines": 84114,
+  "chars": 7947412,
+  "dataUriBytes": 0,
+  "cyrillicChars": 3071259
+ }
+}
