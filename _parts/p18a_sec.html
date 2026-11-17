@@ -472,14 +472,102 @@
     </div>
     <div class="note warn"><b>Частая ошибка.</b> «Мы передаём паспортные данные в Base64, значит, они зашифрованы». Нет. Base64 раскодирует любой, кто откроет строку в онлайн-декодере. Сюда же — токен JWT: он <b>подписан</b>, но по умолчанию <b>не зашифрован</b>, его содержимое читается.</div>
 
+  <style>
+    .cr-life{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:12px}
+    @media (max-width:760px){.cr-life{grid-template-columns:1fr}}
+    .cr-life .box h4{margin:0 0 8px; font-size:14px}
+    .cr-life ul{margin:0; padding-left:18px; font-size:13.5px}
+    .cr-life li{margin:6px 0}
+    .cr-lab{margin-top:12px; padding:14px; border:1px solid var(--line); border-radius:12px; background:var(--surface-2)}
+    .cr-lab h4{margin:0 0 8px; font-size:14px}
+    .cr-lab label, .cr-step label{display:grid; gap:4px; margin:8px 0; font-size:13px; color:var(--muted)}
+    .cr-lab input, .cr-lab textarea, .cr-step textarea{font:500 14px/1.4 var(--mono); padding:8px 10px; border:1px solid var(--line); border-radius:8px; background:var(--surface); color:var(--ink); width:100%; box-sizing:border-box}
+    .cr-lab textarea, .cr-step textarea{min-height:52px; resize:vertical}
+    .cr-out{margin-top:8px; padding:9px 11px; border-radius:8px; background:var(--surface); border:1px dashed var(--line); font:500 12.5px/1.45 var(--mono); word-break:break-all; color:var(--ink)}
+    .cr-out b{font-family:var(--sans, inherit); font-weight:700; color:var(--muted); display:block; font-size:11.5px; letter-spacing:.03em; text-transform:uppercase; margin-bottom:3px}
+    .cr-steps{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; margin-top:12px}
+    @media (max-width:900px){.cr-steps{grid-template-columns:1fr}}
+    .cr-step{padding:12px; border:1px solid var(--line); border-radius:12px; background:var(--surface)}
+    .cr-step h4{margin:0 0 6px; font-size:14px}
+    .cr-step .n{display:inline-grid; place-items:center; width:22px; height:22px; margin-right:6px; border-radius:50%; background:var(--accent); color:#fff; font-size:12px}
+    .cr-keys{display:flex; flex-wrap:wrap; gap:8px; margin:8px 0}
+    .cr-key{padding:6px 10px; border-radius:999px; border:1px solid var(--line); font-size:12.5px; background:var(--surface-2)}
+    .cr-key.pub{border-color:var(--ok)}
+    .cr-key.priv{border-color:var(--danger)}
+    .cr-diff i{font-style:normal; background:color-mix(in srgb,var(--danger) 22%,transparent); border-radius:3px}
+    .cr-mirror{width:100%; border-collapse:collapse; margin-top:12px; font-size:13.5px}
+    .cr-mirror th, .cr-mirror td{border:1px solid var(--line); padding:8px 10px; text-align:left; vertical-align:top}
+    .cr-mirror th{background:var(--surface-2)}
+    .cr-where{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-top:12px}
+    @media (max-width:760px){.cr-where{grid-template-columns:1fr}}
+    .cr-where .box{font-size:13.5px}
+    .cr-where .box b{display:block; margin-bottom:4px}
+  </style>
+
+    <h3 class="sfx-h3">Где вы это уже встречали — каждый день</h3>
+    <p>Прежде чем разбирать, как это устроено, — где оно вокруг вас. Шифрование бывает двух видов, и оба у вас в телефоне.</p>
+    <div class="cr-life">
+      <div class="box" style="border-color:var(--accent)">
+        <h4>🔑 Один общий ключ (симметричное)</h4>
+        <ul>
+          <li><b>Архив с паролем</b> (7-Zip, WinRAR): один и тот же пароль запирает архив и отпирает его.</li>
+          <li><b>Пароль от домашнего Wi-Fi</b>: его знают роутер и все ваши устройства — и шифруют им трафик.</li>
+          <li><b>Шифрование телефона</b>: память зашифрована ключом, который открывается вашим PIN-кодом.</li>
+        </ul>
+      </div>
+      <div class="box" style="border-color:var(--ok)">
+        <h4>🔐 Пара ключей (асимметричное)</h4>
+        <ul>
+          <li><b>Замочек 🔒 в адресной строке</b> банка: браузер и сайт впервые видят друг друга — и договариваются о ключе по открытой сети.</li>
+          <li><b>SSH-ключ для GitHub</b>: на сервере лежит ваш открытый ключ, закрытый — только на вашем компьютере.</li>
+          <li><b>Электронная подпись</b> на Госуслугах и в налоговой — об этом ниже подробно.</li>
+          <li><b>Мессенджеры со сквозным шифрованием</b> (Signal, WhatsApp): ключи для переписки договариваются через пары ключей.</li>
+        </ul>
+      </div>
+    </div>
+
     <h3 class="sfx-h3">Симметричное шифрование: один ключ на двоих</h3>
     <div class="sfx-def"><b>Симметричное шифрование</b> (symmetric encryption) — один и тот же ключ и запирает, и отпирает. Быстрое: гигабайты в секунду. Стандартные алгоритмы — <b>AES-256-GCM</b> и <b>ChaCha20-Poly1305</b>. Режим GCM (и Poly1305) не только прячет данные, но и обнаруживает, если их подменили.</div>
     <div class="sfx-life">ящик с навесным замком и два одинаковых ключа: один у вас, другой у друга. Положил, запер, отправил. Друг открыл своим ключом. Всё прекрасно, пока не встаёт вопрос: <b>как передать другу второй ключ</b>, если вы в разных городах, а почтальону вы не доверяете?</div>
 
+    <div class="cr-lab">
+      <h4>Потрогайте сами: шифратор на одном ключе</h4>
+      <p style="margin:0;font-size:13.5px">Это настоящий AES-256-GCM в вашем браузере — тот же, что шифрует диски и сайты. Ключ получается из пароля.</p>
+      <label>Что прячем<textarea id="cr-sym-text">Паспорт Анны: 4510 123456, выдан 12.03.2019</textarea></label>
+      <label>Ключ (пароль), которым запираем<input id="cr-sym-key" value="кофе-с-корицей"></label>
+      <div class="form-row"><button class="act" id="cr-sym-enc">🔒 Зашифровать</button></div>
+      <div class="cr-out" id="cr-sym-cipher"><b>что видит почтальон</b>— пока ничего не отправлено —</div>
+      <label>Получатель открывает ключом<input id="cr-sym-key2" value="кофе-с-корицей"></label>
+      <div class="form-row"><button class="act okk" id="cr-sym-dec">🔓 Расшифровать</button></div>
+      <div class="console" id="cr-sym-msg"></div>
+    </div>
+    <p style="margin-top:12px"><b>Где ломается.</b> Шифровка надёжна, пока ключ знают только двое. Посмотрите по шагам, в чём беда, если встретиться лично нельзя.</p>
+    <div id="cr-sym-flow"></div>
+
     <h3 class="sfx-h3">Асимметричное шифрование: почтовый ящик со щелью</h3>
     <div class="sfx-def"><b>Асимметричное шифрование</b> (asymmetric, public-key encryption) — у владельца <b>пара</b> ключей. <b>Открытый</b> (public key) раздаётся всем: им можно запереть. <b>Закрытый</b> (private key) хранится только у владельца: только им можно отпереть. Алгоритмы — RSA и шифры на эллиптических кривых (ECDSA и Ed25519 для подписи, X25519 для договорённости о ключе).</div>
     <div class="sfx-life">почтовый ящик со щелью на двери дома. Бросить письмо в щель может любой прохожий — щель и есть открытый ключ. Достать письма может только хозяин, у которого ключ от ящика, — закрытый ключ. Передавать никому ничего не надо: адрес дома и так известен всем.</div>
+
+    <p style="margin-top:12px"><b>Картинка по шагам.</b> Вместо щели в двери — открытые замки: защёлкнуть может любой, открыть — только хозяин ключа.</p>
+    <div id="cr-asym-flow"></div>
+    <div class="cr-lab">
+      <h4>Потрогайте сами: пара ключей Бориса</h4>
+      <p style="margin:0;font-size:13.5px">Настоящий RSA-OAEP. Браузер создаёт Борису пару: открытый ключ раздаётся всем, закрытый лежит у Бориса.</p>
+      <div class="cr-keys" id="cr-asym-keys"><span class="cr-key">ключи ещё не созданы</span></div>
+      <div class="form-row"><button class="act" id="cr-asym-gen">⚙ Создать пару ключей Бориса</button></div>
+      <label>Анна пишет Борису<textarea id="cr-asym-text">Код от домофона склада: 4721</textarea></label>
+      <div class="form-row"><button class="act" id="cr-asym-enc">🔒 Запереть открытым ключом Бориса</button></div>
+      <div class="cr-out" id="cr-asym-cipher"><b>что летит по сети</b>— пока ничего —</div>
+      <div class="form-row">
+        <button class="act okk" id="cr-asym-dec-priv">🔓 Открыть закрытым ключом Бориса</button>
+        <button class="act danger" id="cr-asym-dec-pub">Открыть открытым ключом</button>
+        <button class="act danger" id="cr-asym-dec-other">Открыть ключом Евы</button>
+      </div>
+      <div class="console" id="cr-asym-msg"></div>
+    </div>
     <p style="margin-top:10px">Асимметричное шифрование медленное — в сотни раз медленнее симметричного. Поэтому на практике их сочетают: асимметричным способом <b>договариваются</b> о случайном симметричном ключе, а дальше всё шифруют им. Именно так работает TLS (глава 6).</p>
+
+    <div id="cr-tls-flow"></div>
 
     <h3 class="sfx-h3">Цифровая подпись: печать, которую не подделать</h3>
     <div class="sfx-def"><b>Цифровая подпись</b> (digital signature) — отпечаток (хеш) документа, обработанный <b>закрытым</b> ключом автора. Проверить подпись может любой, у кого есть <b>открытый</b> ключ. Подпись доказывает три вещи: документ написал владелец ключа (подлинность), документ не меняли после подписи (целостность), автор не сможет потом отпереться (неотказуемость).</div>
@@ -497,6 +585,57 @@
       <div class="sfx-col"><h4>📦 Склад</h4><div id="sfx-sg-b"></div></div>
     </div>
     <div class="console" id="sfx-sg-msg"></div>
+
+    <h3 class="sfx-h3">Подпись по шагам — на настоящей криптографии</h3>
+    <p>Разберём подпись медленно, по трём шагам. Всё ниже считает ваш браузер по-настоящему: SHA-256 для отпечатка и ECDSA P-256 для подписи — то же, что в JWT-токенах и у банков.</p>
+    <div class="cr-steps">
+      <div class="cr-step">
+        <h4><span class="n">1</span>Отпечаток документа</h4>
+        <p style="margin:0 0 6px;font-size:13px"><b>Хеш</b> — отпечаток пальца документа: короткая строка, которая меняется целиком от любой правки. По отпечатку нельзя восстановить документ.</p>
+        <label>Документ<textarea id="cr-sg-text">Заказ №10452: 2 пары, сумма 12 990 ₽, склад: Москва</textarea></label>
+        <div class="cr-out" id="cr-sg-hash"><b>отпечаток SHA-256</b>…</div>
+        <div class="cr-out cr-diff" id="cr-sg-hash-diff" style="display:none"></div>
+      </div>
+      <div class="cr-step">
+        <h4><span class="n">2</span>Подписать закрытым ключом</h4>
+        <p style="margin:0 0 6px;font-size:13px">Платёжный сервис «запечатывает» отпечаток своим <b>закрытым</b> ключом. Ключ не покидает сейф — наружу уходит только подпись.</p>
+        <div class="cr-keys" id="cr-sg-keys"><span class="cr-key">ключи ещё не созданы</span></div>
+        <div class="form-row"><button class="act" id="cr-sg-sign">✍ Подписать документ</button></div>
+        <div class="cr-out" id="cr-sg-sig"><b>подпись (64 байта)</b>— ещё не подписано —</div>
+      </div>
+      <div class="cr-step">
+        <h4><span class="n">3</span>Проверить открытым ключом</h4>
+        <p style="margin:0 0 6px;font-size:13px">Склад получает документ и подпись. Он берёт <b>открытый</b> ключ платёжного сервиса и проверяет: сходится ли подпись с документом.</p>
+        <label>Что пришло на склад (можно поменять — будто подменили по дороге)<textarea id="cr-sg-got">Заказ №10452: 2 пары, сумма 12 990 ₽, склад: Москва</textarea></label>
+        <div class="form-row">
+          <button class="act okk" id="cr-sg-check">🔎 Проверить ключом платёжного сервиса</button>
+          <button class="act danger" id="cr-sg-fake">Ева подписывает своим ключом</button>
+        </div>
+      </div>
+    </div>
+    <div class="console" id="cr-sg-msg"></div>
+
+    <h3 class="sfx-h3">Шифрование и подпись — зеркальны</h3>
+    <p>Их путают чаще всего, потому что обе используют пару ключей. Разница — кто каким ключом пользуется и что это даёт.</p>
+    <table class="cr-mirror">
+      <tr><th></th><th>🔒 Шифрование</th><th>✍ Подпись</th></tr>
+      <tr><td><b>Зачем</b></td><td>Спрятать: чтобы прочитал только получатель</td><td>Доказать: кто автор и что текст не меняли</td></tr>
+      <tr><td><b>Чем запирают</b></td><td>Открытым ключом <b>получателя</b></td><td>Закрытым ключом <b>автора</b></td></tr>
+      <tr><td><b>Кто открывает или проверяет</b></td><td>Только получатель — своим закрытым</td><td>Любой — открытым ключом автора</td></tr>
+      <tr><td><b>Видно ли содержимое</b></td><td>Нет</td><td>Да: подпись ничего не прячет</td></tr>
+      <tr><td><b>В жизни</b></td><td>Конверт, который открывает адресат</td><td>Печать нотариуса: видна всем, подделать нельзя</td></tr>
+    </table>
+
+    <h3 class="sfx-h3">Где подпись встречается в жизни и в работе аналитика</h3>
+    <div class="cr-where">
+      <div class="box"><b>📝 Госуслуги, налоговая, ЭДО</b>Квалифицированная электронная подпись (УКЭП): документ подписан вашим закрытым ключом на токене или в облаке, а ведомство проверяет его открытым — по сертификату от аккредитованного УЦ.</div>
+      <div class="box"><b>📱 Обновление приложения</b>Телефон ставит обновление, только если подпись разработчика сходится. Поэтому подменить приложение в магазине нельзя без закрытого ключа разработчика.</div>
+      <div class="box"><b>🎫 Токен входа (JWT)</b>Сервер входа подписывает токен; каждый API проверяет подпись его открытым ключом и доверяет написанному внутри. Подробно — в разделе про OAuth, OIDC и JWT.</div>
+      <div class="box"><b>🔔 Вебхуки банка и платёжки</b>Банк присылает «оплата прошла» и подпись в заголовке. Часто это <b>HMAC</b> — «подпись» общим секретом: проверить может только тот, кто знает секрет, поэтому неотказуемости тут нет. Это надо явно записать в интеграции.</div>
+      <div class="box"><b>✉ Почта от банка</b>DKIM: почтовый сервер подписывает письмо, и ваш ящик проверяет, что письмо действительно с домена банка, — так ловят часть фишинга.</div>
+      <div class="box"><b>📦 Сборки и коммиты</b>Подписанные коммиты и артефакты сборки: прод запускает только то, что подписала ваша сборочная система (глава 14).</div>
+    </div>
+    <div class="sfx-def" style="margin-top:12px"><b>Как это звучит в требовании.</b> «Сервис заказов принимает уведомление об оплате только с действительной подписью HMAC-SHA256 в заголовке <code class="inl">X-Signature</code>, посчитанной от тела запроса общим секретом из хранилища секретов. Уведомление без подписи или с неверной подписью отклоняется с кодом 401, событие пишется в журнал безопасности. Секрет меняется раз в 90 дней без простоя: две недели принимаются оба».</div>
 
     <h3 class="sfx-h3">Сертификат и удостоверяющий центр</h3>
     <p>Остаётся вопрос: откуда склад знает, что открытый ключ действительно принадлежит платёжному сервису, а не подложен кем-то ещё? Для этого есть сертификаты.</p>
@@ -2929,5 +3068,172 @@ type order
   ], [{id:'a01', n:'A01 Доступ'}, {id:'a02', n:'A02 Конфигурация'}, {id:'a03', n:'A03 Цепочка поставок'}, {id:'a04', n:'A04 Криптография'}, {id:'a05', n:'A05 Инъекции'},
       {id:'a06', n:'A06 Проектирование'}, {id:'a07', n:'A07 Аутентификация'}, {id:'a08', n:'A08 Целостность'}, {id:'a09', n:'A09 Журналы'}, {id:'a10', n:'A10 Исключения'}], 'sfx-os-score', 'sfx-os-total');
   Progress.register('sfx-os-score', 11, 'Безопасность: сортировщик OWASP');
+})();
+</script>
+<script>
+/* ═══ глава 5: криптография руками — схемы по шагам и настоящая криптография браузера ═══
+   Учебные интерактивы без баллов: раздел засчитывается платформе по прежним
+   заданиям, новые не меняют, что считается пройденным. */
+(function(){
+  if(!document.getElementById('cr-sym-flow')) return;
+  const $ = id => document.getElementById(id);
+  const subtle = (window.crypto && window.crypto.subtle) || null;
+  const NO_CRYPTO = 'Браузер разрешает настоящую криптографию только на защищённых страницах. Откройте тренажёр по ссылке (https), а не файлом с диска.';
+  const b64 = buf => btoa(String.fromCharCode(...new Uint8Array(buf)));
+  const hex = buf => [...new Uint8Array(buf)].map(x => x.toString(16).padStart(2, '0')).join('');
+  const short = s => s.length > 120 ? s.slice(0, 120) + '…' : s;
+
+  /* ── схема: как передать общий ключ ── */
+  renderFlow('cr-sym-flow', {t:'один ключ на двоих: Анна в Москве, Борис в Казани',
+    rows:[
+      [{id:'anna', ic:'👩', n:'Анна', s:'Москва'}],
+      [{id:'post', ic:'📮', n:'Почта и курьеры', s:'им не доверяем'}],
+      [{id:'boris', ic:'👨', n:'Борис', s:'Казань'}],
+    ],
+    steps:[
+      {on:['anna'], d:'Анна запирает письмо общим ключом. Шифровка готова.'},
+      {on:['anna','post'], arr:[{gap:0, l:'шифровка'}], k:'good', d:'Почтальон везёт шифровку. Открыть её он не может: ключа у него нет. Пока всё хорошо.'},
+      {on:['post','boris'], arr:[{gap:1, l:'шифровка'}], d:'Борис получает шифровку… и понимает, что ему нечем её открыть: ключ остался у Анны.'},
+      {on:['anna','post'], arr:[{gap:0, l:'ключ'}], k:'bad', d:'Анне приходится отправить и сам ключ — той же почтой. Курьер может снять копию ключа, и тогда он прочтёт и это письмо, и все следующие.'},
+      {on:['anna','boris'], k:'warn', d:'Вывод: общий ключ хорош, когда его можно передать лично — или когда о нём договорились безопасно. Как договориться по сети, где все подслушивают, — решает асимметричное шифрование.'},
+    ]});
+
+  /* ── схема: открытый замок ── */
+  renderFlow('cr-asym-flow', {t:'открытые замки Бориса',
+    rows:[
+      [{id:'boris', ic:'👨', n:'Борис', s:'делает пару'}],
+      [{id:'all', ic:'🔓', n:'Открытые замки', s:'у всех желающих'}, {id:'safe', ic:'🗝', n:'Ключ от замков', s:'в сейфе у Бориса'}],
+      [{id:'anna', ic:'👩', n:'Анна', s:'пишет Борису'}, {id:'post', ic:'📮', n:'Почта', s:'подслушивает'}],
+    ],
+    steps:[
+      {on:['boris','all','safe'], arr:[{gap:0, l:'раздаёт замки, ключ прячет'}], d:'Борис заказывает много одинаковых открытых замков и один ключ к ним. Замки он раздаёт всем — это <b>открытый ключ</b>. Ключ кладёт в сейф — это <b>закрытый ключ</b>.'},
+      {on:['all','anna'], arr:[{gap:1, l:'Анна берёт замок'}], d:'Анна берёт замок Бориса — никакой тайны в нём нет, его может взять кто угодно.'},
+      {on:['anna'], k:'good', d:'Анна кладёт письмо в ящик и <b>защёлкивает</b> замок. Теперь даже сама Анна ящик не откроет: защёлкнуть замок может любой, открыть — только ключ.'},
+      {on:['anna','post'], k:'good', d:'Почта везёт запертый ящик. Подслушать нечего: ключа у почты нет, а замок она видела и раньше — от него толку нет.'},
+      {on:['boris','safe'], k:'good', d:'Борис открывает ящик ключом из сейфа. Заранее ни о чём договариваться не пришлось — в этом и весь смысл пары ключей.'},
+    ]});
+
+  /* ── схема: как открывается сайт с замочком ── */
+  renderFlow('cr-tls-flow', {t:'как открывается любой сайт с 🔒: два вида шифрования вместе',
+    rows:[
+      [{id:'br', ic:'🌐', n:'Браузер Анны'}],
+      [{id:'net', ic:'📡', n:'Сеть', s:'Wi-Fi в кафе, провайдер'}],
+      [{id:'bank', ic:'🏦', n:'Сайт банка'}],
+    ],
+    steps:[
+      {on:['br','net','bank'], arr:[{gap:0, l:'«привет»'}, {gap:1, l:'«привет»'}], d:'Анна открывает сайт банка. Браузер и сайт видят друг друга впервые, а сеть между ними могут слушать.'},
+      {on:['bank','net','br'], arr:[{gap:1, l:'сертификат с открытым ключом', up:true}, {gap:0, l:'сертификат', up:true}], d:'Банк показывает сертификат: «вот мой открытый ключ, а за меня ручается удостоверяющий центр». Браузер проверяет подпись центра (ниже про сертификаты).'},
+      {on:['br','bank'], k:'good', d:'С помощью пары ключей браузер и банк <b>договариваются о случайном общем ключе</b> — так, что слушающий сеть его не узнаёт. Это медленная операция, но она нужна один раз.'},
+      {on:['br','net','bank'], arr:[{gap:0, l:'всё — общим ключом'}, {gap:1, l:'всё — общим ключом'}], k:'good', d:'Дальше все страницы, пароли и выписки шифруются <b>общим</b> ключом — это быстро. Пара ключей решила проблему передачи ключа, общий ключ — проблему скорости.'},
+    ]});
+
+  if(!subtle){
+    ['cr-sym-msg', 'cr-asym-msg', 'cr-sg-msg'].forEach(id => msg($(id), 'warn', NO_CRYPTO));
+    return;
+  }
+
+  const enc = new TextEncoder(), dec = new TextDecoder();
+
+  /* ── лаборатория: симметричное шифрование (AES-256-GCM, ключ из пароля) ── */
+  const SALT = enc.encode('amp-arch-trainer'), ITER = 100000;
+  const keyFrom = async pass => {
+    const base = await subtle.importKey('raw', enc.encode(pass), 'PBKDF2', false, ['deriveKey']);
+    return subtle.deriveKey({name:'PBKDF2', salt:SALT, iterations:ITER, hash:'SHA-256'}, base, {name:'AES-GCM', length:256}, false, ['encrypt', 'decrypt']);
+  };
+  let symBox = null;
+  msg($('cr-sym-msg'), '', 'Нажмите «Зашифровать», потом попробуйте открыть правильным ключом и неправильным — поменяйте одну букву в ключе получателя.');
+  $('cr-sym-enc').addEventListener('click', async () => {
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const data = await subtle.encrypt({name:'AES-GCM', iv}, await keyFrom($('cr-sym-key').value), enc.encode($('cr-sym-text').value));
+    symBox = {iv, data};
+    $('cr-sym-cipher').innerHTML = '<b>что видит почтальон</b>' + esc(short(b64(data)));
+    msg($('cr-sym-msg'), 'ok', 'Готово: вместо паспорта — набор символов. Почтальон видит только его. Нажмите «Зашифровать» ещё раз — шифровка будет другой: каждый раз добавляется случайная «соль» (вектор инициализации), чтобы одинаковые письма не выглядели одинаково.');
+  });
+  $('cr-sym-dec').addEventListener('click', async () => {
+    if(!symBox){ msg($('cr-sym-msg'), 'warn', 'Сначала зашифруйте сообщение.'); return; }
+    try {
+      const plain = await subtle.decrypt({name:'AES-GCM', iv:symBox.iv}, await keyFrom($('cr-sym-key2').value), symBox.data);
+      msg($('cr-sym-msg'), 'ok', 'Открылось тем же ключом: «' + esc(dec.decode(plain)) + '». Один ключ и запирает, и отпирает — поэтому шифрование и называется симметричным.');
+    } catch(e){
+      msg($('cr-sym-msg'), 'err', 'Не открылось: ключ другой. Даже одна изменённая буква в ключе — и данные остаются кашей. А режим GCM ещё и сообщает, что не сошлось, — подделку или порчу шифровки он тоже заметит.');
+    }
+  });
+
+  /* ── лаборатория: асимметричное шифрование (RSA-OAEP) ── */
+  let boris = null, eve = null, asymBox = null;
+  const fingerprint = async pub => hex(await subtle.digest('SHA-256', await subtle.exportKey('spki', pub))).slice(0, 16).replace(/(.{4})/g, '$1 ').trim();
+  const rsa = () => subtle.generateKey({name:'RSA-OAEP', modulusLength:2048, publicExponent:new Uint8Array([1, 0, 1]), hash:'SHA-256'}, true, ['encrypt', 'decrypt']);
+  msg($('cr-asym-msg'), '', 'Начните с «Создать пару ключей Бориса».');
+  $('cr-asym-gen').addEventListener('click', async () => {
+    msg($('cr-asym-msg'), '', 'Создаю пару ключей… (RSA на 2048 бит — пару секунд)');
+    boris = await rsa(); eve = await rsa(); asymBox = null;
+    $('cr-asym-keys').innerHTML = '<span class="cr-key pub">🔓 открытый ключ Бориса · отпечаток ' + esc(await fingerprint(boris.publicKey)) + ' · раздаётся всем</span><span class="cr-key priv">🗝 закрытый ключ Бориса · хранится у Бориса</span>';
+    $('cr-asym-cipher').innerHTML = '<b>что летит по сети</b>— пока ничего —';
+    msg($('cr-asym-msg'), 'ok', 'Пара создана. Отпечаток открытого ключа Борис может продиктовать по телефону — так Анна убедится, что ключ именно его. Теперь заприте письмо.');
+  });
+  $('cr-asym-enc').addEventListener('click', async () => {
+    if(!boris){ msg($('cr-asym-msg'), 'warn', 'Сначала создайте пару ключей Бориса.'); return; }
+    asymBox = await subtle.encrypt({name:'RSA-OAEP'}, boris.publicKey, enc.encode($('cr-asym-text').value));
+    $('cr-asym-cipher').innerHTML = '<b>что летит по сети</b>' + esc(short(b64(asymBox)));
+    msg($('cr-asym-msg'), 'ok', 'Заперто <b>открытым</b> ключом Бориса. Анна не знала никакого секрета — открытый ключ публичный. Попробуйте открыть тремя способами.');
+  });
+  const tryOpen = async (key, label) => {
+    if(!asymBox){ msg($('cr-asym-msg'), 'warn', 'Сначала заприте письмо открытым ключом Бориса.'); return; }
+    try {
+      const plain = await subtle.decrypt({name:'RSA-OAEP'}, key, asymBox);
+      msg($('cr-asym-msg'), 'ok', label + ' — открылось: «' + esc(dec.decode(plain)) + '». Только закрытый ключ из пары отпирает то, что заперто открытым.');
+    } catch(e){
+      msg($('cr-asym-msg'), 'err', label + ' — не открывается. ' + (key === boris.publicKey ? 'Открытым ключом можно только запереть: браузер даже не даёт им отпирать.' : 'У Евы своя пара ключей, к замку Бориса её ключ не подходит.'));
+    }
+  };
+  $('cr-asym-dec-priv').addEventListener('click', () => boris ? tryOpen(boris.privateKey, 'Закрытый ключ Бориса') : msg($('cr-asym-msg'), 'warn', 'Сначала создайте пару ключей.'));
+  $('cr-asym-dec-pub').addEventListener('click', () => boris ? tryOpen(boris.publicKey, 'Открытый ключ Бориса') : msg($('cr-asym-msg'), 'warn', 'Сначала создайте пару ключей.'));
+  $('cr-asym-dec-other').addEventListener('click', () => eve ? tryOpen(eve.privateKey, 'Закрытый ключ Евы') : msg($('cr-asym-msg'), 'warn', 'Сначала создайте пару ключей.'));
+
+  /* ── лаборатория: подпись по шагам (SHA-256 + ECDSA P-256) ── */
+  const text = $('cr-sg-text'), got = $('cr-sg-got');
+  let lastHash = null, signer = null, intruder = null, signed = null;
+  const sha = async s => hex(await subtle.digest('SHA-256', enc.encode(s)));
+  const paintHash = async () => {
+    const h = await sha(text.value);
+    $('cr-sg-hash').innerHTML = '<b>отпечаток SHA-256</b>' + h;
+    if(lastHash !== null && lastHash !== h){
+      let same = 0; for(let i = 0; i < h.length; i++) if(h[i] === lastHash[i]) same++;
+      const mark = [...h].map((c, i) => c === lastHash[i] ? c : '<i>' + c + '</i>').join('');
+      $('cr-sg-hash-diff').style.display = '';
+      $('cr-sg-hash-diff').innerHTML = '<b>по сравнению с прошлым отпечатком</b>' + mark + '<br>совпало знаков: ' + same + ' из 64 — то есть почти ничего, как у случайной строки';
+    }
+    lastHash = h;
+  };
+  text.addEventListener('input', paintHash);
+  paintHash();
+  msg($('cr-sg-msg'), '', 'Шаг 1: поменяйте в документе одну цифру и посмотрите, как изменился отпечаток. Шаг 2: подпишите. Шаг 3: проверьте — сначала как есть, потом поменяйте сумму в том, что пришло на склад.');
+  const ecdsa = () => subtle.generateKey({name:'ECDSA', namedCurve:'P-256'}, true, ['sign', 'verify']);
+  const SIGN = {name:'ECDSA', hash:'SHA-256'};
+  $('cr-sg-sign').addEventListener('click', async () => {
+    if(!signer){
+      signer = await ecdsa(); intruder = await ecdsa();
+      $('cr-sg-keys').innerHTML = '<span class="cr-key priv">🗝 закрытый · в сейфе платёжного сервиса</span><span class="cr-key pub">🔓 открытый · отпечаток ' + esc(await fingerprint(signer.publicKey)) + ' · у всех</span>';
+    }
+    const sig = await subtle.sign(SIGN, signer.privateKey, enc.encode(text.value));
+    signed = {sig, by:'service'};
+    got.value = text.value;
+    $('cr-sg-sig').innerHTML = '<b>подпись (64 байта)</b>' + esc(b64(sig));
+    msg($('cr-sg-msg'), 'ok', 'Подписано. Внутри подписи — отпечаток документа, запечатанный закрытым ключом. Документ <b>не спрятан</b>: склад прочитает его как есть, подпись едет рядом. Теперь шаг 3.');
+  });
+  $('cr-sg-fake').addEventListener('click', async () => {
+    if(!signer){ msg($('cr-sg-msg'), 'warn', 'Сначала подпишите документ на шаге 2.'); return; }
+    got.value = text.value.replace(/\d[\d\s]*₽/, '1 ₽');
+    signed = {sig:await subtle.sign(SIGN, intruder.privateKey, enc.encode(got.value)), by:'eve'};
+    $('cr-sg-sig').innerHTML = '<b>подпись Евы (64 байта)</b>' + esc(b64(signed.sig));
+    msg($('cr-sg-msg'), 'warn', 'Ева поменяла сумму на 1 ₽ и честно подписала документ — но своим закрытым ключом, потому что ключа платёжного сервиса у неё нет. Подпись выглядит так же убедительно. Нажмите «Проверить».');
+  });
+  $('cr-sg-check').addEventListener('click', async () => {
+    if(!signed){ msg($('cr-sg-msg'), 'warn', 'Проверять нечего: сначала подпишите документ на шаге 2.'); return; }
+    const ok = await subtle.verify(SIGN, signer.publicKey, signed.sig, enc.encode(got.value));
+    if(ok){ msg($('cr-sg-msg'), 'ok', 'Подпись сходится с открытым ключом платёжного сервиса. Значит, три вещи сразу: <b>подлинность</b> — подписал владелец закрытого ключа; <b>целостность</b> — ни одной буквы не меняли; <b>неотказуемость</b> — платёжный сервис не сможет сказать «это не мы». Склад собирает заказ.'); return; }
+    if(signed.by === 'eve') msg($('cr-sg-msg'), 'err', 'Не сходится: подпись поставлена не тем ключом. Открытый ключ платёжного сервиса проверяет только подписи его закрытого ключа. Нарушена <b>подлинность</b> — это не платёжный сервис. Склад отклоняет сообщение и пишет событие в журнал безопасности.');
+    else msg($('cr-sg-msg'), 'err', 'Не сходится: документ изменили после подписи — отпечаток стал другим. Нарушена <b>целостность</b>. Подделать подпись под новый текст нельзя без закрытого ключа. Склад отклоняет сообщение.');
+  });
 })();
 </script>
