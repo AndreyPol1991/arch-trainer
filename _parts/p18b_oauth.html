@@ -475,6 +475,41 @@ Cache-Control: max-age=3600
       </div>
     </div>
 
+    <style>
+      .oxh-two{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-top:10px}
+      @media (max-width:820px){.oxh-two{grid-template-columns:minmax(0,1fr)}}
+      .oxh-box{border:1px solid var(--line); border-radius:12px; padding:10px 12px; background:var(--surface); min-width:0}
+      .oxh-box h5{margin:0 0 8px; font:700 11px var(--mono); color:var(--faint); text-transform:uppercase}
+      .oxh-chk{display:flex; gap:8px; align-items:flex-start; font-size:13.5px; margin:5px 0; cursor:pointer}
+      .oxh-chk input{margin-top:3px}
+      .oxh-calls{display:flex; flex-direction:column; gap:5px}
+      .oxh-call{display:grid; grid-template-columns:minmax(0,1fr) auto; gap:8px; align-items:center; padding:6px 9px; border-radius:8px; background:var(--surface-2); font:600 12px var(--mono)}
+      .oxh-call small{display:block; font:500 11.5px var(--sans); color:var(--muted); margin-top:1px}
+      .oxh-code{font:800 11.5px var(--mono); padding:3px 8px; border-radius:999px; white-space:nowrap}
+      .oxh-code.ok{background:var(--ok-bg); color:var(--ok)}
+      .oxh-code.no{background:color-mix(in srgb,var(--danger) 14%,transparent); color:var(--danger)}
+      .oxh-code.wait{background:color-mix(in srgb,var(--warn) 16%,transparent); color:var(--warn)}
+      .oxh-tok{font:600 11.5px/1.5 var(--mono); white-space:pre-wrap; overflow-wrap:anywhere; margin:0; padding:8px 10px; border-radius:8px; background:var(--surface-2)}
+      .oxh-tok b{background:color-mix(in srgb,var(--accent) 22%,transparent); border-radius:3px; padding:0 2px}
+      .oxh-row{display:grid; grid-template-columns:auto minmax(0,1fr); gap:6px 10px; align-items:center; margin-top:8px; font-size:13px}
+      .oxh-row .seg{margin:0}
+      @media (max-width:560px){.oxh-row{grid-template-columns:minmax(0,1fr)}}
+      .oxh-log{margin-top:10px}
+    </style>
+    <h3>Пульт: что сможет «Мигом» с выданным токеном</h3>
+    <p>Слева — что Анна разрешила на экране согласия и что ещё может случиться. Справа — пять запросов, которые «Мигом» пробует сделать к API «Ботинка» с полученным токеном.</p>
+    <div class="oxh-two">
+      <div class="oxh-box"><h5>📝 Экран согласия и после него</h5>
+        <label class="oxh-chk"><input type="checkbox" id="oxh-sc-addr" checked> Анна разрешила «видеть адрес доставки» <code class="inl">address:read</code></label>
+        <label class="oxh-chk"><input type="checkbox" id="oxh-sc-st" checked> Анна разрешила «видеть статус заказов» <code class="inl">orders.status:read</code></label>
+        <label class="oxh-chk"><input type="checkbox" id="oxh-sc-greedy"> «Мигом» попросил ещё <code class="inl">orders:write payment:read</code></label>
+        <label class="oxh-chk"><input type="checkbox" id="oxh-sc-rev"> Анна зашла в Профиль → Приложения и отключила «Мигом»</label>
+        <div class="oxh-row"><span>В токене:</span><code class="inl" id="oxh-sc-tok"></code></div>
+      </div>
+      <div class="oxh-box"><h5>📡 Запросы «Мигом» к API</h5><div class="oxh-calls" id="oxh-sc-calls"></div></div>
+    </div>
+    <div class="console" id="oxh-sc-msg"></div>
+
     <h3>redirect_uri: куда вернуть Анну — и почему только точное совпадение</h3>
     <p>После входа сервер авторизации отправляет браузер Анны обратно в приложение, по адресу возврата (<code class="inl">redirect_uri</code>), и дописывает к нему одноразовый код. Кто получит этот адрес — тот получит код. Поэтому сервер сравнивает адрес из запроса со списком зарегистрированных <b>буква в букву</b>. Этого требует RFC 9700; единственное исключение — номер порта на <code class="inl">localhost</code> у приложений на компьютере.</p>
     <div class="oax-life">курьер доставляет документы только по адресу, записанному в договоре. «Ленина, 5, кв. 12» и «Ленина, 5, кв. 12, спросить Петю» — для него разные адреса. Иначе любой, кто позвонит и назовёт похожий адрес, получит ваши документы.</div>
@@ -795,6 +830,13 @@ GET /authorize?client_id=botinok-web&amp;<span class="oax-hl">request_uri=urn:ie
     <div class="oax-def"><b>nonce</b> — случайная строка, которую приложение отправляет в запросе на вход. Сервер вписывает её в id_token. Приложение сверяет: этот id_token выдан на мой вход, а не перехвачен с чужого и не подсунут повторно.</div>
     <div class="oax-life">вы заказываете справку и называете номер заявки. Справку с чужим номером заявки вы не примете, даже если на ней настоящая печать.</div>
 
+    <h3>Попробуйте: кому какой билет</h3>
+    <p>У приложения на руках два токена. Выберите, какой токен и куда оно отправит, — и посмотрите, кто его примет. Подсвечено поле, по которому всё решается.</p>
+    <div class="oxh-row"><span>Токен</span><div class="seg" id="oxh-tk-t"><button class="on" data-v="id">id_token</button><button data-v="at">токен доступа</button></div></div>
+    <div class="oxh-row"><span>Куда</span><div class="seg" id="oxh-tk-d"><button class="on" data-v="app">приложение: показать «Здравствуйте, …»</button><button data-v="api">API заказов: GET /orders</button></div></div>
+    <div class="oxh-two"><div class="oxh-box"><h5 id="oxh-tk-h"></h5><pre class="oxh-tok" id="oxh-tk-body"></pre></div><div class="oxh-box"><h5>🔎 Проверка</h5><div id="oxh-tk-check" style="font-size:13px; line-height:1.6"></div></div></div>
+    <div class="console" id="oxh-tk-msg"></div>
+
     <h3>userinfo и discovery</h3>
     <div class="grid2" style="align-items:start">
       <div>
@@ -947,6 +989,18 @@ Authorization: <span class="oax-hl">DPoP</span> eyJhbGciOi…        ← схе�
         <div class="note" style="margin-top:10px"><b>Где что.</b> DPoP — мобильные приложения, SPA, публичные клиенты: ключ создаётся в приложении, инфраструктура не нужна. mTLS — сервис к сервису, банки и партнёры, профиль FAPI. Keycloak полностью поддерживает DPoP с версии 26.4.</div>
       </div>
     </div>
+    <h3>Попробуйте: вор с копией токена</h3>
+    <p>Токен доступа Анны утёк — например, попал в журнал отладки прокси. Выберите вид токена и попробуйте действовать за приложение и за вора. В DPoP у приложения есть закрытый ключ, который нельзя вынуть из устройства; у вора — только то, что он подсмотрел.</p>
+    <div class="seg" id="oxh-dp-t"><button class="on" data-v="bearer">Bearer — «как наличные»</button><button data-v="dpop">DPoP — «именной билет»</button></div>
+    <div class="skbar" id="oxh-dp-acts">
+      <button class="act okk" data-a="app">📱 Приложение Анны: GET /orders</button>
+      <button class="act warnb" data-a="steal">🦹 Вор: только украденный токен</button>
+      <button class="act warnb" data-a="replay">🦹 Вор: повторил перехваченный запрос целиком</button>
+      <button class="act warnb" data-a="other">🦹 Вор: тот же запрос, но к /payment-cards</button>
+      <button class="act warnb" data-a="ownkey">🦹 Вор: доказательство своим ключом</button>
+    </div>
+    <div class="table-wrap oxh-log"><table class="db" id="oxh-dp-log"><thead><tr><th>Кто</th><th>Что отправил</th><th>Ответ API</th></tr></thead><tbody></tbody></table></div>
+    <div class="console" id="oxh-dp-msg"></div>
   </div>
 
   <!-- ─── глава 14 ─── -->
@@ -2348,5 +2402,110 @@ Authorization: <span class="oax-hl">DPoP</span> eyJhbGciOi…        ← схе�
      why:'Гашение сессии SSO не трогает сессии приложений. Их надо оповестить — надёжнее всего по back-channel, напрямую от сервера.'}
   ], 'oax-q-score', 'oax-q-total');
   Progress.register('oax-q-score', 12, 'OAuth: проверь себя');
+})();
+</script>
+
+<script>
+/* ═══ «Руками»: пульт scope, кому какой билет, вор с копией токена ═══ */
+(function(){
+  const box = document.getElementById('oxh-sc-calls'); if(!box) return;
+  const byId = document.getElementById.bind(document);
+  const CALLS = [
+    {m:'GET /v1/me/address', d:'куда везти посылку', need:'address:read'},
+    {m:'GET /v1/orders/ord-1042/status', d:'статус заказа для курьера', need:'orders.status:read'},
+    {m:'GET /v1/orders', d:'вся история покупок Анны', need:'orders:read'},
+    {m:'POST /v1/orders', d:'оформить заказ от имени Анны', need:'orders:write'},
+    {m:'GET /v1/payment-cards', d:'сохранённые карты', need:'payment:read'},
+  ];
+  const ALLOWED = ['address:read', 'orders.status:read'];   // разрешено «Мигом» при регистрации клиента
+  function draw(){
+    const rev = byId('oxh-sc-rev').checked, greedy = byId('oxh-sc-greedy').checked;
+    const asked = ALLOWED.concat(greedy ? ['orders:write', 'payment:read'] : []);
+    const granted = asked.filter(sc => ALLOWED.indexOf(sc) >= 0 && (sc !== 'address:read' || byId('oxh-sc-addr').checked) && (sc !== 'orders.status:read' || byId('oxh-sc-st').checked));
+    byId('oxh-sc-tok').textContent = 'scope=' + (granted.join(' ') || '(пусто)') + (rev ? ' · refresh-токен отозван' : '');
+    box.innerHTML = CALLS.map(c => {
+      let code, cls;
+      if(granted.indexOf(c.need) >= 0){ if(rev){ code = '200 ещё ≤ 15 мин → 401'; cls = 'wait'; } else { code = '200 OK'; cls = 'ok'; } }
+      else { code = '403 insufficient_scope'; cls = 'no'; }
+      return '<div class="oxh-call"><div>' + c.m + '<small>' + c.d + ' · нужно ' + c.need + '</small></div><span class="oxh-code ' + cls + '">' + code + '</span></div>';
+    }).join('');
+    const m = byId('oxh-sc-msg');
+    if(rev) msg(m, 'warn', 'Анна отключила «Мигом». Сервер отозвал refresh-токен, и новый токен доступа «Мигом» уже не получит. Последний выданный токен доступа доживает свои минуты (если API не спрашивает сервер о каждом токене), после этого — 401 на всё. Пароль Анне менять не нужно, другие приложения не задеты.');
+    else if(greedy) msg(m, 'ok', '«Мигом» попросил больше, чем ему положено, — но сервер авторизации вписал в токен только то, что разрешено этому клиенту при регистрации <b>и</b> что одобрила Анна. Лишние scope просто отброшены: заказ от имени Анны и карты «Мигом» не достанутся.');
+    else if(!granted.length) msg(m, 'warn', 'Анна сняла обе галочки — токен пустой, и «Мигом» не может ничего. Для службы доставки это значит «работать не получится»: честное приложение должно объяснить, зачем ему каждое право.');
+    else msg(m, 'ok', 'Токен открывает ровно то, что Анна разрешила: ' + granted.join(' и ') + '. Историю покупок, оформление заказов и карты API отклоняет кодом 403 — прав не хватает, хотя токен настоящий. Снимите одну галочку и посмотрите, что изменится.');
+  }
+  ['oxh-sc-addr', 'oxh-sc-st', 'oxh-sc-greedy', 'oxh-sc-rev'].forEach(id => byId(id).addEventListener('change', draw));
+  draw();
+})();
+
+(function(){
+  const tEl = document.getElementById('oxh-tk-t'); if(!tEl) return;
+  const byId = document.getElementById.bind(document);
+  let t = 'id', d = 'app';
+  const BODY = {
+    id:'{\n  "iss": "https://id.botinok.ru",\n  "sub": "u-7f3a91",\n  <b>"aud": "botinok-mobile"</b>,\n  "nonce": "n-0S6_WzA2Mj",\n  "name": "Анна Смирнова"\n}\nзаголовок: { <b>"typ": "JWT"</b> }',
+    at:'{\n  "iss": "https://id.botinok.ru",\n  "sub": "u-7f3a91",\n  <b>"aud": "orders-api"</b>,\n  "client_id": "botinok-mobile",\n  "scope": "openid orders:read"\n}\nзаголовок: { <b>"typ": "at+jwt"</b> }',
+  };
+  const R = {
+    'id-app':{k:'ok', c:['✓ подпись сервера входа верна', '✓ iss — наш сервер входа', '✓ aud = botinok-mobile — это я', '✓ nonce совпадает с моим входом', '→ показываю «Здравствуйте, Анна Смирнова»'],
+      t:'Правильно: id_token — <b>для приложения</b>. Оно проверяет, что токен выписан на него (aud) и на этот самый вход (nonce), и узнаёт, кто вошёл.'},
+    'id-api':{k:'err', c:['✓ подпись верна', '✕ aud = botinok-mobile, а я — orders-api', '✕ typ не at+jwt — это не токен доступа', '→ 401 Unauthorized'],
+      t:'API правильно отказал. id_token — справка «кто вошёл» для приложения, а не пропуск к данным. Если бы API принимал любой подписанный токен сервера входа, чужое приложение могло бы прийти с id_token, выписанным ему, — и получить заказы Анны.'},
+    'at-api':{k:'ok', c:['✓ подпись верна', '✓ typ = at+jwt', '✓ aud = orders-api — это я', '✓ scope содержит orders:read', '→ 200 OK, список заказов'],
+      t:'Правильно: токен доступа — <b>для API</b>. API проверяет адресата и права и пускает только к тому, что разрешено.'},
+    'at-app':{k:'warn', c:['? aud = orders-api — токен не мне', '? имени в нём нет', '? завтра сервер может выдавать непрозрачные токены', '→ работает «пока повезло»'],
+      t:'Приложение не должно разбирать токен доступа: он адресован API, его формат — договорённость сервера входа и API. Сегодня это JWT, завтра — непрозрачная строка, и приложение сломается. Кто вошёл, приложение узнаёт из id_token или запроса userinfo.'},
+  };
+  function draw(){
+    byId('oxh-tk-h').textContent = t === 'id' ? '🪪 id_token (бейдж)' : '🎫 токен доступа (пропуск)';
+    byId('oxh-tk-body').innerHTML = BODY[t];
+    const r = R[t + '-' + d];
+    byId('oxh-tk-check').innerHTML = r.c.join('<br>');
+    msg(byId('oxh-tk-msg'), r.k, r.t);
+  }
+  function seg(el, set){ el.addEventListener('click', e => { const b = e.target.closest('button[data-v]'); if(!b) return; set(b.dataset.v); [...el.children].forEach(x => x.classList.toggle('on', x === b)); draw(); }); }
+  seg(tEl, v => { t = v; }); seg(byId('oxh-tk-d'), v => { d = v; });
+  draw();
+})();
+
+(function(){
+  const seg = document.getElementById('oxh-dp-t'); if(!seg) return;
+  const byId = document.getElementById.bind(document);
+  let mode = 'bearer';
+  const tb = byId('oxh-dp-log').querySelector('tbody');
+  const A = {
+    bearer:{
+      app:['📱 Приложение', 'Authorization: Bearer eyJ…', '200 OK', 'ok', 'Bearer-токен работает у того, кто его держит.'],
+      steal:['🦹 Вор', 'Authorization: Bearer eyJ… (из журнала)', '200 OK', 'no', 'Токен на предъявителя — как наличные: кто нашёл, тот и потратил. API не может отличить вора от приложения.'],
+      replay:['🦹 Вор', 'тот же запрос целиком', '200 OK', 'no', 'Повтор тоже проходит: в запросе нет ничего, что знает только настоящий владелец.'],
+      other:['🦹 Вор', 'Bearer eyJ… → GET /payment-cards', '200 OK *', 'no', 'Токен годится для любого адреса в пределах scope (* если в нём есть право на карты). Вор ходит куда хочет, пока токен не истёк.'],
+      ownkey:['🦹 Вор', 'Bearer eyJ… (ключ не нужен)', '200 OK', 'no', 'С Bearer ключ вору даже не нужен. Единственная защита — короткий срок жизни токена.'],
+    },
+    dpop:{
+      app:['📱 Приложение', 'DPoP eyJ… + доказательство, подписанное ключом устройства', '200 OK', 'ok', 'API сверил: подпись доказательства верна, отпечаток ключа совпадает с cnf.jkt в токене, метод, адрес и время — те самые, jti новый.'],
+      steal:['🦹 Вор', 'DPoP eyJ… без доказательства', '401 нет доказательства', 'ok', 'Токен привязан к ключу: без свежего доказательства, подписанного закрытым ключом, он ничего не стоит. Ключ в устройстве Анны, вынуть его нельзя.'],
+      replay:['🦹 Вор', 'тот же токен + перехваченное доказательство', '401 jti уже был', 'ok', 'Доказательство одноразовое: API помнит его jti и проверяет время iat. Повтор отклонён.'],
+      other:['🦹 Вор', 'токен + чужое доказательство → GET /payment-cards', '401 htu не совпадает', 'ok', 'Доказательство подписано для GET /orders. Поменять адрес вор не может: подпись перестанет сходиться, а новую он поставить не способен.'],
+      ownkey:['🦹 Вор', 'токен + доказательство, подписанное своим ключом', '401 ключ не тот', 'ok', 'Подпись сама по себе верная — но ключ вора не совпадает с отпечатком cnf.jkt, который сервер вписал в токен при выдаче. Именной билет без своего паспорта не работает.'],
+    },
+  };
+  function act(a){
+    const r = A[mode][a];
+    const row = document.createElement('tr');
+    row.innerHTML = '<td>' + r[0] + '</td><td><code class="inl">' + r[1] + '</code></td><td><span class="oxh-code ' + (r[2].startsWith('200') ? (a === 'app' ? 'ok' : 'no') : 'ok') + '">' + r[2] + '</span></td>';
+    tb.prepend(row);
+    while(tb.children.length > 6) tb.lastChild.remove();
+    const thiefWon = a !== 'app' && r[2].startsWith('200');
+    msg(byId('oxh-dp-msg'), a === 'app' ? '' : thiefWon ? 'err' : 'ok', (thiefWon ? '<b>Вор прошёл.</b> ' : a === 'app' ? '' : '<b>Вор остановлен.</b> ') + r[4]);
+  }
+  seg.addEventListener('click', e => {
+    const b = e.target.closest('button[data-v]'); if(!b) return;
+    mode = b.dataset.v; [...seg.children].forEach(x => x.classList.toggle('on', x === b));
+    tb.innerHTML = '';
+    msg(byId('oxh-dp-msg'), '', mode === 'dpop' ? 'Режим DPoP: токен привязан к ключу устройства Анны. Попробуйте каждую атаку вора.' : 'Режим Bearer: токен работает у любого, кто его держит.');
+  });
+  byId('oxh-dp-acts').addEventListener('click', e => { const b = e.target.closest('button[data-a]'); if(b) act(b.dataset.a); });
+  msg(byId('oxh-dp-msg'), '', 'Режим Bearer: токен работает у любого, кто его держит. Нажмите сначала за приложение, потом за вора.');
 })();
 </script>
