@@ -280,6 +280,46 @@
         <tr><td><code>DELETE</code></td><td>удалить ресурс</td><td>обычно нет</td><td class="apx-no">нет</td><td class="apx-yes">да</td><td>204, 200, 202</td></tr>
       </tbody>
     </table></div>
+
+    <style>
+      .apx-rp, .apx-pp, .apx-pb{display:grid; gap:10px; margin-top:10px}
+      .apx-rp{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .apx-pp, .apx-pb{grid-template-columns:repeat(3,minmax(0,1fr))}
+      @media (max-width:820px){.apx-rp, .apx-pp, .apx-pb{grid-template-columns:minmax(0,1fr)}}
+      .apx-rp .apx-wire, .apx-pp .apx-wire{margin-top:0}
+      .apx-rp-log{font:600 12px/1.6 var(--mono)}
+      .apx-rp-log .r2{color:var(--ok)} .apx-rp-log .r4{color:var(--warn)}
+      .apx-rp-st div{padding:5px 8px; border-radius:7px; font-size:13px; margin-bottom:4px; background:var(--surface-2); transition:background .4s}
+      .apx-rp-st div.chg{background:color-mix(in srgb,var(--accent) 18%,var(--surface))}
+      .apx-rp-st div.bad{background:color-mix(in srgb,var(--danger) 14%,var(--surface)); color:var(--danger); font-weight:700}
+      .apx-props{display:flex; gap:6px; flex-wrap:wrap; margin:4px 0 0}
+      .apx-props span{font:700 11px var(--mono); padding:3px 9px; border-radius:999px; background:var(--surface-2); border:1px solid var(--line)}
+      .apx-props span.y{background:var(--ok-bg); color:var(--ok); border-color:transparent}
+      .apx-props span.n{background:color-mix(in srgb,var(--danger) 12%,transparent); color:var(--danger); border-color:transparent}
+      .apx-dp{display:grid; grid-template-columns:minmax(0,1.1fr) minmax(0,1fr); gap:10px; margin-top:8px}
+      @media (max-width:820px){.apx-dp{grid-template-columns:minmax(0,1fr)}}
+      .apx-dp .apx-wire{margin-top:0; min-height:86px}
+      .apx-dp-cl div{display:flex; justify-content:space-between; gap:8px; padding:5px 8px; border-radius:7px; font-size:13px; margin-bottom:4px; background:var(--surface-2)}
+      .apx-dp-cl b{font:700 11px var(--mono); white-space:nowrap}
+      .apx-dp-cl .old b{color:var(--danger)} .apx-dp-cl .mig b{color:var(--warn)} .apx-dp-cl .new b{color:var(--ok)}
+      .apx-dp-meter{margin-top:8px; height:12px; border-radius:999px; background:var(--surface-2); overflow:hidden; border:1px solid var(--line)}
+      .apx-dp-meter i{display:block; height:100%; background:var(--danger); transition:width .4s}
+      .apx-pb-cells{display:flex; flex-direction:column; gap:5px}
+      .apx-pb-cells div{display:grid; grid-template-columns:34px minmax(0,1fr); gap:8px; align-items:center; font:600 12px var(--mono); padding:5px 7px; border:1px solid var(--line); border-radius:8px; background:var(--surface-2)}
+      .apx-pb-cells div span:first-child{display:grid; place-items:center; height:24px; border-radius:6px; background:var(--accent); color:#fff; font-weight:800}
+      .apx-pb-cells div.hl{border-color:var(--accent); background:color-mix(in srgb,var(--accent) 12%,var(--surface))}
+    </style>
+    <h3>Пульт повторов: отправьте один и тот же запрос несколько раз</h3>
+    <p>Метро, сеть пропала, приложение не дождалось ответа — и повторило запрос. Так бывает каждый день. Выберите запрос и нажимайте «Отправить»: справа видно, что стало на сервере после каждого повтора.</p>
+    <div class="seg" id="apx-rp-pick"></div>
+    <div class="apx-props" id="apx-rp-props"></div>
+    <div class="apx-rp">
+      <div class="apx-pg-box"><h5>📤 Запрос и ответы сервера</h5><div class="apx-wire" id="apx-rp-http"></div><div class="apx-rp-log" id="apx-rp-log"></div></div>
+      <div class="apx-pg-box"><h5>🗄 Что сейчас на сервере</h5><div class="apx-rp-st" id="apx-rp-state"></div></div>
+    </div>
+    <div class="skbar"><button class="act" id="apx-rp-send">📤 Отправить</button><button class="ghost" id="apx-rp-reset">⟲ Сначала</button></div>
+    <div class="console" id="apx-rp-msg"></div>
+
     <div class="note good"><b>Проще говоря.</b> Идемпотентность — про <b>эффект</b>, а не про одинаковый ответ. Первый <code class="inl">DELETE /carts/c-5/items/SOCK-01</code> вернёт 204, второй — может быть, 404. Но носки из корзины удалены ровно один раз. А вот <code class="inl">POST /payments</code> дважды — это два платежа. Поэтому POST требует особой защиты от повторов (глава 7).</div>
 
     <h3>PUT или PATCH?</h3>
@@ -294,6 +334,16 @@ Content-Type: application/merge-patch+json
 
 {"deliveryDate": "2026-10-04", "comment": null}</pre><p class="bs" style="margin-top:8px">Формат <b>JSON Merge Patch</b> (RFC 7396): перечисленные поля заменяются, <code class="inl">null</code> означает «удалить поле», остальное не трогается. Есть и <b>JSON Patch</b> (RFC 6902) — список операций: <code class="inl">[{"op":"replace","path":"/deliveryDate","value":"2026-10-04"}]</code>. Сам метод PATCH описан в RFC 5789.</p></div>
     </div>
+    <h3>Лаборатория: Анна исправила только номер квартиры</h3>
+    <p>В приложении Анна поменяла квартиру с 12 на 14 — остальной адрес не трогала. Выберите, что отправит приложение, и посмотрите, что останется от адреса на сервере.</p>
+    <div class="seg" id="apx-pp-m"></div>
+    <div class="apx-pp">
+      <div class="apx-pg-box"><h5>🗄 Было на сервере</h5><table class="apx-tb" id="apx-pp-was"></table></div>
+      <div class="apx-pg-box"><h5>📤 Что отправили</h5><div class="apx-wire" id="apx-pp-req"></div></div>
+      <div class="apx-pg-box"><h5>🗄 Стало на сервере</h5><table class="apx-tb" id="apx-pp-now"></table></div>
+    </div>
+    <div class="console" id="apx-pp-msg"></div>
+
     <div class="note warn"><b>GET никогда ничего не меняет.</b> Представьте ссылку <code class="inl">GET /orders/ord-1042/cancel</code> в письме Анне. Почтовый сервис проверит ссылку на вирусы, мессенджер построит превью, браузер подгрузит заранее — и каждый из них отменит заказ. Они вправе ходить по GET-ссылкам без спроса: метод обещал, что это безопасно.</div>
 
     <h3>Модель зрелости Ричардсона: четыре ступени к REST</h3>
@@ -679,6 +729,15 @@ Deprecation: @1790812800
 Sunset: Wed, 31 Mar 2027 23:59:59 GMT
 Link: &lt;https://developer.botinok.example/migrate-to-v2&gt;; rel="deprecation"; type="text/html"</pre>
     <p class="apx-small">Обратите внимание на форматы дат — они разные по историческим причинам. <code class="inl">Deprecation</code> по RFC 9745 — это «дата структурированного поля»: знак <code class="inl">@</code> и число секунд с 1 января 1970 года по UTC (здесь — 1 октября 2026 года, 00:00 UTC). <code class="inl">Sunset</code> по RFC 8594 — обычная HTTP-дата.</p>
+    <h3>Ползунок времени: полгода прощания с полем customer.phone</h3>
+    <p>Двигайте месяц. Слева — что приходит в ответе каждому клиенту. Справа — кто уже перешёл на замену, а кто ещё читает старое поле. Красная полоса — доля запросов от тех, кто не перешёл.</p>
+    <div class="slider-row"><label for="apx-dp">Месяц</label><input type="range" id="apx-dp" min="0" max="7" step="1" value="0"><span class="sv" id="apx-dp-v"></span></div>
+    <div class="apx-dp">
+      <div><div class="apx-wire" id="apx-dp-wire"></div><div class="apx-dp-meter"><i id="apx-dp-bar"></i></div><p class="apx-small" id="apx-dp-pct" style="margin:4px 0 0"></p></div>
+      <div class="apx-pg-box"><h5>👥 Клиенты API заказов</h5><div class="apx-dp-cl" id="apx-dp-cl"></div></div>
+    </div>
+    <div class="console" id="apx-dp-msg"></div>
+
     <div class="apx-spec"><p>«Поле <code class="inl">customer.phone</code> устарело с 01.10.2026 и будет удалено из ответа <code class="inl">GET /v1/orders/{orderId}</code> 31.03.2027. До этой даты ответы содержат заголовки <code class="inl">Deprecation</code> и <code class="inl">Sunset</code>. Замена — ресурс <code class="inl">/v1/customers/{customerId}/contacts</code>. Ответственный за уведомление партнёров — владелец продукта API.»</p></div>
   </div>
 
@@ -756,6 +815,16 @@ enum OrderStatus {
       <div class="box"><h4>Новые поля — безопасно</h4><p class="bs">Добавить поле с новым номером можно: старый код незнакомое поле пропустит. Новый код, получив сообщение от старого, увидит значение по умолчанию.</p></div>
       <div class="box"><h4>optional и значения по умолчанию</h4><p class="bs">Обычное поле proto3 не отличает «прислали 0» от «не прислали». Ключевое слово <code class="inl">optional</code> (штатно с protobuf 3.15) добавляет признак присутствия. Для перечислений нулевое значение — всегда «не указано»; новое значение у старого клиента окажется нераспознанным числом, и у кода должна быть ветка «иначе».</p></div>
     </div>
+    <h3>Камера хранения: что прочтёт склад со старой схемой</h3>
+    <p>Сообщение Protobuf похоже на камеру хранения с пронумерованными ячейками. Сервис заказов раскладывает значения по ячейкам, склад открывает ячейки по <b>своей</b> схеме — по номерам: имён на ячейках нет. Сейчас у обоих схема версии 1.2, в ней ячейка 5 — телефон покупателя. Команда заказов выпускает новую схему, а склад обновится только через месяц. Выберите изменение и посмотрите, что прочтёт склад.</p>
+    <div class="seg" id="apx-pb-pick"></div>
+    <div class="apx-pb">
+      <div class="apx-pg-box"><h5>📝 Новая схема заказов</h5><div class="apx-wire" id="apx-pb-schema" style="margin-top:0"></div></div>
+      <div class="apx-pg-box"><h5>📦 Ячейки по проводу</h5><div class="apx-pb-cells" id="apx-pb-wire"></div></div>
+      <div class="apx-pg-box"><h5>🏭 Склад прочитал (схема 1.2)</h5><table class="apx-tb" id="apx-pb-read"></table></div>
+    </div>
+    <div class="console" id="apx-pb-msg"></div>
+
     <div class="note">Проверку ломающих изменений <code class="inl">.proto</code> ставят в сборку — например, командой <code class="inl">buf breaking</code>, которая сравнивает схему с предыдущей версией.</div>
 
     <h3>GraphQL: эволюция без версий</h3>
@@ -2266,5 +2335,220 @@ enum OrderStatus {
   }
   [nEl, dEl, rEl, sEl].forEach(el => el.addEventListener('input', () => { touched = true; draw(); }));
   draw();
+})();
+</script>
+
+<script>
+/* ═══ «Руками»: пульт повторов, PUT/PATCH, прощание с полем, камера хранения Protobuf ═══ */
+(function(){
+  const pick = document.getElementById('apx-rp-pick'); if(!pick) return;
+  const byId = document.getElementById.bind(document);
+  const rub = n => n.toLocaleString('ru-RU') + ' ₽';
+  const pl = (n, a, b, c) => { const d = n % 10, h = n % 100; return n + ' ' + (d === 1 && h !== 11 ? a : d >= 2 && d <= 4 && (h < 12 || h > 14) ? b : c); };
+  const fresh = () => ({addr:'Москва, Садовая, 1', pay:[], cart:{'SOCK-01':1, 'BOOT-42':1}});
+  const REQ = [
+    {k:'get', l:'GET заказ', safe:1, idem:1, http:'GET /v1/orders/ord-1042',
+     run:() => '200 OK'},
+    {k:'post', l:'POST оплата', safe:0, idem:0, http:'POST /v1/payments\n{"orderId": "ord-1042", "amount": 4990}',
+     run:st => { st.pay.push('pay-' + (701 + st.pay.length)); return '201 Created'; }},
+    {k:'put', l:'PUT адрес', safe:0, idem:1, http:'PUT /v1/orders/ord-1042/delivery-address\n{"city": "Москва", "street": "Лесная", "house": "5"}',
+     run:st => { st.addr = 'Москва, Лесная, 5'; return '200 OK'; }},
+    {k:'del', l:'DELETE носки', safe:0, idem:1, http:'DELETE /v1/carts/c-5/items/SOCK-01',
+     run:st => { if(st.cart['SOCK-01']){ delete st.cart['SOCK-01']; return '204 No Content'; } return '404 Not Found'; }},
+    {k:'pset', l:'PATCH «поставь 2»', safe:0, idem:1, http:'PATCH /v1/carts/c-5/items/BOOT-42\nContent-Type: application/merge-patch+json\n{"qty": 2}',
+     run:st => { st.cart['BOOT-42'] = 2; return '200 OK'; }},
+    {k:'pinc', l:'PATCH «прибавь 1»', safe:0, idem:0, http:'PATCH /v1/carts/c-5/items/BOOT-42\n{"qtyDelta": 1}',
+     run:st => { st.cart['BOOT-42'] += 1; return '200 OK'; }},
+  ];
+  let cur = REQ[0], st = fresh(), log = [], prev = null;
+  pick.innerHTML = REQ.map((r, i) => '<button data-i="' + i + '"' + (i ? '' : ' class="on"') + '>' + r.l + '</button>').join('');
+  function lines(x){
+    const cart = Object.keys(x.cart).map(k => k + ' × ' + x.cart[k]).join(', ') || 'пусто';
+    const sum = x.pay.length * 4990;
+    return [
+      ['📦 Заказ ord-1042: адрес доставки — ' + x.addr, ''],
+      ['💳 Платежей по заказу: ' + x.pay.length + (x.pay.length ? ' (' + x.pay.join(', ') + ') — списано ' + rub(sum) : ''), x.pay.length > 1 ? 'bad' : ''],
+      ['🛒 Корзина c-5: ' + cart, x.cart['BOOT-42'] > 2 ? 'bad' : ''],
+    ];
+  }
+  function draw(){
+    byId('apx-rp-props').innerHTML =
+      '<span class="' + (cur.safe ? 'y' : 'n') + '">' + (cur.safe ? 'безопасный' : 'меняет данные') + '</span>' +
+      '<span class="' + (cur.idem ? 'y' : 'n') + '">' + (cur.idem ? 'идемпотентный' : 'не идемпотентный') + '</span>';
+    byId('apx-rp-http').textContent = cur.http;
+    byId('apx-rp-log').innerHTML = log.length
+      ? log.map((c, i) => '<div class="' + (c[0] === '2' ? 'r2' : 'r4') + '">' + (i + 1) + '-я отправка → ' + c + '</div>').join('')
+      : '<div style="color:var(--faint)">ещё ничего не отправляли</div>';
+    const now = lines(st), was = prev ? lines(prev) : now;
+    byId('apx-rp-state').innerHTML = now.map((l, i) =>
+      '<div class="' + (l[1] || (l[0] !== was[i][0] ? 'chg' : '')) + '">' + l[0] + '</div>').join('');
+    byId('apx-rp-send').textContent = log.length ? '📤 Отправить ещё раз' : '📤 Отправить';
+    const n = log.length, m = byId('apx-rp-msg');
+    if(!n) return msg(m, '', 'Нажмите «Отправить», потом ещё раз и ещё — как приложение, которое не дождалось ответа.');
+    const k = cur.k;
+    if(k === 'get') msg(m, 'ok', 'Прочитали ' + pl(n, 'раз', 'раза', 'раз') + ' — на сервере ничего не изменилось. GET безопасен: это как посмотреть на витрину. Поэтому браузеры, кеши и приложения повторяют его без спроса.');
+    else if(k === 'post') msg(m, n > 1 ? 'err' : '', n > 1
+      ? pl(n, 'отправка', 'отправки', 'отправок') + ' — ' + pl(n, 'платёж', 'платежа', 'платежей') + ' по 4 990 ₽, с Анны списали ' + rub(n * 4990) + '. POST не идемпотентен: каждый вызов создаёт новое. Защита — ключ идемпотентности, глава 7.'
+      : 'Один платёж — всё верно. А теперь представьте, что ответ потерялся в метро и приложение повторило запрос. Нажмите ещё раз.');
+    else if(k === 'put') msg(m, 'ok', n > 1
+      ? 'Отправили ' + pl(n, 'раз', 'раза', 'раз') + ' — адрес тот же, что после первого. PUT говорит «запиши вот это»: сколько ни повторяй, результат один. Это и есть идемпотентность.'
+      : 'Адрес заменён целиком. Отправьте ещё раз — изменится ли что-нибудь?');
+    else if(k === 'del') msg(m, 'ok', n > 1
+      ? 'Первый ответ — 204, следующие — 404: удалять уже нечего. Ответы <b>разные</b>, а эффект один — носки удалены ровно один раз. Идемпотентность — про то, что стало на сервере, а не про одинаковый ответ.'
+      : '204 — носки удалены. Отправьте ещё раз и посмотрите на ответ.');
+    else if(k === 'pset') msg(m, 'ok', 'После каждого повтора ботинок в корзине ровно 2 пары: тело говорит «поставь 2», повтор ничего не добавляет.');
+    else msg(m, n > 1 ? 'err' : '', n > 1
+      ? 'Ботинок уже ' + pl(st.cart['BOOT-42'], 'пара', 'пары', 'пар') + ': тело говорит «прибавь 1», и каждый повтор прибавляет. Метод тот же — PATCH, а свойство другое. PATCH <b>не обязан</b> быть идемпотентным: всё решает тело. Если повтор возможен, проектируйте «поставь значение» или защищайте ключом.'
+      : 'Ботинок стало 2 пары. Сравните с кнопкой «PATCH «поставь 2»» — и нажмите ещё раз.');
+  }
+  pick.addEventListener('click', e => {
+    const b = e.target.closest('button[data-i]'); if(!b) return;
+    cur = REQ[+b.dataset.i]; st = fresh(); log = []; prev = null;
+    [...pick.children].forEach(x => x.classList.toggle('on', x === b));
+    draw();
+  });
+  byId('apx-rp-send').addEventListener('click', () => { prev = JSON.parse(JSON.stringify(st)); log.push(cur.run(st)); draw(); });
+  byId('apx-rp-reset').addEventListener('click', () => { st = fresh(); log = []; prev = null; draw(); });
+  draw();
+})();
+
+(function(){
+  const seg = document.getElementById('apx-pp-m'); if(!seg) return;
+  const byId = document.getElementById.bind(document);
+  const F = [['city', 'город', 'Москва'], ['street', 'улица', 'Лесная'], ['house', 'дом', '5'], ['flat', 'квартира', '12'], ['comment', 'комментарий', 'домофон не работает']];
+  const was = {}; F.forEach(f => { was[f[0]] = f[2]; });
+  const full = Object.assign({}, was, {flat:'14'});
+  const V = [
+    {l:'PATCH: только квартира', m:'PATCH /v1/orders/ord-1042/delivery-address\nContent-Type: application/merge-patch+json', body:{flat:'14'}, put:0,
+     k:'ok', t:'PATCH говорит «вот что поменять»: квартира стала 14, остальное сервер не тронул. Приложению не нужно знать и пересылать весь адрес.'},
+    {l:'PATCH: квартира + comment: null', m:'PATCH /v1/orders/ord-1042/delivery-address\nContent-Type: application/merge-patch+json', body:{flat:'14', comment:null}, put:0,
+     k:'ok', t:'В JSON Merge Patch <code class="inl">null</code> значит «удалить поле». Комментарий стёрт — но <b>намеренно</b>: Анна сама его убрала. Остальные поля на месте.'},
+    {l:'PUT: только квартира', m:'PUT /v1/orders/ord-1042/delivery-address\nContent-Type: application/json', body:{flat:'14'}, put:1,
+     k:'err', t:'PUT говорит «вот <b>полное</b> новое состояние». Приложение прислало одно поле — и сервер честно записал адрес из одной квартиры. Город, улица, дом и комментарий стёрты, курьер не найдёт Анну. Частая ошибка, когда PUT используют как «сохранить изменения».'},
+    {l:'PUT: весь адрес', m:'PUT /v1/orders/ord-1042/delivery-address\nContent-Type: application/json', body:full, put:1,
+     k:'warn', t:'Так PUT работает правильно: приложение прислало весь адрес с новой квартирой. Но сначала ему пришлось прочитать адрес целиком. А если за это время кто-то успел поменять комментарий, PUT затрёт эту правку старой копией. Как это ловят — глава 8.'},
+  ];
+  seg.innerHTML = V.map((v, i) => '<button data-i="' + i + '"' + (i ? '' : ' class="on"') + '>' + v.l + '</button>').join('');
+  const row = (name, val, cls) => '<tr' + (cls ? ' class="' + cls + '"' : '') + '><td>' + name + '</td>' + (val == null ? '<td class="emp">— стёрто —</td>' : '<td>' + val + '</td>') + '</tr>';
+  function draw(i){
+    const v = V[i];
+    const now = v.put ? Object.assign({}, v.body) : Object.assign({}, was, v.body);
+    byId('apx-pp-was').innerHTML = F.map(f => row(f[1], was[f[0]])).join('');
+    byId('apx-pp-req').textContent = v.m + '\n\n' + JSON.stringify(v.body, null, 1).replace(/\n\s*/g, ' ');
+    byId('apx-pp-now').innerHTML = F.map(f => {
+      const val = now[f[0]];
+      const gone = val == null;
+      const cls = gone ? (v.k === 'err' ? 'bad' : '') : (val !== was[f[0]] ? 'ok' : '');
+      return row(f[1], gone ? null : val, cls);
+    }).join('');
+    msg(byId('apx-pp-msg'), v.k, v.t);
+  }
+  seg.addEventListener('click', e => {
+    const b = e.target.closest('button[data-i]'); if(!b) return;
+    [...seg.children].forEach(x => x.classList.toggle('on', x === b));
+    draw(+b.dataset.i);
+  });
+  draw(0);
+})();
+
+(function(){
+  const el = document.getElementById('apx-dp'); if(!el) return;
+  const byId = document.getElementById.bind(document);
+  const NAMES = ['🌐 Сайт', '📱 Приложение 4.x', '📱 Приложение 3.2', '🤝 Партнёр «Стеллаж»', '🧾 Скрипт сверки бухгалтерии'];
+  const L = {old:'на старом поле', mig:'переходит', new:'на /contacts', gone:'остаток < 2 %'};
+  const HEAD = 'HTTP/1.1 200 OK\nContent-Type: application/json';
+  const DEPR = HEAD + '\nDeprecation: @1790812800\nSunset: Wed, 31 Mar 2027 23:59:59 GMT\nLink: <…/migrate-to-v2>; rel="deprecation"';
+  const M = [
+    {m:'сентябрь 2026', w:HEAD + '\n\n{"id": "ord-1042", "customer": {"phone": "+7 900 …"}, …}', pct:100, c:['old', 'old', 'old', 'old', 'old'],
+     k:'', t:'Команда выпустила замену — ресурс <code class="inl">/v1/customers/{customerId}/contacts</code>. Старое поле пока отдаётся как раньше, никто ни о чём не знает. Дальше — объявление.'},
+    {m:'октябрь 2026', w:DEPR, pct:74, c:['new', 'mig', 'old', 'old', 'old'],
+     k:'warn', t:'<b>Объявили.</b> Запись в журнале изменений, письма партнёрам, <code class="inl">deprecated: true</code> в OpenAPI и сразу дата отключения — 31 марта 2027. С этого дня <b>каждый</b> ответ несёт заголовки Deprecation и Sunset. Сайт — та же команда — перешёл за неделю.'},
+    {m:'ноябрь 2026', w:DEPR, pct:52, c:['new', 'mig', 'old', 'mig', 'old'],
+     k:'', t:'<b>Измеряем.</b> По журналам видно, кто ещё не вызывает <code class="inl">/contacts</code>. Приложение 4.1 уже читает новый ресурс, люди обновляются. «Стеллаж» поставил переход в свой январский релиз.'},
+    {m:'декабрь 2026', w:DEPR, pct:31, c:['new', 'new', 'old', 'mig', 'old'],
+     k:'', t:'Приложение 4.x обновили почти все. На старой 3.2 ещё 9 % телефонов — эти люди приложение не обновляют годами. Пишем «Стеллажу» напоминание.'},
+    {m:'январь 2027', w:DEPR, pct:12, c:['new', 'new', 'old', 'new', 'old'],
+     k:'', t:'«Стеллаж» выкатил свой релиз и перешёл. Остались старые телефоны и какой-то неопознанный клиент: ключ доступа есть, а в списке потребителей его нет.'},
+    {m:'февраль 2027', w:DEPR, pct:5, c:['new', 'new', 'mig', 'new', 'old'],
+     k:'warn', t:'Владельцам версии 3.2 показывают экран «Обновите приложение». Неопознанный клиент молчит: на письма никто не отвечает — похоже, никто и не знает, что он существует.'},
+    {m:'март 2027', w:DEPR, pct:1.5, c:['new', 'new', 'gone', 'new', 'new'],
+     k:'ok', t:'<b>Плановое затемнение:</b> 10 марта старое поле на час убрали из ответа. Через 20 минут прибежала бухгалтерия — у неё упал ночной скрипт сверки, который пять лет назад написал уволившийся сотрудник. Перевели его за два дня. Старых телефонов — 1,5 %, ниже порога в 2 %.'},
+    {m:'апрель 2027', w:HEAD + '\n\n{"id": "ord-1042", "customerId": "cus-77", …}\n(поля customer.phone больше нет)', pct:0, c:['new', 'new', 'gone', 'new', 'new'],
+     k:'ok', t:'<b>После даты Sunset</b> поле убрано из ответа, заголовки больше не нужны. Если бы отключали не поле, а весь адрес <code class="inl">/v1/…</code>, он отвечал бы <b>410 Gone</b> со ссылкой на инструкцию. Полгода — и никто не сломался внезапно: все знали дату заранее.'},
+  ];
+  function draw(){
+    const x = M[+el.value];
+    byId('apx-dp-v').textContent = x.m;
+    byId('apx-dp-wire').textContent = x.w;
+    byId('apx-dp-bar').style.width = x.pct + '%';
+    byId('apx-dp-pct').textContent = 'Запросов от клиентов, которые ещё не перешли: ' + String(x.pct).replace('.', ',') + ' %';
+    byId('apx-dp-cl').innerHTML = NAMES.map((n, i) => '<div class="' + (x.c[i] === 'gone' ? 'new' : x.c[i]) + '"><span>' + n + '</span><b>' + L[x.c[i]] + '</b></div>').join('');
+    msg(byId('apx-dp-msg'), x.k, x.t);
+  }
+  el.addEventListener('input', draw);
+  draw();
+})();
+
+(function(){
+  const pick = document.getElementById('apx-pb-pick'); if(!pick) return;
+  const byId = document.getElementById.bind(document);
+  // старая схема склада (1.2): номер → имя
+  const OLD = {1:'id', 2:'status', 3:'total', 4:'currency', 5:'phone', 6:'delivery_date'};
+  const STATUS = {0:'UNSPECIFIED', 1:'NEW', 2:'PAID', 3:'SHIPPED'};
+  const BASE = [[1, 'id', '"ord-1042"'], [2, 'status', '2 (PAID)'], [3, 'total', '499000'], [4, 'currency', '"RUB"'], [5, 'phone', '"+7 900 123-45-67"'], [6, 'delivery_date', '"2026-10-04"']];
+  const NOPHONE = BASE.filter(r => r[0] !== 5);
+  const V = [
+    {l:'добавили поле address = 8', hl:[8],
+     sch:'string id = 1;\nOrderStatus status = 2;\nint64 total = 3;\nstring currency = 4;\nstring phone = 5;\noptional string delivery_date = 6;\nstring address = 8;   // новое',
+     wire:BASE.concat([[8, 'address', '"Лесная, 5"']]),
+     k:'ok', t:'Ячейку 8 склад не знает — и просто пропускает её. Всё остальное прочитано верно. Добавить поле с <b>новым</b> номером безопасно: старые клиенты его не заметят, новые — получат.'},
+    {l:'переименовали total → total_kopecks', hl:[3],
+     sch:'string id = 1;\nOrderStatus status = 2;\nint64 total_kopecks = 3;   // было total\nstring currency = 4;\nstring phone = 5;\noptional string delivery_date = 6;',
+     wire:BASE.map(r => r[0] === 3 ? [3, 'total_kopecks', '499000'] : r),
+     k:'ok', t:'По проводу летит номер 3, а не имя, — склад ничего не заметил. В двоичном Protobuf переименование безопасно. Осторожно только с JSON-представлением: там поле называется по имени, и переименование ломает.'},
+    {l:'удалили phone, заняли 5 под address', hl:[5],
+     sch:'string id = 1;\nOrderStatus status = 2;\nint64 total = 3;\nstring currency = 4;\nstring address = 5;   // было phone!\noptional string delivery_date = 6;',
+     wire:NOPHONE.slice(0, 4).concat([[5, 'address', '"Москва, Лесная, 5"'], NOPHONE[4]]),
+     k:'err', t:'Склад открыл ячейку 5 по своей схеме — там «телефон». Теперь в телефоне покупателя лежит «Москва, Лесная, 5», и SMS о сборке уходят в никуда. Ошибки нет, сервис не упал — данные просто тихо испортились. Поэтому удалённый номер закрывают навсегда: <code class="inl">reserved 5;</code>'},
+    {l:'удалили phone правильно: reserved 5', hl:[5],
+     sch:'string id = 1;\nOrderStatus status = 2;\nint64 total = 3;\nstring currency = 4;\nreserved 5;\nreserved "phone";\noptional string delivery_date = 6;',
+     wire:NOPHONE,
+     k:'warn', t:'Ячейка 5 теперь пустая — склад видит телефон как пустую строку, значение по умолчанию. Ничего не испорчено, но код склада должен уметь жить без телефона. Поэтому удаление поля всё равно согласуют с потребителями заранее.'},
+    {l:'сменили номер total: 3 → 9', hl:[3, 9],
+     sch:'string id = 1;\nOrderStatus status = 2;\nstring currency = 4;\nstring phone = 5;\noptional string delivery_date = 6;\nint64 total = 9;   // было = 3',
+     wire:BASE.filter(r => r[0] !== 3).concat([[9, 'total', '499000']]),
+     k:'err', t:'Склад ищет сумму в ячейке 3 — она пустая, значит 0. Ячейку 9 он не знает и пропускает. Итог: заказ на 4 990 ₽ на складе стоит 0 ₽ — и опять без единой ошибки в журнале. Номер существующего поля не меняют <b>никогда</b>.'},
+    {l:'добавили статус RETURNED = 4', hl:[2],
+     sch:'enum OrderStatus {\n  ORDER_STATUS_UNSPECIFIED = 0;\n  ORDER_STATUS_NEW = 1;\n  ORDER_STATUS_PAID = 2;\n  ORDER_STATUS_SHIPPED = 3;\n  ORDER_STATUS_RETURNED = 4;  // новое\n}',
+     wire:BASE.map(r => r[0] === 2 ? [2, 'status', '4 (RETURNED)'] : r),
+     k:'warn', t:'В ячейке 2 пришло число 4, а у склада в списке статусов только 0–3. Склад получит «нераспознанное значение 4». Если в его коде есть ветка «иначе» — он, например, отложит заказ на ручной разбор. Если нет — может упасть или принять возврат за новый заказ.'},
+  ];
+  pick.innerHTML = V.map((v, i) => '<button data-i="' + i + '"' + (i ? '' : ' class="on"') + '>' + v.l + '</button>').join('');
+  function draw(i){
+    const v = V[i];
+    byId('apx-pb-schema').textContent = 'message Order {\n' + v.sch.split('\n').map(x => '  ' + x).join('\n') + '\n}';
+    byId('apx-pb-wire').innerHTML = v.wire.map(r =>
+      '<div' + (v.hl.indexOf(r[0]) >= 0 ? ' class="hl"' : '') + '><span>' + r[0] + '</span><span>' + r[2] + '</span></div>').join('');
+    const got = {}; v.wire.forEach(r => { got[r[0]] = r[2]; });
+    const bad = v.k === 'err';
+    let rows = Object.keys(OLD).map(n => {
+      const name = OLD[n];
+      let val = got[n], cls = '';
+      if(val == null){ val = name === 'total' ? '0' : name === 'status' ? '0 (UNSPECIFIED)' : '""'; cls = v.hl.indexOf(+n) >= 0 ? (bad ? 'bad' : 'hl') : ''; }
+      else if(name === 'status'){ const c = parseInt(val, 10); val = c + ' (' + (STATUS[c] || 'не знаю такого') + ')'; cls = STATUS[c] ? '' : 'hl'; }
+      else if(v.hl.indexOf(+n) >= 0) cls = bad ? 'bad' : 'hl';
+      return '<tr' + (cls ? ' class="' + cls + '"' : '') + '><td>' + n + '</td><td>' + name + '</td><td>' + val + '</td></tr>';
+    }).join('');
+    const skipped = v.wire.filter(r => !OLD[r[0]]).map(r => r[0]);
+    if(skipped.length) rows += '<tr><td>' + skipped.join(', ') + '</td><td class="emp">незнакомая</td><td class="emp">пропущена</td></tr>';
+    byId('apx-pb-read').innerHTML = '<tr><th>№</th><th>имя у склада</th><th>прочитано</th></tr>' + rows;
+    msg(byId('apx-pb-msg'), v.k, v.t);
+  }
+  pick.addEventListener('click', e => {
+    const b = e.target.closest('button[data-i]'); if(!b) return;
+    [...pick.children].forEach(x => x.classList.toggle('on', x === b));
+    draw(+b.dataset.i);
+  });
+  draw(0);
 })();
 </script>
