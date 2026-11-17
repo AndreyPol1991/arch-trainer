@@ -548,6 +548,37 @@ for (const order of orders) order.buyerName = byId.get(order.customerId).name;  
       <div class="box"><h4>🌐 N+1 в худшем виде</h4><p class="bs">Для каждого из n заказов на странице код делает отдельный запрос в базу за покупателем. Уже это — n сетевых поездок. А если у таблицы покупателей нет индекса, каждый из этих запросов ещё и перебирает всю таблицу: n × m.</p></div>
       <div class="box"><h4>🫧 Самописная сортировка</h4><p class="bs">«Отсортирую сам, тут же немного» — и получается пузырёк или сортировка вставками, O(n²). Встроенная сортировка языка — O(n log n) и уже отлажена.</p></div>
     </div>
+    <style>
+      .bgx-qr{display:grid; grid-template-columns:minmax(0,1.3fr) minmax(0,1fr); gap:12px; margin-top:10px}
+      @media (max-width:760px){.bgx-qr{grid-template-columns:minmax(0,1fr)}}
+      .bgx-qr > div{border:1px solid var(--line); border-radius:12px; padding:10px 12px; background:var(--surface); min-width:0}
+      .bgx-qr h5{margin:0 0 4px; font-size:13.5px}
+      .bgx-qr .bgx-qn{font:800 20px var(--mono); margin:2px 0 8px}
+      .bgx-qr .bgx-qn small{font:600 11.5px var(--mono); color:var(--muted)}
+      .bgx-sq{display:grid; gap:2px; width:100%; max-width:300px}
+      .bgx-sq i{aspect-ratio:1; border-radius:2px; background:var(--surface-2)}
+      .bgx-sq i.lbl{background:none; font:700 9px/1 var(--mono); color:var(--faint); display:grid; place-items:center}
+      .bgx-sq i.off{background:none}
+      .bgx-sq i.on{background:color-mix(in srgb,var(--danger) 55%,var(--surface))}
+      .bgx-sq i.dup{background:var(--danger); outline:2px solid var(--danger)}
+      .bgx-ln{display:flex; flex-wrap:wrap; gap:4px}
+      .bgx-ln i{min-width:30px; padding:4px 0; text-align:center; border-radius:6px; font:700 11px var(--mono); font-style:normal; background:var(--surface-2); color:var(--faint)}
+      .bgx-ln i.on{background:color-mix(in srgb,var(--ok) 35%,var(--surface)); color:var(--ink)}
+      .bgx-ln i.dup{background:var(--danger); color:#fff}
+      .bgx-bag{margin-top:8px; font:600 11.5px var(--mono); color:var(--muted); min-height:34px; overflow-wrap:anywhere}
+      .bgx-scale{margin-top:10px}
+    </style>
+    <h3>Картинка: почему «квадрат» — это квадрат</h3>
+    <p>Борис ищет дубли среди заказов. Слева — «каждый с каждым»: каждая закрашенная клетка — одно сравнение пары, и они заполняют треугольник квадрата. Справа — словарь: один проход, каждый номер кладём в мешок и спрашиваем «уже был?». Оба делают одно действие за такт — запустите гонку.</p>
+    <div class="seg" id="bgx-race-n"><button data-n="6">6 заказов</button><button class="on" data-n="12">12 заказов</button><button data-n="20">20 заказов</button></div>
+    <div class="bgx-qr">
+      <div><h5>🔁 Цикл в цикле: O(n²)</h5><div class="bgx-qn" id="bgx-race-c1">0</div><div class="bgx-sq" id="bgx-race-sq"></div></div>
+      <div><h5>🗂 Словарь (Set): O(n)</h5><div class="bgx-qn" id="bgx-race-c2">0</div><div class="bgx-ln" id="bgx-race-ln"></div><div class="bgx-bag" id="bgx-race-bag"></div></div>
+    </div>
+    <div class="skbar"><button class="act" id="bgx-race-go">▶ Запустить гонку</button><button class="ghost" id="bgx-race-reset">⟲ Сначала</button></div>
+    <div class="console" id="bgx-race-msg"></div>
+    <div class="table-wrap bgx-scale"><table class="db" id="bgx-race-tb"></table></div>
+
     <div class="note warn"><b>Как лечат квадрат.</b> Почти всегда одним из четырёх способов: <b>словарь</b> (Map / Set / хеш-таблица) вместо поиска перебором; <b>сортировка и один проход</b> (дубли после сортировки стоят рядом); <b>индекс</b> в базе; <b>соединение (JOIN) в базе</b> вместо цикла с запросами в коде. Каждый превращает O(n²) в O(n) или O(n log n).</div>
     <div data-bgx-tab="4"></div>
 
@@ -2273,5 +2304,84 @@ for (const order of orders) order.buyerName = byId.get(order.customerId).name;  
     ], 'bgx-q-score', 'bgx-q-total');
     Progress.register('bgx-q-score', 12, 'Сложность: проверьте себя');
   })();
+})();
+</script>
+
+<script>
+/* ═══ «Руками»: гонка квадрата и словаря ═══ */
+(function(){
+  const sq = document.getElementById('bgx-race-sq'); if(!sq) return;
+  const byId = document.getElementById.bind(document);
+  let n = 12, ids = [], timer = null;
+  const fmt = x => x.toLocaleString('ru-RU');
+  const sec = s => s < 0.001 ? '< 1 мс' : s < 1 ? Math.round(s * 1000) + ' мс' : s < 120 ? (Math.round(s * 10) / 10).toString().replace('.', ',') + ' с' : s < 7200 ? Math.round(s / 60) + ' мин' : s < 172800 ? Math.round(s / 3600) + ' ч' : Math.round(s / 86400) + ' дн';
+  function makeIds(){
+    const base = Array.from({length:n}, (_, i) => 101 + i * 7 % 97);
+    base[n - 2] = base[Math.floor(n / 3)];   // один дубль ближе к концу — как в жизни
+    return base;
+  }
+  function table(){
+    byId('bgx-race-tb').innerHTML = '<thead><tr><th>Заказов</th><th>Сравнений «каждый с каждым»</th><th>время</th><th>Шагов со словарём</th><th>время</th></tr></thead><tbody>' +
+      [1000, 100000, 1000000, 10000000].map(m => { const a = m * (m - 1) / 2; return '<tr><td>' + fmt(m) + '</td><td>' + fmt(a) + '</td><td>' + sec(a / 1e8) + '</td><td>' + fmt(m) + '</td><td>' + sec(m / 1e8) + '</td></tr>'; }).join('') +
+      '</tbody>';
+  }
+  function draw(){
+    clearTimeout(timer); timer = null;
+    ids = makeIds();
+    sq.style.gridTemplateColumns = 'repeat(' + (n + 1) + ',minmax(0,1fr))';
+    let h = '<i class="lbl"></i>';
+    for(let j = 0; j < n; j++) h += '<i class="lbl">' + (j + 1) + '</i>';
+    for(let i = 0; i < n; i++){
+      h += '<i class="lbl">' + (i + 1) + '</i>';
+      for(let j = 0; j < n; j++) h += '<i data-c="' + i + '-' + j + '"' + (j <= i ? ' class="off"' : '') + '></i>';
+    }
+    sq.innerHTML = h;
+    byId('bgx-race-ln').innerHTML = ids.map((v, i) => '<i data-k="' + i + '">' + v + '</i>').join('');
+    byId('bgx-race-c1').innerHTML = '0 <small>сравнений</small>';
+    byId('bgx-race-c2').innerHTML = '0 <small>шагов</small>';
+    byId('bgx-race-bag').textContent = 'мешок: пусто';
+    msg(byId('bgx-race-msg'), '', 'В списке из ' + n + ' заказов один номер встречается дважды. Кто найдёт дубль и проверит всё до конца быстрее?');
+  }
+  function run(){
+    draw();
+    const pairs = []; for(let i = 0; i < n; i++) for(let j = i + 1; j < n; j++) pairs.push([i, j]);
+    let t = 0, c1 = 0, c2 = 0, done2 = false;
+    const bag = [];
+    const speed = n <= 6 ? 160 : n <= 12 ? 70 : 28;
+    const tick = () => {
+      if(c1 < pairs.length){
+        const [i, j] = pairs[c1++];
+        const cell = sq.querySelector('[data-c="' + i + '-' + j + '"]');
+        cell.className = ids[i] === ids[j] ? 'dup' : 'on';
+        byId('bgx-race-c1').innerHTML = fmt(c1) + ' <small>сравнений</small>';
+      }
+      if(c2 < n){
+        const k = c2++;
+        const el = byId('bgx-race-ln').querySelector('[data-k="' + k + '"]');
+        const seen = bag.indexOf(ids[k]) >= 0;
+        el.className = seen ? 'dup' : 'on';
+        if(!seen) bag.push(ids[k]);
+        byId('bgx-race-c2').innerHTML = fmt(c2) + ' <small>шагов</small>';
+        byId('bgx-race-bag').textContent = 'мешок: ' + bag.join(' · ');
+        if(c2 === n){ done2 = true; msg(byId('bgx-race-msg'), 'ok', 'Словарь закончил: ' + n + ' шагов — и дубль найден. А «каждый с каждым» пока сделал ' + c1 + ' сравнений из ' + pairs.length + ' и будет работать дальше…'); }
+      }
+      t++;
+      if(c1 < pairs.length) timer = setTimeout(tick, speed);
+      else {
+        timer = null;
+        msg(byId('bgx-race-msg'), 'warn', 'Финиш: <b>' + n + '</b> шагов против <b>' + pairs.length + '</b> сравнений — в ' + String(Math.round(pairs.length / n * 10) / 10).replace('.', ',') + ' раза больше. Закрашенный треугольник — это n × (n − 1) / 2 клеток: удвойте заказы — клеток станет вчетверо больше. Отсюда и «квадрат». Посмотрите в таблицу ниже, что будет на настоящих объёмах.');
+      }
+    };
+    tick();
+  }
+  byId('bgx-race-n').addEventListener('click', e => {
+    const b = e.target.closest('button[data-n]'); if(!b) return;
+    n = +b.dataset.n;
+    [...byId('bgx-race-n').children].forEach(x => x.classList.toggle('on', x === b));
+    draw();
+  });
+  byId('bgx-race-go').addEventListener('click', run);
+  byId('bgx-race-reset').addEventListener('click', draw);
+  table(); draw();
 })();
 </script>
