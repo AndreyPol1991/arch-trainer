@@ -913,6 +913,37 @@ spec:
       </tbody>
     </table></div>
     <div class="note">В России требования к процессам безопасной разработки задаёт ГОСТ Р 56939-2024 «Защита информации. Разработка безопасного программного обеспечения. Общие требования» (действует с 20 декабря 2024 года). Меры из этой главы — работа со сторонними компонентами, защита среды сборки, контроль изменений — помогают выполнить его требования. Если продукт проходит сертификацию, аналитику стоит заранее уточнить, какие из этих процессов нужно подтверждать документами.</div>
+    <style>
+      .cix-chain{display:flex; flex-wrap:wrap; gap:6px; align-items:stretch; margin-top:6px; padding-top:12px}
+      .cix-node{flex:1 1 118px; min-width:0; padding:10px 8px; border:1px solid var(--line); border-radius:12px; background:var(--surface); text-align:center; position:relative; transition:background .3s, border-color .3s, transform .3s}
+      .cix-node__ic{font-size:24px; line-height:1.1}
+      .cix-node__n{font-weight:800; font-size:13px; margin-top:3px}
+      .cix-node__s{font-size:11.5px; color:var(--muted); margin-top:2px}
+      .cix-node__in{margin-top:6px; font:700 10.5px var(--mono); color:var(--danger)}
+      .cix-node.entry{border-style:dashed; border-color:var(--danger)}
+      .cix-node.hit{background:color-mix(in srgb,var(--danger) 8%,var(--surface))}
+      .cix-node.poison{transform:translateY(-3px); border-color:var(--danger); box-shadow:0 0 0 3px color-mix(in srgb,var(--danger) 22%,transparent)}
+      .cix-node.poison::after{content:"☠️"; position:absolute; top:-12px; right:-6px; font-size:20px}
+      .cix-node.stop{background:var(--ok-bg); border-color:var(--ok); box-shadow:0 0 0 3px color-mix(in srgb,var(--ok) 22%,transparent)}
+      .cix-node.stop::after{content:"🛑"}
+      .cix-node.end{background:color-mix(in srgb,var(--danger) 16%,var(--surface))}
+      .cix-gates{display:flex; flex-direction:column; gap:4px; margin-top:7px}
+      .cix-gate{font:600 10.5px var(--mono); padding:3px 5px; border-radius:6px; border:1px dashed var(--line); color:var(--faint)}
+      .cix-gate.on{border-style:solid; border-color:var(--ok); color:var(--ok); background:var(--ok-bg)}
+      .cix-arrow{align-self:center; color:var(--faint); font-weight:800}
+      @media (max-width:760px){.cix-chain{flex-direction:column; gap:2px}.cix-node{flex:none; padding:6px 10px}.cix-node__ic{font-size:18px; display:inline; margin-right:6px}.cix-node__n{display:inline}.cix-node__s{display:none}.cix-gates{flex-direction:row; flex-wrap:wrap; justify-content:center; margin-top:4px}.cix-node__in{margin-top:3px}.cix-arrow{transform:rotate(90deg); text-align:center; line-height:1}}
+      .cix-ch-desc{margin-top:10px; font-size:14px}
+    </style>
+    <h3 class="cix-h3">Картинка: путь кода в прод и шлагбаумы на звеньях</h3>
+    <p>Код едет к Анне через несколько звеньев — и в каждое можно подсыпать отраву. Каждая мера защиты — шлагбаум на <b>своём</b> звене. Выберите атаку, включите меры и запустите: отрава ☠️ пойдёт по цепочке, пока её не остановят.</p>
+    <div class="seg" id="cix-ch-atk"></div>
+    <div class="cix-ch-desc" id="cix-ch-desc"></div>
+    <p style="margin:12px 0 0; font-size:13px; color:var(--muted)">Меры защиты — нажмите, чтобы включить:</p>
+    <div class="seg" id="cix-ch-def" style="margin-top:6px"></div>
+    <div class="cix-chain" id="cix-ch-chain"></div>
+    <div class="skbar" style="margin-top:12px"><button class="act" id="cix-ch-run">☠️ Запустить атаку</button><button class="ghost" id="cix-ch-all">🛡 Включить все меры</button></div>
+    <div class="console" id="cix-ch-msg"></div>
+
     <h3 class="cix-h3">Потренируйтесь: какая мера остановила бы атаку</h3>
     <p>Решено <b id="cix-sc-score">0</b> из <span id="cix-sc-total">0</span>.</p>
     <div id="cix-sc"></div>
@@ -2453,5 +2484,121 @@ spec:
      why:'Метрики смотрят вместе: высокая частота при доле неудачных изменений около 33 % — это скорость без страховки. Выкатывать реже — не лекарство: большие пачки обычно ломаются чаще. Лечат качеством ворот: тестами, стендом, похожим на прод, канарейкой и автооткатом.'},
   ], 'cix-q-score', 'cix-q-total');
   Progress.register('cix-q-score', 12, 'CI/CD и IaC: вопросы');
+})();
+</script>
+
+<script>
+/* ═══ «Руками»: путь кода в прод и шлагбаумы на звеньях ═══ */
+(function(){
+  const root = document.getElementById('cix-ch-chain'); if(!root) return;
+  const byId = document.getElementById.bind(document);
+  const NODES = [
+    {ic:'👩‍💻', n:'Разработчик'}, {ic:'📚', n:'Git: ветка main'}, {ic:'⚙️', n:'Конвейер CI', s:'сторонние действия, секреты'},
+    {ic:'🏭', n:'Сборка', s:'код + библиотеки → образ'}, {ic:'🗄', n:'Реестр образов'}, {ic:'☸️', n:'Кластер'}, {ic:'👩', n:'Анна', s:'покупатель'},
+  ];
+  const DEF = [
+    {id:'protect', at:1, n:'🛡 Защищённая ветка'},
+    {id:'pin', at:2, n:'📌 Действия по хешу'},
+    {id:'oidc', at:2, n:'🎫 Без вечных ключей'},
+    {id:'sca', at:3, n:'🔎 SBOM и скан'},
+    {id:'prov', at:3, n:'🧾 Укреплённая сборка'},
+    {id:'sign', at:5, n:'✍ Проверка подписи'},
+  ];
+  const ATK = [
+    {id:'insider', at:0, l:'Подрядчик пушит в main', d:'Подрядчик, которому завтра закроют доступ, пушит прямо в main правку, которая отправляет номера карт на его сервер.'},
+    {id:'action', at:2, l:'Взломали стороннее действие', d:'Популярное действие CI взломали и перевесили его тег на вредоносный коммит. Оно печатает секреты конвейера в журнал (как tj-actions/changed-files, 2025).'},
+    {id:'log4j', at:3, l:'Уязвимая библиотека', d:'В образ попала log4j-core 2.14.1 — с критической уязвимостью Log4Shell (2021).'},
+    {id:'registry', at:4, l:'Подмена образа в реестре', d:'Злоумышленник с украденным доступом к реестру залил свой образ под тем же тегом :1.8.0.'},
+    {id:'solar', at:3, l:'Взломали саму сборку', d:'Злоумышленник проник в систему сборки и вшивает код прямо во время сборки. Исходники в Git чистые (как SolarWinds, 2020).'},
+  ];
+  const TXT = {
+    insider:{stop:'Защищённая ветка не приняла прямой push. В main — только через запрос на слияние, одобрение второго человека и зелёный конвейер. Правка подрядчика застряла на ревью.',
+             pass:'Прямой push в main прошёл, конвейер честно собрал и выкатил правку. Номера карт уходят на чужой сервер. Остальные меры не помогли: для них это обычный коммит из main, собранный и подписанный вашим же конвейером.'},
+    action:{stop:'Действие закреплено по полному хешу коммита. Тег злоумышленник перевесил, но ваш конвейер берёт не тег, а конкретный проверенный коммит — вредоносный код просто не запустился.',
+            less:'Вредоносное действие запустилось и напечатало секреты в журнал. Но вечных ключей нет: временные ключи облака живут час. Пока их найдут в журнале, они уже бесполезны. Ущерб мал — но чужой код всё равно работал внутри вашего конвейера.',
+            pass:'Действие напечатало секреты в журнал сборки. Среди них — вечный ключ от облака, который лежит в CI с 2022 года. Злоумышленнику некуда спешить: с этим ключом он зальёт свой образ или скачает базу.'},
+    log4j:{stop:'Сканер сверил опись состава образа (SBOM) с базами уязвимостей и закрыл ворота: «есть критическая уязвимость». Образ не уехал дальше сборки. А когда объявят новую уязвимость, по SBOM за минуту видно, в каких сервисах она есть.',
+           pass:'Образ с уязвимой log4j уехал в прод. Когда объявили Log4Shell, компании неделями выясняли, где у них вообще эта библиотека. Без описи состава — как вскрывать каждую банку на складе.'},
+    registry:{stop:'Тег можно перевесить, подпись — подделать нельзя. Политика на входе в кластер проверила подпись: этот образ подписан не вашим конвейером. Запуск запрещён.',
+              pass:'Кластер скачал образ по тегу :1.8.0 — тот самый, подменённый. Тег — просто ярлык, его можно перевесить на любой образ. Без проверки подписи кластер подмену не отличит.'},
+    solar:{stop:'Укреплённая сборка (SLSA Build L3): запуски изолированы, ключ подписи недоступен шагам сборки, а подписанный документ о происхождении не сходится с коммитом. Подделать это можно, только взломав саму платформу сборки.',
+           pass:'Вредоносный код вшит прямо при сборке и уехал к Анне. Никто не заметил: исходники в Git чистые, ревью ничего не нашло.',
+           sign:'Подпись не спасла: образ подписал ваш же конвейер, настоящим ключом. Так и было с SolarWinds в 2020 году: заражённое обновление с подлинной подписью поставили около 18 000 клиентов. Против взлома самой сборки нужна укреплённая сборка с проверяемым происхождением.'},
+  };
+  const on = {}; let atk = ATK[0], timer = null;
+  byId('cix-ch-atk').innerHTML = ATK.map((a, i) => '<button data-i="' + i + '"' + (i ? '' : ' class="on"') + '>' + a.l + '</button>').join('');
+  byId('cix-ch-def').innerHTML = DEF.map(d => '<button data-d="' + d.id + '">' + d.n + '</button>').join('');
+  function drawChain(st){
+    st = st || {};
+    root.innerHTML = NODES.map((nd, i) => {
+      const gates = DEF.filter(d => d.at === i).map(d => '<span class="cix-gate' + (on[d.id] ? ' on' : '') + '">' + d.n + '</span>').join('');
+      const cls = ['cix-node'];
+      if(i === atk.at) cls.push('entry');
+      if(st.path && st.path.indexOf(i) >= 0) cls.push('hit');
+      if(st.cur === i) cls.push('poison');
+      if(st.stop === i) cls.push('stop');
+      if(st.end === i) cls.push('end');
+      return '<div class="' + cls.join(' ') + '"><div class="cix-node__ic">' + nd.ic + '</div><div class="cix-node__n">' + nd.n + '</div>' +
+        (nd.s ? '<div class="cix-node__s">' + nd.s + '</div>' : '') + (gates ? '<div class="cix-gates">' + gates + '</div>' : '') +
+        (i === atk.at ? '<div class="cix-node__in">☠️ вход атаки</div>' : '') + '</div>';
+    }).join('<div class="cix-arrow" aria-hidden="true">→</div>');
+  }
+  function layers(){ return DEF.filter(d => on[d.id]).length; }
+  function idle(){
+    clearTimeout(timer); timer = null;
+    drawChain();
+    byId('cix-ch-desc').innerHTML = '<b>Атака:</b> ' + atk.d;
+    msg(byId('cix-ch-msg'), '', 'Включите меры защиты (сейчас слоёв: ' + layers() + ' из 6) и нажмите «Запустить атаку».');
+  }
+  function run(){
+    clearTimeout(timer);
+    const path = []; let i = atk.at, signNote = false;
+    const step = () => {
+      path.push(i);
+      let res = null;
+      if(atk.id === 'insider' && i === 1 && on.protect) res = ['stop', 'ok'];
+      if(atk.id === 'action' && i === 2) res = on.pin ? ['stop', 'ok'] : on.oidc ? ['less', 'warn'] : ['pass', 'err'];
+      if(atk.id === 'log4j' && i === 3 && on.sca) res = ['stop', 'ok'];
+      if(atk.id === 'registry' && i === 5 && on.sign) res = ['stop', 'ok'];
+      if(atk.id === 'solar' && i === 3 && on.prov) res = ['stop', 'ok'];
+      if(atk.id === 'solar' && i === 5 && on.sign) signNote = true;
+      if(!res && i === NODES.length - 1) res = [signNote ? 'sign' : 'pass', 'err'];
+      if(res){
+        const st = {path, cur:i};
+        if(res[0] === 'stop') st.stop = i; else st.end = i;
+        drawChain(st);
+        let t = TXT[atk.id][res[0]];
+        if(res[0] === 'stop' || res[0] === 'less') t = (res[0] === 'stop' ? '<b>Остановлено.</b> ' : '<b>Ущерб снижен.</b> ') + t;
+        else t = '<b>Атака прошла.</b> ' + t;
+        if(layers() === DEF.length) t += ' <br>Включены все шесть мер — и каждая стерегла своё звено. Ни одна не закрывает всё сама: защиту цепочки ставят слоями.';
+        msg(byId('cix-ch-msg'), res[1], t);
+        timer = null; return;
+      }
+      drawChain({path, cur:i});
+      msg(byId('cix-ch-msg'), '', '☠️ ' + NODES[i].n + (atk.id === 'solar' && i === 5 && signNote ? ' — подпись настоящая, кластер пропускает…' : ' — проходит дальше…'));
+      i++; timer = setTimeout(step, 520);
+    };
+    step();
+  }
+  byId('cix-ch-atk').addEventListener('click', e => {
+    const b = e.target.closest('button[data-i]'); if(!b) return;
+    atk = ATK[+b.dataset.i];
+    [...byId('cix-ch-atk').children].forEach(x => x.classList.toggle('on', x === b));
+    idle();
+  });
+  byId('cix-ch-def').addEventListener('click', e => {
+    const b = e.target.closest('button[data-d]'); if(!b) return;
+    on[b.dataset.d] = !on[b.dataset.d]; b.classList.toggle('on', !!on[b.dataset.d]);
+    idle();
+  });
+  byId('cix-ch-run').addEventListener('click', run);
+  byId('cix-ch-all').addEventListener('click', () => {
+    const all = layers() < DEF.length;
+    DEF.forEach(d => { on[d.id] = all; });
+    [...byId('cix-ch-def').children].forEach(x => x.classList.toggle('on', all));
+    byId('cix-ch-all').textContent = all ? '⟲ Снять все меры' : '🛡 Включить все меры';
+    idle();
+  });
+  idle();
 })();
 </script>
