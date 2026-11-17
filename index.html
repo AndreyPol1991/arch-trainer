@@ -67821,6 +67821,77 @@ status:               # фактическое — пишут контролле
     </table></div>
     <div class="note warn"><b>Три частые ошибки с ресурсами.</b> 1) <b>Не указать requests</b> — планировщик считает под бесплатным и набивает узел, пока тот не начнёт задыхаться. 2) <b>Лимит памяти меньше реального пика</b> — сервис падает с OOMKilled под нагрузкой, ровно тогда, когда нужен больше всего. 3) <b>Жёсткий лимит CPU</b> у сервиса, чувствительного к задержкам, — вспышки притормаживания видны как рост p99. Насчёт лимитов CPU мнения в индустрии расходятся; насчёт памяти почти все советуют ставить limit равным request.</div>
 
+    <style>
+      .k8x-rl{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin-top:10px}
+      @media (max-width:820px){.k8x-rl{grid-template-columns:minmax(0,1fr)}}
+      .k8x-rl-bar{position:relative; height:26px; margin:30px 0 6px; border-radius:8px; background:var(--surface-2); border:1px solid var(--line)}
+      .k8x-rl-bar i{position:absolute; top:0; bottom:0}
+      .k8x-rl-bar i.g, .k8x-rl-leg i.g{background:color-mix(in srgb,var(--ok) 45%,var(--surface))}
+      .k8x-rl-bar i.a, .k8x-rl-leg i.a{background:color-mix(in srgb,var(--warn) 35%,var(--surface))}
+      .k8x-rl-bar i.r, .k8x-rl-leg i.r{background:color-mix(in srgb,var(--danger) 35%,var(--surface))}
+      .k8x-rl-bar i.g{border-radius:8px 0 0 8px}
+      .k8x-rl-bar .use{position:absolute; top:-6px; bottom:-6px; width:3px; margin-left:-1px; background:var(--ink); transition:left .2s}
+      .k8x-rl-bar .use span{position:absolute; bottom:100%; left:50%; transform:translateX(-50%); white-space:nowrap; font:700 11px var(--mono); color:var(--ink); padding-bottom:2px}
+      .k8x-rl-leg{display:flex; flex-wrap:wrap; gap:4px 12px; font-size:11.5px; color:var(--muted)}
+      .k8x-rl-leg i{display:inline-block; width:10px; height:10px; border-radius:3px; margin-right:4px; vertical-align:-1px}
+      .k8x-gs-ctl{display:grid; grid-template-columns:auto minmax(0,1fr); gap:4px 10px; align-items:center; margin-top:10px; font-size:13px}
+      .k8x-gs-ctl .seg{margin:0}
+      @media (max-width:640px){.k8x-gs-ctl{grid-template-columns:minmax(0,1fr)}}
+      .k8x-gs{position:relative; margin-top:14px; padding:22px 0 26px}
+      .k8x-gs-scale{position:relative; height:16px; margin-left:var(--gsl); border-bottom:1px solid var(--line)}
+      .k8x-gs-scale span{position:absolute; transform:translateX(-50%); font:600 10.5px var(--mono); color:var(--faint); white-space:nowrap}
+      @media (max-width:640px){.k8x-gs-scale span{font-size:9.5px}.k8x-gs-scale span:nth-child(even){display:none}}
+      .k8x-gs{--gsl:220px}
+      @media (max-width:640px){.k8x-gs{--gsl:0px}.k8x-gs-ln{position:static!important; display:block; width:auto!important; margin-bottom:2px}}
+      .k8x-gs-lane{position:relative; display:flex; align-items:center; min-height:30px; margin-top:6px}
+      .k8x-gs-ln{position:absolute; left:0; width:var(--gsl); padding-right:10px; font-size:12.5px; color:var(--ink)}
+      @media (max-width:640px){.k8x-gs-lane{display:block}}
+      .k8x-gs-track{position:relative; flex:1; height:22px; margin-left:var(--gsl); border-radius:6px; background:var(--surface-2)}
+      .k8x-gs-track i{position:absolute; top:0; bottom:0; border-radius:6px; font:700 10.5px/22px var(--mono); color:var(--ink); text-align:center; overflow:hidden; white-space:nowrap}
+      .k8x-gs-track i.ok{background:color-mix(in srgb,var(--ok) 40%,var(--surface))}
+      .k8x-gs-track i.mid{background:color-mix(in srgb,var(--accent) 30%,var(--surface))}
+      .k8x-gs-track i.bad{background:color-mix(in srgb,var(--danger) 45%,var(--surface)); color:#fff}
+      .k8x-gs-track em{font-size:11.5px; color:var(--faint); padding-left:8px; line-height:22px}
+      .k8x-gs-mks{position:absolute; left:var(--gsl); right:0; top:22px; bottom:24px; pointer-events:none}
+      .k8x-gs-mks b{position:absolute; top:0; bottom:0; width:2px}
+      .k8x-gs-mks b span{position:absolute; bottom:-18px; left:50%; transform:translateX(-50%); white-space:nowrap; font:800 10.5px var(--mono)}
+      .k8x-gs-mks b.term{background:var(--warn)} .k8x-gs-mks b.term span{color:var(--warn)}
+      .k8x-gs-mks b.kill{background:var(--danger)} .k8x-gs-mks b.kill span{color:var(--danger)}
+      .k8x-gs-mks b.done{background:var(--ok)} .k8x-gs-mks b.done span{color:var(--ok)}
+      .k8x-pdb{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; margin-top:10px}
+      @media (max-width:640px){.k8x-pdb{grid-template-columns:minmax(0,1fr)}}
+      .k8x-pdb-node{border:1px solid var(--line); border-radius:10px; padding:8px 10px; background:var(--surface)}
+      .k8x-pdb-node.drain{border-style:dashed; border-color:var(--warn)}
+      .k8x-pdb-node h5{margin:0 0 6px; font:700 11px var(--mono); color:var(--faint); text-transform:uppercase}
+      .k8x-pdb-pods{display:flex; flex-wrap:wrap; gap:5px; min-height:26px}
+      .k8x-pdb-pods em{font-size:12px; color:var(--faint)}
+      .k8x-pdb-pod{font:700 11.5px var(--mono); padding:4px 8px; border-radius:7px}
+      .k8x-pdb-pod.ready{background:var(--ok-bg); color:var(--ok)}
+      .k8x-pdb-pod.start{background:color-mix(in srgb,var(--warn) 18%,var(--surface)); color:var(--warn)}
+      .k8x-pdb-pod.gone{background:color-mix(in srgb,var(--danger) 14%,var(--surface)); color:var(--danger); text-decoration:line-through}
+      #k8x-pdb-ready b.bad{color:var(--danger)}
+    </style>
+    <h3>Попробуйте: бронь и потолок</h3>
+    <p>Под магазина в обычное время ест 600Mi памяти и 300m CPU, а в час пик — больше. Двигайте бронь (request), потолок (limit) и то, сколько сервису <b>на самом деле</b> нужно в пик. Смотрите, где окажется чёрная черта.</p>
+    <div class="k8x-rl">
+      <div class="k8x-pg-box" style="border:1px solid var(--line); border-radius:10px; padding:10px 12px">
+        <b>🧠 Память</b>
+        <div class="slider-row"><label for="k8x-rl-mreq">request</label><input type="range" id="k8x-rl-mreq" min="256" max="2048" step="128" value="768"><span class="sv" id="k8x-rl-mreq-v"></span></div>
+        <div class="slider-row"><label for="k8x-rl-mlim">limit (0 = нет)</label><input type="range" id="k8x-rl-mlim" min="0" max="4096" step="128" value="1024"><span class="sv" id="k8x-rl-mlim-v"></span></div>
+        <div class="slider-row"><label for="k8x-rl-muse">нужно в пик</label><input type="range" id="k8x-rl-muse" min="256" max="3072" step="64" value="960"><span class="sv" id="k8x-rl-muse-v"></span></div>
+        <div id="k8x-rl-mem"></div>
+      </div>
+      <div style="border:1px solid var(--line); border-radius:10px; padding:10px 12px">
+        <b>⚙️ CPU</b>
+        <div class="slider-row"><label for="k8x-rl-creq">request</label><input type="range" id="k8x-rl-creq" min="100" max="1500" step="50" value="250"><span class="sv" id="k8x-rl-creq-v"></span></div>
+        <div class="slider-row"><label for="k8x-rl-clim">limit (0 = нет)</label><input type="range" id="k8x-rl-clim" min="0" max="2000" step="50" value="500"><span class="sv" id="k8x-rl-clim-v"></span></div>
+        <div class="slider-row"><label for="k8x-rl-cuse">нужно в пик</label><input type="range" id="k8x-rl-cuse" min="100" max="2000" step="50" value="900"><span class="sv" id="k8x-rl-cuse-v"></span></div>
+        <div id="k8x-rl-cpu"></div>
+      </div>
+    </div>
+    <p class="k8x-small" id="k8x-rl-qos" style="margin:10px 0 0; font-size:13px"></p>
+    <div class="console" id="k8x-rl-msg"></div>
+
     <h3>Taints и tolerations: узел, который отталкивает</h3>
     <div class="k8x-def"><b>Taint</b> («пятно», метка-отпугиватель) вешают на <b>узел</b>: «сюда нельзя, если не разрешено особо». <b>Toleration</b> («терпимость») пишут в <b>под</b>: «мне это пятно не мешает». Под без toleration на такой узел не попадёт.</div>
     <div class="k8x-life">табличка «только для персонала» на двери. Посетитель без бейджа туда не зайдёт. Но бейдж — это <b>разрешение</b>, а не приказ: сотрудник с бейджем может сидеть и в общем зале.</div>
@@ -67886,6 +67957,18 @@ status:               # фактическое — пишут контролле
       <div class="step done"><div class="si">3</div><div><b>Контейнеру отправляется сигнал SIGTERM.</b> Приложение должно перестать принимать новые соединения, доделать начатые запросы, закрыть соединения с базой.<span class="sx">Если приложение игнорирует SIGTERM, оно просто будет работать до шага 4 и умрёт посреди запросов.</span></div></div>
       <div class="step fail"><div class="si">4</div><div><b>Через terminationGracePeriodSeconds (по умолчанию 30 с) — SIGKILL.</b> Всё, что не успело, обрывается.<span class="sx">Для долгих операций увеличивают период. Но слишком длинный период замедляет каждую выкатку и обслуживание узлов.</span></div></div>
     </div>
+    <h3>Попробуйте: шкала последних 35 секунд пода</h3>
+    <p>Магазин получает 50 запросов в секунду. Сети нужно около 3 секунд, чтобы все узлы забыли адрес удаляемого пода. Настройте под и посмотрите, сколько запросов потеряется при его удалении.</p>
+    <div class="k8x-gs-ctl">
+      <span>Пауза preStop</span><div class="seg" id="k8x-gs-pre"><button data-v="0" class="on">нет</button><button data-v="5">5 с</button><button data-v="10">10 с</button></div>
+      <span>На SIGTERM приложение</span><div class="seg" id="k8x-gs-sig"><button data-v="0" class="on">не реагирует</button><button data-v="1">доделывает начатое и выходит</button></div>
+      <span>Долгий запрос</span><div class="seg" id="k8x-gs-long"><button data-v="0" class="on">нет</button><button data-v="1">идёт выгрузка отчёта</button></div>
+      <span>terminationGracePeriodSeconds</span><div class="seg" id="k8x-gs-grace"><button data-v="30" class="on">30 (по умолчанию)</button><button data-v="60">60</button></div>
+    </div>
+    <div class="k8x-gs" id="k8x-gs-tl"></div>
+    <div class="meters" id="k8x-gs-kpi"></div>
+    <div class="console" id="k8x-gs-msg"></div>
+
     <div class="note"><b>Как это звучит у аналитика.</b> «Сервис корректно завершает работу по сигналу остановки: не принимает новые запросы, завершает начатые в течение 25 секунд; во время плановой выкатки доля ошибок не превышает 0,1 %». Это проверяемое требование, а не пожелание «без простоя».</div>
   </div>
 
@@ -67963,6 +68046,14 @@ spec:
   selector:
     matchLabels:
       app: pay</pre>
+    <h3>Попробуйте: осушите node-1</h3>
+    <p>У оплаты 4 пода, и три из них, как назло, на node-1 — его надо обновить. Под нагрузкой оплате нужно минимум 2 готовых пода. Выберите бюджет и идите по шагам: один шаг — 10 секунд, новому поду нужно 20 секунд, чтобы стать готовым.</p>
+    <div class="seg" id="k8x-pdb-min"><button data-v="-1" class="on">без PDB</button><button data-v="2">minAvailable: 2</button><button data-v="3">minAvailable: 3</button><button data-v="4">minAvailable: 4</button></div>
+    <div class="k8x-pdb" id="k8x-pdb-nodes"></div>
+    <p id="k8x-pdb-ready" style="margin:8px 0 0; font-size:13.5px"></p>
+    <div class="skbar"><button class="ghost" id="k8x-pdb-prev">←</button><button class="act" id="k8x-pdb-next">Дальше →</button><button class="ghost" id="k8x-pdb-reset">⟲ С начала</button><span class="skstep" id="k8x-pdb-t"></span></div>
+    <div class="console" id="k8x-pdb-msg"></div>
+
     <div class="note"><b>Как это звучит у аналитика.</b> «Плановые работы на инфраструктуре проводятся без остановки сервиса; во время них работает не менее двух экземпляров сервиса оплаты». В манифестах это три реплики, PDB с minAvailable: 2 и корректное завершение подов (глава 8).</div>
   </div>
 
@@ -69742,6 +69833,164 @@ spec:
      why:'Kubernetes окупается на многих сервисах и командах. Для одного монолита его обслуживание съест больше времени, чем сэкономит. Выкатку без простоя и перезапуск при сбоях дают и более простые платформы.'},
   ], 'k8x-q-score', 'k8x-q-total');
   Progress.register('k8x-q-score', 12, 'Kubernetes: проверь себя');
+})();
+</script>
+
+<script>
+/* ═══ «Руками»: requests и limits, завершение пода, осушение узла с PDB ═══ */
+(function(){
+  const el = document.getElementById('k8x-rl-mreq'); if(!el) return;
+  const byId = document.getElementById.bind(document);
+  const ids = ['mreq', 'mlim', 'muse', 'creq', 'clim', 'cuse'];
+  const v = k => +byId('k8x-rl-' + k).value;
+  const mi = n => n >= 1024 ? (n / 1024).toLocaleString('ru-RU', {maximumFractionDigits:2}) + 'Gi' : n + 'Mi';
+  const mc = n => n >= 1000 && n % 1000 === 0 ? (n / 1000) + '' : n + 'm';
+  function bar(req, lim, use, max, fmt){
+    const P = x => Math.min(100, x / max * 100);
+    const limP = lim ? P(lim) : 100;
+    return '<div class="k8x-rl-bar">' +
+      '<i class="g" style="left:0;width:' + P(req) + '%"></i>' +
+      '<i class="a" style="left:' + P(req) + '%;width:' + Math.max(0, limP - P(req)) + '%"></i>' +
+      (lim ? '<i class="r" style="left:' + limP + '%;width:' + (100 - limP) + '%"></i>' : '') +
+      '<b class="use" style="left:' + P(use) + '%"><span>нужно ' + fmt(use) + '</span></b></div>' +
+      '<div class="k8x-rl-leg"><span><i class="g"></i>гарантировано (request ' + fmt(req) + ')</span><span><i class="a"></i>можно, если на узле свободно</span>' +
+      (lim ? '<span><i class="r"></i>выше лимита (' + fmt(lim) + ')</span>' : '<span>лимита нет</span>') + '</div>';
+  }
+  function draw(){
+    let mreq = v('mreq'), mlim = v('mlim'), creq = v('creq'), clim = v('clim');
+    if(mlim && mlim < mreq){ mlim = mreq; byId('k8x-rl-mlim').value = mreq; }
+    if(clim && clim < creq){ clim = creq; byId('k8x-rl-clim').value = creq; }
+    const muse = v('muse'), cuse = v('cuse');
+    byId('k8x-rl-mreq-v').textContent = mi(mreq);
+    byId('k8x-rl-mlim-v').textContent = mlim ? mi(mlim) : 'нет';
+    byId('k8x-rl-muse-v').textContent = mi(muse);
+    byId('k8x-rl-creq-v').textContent = mc(creq);
+    byId('k8x-rl-clim-v').textContent = clim ? mc(clim) : 'нет';
+    byId('k8x-rl-cuse-v').textContent = mc(cuse);
+    byId('k8x-rl-mem').innerHTML = bar(mreq, mlim, muse, 4096, mi);
+    byId('k8x-rl-cpu').innerHTML = bar(creq, clim, cuse, 2000, mc);
+    const qos = (mlim === mreq && clim === creq) ? 'Guaranteed' : 'Burstable';
+    byId('k8x-rl-qos').innerHTML = 'Класс качества пода: <b>' + qos + '</b>' + (qos === 'Guaranteed' ? ' — request = limit по памяти и CPU, при нехватке памяти на узле его тронут последним.' : ' — может брать больше запрошенного, пока на узле свободно.');
+    const out = [];
+    let kind = 'ok';
+    if(mlim && muse > mlim){ kind = 'err'; out.push('<b>Память: OOMKilled.</b> В пик сервису нужно ' + mi(muse) + ', а потолок — ' + mi(mlim) + '. Ядро убивает контейнер, kubelet перезапускает его — и так по кругу, ровно в час пик, когда сервис нужнее всего.'); }
+    else if(muse > mreq){ if(kind === 'ok') kind = 'warn'; out.push('<b>Память: берёт сверх брони.</b> Гарантировано ' + mi(mreq) + ', а нужно ' + mi(muse) + '. Пока на узле свободно — работает. Когда соседям станет тесно, такие поды выселяют первыми. Планировщик смотрит только на request — он не знает, что вам нужно больше.'); }
+    else out.push('<b>Память в порядке:</b> пик ' + mi(muse) + ' укладывается в гарантированные ' + mi(mreq) + '.');
+    if(clim && cuse > clim){ const th = Math.round((1 - clim / cuse) * 100); if(kind === 'ok') kind = 'warn'; out.push('<b>CPU: притормаживание.</b> Нужно ' + mc(cuse) + ', потолок ' + mc(clim) + ' — примерно ' + th + ' % времени контейнер стоит в очереди. Он не падает, а медленнее отвечает: в метриках это рост p99.'); }
+    else if(cuse > creq) out.push('<b>CPU:</b> берёт ' + mc(cuse) + ' при брони ' + mc(creq) + ' — пока на узле есть свободные ядра, без последствий.');
+    else out.push('<b>CPU в порядке:</b> пик ' + mc(cuse) + ' в пределах брони.');
+    msg(byId('k8x-rl-msg'), kind, out.join('<br>'));
+  }
+  ids.forEach(k => byId('k8x-rl-' + k).addEventListener('input', draw));
+  draw();
+})();
+
+(function(){
+  const root = document.getElementById('k8x-gs-tl'); if(!root) return;
+  const byId = document.getElementById.bind(document);
+  const st = {pre:0, sig:0, long:0, grace:30};
+  const NET = 3, RATE = 50, LONG_END = 35;
+  function seg(id, key){
+    byId(id).addEventListener('click', e => {
+      const b = e.target.closest('button[data-v]'); if(!b) return;
+      st[key] = +b.dataset.v;
+      [...byId(id).children].forEach(x => x.classList.toggle('on', x === b));
+      draw();
+    });
+  }
+  function draw(){
+    const P = st.pre, G = st.grace;
+    let exit, killed = false;
+    if(st.sig){ exit = st.long ? LONG_END : P + 0.5; if(exit > G){ exit = G; killed = true; } }
+    else { exit = G; killed = true; }
+    const acceptEnd = st.sig ? P : exit;
+    const refused = st.sig ? Math.max(0, NET - P) * RATE : 0;
+    const longCut = st.long && LONG_END > exit;
+    const T = Math.max(G, LONG_END) + 3;
+    const X = t => (Math.max(0, Math.min(t, T)) / T * 100).toFixed(2) + '%';
+    const W = (a, b) => ((Math.max(0, Math.min(b, T) - Math.max(0, a))) / T * 100).toFixed(2) + '%';
+    const lane = (name, bars) => '<div class="k8x-gs-lane"><span class="k8x-gs-ln">' + name + '</span><div class="k8x-gs-track">' + bars + '</div></div>';
+    const b = (a, z, cls, txt) => z > a ? '<i class="' + cls + '" style="left:' + X(a) + ';width:' + W(a, z) + '">' + (txt || '') + '</i>' : '';
+    let net = refused ? b(0, P, 'ok', '') + b(P, NET, 'bad', 'отказ') : b(0, NET, 'ok', 'обслужены');
+    let html = '<div class="k8x-gs-scale">' + [0, 5, 10, 15, 20, 25, 30, 35].filter(t => t <= T).map(t => '<span style="left:' + X(t) + '">' + t + ' с</span>').join('') + '</div>';
+    html += lane('🌐 Сеть ещё шлёт новые запросы', net);
+    html += lane('⏸ preStop', P ? b(0, P, 'mid', 'пауза ' + P + ' с') : '<em>нет</em>');
+    html += lane('🟢 Приложение принимает новые', acceptEnd > 0 ? b(0, acceptEnd, 'ok', '') : '<em>перестало сразу</em>');
+    html += lane('📄 Выгрузка отчёта (осталось 35 с)', st.long ? b(0, Math.min(LONG_END, exit), 'mid', '') + (longCut ? b(exit, LONG_END, 'bad', 'оборвана') : '') : '<em>нет долгих запросов</em>');
+    html += '<div class="k8x-gs-mks"><b class="term" style="left:' + X(P) + '"><span>SIGTERM</span></b>' +
+      (killed ? '<b class="kill" style="left:' + X(G) + '"><span>SIGKILL</span></b>' : '<b class="done" style="left:' + X(exit) + '"><span>' + (exit - P < 2 ? '' : 'вышел сам') + '</span></b>') + '</div>';
+    root.innerHTML = html;
+    const lost = refused + (longCut ? 1 : 0);
+    byId('k8x-gs-kpi').innerHTML =
+      '<span class="meter">Потеряно запросов: <b' + (lost ? ' style="color:var(--danger)"' : '') + '>' + lost + '</b></span>' +
+      '<span class="meter">Под завершился через: <b>' + (Math.round(exit * 10) / 10).toString().replace('.', ',') + ' с</b></span>';
+    const m = byId('k8x-gs-msg');
+    if(!st.sig) msg(m, 'err', 'Приложение <b>не слушает SIGTERM</b>: работает как ни в чём не бывало, и через ' + G + ' с его убивают SIGKILL посреди работы.' + (longCut ? ' Выгрузка отчёта оборвана.' : '') + ' К тому же каждый под умирает целых ' + G + ' с — выкатка из десяти подов растягивается.');
+    else if(refused && longCut) msg(m, 'err', 'Две беды сразу. Без паузы preStop приложение закрылось раньше, чем сеть забыла его адрес: ' + refused + ' запросов получили отказ. А выгрузке отчёта не хватило ' + G + ' с — её оборвал SIGKILL.');
+    else if(refused) msg(m, 'warn', 'Приложение честно закрылось по SIGTERM — но <b>слишком рано</b>. Ещё ' + (NET - P) + ' с сеть по старой памяти слала ему запросы: ' + refused + ' получили отказ. Это и есть «пара ошибок на каждой выкатке». Лекарство — пауза preStop на несколько секунд.');
+    else if(longCut) msg(m, 'warn', 'Короткие запросы не потеряны. Но выгрузке отчёта нужно 35 с, а период на завершение — ' + G + ' с: её оборвал SIGKILL. Увеличьте период — или делайте долгие операции фоновыми заданиями, которые можно продолжить.');
+    else msg(m, 'ok', 'Ни одного потерянного запроса. Пауза preStop дала сети забыть адрес пода, по SIGTERM приложение доделало начатое и вышло само — до SIGKILL дело не дошло.');
+  }
+  seg('k8x-gs-pre', 'pre'); seg('k8x-gs-sig', 'sig'); seg('k8x-gs-long', 'long'); seg('k8x-gs-grace', 'grace');
+  draw();
+})();
+
+(function(){
+  const root = document.getElementById('k8x-pdb-nodes'); if(!root) return;
+  const byId = document.getElementById.bind(document);
+  let min = -1, frames = [], fi = 0;
+  function simulate(){
+    const pods = [{id:'pay-a', node:1, s:'ready'}, {id:'pay-b', node:1, s:'ready'}, {id:'pay-c', node:1, s:'ready'}, {id:'pay-d', node:2, s:'ready'}];
+    const out = []; let next = 0, n = 0;
+    const snap = (t, txt, kind) => out.push({t, pods:pods.map(p => Object.assign({}, p)), txt, kind});
+    snap(0, 'Начало: 4 пода оплаты готовы, три из них — на node-1. Администратор запускает <code class="inl">kubectl drain node-1</code>.', '');
+    for(let t = 1; t <= 12; t++){
+      pods.forEach(p => { if(p.s === 'start' && --p.left <= 0) p.s = 'ready'; });
+      const ready = pods.filter(p => p.s === 'ready').length;
+      const onNode = pods.filter(p => p.node === 1);
+      const starting = pods.some(p => p.s === 'start');
+      if(!onNode.length){
+        if(starting){ snap(t, 'На node-1 подов оплаты больше нет. Ждём, пока замена запустится: готово ' + ready + ' из 4.', ready < 2 ? 'err' : ''); continue; }
+        snap(t, 'Узел node-1 осушён, замена готова: ' + ready + ' из 4. Можно обновлять сервер.', 'ok'); break;
+      }
+      if(min === 4 && t > 4){ snap(t, 'Drain всё ещё ждёт… и будет ждать вечно.', 'err'); break; }
+      const allowed = min < 0 ? Infinity : ready - min;
+      const ev = allowed > 0 ? onNode.filter(p => p.s === 'ready').slice(0, allowed) : [];
+      ev.forEach(p => { p.s = 'gone'; pods.push({id:'pay-' + 'efgh'[next++], node:2 + (n++ % 2), s:'start', left:2}); });
+      const r2 = pods.filter(p => p.s === 'ready').length;
+      if(ev.length) snap(t, 'Выселены: ' + ev.map(p => p.id).join(', ') + '. Замена запускается на других узлах. Готово ' + r2 + ' из 4.', r2 < 2 ? 'err' : '');
+      else snap(t, 'Бюджет не разрешает выселять: готово ' + ready + ', а должно оставаться не меньше ' + min + '. Drain ждёт и повторяет попытку.', min === 4 ? 'warn' : '');
+      pods.splice(0, pods.length, ...pods.filter(p => p.s !== 'gone'));
+    }
+    return out;
+  }
+  function draw(){
+    const f = frames[fi];
+    byId('k8x-pdb-t').textContent = 'шаг ' + fi + ' из ' + (frames.length - 1) + ' · прошло ' + (f.t * 10) + ' с';
+    root.innerHTML = [1, 2, 3].map(n => '<div class="k8x-pdb-node' + (n === 1 ? ' drain' : '') + '"><h5>🖥 node-' + n + (n === 1 ? ' · осушается' : '') + '</h5><div class="k8x-pdb-pods">' +
+      (f.pods.filter(p => p.node === n).map(p => '<span class="k8x-pdb-pod ' + p.s + '">' + p.id + (p.s === 'start' ? ' ⏳' : p.s === 'gone' ? ' ✕' : ' ✓') + '</span>').join('') || '<em>пусто</em>') + '</div></div>').join('');
+    const ready = f.pods.filter(p => p.s === 'ready').length;
+    byId('k8x-pdb-ready').innerHTML = 'Готовых подов оплаты: <b class="' + (ready < 2 ? 'bad' : '') + '">' + ready + ' из 4</b>' + (ready < 2 ? ' — под нагрузкой оплате нужно минимум 2' : '');
+    let t = f.txt;
+    const last = fi === frames.length - 1;
+    if(last && min === 4) t += '<br><b>Осушение зависло навсегда.</b> minAvailable равен числу реплик — ни один под нельзя выселить никогда. Обновление кластера стоит, пока кто-то не придёт разбираться. Бюджет должен разрешать хотя бы одно прерывание.';
+    if(last && min < 0) t += '<br>Узел осушён быстро, но по дороге оплата оставалась на одном поде: часть платежей Анны в это время получала ошибки.';
+    if(last && (min === 2 || min === 3)) t += '<br>Бюджет держал оплату на ногах всё время работ' + (min === 3 ? ', выселяя по одному поду — медленнее, но надёжнее.' : ': выселил сколько можно, дождался замены и продолжил.');
+    msg(byId('k8x-pdb-msg'), last && min === 4 ? 'err' : f.kind || (last ? 'ok' : ''), t);
+    byId('k8x-pdb-prev').disabled = fi === 0;
+    byId('k8x-pdb-next').disabled = last;
+  }
+  function reset(){ frames = simulate(); fi = 0; draw(); }
+  byId('k8x-pdb-min').addEventListener('click', e => {
+    const b = e.target.closest('button[data-v]'); if(!b) return;
+    min = +b.dataset.v;
+    [...byId('k8x-pdb-min').children].forEach(x => x.classList.toggle('on', x === b));
+    reset();
+  });
+  byId('k8x-pdb-next').addEventListener('click', () => { if(fi < frames.length - 1){ fi++; draw(); } });
+  byId('k8x-pdb-prev').addEventListener('click', () => { if(fi > 0){ fi--; draw(); } });
+  byId('k8x-pdb-reset').addEventListener('click', () => { fi = 0; draw(); });
+  reset();
 })();
 </script>
 <!-- ==================== CI/CD И ИНФРАСТРУКТУРА КАК КОД ==================== -->
