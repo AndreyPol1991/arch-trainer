@@ -202,6 +202,26 @@
     <div class="rfx-def"><b>Репликация автомата состояний</b> (state machine replication). Все копии начинают с одинакового состояния. Они применяют одни и те же команды в одном и том же порядке. Команды детерминированы: одинаковый вход даёт одинаковый результат. Значит, состояния копий совпадают. Спорить нужно только о порядке команд. Этот упорядоченный список команд называют <b>журналом</b> (log).</div>
     <div class="rfx-life">шахматы по переписке. Два игрока в разных городах ведут одну партию на двух досках. Если оба делают одни и те же ходы в одном порядке, доски у них одинаковые. Спорить о положении фигур не нужно — достаточно договориться, какой ход был следующим.</div>
 
+    <style>
+      .rfx-smr{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; margin-top:10px}
+      @media (max-width:760px){.rfx-smr{grid-template-columns:minmax(0,1fr)}}
+      .rfx-smr > div{border:1px solid var(--line); border-radius:12px; padding:10px 12px; background:var(--surface); min-width:0}
+      .rfx-smr h5{margin:0 0 6px; font:700 11px var(--mono); color:var(--faint); text-transform:uppercase}
+      .rfx-smr ol{margin:0 0 8px; padding-left:20px; font-size:13px}
+      .rfx-smr li{padding:2px 0; color:var(--faint)}
+      .rfx-smr li.done{color:var(--ink); font-weight:600}
+      .rfx-smr li.miss{text-decoration:line-through; color:var(--danger)}
+      .rfx-smr .st{font-size:13px; padding:7px 9px; border-radius:8px; background:var(--surface-2); line-height:1.6}
+      .rfx-smr .st.diff{background:color-mix(in srgb,var(--danger) 12%,var(--surface))}
+      .rfx-smr .st.same{background:var(--ok-bg)}
+    </style>
+    <h3>Картинка: три копии склада и одна пара кроссовок</h3>
+    <p>У склада три копии на трёх серверах. Кроссовок 42-го размера осталась <b>одна пара</b>. Приходят три команды: «Анна резервирует пару», «Глеб резервирует пару», «поставка +1 пара». Каждая копия применяет команды из своего журнала по очереди. Выберите, как журналы доехали до копий, и жмите «Дальше».</p>
+    <div class="seg" id="rfx-smr-mode"><button class="on" data-m="same">один порядок у всех</button><button data-m="mix">сеть перемешала порядок</button><button data-m="miss">копия C пропустила команду</button></div>
+    <div class="rfx-smr" id="rfx-smr"></div>
+    <div class="skbar"><button class="act" id="rfx-smr-next">Дальше → применить команду</button><button class="ghost" id="rfx-smr-reset">⟲ Сначала</button><span class="skstep" id="rfx-smr-lab"></span></div>
+    <div class="console" id="rfx-smr-msg"></div>
+
     <h3>Где консенсус уже работает — вы им пользуетесь каждый день</h3>
     <p>Почти никто не пишет консенсус сам. Его берут готовым: внутри хранилища координации или внутри базы. Выберите систему — увидите, о чём в ней договариваются узлы и на каком алгоритме.</p>
     <div class="seg" id="rfx-where-pick"></div>
@@ -2457,5 +2477,57 @@ spec:
       note:'Готовые реализации этой схемы — пакет <code class="inl">concurrency</code> клиента etcd для Go (Election, Mutex) и команды <code class="inl">etcdctl elect</code> и <code class="inl">etcdctl lock</code>. Не пишите её сами с нуля.'},
   };
   Object.keys(Q).forEach(k => renderSeq('rfx-seq-' + k, Q[k]));
+})();
+</script>
+
+<script>
+/* ═══ «Руками»: три копии склада — почему важен один порядок ═══ */
+(function(){
+  const root = document.getElementById('rfx-smr'); if(!root) return;
+  const byId = document.getElementById.bind(document);
+  const C = {a:'👩 Анна резервирует пару', g:'🧔 Глеб резервирует пару', s:'📦 Поставка +1 пара'};
+  const MODES = {
+    same:{A:['a', 'g', 's'], B:['a', 'g', 's'], C:['a', 'g', 's']},
+    mix:{A:['a', 'g', 's'], B:['g', 'a', 's'], C:['s', 'a', 'g']},
+    miss:{A:['a', 'g', 's'], B:['a', 'g', 's'], C:['a', 'g', 'x']},
+  };
+  let mode = 'same', step = 0;
+  function stateAt(log, k){
+    const st = {stock:1, a:'—', g:'—'};
+    log.slice(0, k).forEach(c => {
+      if(c === 's') st.stock++;
+      else if(c === 'a' || c === 'g'){ if(st.stock > 0){ st.stock--; st[c] = '✓ резерв'; } else st[c] = '✗ «нет в наличии»'; }
+    });
+    return st;
+  }
+  const key = st => st.stock + '|' + st.a + '|' + st.g;
+  function draw(){
+    const m = MODES[mode];
+    const states = ['A', 'B', 'C'].map(r => stateAt(m[r], step));
+    const allSame = states.every(x => key(x) === key(states[0]));
+    root.innerHTML = ['A', 'B', 'C'].map((r, i) => {
+      const st = states[i];
+      return '<div><h5>🗄 Копия ' + r + '</h5><ol>' + m[r].map((c, k) =>
+        c === 'x' ? '<li class="' + (k < step ? 'miss' : '') + '">' + C.s + ' — не дошла</li>' :
+        '<li class="' + (k < step ? 'done' : '') + '">' + C[c] + '</li>').join('') + '</ol>' +
+        '<div class="st ' + (step ? (allSame ? 'same' : 'diff') : '') + '">Остаток: <b>' + st.stock + '</b><br>Анна: ' + st.a + '<br>Глеб: ' + st.g + '</div></div>';
+    }).join('');
+    byId('rfx-smr-lab').textContent = 'применено команд: ' + step + ' из 3';
+    byId('rfx-smr-next').disabled = step >= 3;
+    const el = byId('rfx-smr-msg');
+    if(step < 3){ msg(el, allSame ? '' : 'warn', step === 0 ? 'Все копии начинают одинаково: остаток 1. Применяем команды по одной.' : allSame ? 'Пока копии совпадают.' : 'Копии уже разошлись: на одинаковый вопрос они отвечают по-разному.'); return; }
+    if(mode === 'same') msg(el, 'ok', 'Три копии — одна правда: Анна получила пару, Глебу отказали, после поставки осталась одна пара. Команды одинаковые, порядок одинаковый, результат тоже. Спорить нужно было только о порядке — это и есть репликация автомата состояний.');
+    else if(mode === 'mix') msg(el, 'err', 'Три копии — три правды. В копии A пару получила Анна, в B — Глеб, в C — оба, а остаток 0. Покупатель, которого перекинут на другой сервер, увидит другой мир. Команды были те же самые — разным оказался только <b>порядок</b>. Поэтому консенсус спорит именно о порядке.');
+    else msg(el, 'err', 'Копия C не получила поставку: она считает, что кроссовок нет, и отказывает следующим покупателям, а A и B продают. Пропуск одной команды ломает копию так же, как перепутанный порядок. Raft не даёт применить запись, пока её не подтвердило большинство, и дотягивает отставших.');
+  }
+  byId('rfx-smr-mode').addEventListener('click', e => {
+    const b = e.target.closest('button[data-m]'); if(!b) return;
+    mode = b.dataset.m; step = 0;
+    [...byId('rfx-smr-mode').children].forEach(x => x.classList.toggle('on', x === b));
+    draw();
+  });
+  byId('rfx-smr-next').addEventListener('click', () => { if(step < 3){ step++; draw(); } });
+  byId('rfx-smr-reset').addEventListener('click', () => { step = 0; draw(); });
+  draw();
 })();
 </script>
