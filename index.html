@@ -452,12 +452,66 @@
 .fl-say.good{background:color-mix(in srgb,var(--ok) 7%,transparent);border-left-color:var(--ok)}
 @media (max-width:560px){ .fl-node{min-width:84px;padding:6px 8px} .fl-n{font-size:11.5px} }
 </style>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@500;600;700&display=swap">
+<style id="amp-skin">
+/* ── Оформление школы AMP ──────────────────────────────────────────────
+   Тренажёр — часть школы: те же шрифты, цвета и знак, что на ampschool.ru
+   (токены совпадают с apps/web/src/styles.css платформы). Слой только
+   переопределяет переменные тренажёра, вёрстку и сюжет не трогает.
+   Цвета разделов (монолит, микросервисы, данные, сеть) остаются смысловыми,
+   но подобраны к палитре школы. */
+:root{
+  --ground:#f4f6f8; --surface:#ffffff; --surface-2:#eef1f5; --surface-3:#e3e8ee;
+  --ink:#0d141c; --muted:#4a5a6b; --faint:#616f7f; --line:#dde3ea;
+  --mn:#b45309; --ms:#0a7d46; --dt:#6d28d9; --nt:#1a56c4;
+  --ok:#0a7d46; --ok-bg:#dcf5e7; --danger:#c62f27; --danger-bg:#fdeceb;
+  --warn:#9a6a00; --warn-bg:#fdf4e3;
+  --amp-accent:#0a7d46; --amp-accent-vivid:#00d968; --amp-ring:#11a35f; --amp-on-accent:#ffffff;
+  --sans:"Inter",ui-sans-serif,system-ui,"Segoe UI",Roboto,sans-serif;
+  --display:"Space Grotesk","Inter",ui-sans-serif,system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,"Cascadia Code",Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#0b0f14; --surface:#141a22; --surface-2:#1b232d; --surface-3:#232d39;
+    --ink:#e9eef4; --muted:#a7b4c3; --faint:#7d8b9c; --line:#263140;
+    --mn:#f0a35a; --ms:#17d07c; --dt:#a78bfa; --nt:#74a6ff;
+    --ok:#17d07c; --ok-bg:#10281c; --danger:#ff6f64; --danger-bg:#3a1a18;
+    --warn:#e6b45a; --warn-bg:#332916;
+    --amp-accent:#17d07c; --amp-accent-vivid:#17d07c; --amp-ring:#17d07c; --amp-on-accent:#07130c;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0b0f14; --surface:#141a22; --surface-2:#1b232d; --surface-3:#232d39;
+  --ink:#e9eef4; --muted:#a7b4c3; --faint:#7d8b9c; --line:#263140;
+  --mn:#f0a35a; --ms:#17d07c; --dt:#a78bfa; --nt:#74a6ff;
+  --ok:#17d07c; --ok-bg:#10281c; --danger:#ff6f64; --danger-bg:#3a1a18;
+  --warn:#e6b45a; --warn-bg:#332916;
+  --amp-accent:#17d07c; --amp-accent-vivid:#17d07c; --amp-ring:#17d07c; --amp-on-accent:#07130c;
+}
+h1,h2,h3,.card h2,.nav-head b{font-family:var(--display); letter-spacing:-.015em}
+.pfill{background:linear-gradient(90deg,var(--amp-accent),var(--amp-accent-vivid))}
+:focus-visible{outline-color:var(--amp-ring)}
+
+/* Знак школы в шапке: ведёт на ampschool.ru. Внутри платформы (в рамке)
+   знак не нужен — школа и так вокруг, поэтому скрываем. */
+.amp-mark{flex:none; display:inline-flex; align-items:center; gap:8px; text-decoration:none; color:var(--ink)}
+.amp-mark i{font:700 11px/1 var(--display); font-style:normal; letter-spacing:.02em; color:var(--amp-on-accent); background:var(--amp-accent); border-radius:8px; width:34px; height:34px; display:grid; place-items:center}
+.amp-mark span{font:600 12px/1.2 var(--sans); color:var(--muted); max-width:72px}
+.amp-mark:hover i{filter:brightness(1.08)}
+.amp-mark:focus-visible{outline:2px solid var(--amp-ring); outline-offset:3px; border-radius:8px}
+html.amp-embedded .amp-mark{display:none}
+@media (max-width:760px){ .amp-mark span{display:none} .amp-mark i{width:30px; height:30px} }
+</style>
+<script>try{if(window.self!==window.top)document.documentElement.classList.add("amp-embedded")}catch(e){document.documentElement.classList.add("amp-embedded")}</script>
 </head>
 <body>
 <header class="top">
   <div class="head-inner">
     <div class="topbar">
       <button class="navbtn" id="nav-open" type="button" aria-controls="nav-drawer" aria-expanded="false"><span class="ham" aria-hidden="true">☰</span><span class="nl">Разделы</span></button>
+      <a class="amp-mark" href="https://ampschool.ru/practice" title="Школа AMP — все тренажёры"><i>AMP</i><span>Школа мышления</span></a>
       <div class="brand">
         <h1>Архитектура ПО</h1>
         <p class="sub">Интерактивный тренажёр — режем монолит, запускаем сагу, роняем сервисы и смотрим, что будет</p>
